@@ -52,7 +52,7 @@ def install(enable=False, **kwargs):
             cfg.setdefault("NotebookApp", {})
             .setdefault("server_extensions", [])
         )
-        if "condaenvs" not in server_extensions:
+        if "condaenvs.nbextension" not in server_extensions:
             cfg["NotebookApp"]["server_extensions"] += ["condaenvs.nbextension"]
 
         cm.update("jupyter_notebook_config", cfg)
