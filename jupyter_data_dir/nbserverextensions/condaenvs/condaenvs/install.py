@@ -5,7 +5,6 @@
 
 import argparse
 import os
-import subprocess
 from os.path import abspath, dirname, exists, join
 from pprint import pprint
 try:
@@ -13,9 +12,9 @@ try:
 except ImportError:
     from funcsigs import signature
 
-from jupyter_core.paths import jupyter_config_dir, ENV_CONFIG_PATH
+from jupyter_core.paths import jupyter_config_dir
 
-def install(enable=False, **kwargs):
+def install(enable=False, disable=False, **kwargs):
     """Install the nbextension assets and optionally enables the
        nbextension and server extension for every run.
 
@@ -42,6 +41,8 @@ def install(enable=False, **kwargs):
             if not exists(path):
                 print("Making directory", path)
                 os.makedirs(path)
+        else:
+            path = jupyter_config_dir()
 
         cm = ConfigManager(config_dir=path)
         print("Enabling server component in", cm.config_dir)
@@ -60,15 +61,7 @@ def install(enable=False, **kwargs):
         print("New config...")
         pprint(cm.get("jupyter_notebook_config"))
 
-        try:
-            subprocess.call(["conda", "info", "--root"])
-            print("conda detected")
-            _jupyter_config_dir = ENV_CONFIG_PATH[0]
-        except OSError as e:
-            print("conda not detected")
-            _jupyter_config_dir = jupyter_config_dir()
-
-        cm = ConfigManager(config_dir=join(_jupyter_config_dir, "nbconfig"))
+        cm = ConfigManager(config_dir=join(path, "nbconfig"))
         print(
             "Enabling nbextension at notebook launch in",
             cm.config_dir
@@ -86,6 +79,49 @@ def install(enable=False, **kwargs):
             }
         )
 
+        print("New config...")
+        pprint(cm.get("tree"))
+
+    if disable:
+        if "prefix" in kwargs:
+            path = join(kwargs["prefix"], "etc", "jupyter")
+        else:
+            path = jupyter_config_dir()
+
+        cm = ConfigManager(config_dir=path)
+        print("Disabling server component in", cm.config_dir)
+        cfg = cm.get("jupyter_notebook_config")
+        print("Existing config...")
+        pprint(cfg)
+
+        server_extensions = cfg["NotebookApp"]["server_extensions"]
+
+        if "condaenvs.nbextension" in server_extensions:
+            server_extensions.remove("condaenvs.nbextension")
+
+        cm.update("jupyter_notebook_config", cfg)
+        print("New config...")
+        pprint(cm.get("jupyter_notebook_config"))
+
+        cm = ConfigManager(config_dir=join(path, "nbconfig"))
+        print(
+            "Disabling nbextension at notebook launch in",
+            cm.config_dir
+        )
+
+        cfg = cm.get("tree")
+        print("Existing config...")
+        pprint(cfg)
+
+        nb_extensions = list(cfg["load_extensions"].keys())
+
+        if "condaenvs/main" in nb_extensions:
+            cfg["load_extensions"].pop("condaenvs/main")
+
+        cm.set("tree", cfg)
+        print("New config...")
+        pprint(cm.get("tree"))
+
 
 if __name__ == '__main__':
     from notebook.nbextensions import install_nbextension
@@ -97,6 +133,10 @@ if __name__ == '__main__':
     parser.add_argument(
         "-e", "--enable",
         help="Automatically load server and nbextension on notebook launch",
+        action="store_true")
+    parser.add_argument(
+        "-d", "--disable",
+        help="Remove nbconfig to load server and nbextension on notebook launch",
         action="store_true")
 
     default_kwargs = dict(
