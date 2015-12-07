@@ -1,6 +1,6 @@
 package:
   name: condaenvs
-  version: "0.0.1dev"
+  version: "0.1.0dev"
 
 build:
   number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
