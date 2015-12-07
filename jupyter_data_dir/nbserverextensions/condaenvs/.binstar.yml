@@ -1,0 +1,18 @@
+package: condaenvs
+
+platform:
+  - linux-64
+  - osx-64
+
+engine:
+  - python=2.7
+  - python=3.4
+
+install:
+  - conda build conda.recipe
+  - conda install condaenvs --use-local
+
+script:
+  - conda build --no-test ./conda.recipe/
+
+build_targets: conda
