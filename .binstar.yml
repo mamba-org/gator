@@ -10,6 +10,7 @@ engine:
 
 install:
   - conda build conda.recipe
+  - conda install -c anaconda-notebook nbwrapper
   - conda install nb_conda --use-local
 
 script:
