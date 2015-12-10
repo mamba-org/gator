@@ -12,6 +12,6 @@ engine:
   - python=3.5
 
 script:
-  - conda build --quiet conda.recipe
+  - conda build --quiet -c anaconda-notebook conda.recipe
 
 build_targets: conda

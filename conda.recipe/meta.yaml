@@ -13,6 +13,17 @@ requirements:
     - python
     - nbwrapper
 
+test:
+  requires:
+    - mock
+    - notebook
+    - python
+    - requests
+    - nose
+
+  commands:
+    - nosetests -w ${SRC_DIR}
+
 source:
   path: ../
 
