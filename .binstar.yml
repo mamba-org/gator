@@ -1,4 +1,4 @@
-package: condaenvs
+package: nb_conda
 
 platform:
   - linux-64
@@ -10,7 +10,7 @@ engine:
 
 install:
   - conda build conda.recipe
-  - conda install condaenvs --use-local
+  - conda install nb_conda --use-local
 
 script:
   - conda build --no-test ./conda.recipe/

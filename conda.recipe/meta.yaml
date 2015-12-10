@@ -1,5 +1,5 @@
 package:
-  name: condaenvs
+  name: nb_conda
   version: "0.1.0dev"
 
 build:

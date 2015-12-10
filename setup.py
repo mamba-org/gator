@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 # the name of the project
-name = 'condaenvs'
+name = 'nb_conda'
 
 #-----------------------------------------------------------------------------
 # Minimal Python version sanity check
@@ -38,7 +38,7 @@ for d, _, _ in os.walk(pjoin(here, name)):
     if os.path.exists(pjoin(d, '__init__.py')):
         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
-package_data = {'condaenvs.nbextension': [pjoin('static', '*')]}
+package_data = {'nb_conda.nbextension': [pjoin('static', '*')]}
 
 version_ns = {}
 with open(pjoin(here, name, '_version.py')) as f:

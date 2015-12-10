@@ -11,10 +11,10 @@ define(function(require) {
             $('<link>')
             .attr('rel', 'stylesheet')
             .attr('type', 'text/css')
-            .attr('href', base_url + 'nbextensions/condaenvs/conda.css')
+            .attr('href', base_url + 'nbextensions/nb_conda/conda.css')
         );
 
-        $.ajax(base_url + 'nbextensions/condaenvs/tab.html', {
+        $.ajax(base_url + 'nbextensions/nb_conda/tab.html', {
             dataType: 'html',
             success: function(env_html, status, xhr) {
                 // Configure Conda tab
