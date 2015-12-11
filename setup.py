@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 # the name of the project
-name = 'condaenvs'
+name = 'nb_conda'
 
 #-----------------------------------------------------------------------------
 # Minimal Python version sanity check
@@ -15,8 +15,8 @@ name = 'condaenvs'
 import sys
 
 v = sys.version_info
-if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,4)):
-    error = "ERROR: %s requires Python version 2.7 or 3.4 or above." % name
+if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
+    error = "ERROR: %s requires Python version 2.7 or 3.3 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
 
@@ -38,7 +38,7 @@ for d, _, _ in os.walk(pjoin(here, name)):
     if os.path.exists(pjoin(d, '__init__.py')):
         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
-package_data = {'condaenvs.nbextension': [pjoin('static', '*')]}
+package_data = {'nb_conda.nbextension': [pjoin('static', '*')]}
 
 version_ns = {}
 with open(pjoin(here, name, '_version.py')) as f:

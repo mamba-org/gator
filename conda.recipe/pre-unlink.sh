@@ -1,1 +1,1 @@
-"${PREFIX}/bin/python" -m condaenvs.install --disable --prefix="${PREFIX}"
+"${PREFIX}/bin/python" -m nb_conda.setup --disable --prefix="${PREFIX}"

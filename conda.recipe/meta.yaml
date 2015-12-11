@@ -1,6 +1,6 @@
 package:
-  name: condaenvs
-  version: "0.1.0dev"
+  name: nb_conda
+  version: "0.1.0"
 
 build:
   number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
@@ -12,6 +12,17 @@ requirements:
   run:
     - python
     - nbwrapper
+
+test:
+  requires:
+    - mock
+    - notebook
+    - python
+    - requests
+    - nose
+
+  commands:
+    - nosetests -w ${SRC_DIR}
 
 source:
   path: ../

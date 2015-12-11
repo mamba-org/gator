@@ -11,10 +11,10 @@ define(function(require) {
             $('<link>')
             .attr('rel', 'stylesheet')
             .attr('type', 'text/css')
-            .attr('href', base_url + 'nbextensions/condaenvs/conda.css')
+            .attr('href', base_url + 'nbextensions/nb_conda/conda.css')
         );
 
-        $.ajax(base_url + 'nbextensions/condaenvs/tab.html', {
+        $.ajax(base_url + 'nbextensions/nb_conda/tab.html', {
             dataType: 'html',
             success: function(env_html, status, xhr) {
                 // Configure Conda tab
@@ -28,6 +28,9 @@ define(function(require) {
                         .text('Conda')
                         .click(function (e) {
                             window.history.pushState(null, null, '#conda');
+
+                            models.environments.load();
+                            models.available.load();
                         })
                     )
                 );
@@ -39,9 +42,6 @@ define(function(require) {
                 models.environments.view = views.EnvView;
                 models.available.view = views.AvailView;
                 models.installed.view = views.InstalledView;
-
-                models.environments.load();
-                models.available.load();
             }
         });
     }
