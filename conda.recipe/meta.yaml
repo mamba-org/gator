@@ -12,6 +12,7 @@ requirements:
   run:
     - python
     - nbwrapper
+    - nbsetuptools
 
 test:
   requires:
