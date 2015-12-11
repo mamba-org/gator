@@ -11,7 +11,7 @@ define([
         refresh: function() {}
     };
 
-    var base_url = IPython.notebook_list.base_url;
+    var base_url = (IPython.notebook_list || IPython.notebook).base_url;
 
     var environments = {
         all:      [],
