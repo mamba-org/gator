@@ -35,7 +35,7 @@ define(function(require) {
     function load_conda_view() {
         if($view.length === 0) {
             // Not loaded yet
-            $.ajax(base_url + 'nbextensions/condaenvs/tab.html', {
+            $.ajax(base_url + 'nbextensions/nb_conda/tab.html', {
                 dataType: 'html',
                 success: function(tab_html, status, xhr) {
                     // Load the 'conda tab', hide the Environments portion
@@ -92,10 +92,10 @@ define(function(require) {
             $('<link>')
             .attr('rel', 'stylesheet')
             .attr('type', 'text/css')
-            .attr('href', base_url + 'nbextensions/condaenvs/conda.css')
+            .attr('href', base_url + 'nbextensions/nb_conda/conda.css')
         );
 
-        $.ajax(base_url + 'nbextensions/condaenvs/menu.html', {
+        $.ajax(base_url + 'nbextensions/nb_conda/menu.html', {
             dataType: 'html',
             success: function(menu_html, status, xhr) {
                 // Configure Conda items in Kernel menu
