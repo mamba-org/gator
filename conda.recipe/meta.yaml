@@ -1,6 +1,6 @@
 package:
   name: nb_conda
-  version: "0.1.0"
+  version: "0.1.1"
 
 build:
   number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
@@ -11,8 +11,9 @@ requirements:
     - python
   run:
     - python
-    - nbwrapper
+    - nb_config_manager
     - nbsetuptools
+    - nb_conda_kernels
 
 test:
   requires:
