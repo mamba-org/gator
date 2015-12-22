@@ -11,7 +11,7 @@ requirements:
     - python
   run:
     - python
-    - nbwrapper
+    - nb_config_manager
     - nbsetuptools
 
 test:
