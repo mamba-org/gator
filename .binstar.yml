@@ -2,9 +2,9 @@ package: nb_conda
 
 platform:
   - linux-64
-  - linux-32
   - osx-64
   - win-64
+  - linux-32
   - win-32
 
 engine:
@@ -12,7 +12,10 @@ engine:
   - python=3.4
   - python=3.5
 
+install:
+  - conda config --add channels anaconda-nb-extensions
+
 script:
-  - conda build --quiet -c anaconda-notebook conda.recipe
+  - conda build --quiet conda.recipe
 
 build_targets: conda
