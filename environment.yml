@@ -1,0 +1,10 @@
+name: nb_conda
+channels:
+  - anaconda-nb-extensions
+dependencies:
+  - python
+  - nb_config_manager
+  - nbsetuptools
+  - nb_conda_kernels
+  - nose
+  - mock # [not py3]
