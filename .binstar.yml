@@ -22,6 +22,8 @@ build_targets: conda
 
 ---
 
-platform: win-32
+platform:
+  - win-32
+  - linux-32
 engine: python=2.7
 exclude: true
