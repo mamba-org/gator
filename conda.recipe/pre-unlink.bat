@@ -1,1 +1,1 @@
-"%PREFIX%\python" -m nb_conda.setup remove --prefix="%PREFIX%"
+"%PREFIX%\python.exe" -m nb_conda.setup remove --prefix="%PREFIX%"
