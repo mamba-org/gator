@@ -23,6 +23,7 @@ define(function(require) {
                     $('<li>')
                     .append(
                         $('<a>')
+                        .attr('id', 'conda_tab')
                         .attr('href', '#conda')
                         .attr('data-toggle', 'tab')
                         .text('Conda')
@@ -42,6 +43,10 @@ define(function(require) {
                 models.environments.view = views.EnvView;
                 models.available.view = views.AvailView;
                 models.installed.view = views.InstalledView;
+
+                if(window.location.hash === '#conda') {
+                    $('#conda_tab').click();
+                }
             }
         });
     }
