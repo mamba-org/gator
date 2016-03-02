@@ -57,15 +57,23 @@ define(function(require) {
                     // Also load environment list. Only need to do this once,
                     // then we'll know the current environment and it will
                     // also trigger a load of the installed packages.
+
                     models.environments.load().then(function() {
                         // Select the current environment for the running kernel.
-                        // This is dependent on behavior of the 'syncer'
+                        // This is dependent on behavior of the 'nb_conda_kernels'
                         // extension, which currently creates kernels with
-                        // the same name as the conda environment containing them.
-                        var current_env = IPython.notebook.kernel.name;
-                        if(current_env !== 'auto') {
-                            models.environments.select({ name: current_env });
+                        // names of the form 'Python [env_name]' or 'R [env_name]'
+                        var kernel_name = IPython.notebook.kernel.name;
+
+                        m = /\[(\w+)\]/.exec(kernel_name);
+                        if(m) {
+                            env_name = m[1];
                         }
+                        else {
+                            // old-style kernel names from nb_conda_kernels
+                            env_name = kernel_name;
+                        }
+                        models.environments.select({ name: env_name });
                     });
                     show_conda_view($view);
                 }
