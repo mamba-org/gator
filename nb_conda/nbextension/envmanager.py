@@ -8,15 +8,12 @@ import os
 from pkg_resources import parse_version
 from subprocess import check_output, CalledProcessError
 
-from tornado import web
-
 from traitlets.config.configurable import LoggingConfigurable
-from traitlets import Dict, Instance, Float
-from ipython_genutils import py3compat
+from traitlets import Dict
 
 log = logging.getLogger(__name__)
 
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 
 def pkg_info(s):
@@ -41,7 +38,7 @@ class EnvManager(LoggingConfigurable):
     @staticmethod
     def _execute(cmd, *args):
         cmdline = cmd.split() + list(args)
-        log.debug('command: %s', ' '.join(cmdline))
+        log.info('command: %s', ' '.join(cmdline))
 
         try:
             output = check_output(cmdline)
@@ -79,7 +76,7 @@ class EnvManager(LoggingConfigurable):
 
     def delete_env(self, env):
         output = self._execute('conda env remove -y -q --json -n', env)
-        output = '\n'.join(output.splitlines()[1:]) # discard 'Fetching package metadata...'
+        output = '\n'.join(output.splitlines()[1:])  # discard 'Fetching package metadata...'
         return json.loads(output)
 
     def export_env(self, env):
@@ -90,7 +87,7 @@ class EnvManager(LoggingConfigurable):
         return json.loads(output)
 
     def create_env(self, env, type):
-        packages = package_map[type];
+        packages = package_map[type]
         output = self._execute('conda create -y -q --json -n %(env)s %(packages)s' % locals())
         return json.loads(output)
 
@@ -115,12 +112,11 @@ class EnvManager(LoggingConfigurable):
                 # LINK entries are package-version-build /path/to/link num
                 return s.split(' ')[0]
 
-            package_versions = [link_pkg(link) for link in  data['actions'].get('LINK', [])]
+            package_versions = [link_pkg(link) for link in data['actions'].get('LINK', [])]
             return [pkg_info(pkg_version) for pkg_version in package_versions]
         else:
             # no action plan returned means everything is already up to date
             return []
-
 
     def install_packages(self, env, packages):
         output = self._execute('conda install -y -q --json -n', env, *packages)
@@ -157,4 +153,4 @@ class EnvManager(LoggingConfigurable):
                     max_version_entry = entry
 
             packages.append(max_version_entry)
-        return sorted(packages, key=lambda entry:entry.get('name'))
+        return sorted(packages, key=lambda entry: entry.get('name'))

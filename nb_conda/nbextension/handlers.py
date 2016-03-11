@@ -4,7 +4,6 @@
 import json
 import logging
 import os
-import sys
 
 from pkg_resources import parse_version
 from subprocess import Popen
@@ -14,21 +13,22 @@ from tornado import web
 
 from notebook.utils import url_path_join as ujoin
 from notebook.base.handlers import IPythonHandler
-from notebook.nbextensions import install_nbextension
-
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-
 
 from .envmanager import EnvManager, package_map
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+
+
 static = os.path.join(os.path.dirname(__file__), 'static')
+
 
 class EnvHandler(IPythonHandler):
 
     @property
     def env_manager(self):
         return self.settings['env_manager']
+
 
 class MainEnvHandler(EnvHandler):
 
@@ -140,18 +140,20 @@ class CondaSearcher(object):
 
                     packages.append(max_version_entry)
 
-                return sorted(packages, key=lambda entry:entry.get('name'))
+                return sorted(packages, key=lambda entry: entry.get('name'))
 
         else:
             # Spawn subprocess to get the data
             log.debug('Starting conda process')
             self.conda_temp = TemporaryFile(mode='w+')
-            self.conda_process = Popen('conda search --json'.split(), stdout=self.conda_temp, bufsize=4096)
+            cmdline = 'conda search --json'.split()
+            self.conda_process = Popen(cmdline, stdout=self.conda_temp, bufsize=4096)
             log.debug('Started: pid %s', self.conda_process.pid)
 
         return None
 
 searcher = CondaSearcher()
+
 
 class AvailablePackagesHandler(EnvHandler):
 
@@ -162,10 +164,11 @@ class AvailablePackagesHandler(EnvHandler):
         if data is None:
             # tell client to check back later
             self.clear()
-            self.set_status(202) # Accepted
+            self.set_status(202)  # Accepted
             self.finish('{}')
         else:
             self.finish(json.dumps(data))
+
 
 class SearchHandler(EnvHandler):
 
@@ -175,14 +178,13 @@ class SearchHandler(EnvHandler):
         self.finish(json.dumps(self.env_manager.package_search(q)))
 
 
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # URL to handler mappings
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 _env_action_regex = r"(?P<action>create|export|clone|delete)"
-_env_regex = r"(?P<env>[^\/]+)" # there is almost no text that is invalid
+_env_regex = r"(?P<env>[^\/]+)"  # there is almost no text that is invalid
 
 _pkg_regex = r"(?P<pkg>[^\/]+)"
 _pkg_action_regex = r"(?P<action>install|update|check|remove)"
