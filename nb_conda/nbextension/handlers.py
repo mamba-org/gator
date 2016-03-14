@@ -1,18 +1,20 @@
 # Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+# Tornado get and post handlers often have different args from their base class methods.
+# pylint: disable=W0221
+
 import json
 import logging
 import os
 
-from pkg_resources import parse_version
 from subprocess import Popen
 from tempfile import TemporaryFile
 
-from tornado import web
-
+from pkg_resources import parse_version
 from notebook.utils import url_path_join as ujoin
 from notebook.base.handlers import IPythonHandler
+from tornado import web
 
 from .envmanager import EnvManager, package_map
 
@@ -23,28 +25,28 @@ log.setLevel(logging.INFO)
 static = os.path.join(os.path.dirname(__file__), 'static')
 
 
-class EnvHandler(IPythonHandler):
+class EnvBaseHandler(IPythonHandler):
 
     @property
     def env_manager(self):
         return self.settings['env_manager']
 
 
-class MainEnvHandler(EnvHandler):
+class MainEnvHandler(EnvBaseHandler):
 
     @web.authenticated
     def get(self):
         self.finish(json.dumps(self.env_manager.list_envs()))
 
 
-class EnvHandler(EnvHandler):
+class EnvHandler(EnvBaseHandler):
 
     @web.authenticated
     def get(self, env):
         self.finish(json.dumps(self.env_manager.env_packages(env)))
 
 
-class EnvActionHandler(EnvHandler):
+class EnvActionHandler(EnvBaseHandler):
 
     @web.authenticated
     def get(self, env, action):
@@ -76,7 +78,7 @@ class EnvActionHandler(EnvHandler):
         self.finish(json.dumps(data))
 
 
-class EnvPkgActionHandler(EnvHandler):
+class EnvPkgActionHandler(EnvBaseHandler):
 
     @web.authenticated
     def post(self, env, action):
@@ -127,7 +129,7 @@ class CondaSearcher(object):
 
                 packages = []
 
-                for name, entries in data.items():
+                for entries in data.values():
                     max_version = None
                     max_version_entry = None
 
@@ -155,7 +157,7 @@ class CondaSearcher(object):
 searcher = CondaSearcher()
 
 
-class AvailablePackagesHandler(EnvHandler):
+class AvailablePackagesHandler(EnvBaseHandler):
 
     @web.authenticated
     def get(self):
@@ -170,7 +172,7 @@ class AvailablePackagesHandler(EnvHandler):
             self.finish(json.dumps(data))
 
 
-class SearchHandler(EnvHandler):
+class SearchHandler(EnvBaseHandler):
 
     @web.authenticated
     def get(self):
