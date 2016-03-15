@@ -1,51 +1,70 @@
-# Copyright (c) IPython Development Team.
-# Distributed under the terms of the Modified BSD License.
+"""
+# Copyright (c) 2015-2016 Continuum Analytics.
+# See LICENSE.txt for the license.
+"""
+
+# Tornado get and post handlers often have different args from their base class methods.
+# pylint: disable=W0221
 
 import json
 import logging
 import os
-import sys
 
-from pkg_resources import parse_version
 from subprocess import Popen
 from tempfile import TemporaryFile
 
-from tornado import web
-
+from pkg_resources import parse_version
 from notebook.utils import url_path_join as ujoin
 from notebook.base.handlers import IPythonHandler
-from notebook.nbextensions import install_nbextension
-
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-
+from tornado import web
 
 from .envmanager import EnvManager, package_map
 
+log = logging.getLogger(__name__)
+log_level = logging.DEBUG if os.environ.get('NB_CONDA_DEBUG') else logging.INFO
+log.setLevel(log_level)
+
+
 static = os.path.join(os.path.dirname(__file__), 'static')
 
-class EnvHandler(IPythonHandler):
 
+class EnvBaseHandler(IPythonHandler):
+    """
+    Base request handler class. Just maintains a reference to the
+    'env_manager' which implements all of the conda functions.
+    """
     @property
     def env_manager(self):
+        """Return our env_manager instance"""
         return self.settings['env_manager']
 
-class MainEnvHandler(EnvHandler):
 
+class MainEnvHandler(EnvBaseHandler):
+    """
+    Handler for `GET /environments` which lists the environments.
+    """
     @web.authenticated
     def get(self):
         self.finish(json.dumps(self.env_manager.list_envs()))
 
 
-class EnvHandler(EnvHandler):
-
+class EnvHandler(EnvBaseHandler):
+    """
+    Handler for `GET /environments/<name>` which lists
+    the packages in the specified environment.
+    """
     @web.authenticated
     def get(self, env):
         self.finish(json.dumps(self.env_manager.env_packages(env)))
 
 
-class EnvActionHandler(EnvHandler):
-
+class EnvActionHandler(EnvBaseHandler):
+    """
+    Handler for `GET /environments/<name>/export` which
+    exports the specified environment, and
+    `POST /environments/<name>/{delete,clone,create}`
+    which performs the requested action on the environment.
+    """
     @web.authenticated
     def get(self, env, action):
         if action == 'export':
@@ -64,9 +83,6 @@ class EnvActionHandler(EnvHandler):
             if not name:
                 name = env + '-copy'
             data = self.env_manager.clone_env(env, name)
-        elif action == 'update':
-            # TODO - some kind of 'check for updates/apply updates' workflow
-            raise NotImplementedError
         elif action == 'create':
             env_type = self.get_argument('type', default=None)
             if env_type not in package_map:
@@ -76,8 +92,11 @@ class EnvActionHandler(EnvHandler):
         self.finish(json.dumps(data))
 
 
-class EnvPkgActionHandler(EnvHandler):
-
+class EnvPkgActionHandler(EnvBaseHandler):
+    """
+    Handler for `POST /environments/<name>/packages/{install,update,check,remove}`
+    which performs the requested action on the packages in the specified environment.
+    """
     @web.authenticated
     def post(self, env, action):
         log.debug('req body: %s', self.request.body)
@@ -100,11 +119,23 @@ class EnvPkgActionHandler(EnvHandler):
 
 
 class CondaSearcher(object):
+    """
+    Helper object that runs `conda search` to retrieve the
+    list of packages available in the current conda channels.
+    """
     def __init__(self):
         self.conda_process = None
         self.conda_temp = None
 
     def list_available(self):
+        """
+        List the available conda packages by kicking off a background
+        conda process. Will return None. Call again to poll the process
+        status. When the process completes, a list of packages will be
+        returned upon success. On failure, the results of `conda search --json`
+        will be returned (this will be a dict containing error information).
+        TODO - break up this method.
+        """
         if self.conda_process is not None:
             # already running, check for completion
             log.debug('Already running: pid %s', self.conda_process.pid)
@@ -127,7 +158,7 @@ class CondaSearcher(object):
 
                 packages = []
 
-                for name, entries in data.items():
+                for entries in data.values():
                     max_version = None
                     max_version_entry = None
 
@@ -140,21 +171,26 @@ class CondaSearcher(object):
 
                     packages.append(max_version_entry)
 
-                return sorted(packages, key=lambda entry:entry.get('name'))
+                return sorted(packages, key=lambda entry: entry.get('name'))
 
         else:
             # Spawn subprocess to get the data
             log.debug('Starting conda process')
             self.conda_temp = TemporaryFile(mode='w+')
-            self.conda_process = Popen('conda search --json'.split(), stdout=self.conda_temp, bufsize=4096)
+            cmdline = 'conda search --json'.split()
+            self.conda_process = Popen(cmdline, stdout=self.conda_temp, bufsize=4096)
             log.debug('Started: pid %s', self.conda_process.pid)
 
         return None
 
 searcher = CondaSearcher()
 
-class AvailablePackagesHandler(EnvHandler):
 
+class AvailablePackagesHandler(EnvBaseHandler):
+    """
+    Handler for `GET /packages/available`, which uses CondaSearcher
+    to list the packages available for installation.
+    """
     @web.authenticated
     def get(self):
         data = searcher.list_available()
@@ -162,27 +198,31 @@ class AvailablePackagesHandler(EnvHandler):
         if data is None:
             # tell client to check back later
             self.clear()
-            self.set_status(202) # Accepted
+            self.set_status(202)  # Accepted
             self.finish('{}')
         else:
             self.finish(json.dumps(data))
 
-class SearchHandler(EnvHandler):
 
+class SearchHandler(EnvBaseHandler):
+    """
+    Handler for `GET /packages/search?q=<query>`, which uses CondaSearcher
+    to search the available conda packages. Note, this is pretty slow
+    and the nb_conda UI doesn't call it.
+    """
     @web.authenticated
     def get(self):
         q = self.get_argument('q')
         self.finish(json.dumps(self.env_manager.package_search(q)))
 
 
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # URL to handler mappings
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 _env_action_regex = r"(?P<action>create|export|clone|delete)"
-_env_regex = r"(?P<env>[^\/]+)" # there is almost no text that is invalid
+_env_regex = r"(?P<env>[^\/]+)"  # there is almost no text that is invalid
 
 _pkg_regex = r"(?P<pkg>[^\/]+)"
 _pkg_action_regex = r"(?P<action>install|update|check|remove)"
