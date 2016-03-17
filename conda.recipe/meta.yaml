@@ -11,8 +11,6 @@ requirements:
     - python
   run:
     - python
-    - nb_config_manager
-    - nbsetuptools
     - nb_conda_kernels
 
 test:
