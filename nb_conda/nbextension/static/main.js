@@ -1,4 +1,5 @@
 define(function(require) {
+    "use strict";
     var $ = require('jquery');
     var IPython = require('base/js/namespace');
     var models = require('./models');
@@ -65,7 +66,7 @@ define(function(require) {
                         // names of the form 'Python [env_name]' or 'R [env_name]'
                         var kernel_name = IPython.notebook.kernel.name;
 
-                        m = /\[(\w+)\]/.exec(kernel_name);
+                        var m = /\[(.+)\]$/.exec(kernel_name);
                         if(m) {
                             env_name = m[1];
                         }
