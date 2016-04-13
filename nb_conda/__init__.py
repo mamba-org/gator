@@ -5,7 +5,11 @@ def _jupyter_nbextension_paths():
     return [dict(section="notebook",
                  src="nbextension/static",
                  dest="nb_conda",
-                 require="nb_conda/main")]
+                 require="nb_conda/main"),
+            dict(section="tree",
+                 src="nbextension/static",
+                 dest="nb_conda",
+                 require="nb_conda/tree")]
 
 
 def _jupyter_server_extension_paths():
