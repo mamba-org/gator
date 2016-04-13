@@ -9,14 +9,16 @@ build:
 requirements:
   build:
     - python
+    - notebook >4.1
   run:
     - python
+    - notebook >4.1
     - nb_conda_kernels
 
 test:
   requires:
     - mock
-    - notebook
+    - notebook >4.1
     - python
     - requests
     - nose
