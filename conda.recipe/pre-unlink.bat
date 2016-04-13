@@ -1,4 +1,4 @@
-"%PREFIX%\Scripts\jupyter" nbextension disable --py "%PKG_NAME%" --sys-prefix
-"%PREFIX%\Scripts\jupyter" nbextension uninstall --py "%PKG_NAME%" --sys-prefix
-"%PREFIX%\Scripts\jupyter" serverextension disable --py "%PKG_NAME%" --sys-prefix
+"%PREFIX%\Scripts\jupyter" nbextension disable --sys-prefix --py "%PKG_NAME%"
+"%PREFIX%\Scripts\jupyter" nbextension uninstall --sys-prefix  --py "%PKG_NAME%"
+"%PREFIX%\Scripts\jupyter" serverextension disable --sys-prefix --py "%PKG_NAME%"
 errorlevel 1 exit 1
