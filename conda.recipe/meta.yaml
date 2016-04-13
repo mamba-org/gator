@@ -16,7 +16,7 @@ requirements:
 test:
   requires:
     - mock
-    - notebook >4.1
+    - notebook
     - python
     - requests
     - nose
