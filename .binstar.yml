@@ -4,8 +4,6 @@ platform:
   - linux-64
   - osx-64
   - win-64
-  # - linux-32
-  # - win-32
 
 engine:
   - python=2.7
@@ -15,8 +13,7 @@ engine:
 script:
   - >
     conda build conda.recipe
-    -c anaconda-nb-extensions/label/dev
+    -c anaconda-nb-extensions
     -c javascript
-
 
 build_targets: conda
