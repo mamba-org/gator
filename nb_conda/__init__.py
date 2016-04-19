@@ -1,16 +1,18 @@
+# flake8: noqa
 from ._version import version_info, __version__
+from .handlers import load_jupyter_server_extension
 
 
 def _jupyter_nbextension_paths():
     return [dict(section="notebook",
-                 src="nbextension/static",
+                 src="static",
                  dest="nb_conda",
                  require="nb_conda/main"),
             dict(section="tree",
-                 src="nbextension/static",
+                 src="static",
                  dest="nb_conda",
                  require="nb_conda/tree")]
 
 
 def _jupyter_server_extension_paths():
-    return [dict(module='nb_conda.nbextension')]
+    return [dict(module="nb_conda")]
