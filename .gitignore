@@ -56,3 +56,6 @@ docs/_build/
 # PyBuilder
 target/
 .ipynb_checkpoints/
+*.xunit.xml
+screenshots/
+node_modules/

@@ -11,3 +11,4 @@ dependencies:
   - coverage
   - flake8
   - nodejs
+  - requests
