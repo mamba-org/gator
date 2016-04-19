@@ -1,0 +1,34 @@
+{
+  "name": "nb_conda",
+  "version": "1.0.0",
+  "description": "Development tools for nb_conda",
+  "main": "index.js",
+  "scripts": {
+    "test": "python setup.py nosetests",
+    "lint": "flake8 setup.py nb_conda"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anaconda-Platform/nb_conda.git"
+  },
+  "author": "Continuum Analytics",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/Anaconda-Platform/nb_conda/issues"
+  },
+  "homepage": "https://github.com/Anaconda-Platform/nb_conda",
+  "devDependencies": {
+    "casperjs": "1.1.0-beta5",
+    "eslint": "^1.10.3",
+    "phantomjs": "<2",
+    "watch": "^0.17.1"
+  },
+  "eslintConfig": {
+    "strict": true,
+    "env": {
+      "browser": true,
+      "node": true,
+      "phantomjs": true
+    }
+  }
+}

@@ -1,2 +1,2 @@
-"${PREFIX}/bin/jupyter" nbextension disable --sys-prefix --py "${PKG_NAME}"
-"${PREFIX}/bin/jupyter" serverextension disable --sys-prefix --py "${PKG_NAME}"
+"${PREFIX}/bin/jupyter-nbextension" disable nb_conda --py --sys-prefix
+"${PREFIX}/bin/jupyter-serverextension" disable nb_conda --py --sys-prefix
