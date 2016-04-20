@@ -4,7 +4,7 @@
   "description": "Development tools for nb_conda",
   "main": "index.js",
   "scripts": {
-    "test": "python -m nose nb_conda_kernels",
+    "test": "python -m nose nb_conda",
     "lint": "flake8 setup.py nb_conda"
   },
   "repository": {
