@@ -1,1 +1,2 @@
-"${PREFIX}/bin/python" -m nb_conda.setup install --enable --prefix="${PREFIX}"
+"${PREFIX}/bin/jupyter-nbextension" enable nb_conda --py --sys-prefix
+"${PREFIX}/bin/jupyter-serverextension" enable nb_conda --py --sys-prefix

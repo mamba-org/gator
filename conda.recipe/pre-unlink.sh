@@ -1,1 +1,2 @@
-"${PREFIX}/bin/python" -m nb_conda.setup remove --prefix="${PREFIX}"
+"${PREFIX}/bin/jupyter-nbextension" disable nb_conda --py --sys-prefix
+"${PREFIX}/bin/jupyter-serverextension" disable nb_conda --py --sys-prefix

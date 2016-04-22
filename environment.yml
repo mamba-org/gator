@@ -1,10 +1,14 @@
 name: nb_conda
 channels:
+  - anaconda-nb-extensions/label/dev
   - anaconda-nb-extensions
+  - javascript
 dependencies:
   - python
-  - nb_config_manager
-  - nbsetuptools
   - nb_conda_kernels
   - nose
-  - mock # [not py3]
+  - mock
+  - coverage
+  - flake8
+  - nodejs
+  - requests
