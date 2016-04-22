@@ -64,7 +64,8 @@ define(function(require) {
                         // This is dependent on behavior of the 'nb_conda_kernels'
                         // extension, which currently creates kernels with
                         // names of the form 'Python [env_name]' or 'R [env_name]'
-                        var kernel_name = IPython.notebook.kernel.name;
+                        var kernel_name = IPython.notebook.kernel.name,
+                            env_name;
 
                         var m = /\[(.+)\]$/.exec(kernel_name);
                         if(m) {
