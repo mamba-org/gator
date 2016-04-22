@@ -23,9 +23,9 @@ You can click on the name of an environment to select it. That will allow you to
 There are two ways to create an environment:
 
 * Create a new environment
-Use the New Environment button at the top of the page, and select `Python 2`, `Python 3`, or `R` to create a 
-base environment with the corresponding packages. Note that if you want to run a 
-Jupyter python kernel in the new environment, you must also install the `ipykernel` 
+Use the New Environment button at the top of the page, and select `Python 2`, `Python 3`, or `R` to create a
+base environment with the corresponding packages. Note that if you want to run a
+Jupyter python kernel in the new environment, you must also install the `ipykernel`
 package in the environment.
 
 * Clone an existing environment
@@ -36,6 +36,11 @@ new environment.
 ## Conda in the Notebook view
 
 This extension adds a Conda Packages item to the Kernel menu. Selecting this item displays
-the list of Conda packages in the environment associated with the running kernel, and the 
+the list of Conda packages in the environment associated with the running kernel, and the
 list of available packages. You can perform the same actions as in the Conda tab, but only
 against the current environment.
+
+## Changelog
+
+### 1.0.0
+- Update to notebook 4.2
