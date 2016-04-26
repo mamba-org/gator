@@ -32,8 +32,6 @@ test:
     - notebook >=4.2.0
     - python
     - requests
-    - npm # [linux32]
-    - npm # [win32]
     - fontconfig # [linux]
     - mock # [py2k]
 
