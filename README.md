@@ -42,5 +42,8 @@ against the current environment.
 
 ## Changelog
 
+### 1.0.1
+- minor build changes
+
 ### 1.0.0
 - Update to notebook 4.2

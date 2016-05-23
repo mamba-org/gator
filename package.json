@@ -1,6 +1,6 @@
 {
   "name": "nb_conda",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Development tools for nb_conda",
   "main": "index.js",
   "scripts": {

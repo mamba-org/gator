@@ -247,3 +247,4 @@ def load_jupyter_server_extension(nbapp):
         (ujoin(base_url, pat), handler)
         for pat, handler in default_handlers
     ])
+    nbapp.log.info("[nb_conda] enabled")
