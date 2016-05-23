@@ -12,12 +12,12 @@ build:
 
 requirements:
   build:
-    - python
     - notebook >=4.2
+    - python 2.7*|3.4*|3.5*
   run:
-    - python
-    - notebook >=4.2
     - nb_conda_kernels
+    - notebook >=4.2
+    - python 2.7*|3.4*|3.5*
 
 test:
   files:
@@ -30,10 +30,8 @@ test:
     - nodejs
     - nose
     - notebook >=4.2.0
-    - python
+    - python 2.7*|3.4*|3.5*
     - requests
-    - npm # [linux32]
-    - npm # [win32]
     - fontconfig # [linux]
     - mock # [py2k]
 

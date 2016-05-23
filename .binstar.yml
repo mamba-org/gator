@@ -1,8 +1,10 @@
 package: nb_conda
 
 platform:
+  - linux-32
   - linux-64
   - osx-64
+  - win-32
   - win-64
 
 engine:
@@ -11,6 +13,6 @@ engine:
   - python=3.5
 
 script:
-  - conda build conda.recipe -c anaconda-nb-extensions -c javascript
+  - conda build conda.recipe -c anaconda-nb-extensions
 
 build_targets: conda
