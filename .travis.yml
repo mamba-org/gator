@@ -30,7 +30,6 @@ install:
   - npm install
 
 script:
-  - npm run lint
   - python setup.py develop
   - jupyter nbextension install nb_conda --py --sys-prefix --symlink
   - jupyter nbextension enable nb_conda --py --sys-prefix
