@@ -25,6 +25,7 @@ install:
   - conda create -n nb_conda python=$TRAVIS_PYTHON_VERSION
   - conda env update
   - source activate nb_conda
+  - conda install python-coveralls
   - npm install
 
 script:
