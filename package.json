@@ -18,9 +18,9 @@
   },
   "homepage": "https://github.com/Anaconda-Platform/nb_conda",
   "devDependencies": {
-    "casperjs": "1.1.0-beta5",
+    "casperjs": "^1.1.1",
     "eslint": "^1.10.3",
-    "phantomjs": "<2",
+    "phantomjs-prebuilt": "^2.1.7",
     "watch": "^0.17.1"
   },
   "eslintConfig": {
