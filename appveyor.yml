@@ -50,9 +50,9 @@ install:
     - cmd: set PYTHONUNBUFFERED=1
     - cmd: conda config --add channels conda-forge
     - cmd: conda info
-    - cmd: conda create -n nbpresent "%PY_CONDITION%"
+    - cmd: conda create -n nb_conda "%PY_CONDITION%"
     - cmd: conda env update
-    - cmd: activate nbpresent
+    - cmd: activate nb_conda
     - cmd: npm install
 
 # Skip .NET project specific build phase.
@@ -60,7 +60,7 @@ build: off
 
 test_script:
     - cmd: python setup.py develop
-    - cmd: jupyter-nbextension install nbpresent --py --sys-prefix
-    - cmd: jupyter-nbextension enable nbpresent --py --sys-prefix
-    - cmd: jupyter-serverextension enable nbpresent --py --sys-prefix
+    - cmd: jupyter nbextension install nb_conda --py --sys-prefix
+    - cmd: jupyter nbextension enable nb_conda --py --sys-prefix
+    - cmd: jupyter serverextension enable nb_conda --py --sys-prefix
     - cmd: npm run test
