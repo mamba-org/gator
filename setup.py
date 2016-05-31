@@ -10,7 +10,7 @@ with open(join('nb_conda', '_version.py')) as version:
 setuptools.setup(
     name="nb_conda",
     version=__version__,
-    url="https://github.com/Anaconda-Platform/nb_conda_kernels",
+    url="https://github.com/Anaconda-Platform/nb_conda",
     author="Continuum Analytics",
     description="Manage your conda environments from the Jupyter Notebook",
     long_description=open('README.md').read(),

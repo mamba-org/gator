@@ -1,4 +1,8 @@
 # nb_conda
+[![Install with conda](https://anaconda.org/conda-forge/nb_conda/badges/installer/conda.svg
+)](https://anaconda.org/conda-forge/nb_conda)
+[![Build Status](https://travis-ci.org/Anaconda-Platform/nb_conda.svg)](https://travis-ci.org/Anaconda-Platform/nb_conda) [![Build status](https://ci.appveyor.com/api/projects/status/j999v076nwgwppwm/branch/master?svg=true)](https://ci.appveyor.com/project/bollwyvl/nb-conda/branch/master) [![Coverage Status](https://coveralls.io/repos/github/Anaconda-Platform/nb_conda/badge.svg?branch=master)](https://coveralls.io/github/Anaconda-Platform/nb_conda?branch=master)
+
 Provides Conda environment and package access extension from within Jupyter.
 
 ## Conda tab in the Jupyter file browser
@@ -41,6 +45,9 @@ list of available packages. You can perform the same actions as in the Conda tab
 against the current environment.
 
 ## Changelog
+
+### 1.1.0
+- fix usage in root environment
 
 ### 1.0.1
 - minor build changes

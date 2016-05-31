@@ -1,7 +1,7 @@
 name: nb_conda
 channels:
   - conda-forge
-  - anaconda-nb-extensions
+  - defaults
 dependencies:
   - coverage
   - flake8
@@ -11,3 +11,4 @@ dependencies:
   - nose
   - python
   - requests
+  - notebook >=4.2.0

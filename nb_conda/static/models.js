@@ -113,6 +113,11 @@ define([
     function conda_env_action(env, action, on_success, on_error, data) {
         // Helper function to access the /environments/ENV/ACTION endpoint
 
+        // pre-condition names that may have come from nb_conda_kernels
+        if(env.name === "Root"){
+            env.name = "root";
+        }
+
         var settings = common.AjaxSettings({
             data:    data || {},
             type:    'POST',
