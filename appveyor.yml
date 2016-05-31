@@ -60,7 +60,7 @@ build: off
 
 test_script:
     - cmd: python setup.py develop
-    - cmd: jupyter nbextension install nbpresent --py --sys-prefix
-    - cmd: jupyter nbextension enable nbpresent --py --sys-prefix
-    - cmd: jupyter serverextension enable nbpresent --py --sys-prefix
+    - cmd: jupyter-nbextension install nbpresent --py --sys-prefix
+    - cmd: jupyter-nbextension enable nbpresent --py --sys-prefix
+    - cmd: jupyter-serverextension enable nbpresent --py --sys-prefix
     - cmd: npm run test
