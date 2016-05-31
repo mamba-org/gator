@@ -46,6 +46,9 @@ against the current environment.
 
 ## Changelog
 
+### 1.1.0
+- fix usage in root environment
+
 ### 1.0.1
 - minor build changes
 
