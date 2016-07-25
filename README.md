@@ -44,7 +44,22 @@ the list of Conda packages in the environment associated with the running kernel
 list of available packages. You can perform the same actions as in the Conda tab, but only
 against the current environment.
 
+## Development
+
+```shell
+conda create -n nb_conda python=YOUR_FAVORITE_PYTHON
+conda install -n nb_conda --file requirements.txt -c conda-forge
+source activate nb_conda
+python setup.py develop
+jupyter nbextension install nb_conda --py --sys-prefix --symlink
+jupyter nbextension enable nb_conda --py --sys-prefix
+jupyter serverextension enable nb_conda --py --sys-prefix
+```
+
 ## Changelog
+
+### 1.2.0
+- update to new nb_conda_kernels naming scheme
 
 ### 1.1.0
 - fix usage in root environment
