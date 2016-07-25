@@ -67,9 +67,9 @@ define(function(require) {
                         var kernel_name = IPython.notebook.kernel.name,
                             env_name;
 
-                        var m = /\[(.+)\]$/.exec(kernel_name);
+                        var m = /^conda-(env-)?(.+?)(-[^\-]*)?$/.exec(kernel_name);
                         if(m) {
-                            env_name = m[1];
+                            env_name = m[2];
                         }
                         else {
                             // old-style kernel names from nb_conda_kernels
