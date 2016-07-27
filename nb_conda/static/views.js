@@ -164,7 +164,7 @@ define([
             _action: function(row, $row) {
                 // This is a pseudo-attribute
                 // TODO: the view should not know about this URL, need a model method
-                var export_url = utils.url_join_encode(models.base_url, 'environments', row.name, 'export');
+                var export_url = models.base_url + utils.url_join_encode('environments', row.name, 'export');
 
                 function ActionMessage(msg) {
                     var $replacement = $('<div class="inprogress"/>').text(msg);

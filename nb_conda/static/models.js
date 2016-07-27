@@ -54,7 +54,7 @@ define([
                 error:   error_callback
             });
 
-            var url = utils.url_join_encode(base_url, 'environments');
+            var url = base_url + 'environments';
             return $.ajax(url, settings);
         },
 
@@ -106,7 +106,7 @@ define([
             error:   on_error
         });
 
-        var url = utils.url_join_encode(base_url, 'environments', environments.selected.name, 'packages', action);
+        var url = base_url + utils.url_join_encode('environments', environments.selected.name, 'packages', action);
         return $.ajax(url, settings);
     }
 
@@ -125,7 +125,7 @@ define([
             error:   on_error
         });
 
-        var url = utils.url_join_encode(base_url, 'environments', env.name, action);
+        var url = base_url + utils.url_join_encode('environments', env.name, action);
         return $.ajax(url, settings);
     }
 
@@ -259,7 +259,7 @@ define([
                 error:   error_callback
             });
 
-            var url = utils.url_join_encode(base_url, 'environments', query);
+            var url = base_url + utils.url_join_encode('environments', query);
             return $.ajax(url, settings);
         },
 
