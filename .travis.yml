@@ -28,7 +28,7 @@ install:
   - conda install -n root conda conda-env anaconda-client
   - conda info -a
   - conda create -n nb_conda python=$TRAVIS_PYTHON_VERSION
-  - conda install -n nb_conda -c conda-forge requirements.txt
+  - conda install -n nb_conda -c conda-forge --file requirements.txt
   - source activate nb_conda
   - pip install python-coveralls
   - npm install
