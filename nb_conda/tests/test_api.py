@@ -32,6 +32,7 @@ class NbCondaAPITest(NotebookTestBase):
         super(NbCondaAPITest, self).setUp()
         self.conda_api = NbCondaAPI(self.base_url())
         self.env_name = "_DELETE_ME_"
+        self.pkg_name = "alabaster"
         self.mk_env()
 
     def tearDown(self):
@@ -59,13 +60,36 @@ class NbCondaAPITest(NotebookTestBase):
         return self.conda_api.post(["environments", name, "clone"],
                                    body={"name": new_name})
 
-    def test_create_and_destroy_env(self):
+    def test_env_create_and_destroy(self):
         self.assertEqual(self.mk_env().status_code, 400)
         self.assertEqual(self.rm_env().status_code, 200)
         self.assertEqual(self.mk_env().status_code, 201)
         self.assertEqual(self.rm_env().status_code, 200)
 
-    def test_clone_env(self):
+    def test_env_clone(self):
         self.assertEqual(self.cp_env().status_code, 201)
         self.assertEqual(self.rm_env(self.env_name + "-copy").status_code, 200)
         self.rm_env()
+
+    def test_env_nonsense(self):
+        r = self.conda_api.post(["environments", self.env_name, "nonsense"])
+        self.assertEqual(r.status_code, 404)
+
+    def test_pkg_install_and_remove(self):
+        r = self.conda_api.post(["environments", self.env_name, "packages",
+                                 "install"],
+                                body={"packages[]": self.pkg_name})
+        self.assertEqual(r.status_code, 200)
+        r = self.conda_api.post(["environments", self.env_name, "packages",
+                                 "remove"], body={"packages[]": self.pkg_name})
+        self.assertEqual(r.status_code, 200)
+
+    def test_pkg_update(self):
+        r = self.conda_api.post(["environments", self.env_name, "packages",
+                                 "check"])
+        self.assertEqual(r.status_code, 200)
+
+    def test_pkg_check(self):
+        r = self.conda_api.post(["environments", self.env_name, "packages",
+                                 "update"])
+        self.assertEqual(r.status_code, 200)

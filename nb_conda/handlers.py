@@ -8,22 +8,21 @@
 # methods.
 
 import json
-import logging
 import os
+import re
 
 from subprocess import Popen
 from tempfile import TemporaryFile
 
 from pkg_resources import parse_version
 from notebook.utils import url_path_join as ujoin
-from notebook.base.handlers import APIHandler, json_errors
+from notebook.base.handlers import (
+    APIHandler,
+    json_errors,
+)
 from tornado import web
 
 from .envmanager import EnvManager, package_map
-
-log = logging.getLogger(__name__)
-log_level = logging.DEBUG if os.environ.get('NB_CONDA_DEBUG') else logging.INFO
-log.setLevel(log_level)
 
 
 static = os.path.join(os.path.dirname(__file__), 'static')
@@ -31,9 +30,9 @@ static = os.path.join(os.path.dirname(__file__), 'static')
 NS = r'conda'
 
 
-class EnvBaseHandler(APIHandler):
+class EnvManagerMixin(object):
     """
-    Base request handler class. Just maintains a reference to the
+    Mixin for an env manager. Just maintains a reference to the
     'env_manager' which implements all of the conda functions.
     """
     @property
@@ -42,7 +41,7 @@ class EnvBaseHandler(APIHandler):
         return self.settings['env_manager']
 
 
-class MainEnvHandler(EnvBaseHandler):
+class MainEnvHandler(APIHandler, EnvManagerMixin):
     """
     Handler for `GET /environments` which lists the environments.
     """
@@ -52,7 +51,7 @@ class MainEnvHandler(EnvBaseHandler):
         self.finish(json.dumps(self.env_manager.list_envs()))
 
 
-class EnvHandler(EnvBaseHandler):
+class EnvHandler(APIHandler, EnvManagerMixin):
     """
     Handler for `GET /environments/<name>` which lists
     the packages in the specified environment.
@@ -63,7 +62,7 @@ class EnvHandler(EnvBaseHandler):
         self.finish(json.dumps(self.env_manager.env_packages(env)))
 
 
-class EnvActionHandler(EnvBaseHandler):
+class EnvActionHandler(APIHandler, EnvManagerMixin):
     """
     Handler for `GET /environments/<name>/export` which
     exports the specified environment, and
@@ -111,7 +110,7 @@ class EnvActionHandler(EnvBaseHandler):
         self.finish(json.dumps(data))
 
 
-class EnvPkgActionHandler(EnvBaseHandler):
+class EnvPkgActionHandler(APIHandler, EnvManagerMixin):
     """
     Handler for
     `POST /environments/<name>/packages/{install,update,check,remove}`
@@ -121,10 +120,17 @@ class EnvPkgActionHandler(EnvBaseHandler):
     @web.authenticated
     @json_errors
     def post(self, env, action):
-        log.debug('req body: %s', self.request.body)
+        self.log.debug('req body: %s', self.request.body)
         packages = self.get_arguments('packages[]')
+
+        # don't allow arbitrary switches
+        packages = [pkg for pkg in packages if re.match(_pkg_regex, pkg)]
+
         if not packages:
-            raise web.HTTPError(400)
+            if action in ["install", "remove"]:
+                raise web.HTTPError(400)
+            else:
+                packages = ["--all"]
 
         if action == 'install':
             resp = self.env_manager.install_packages(env, packages)
@@ -149,7 +155,7 @@ class CondaSearcher(object):
         self.conda_process = None
         self.conda_temp = None
 
-    def list_available(self):
+    def list_available(self, handler=None):
         """
         List the available conda packages by kicking off a background
         conda process. Will return None. Call again to poll the process
@@ -158,16 +164,18 @@ class CondaSearcher(object):
         will be returned (this will be a dict containing error information).
         TODO - break up this method.
         """
+        self.log = handler.log
+
         if self.conda_process is not None:
             # already running, check for completion
-            log.debug('Already running: pid %s', self.conda_process.pid)
+            self.log.debug('Already running: pid %s', self.conda_process.pid)
 
             status = self.conda_process.poll()
-            log.debug('Status %s', status)
+            self.log.debug('Status %s', status)
 
             if status is not None:
                 # completed, return the data
-                log.debug('Done, reading output')
+                self.log.debug('Done, reading output')
                 self.conda_process = None
 
                 self.conda_temp.seek(0)
@@ -198,19 +206,19 @@ class CondaSearcher(object):
 
         else:
             # Spawn subprocess to get the data
-            log.debug('Starting conda process')
+            self.log.debug('Starting conda process')
             self.conda_temp = TemporaryFile(mode='w+')
             cmdline = 'conda search --json'.split()
             self.conda_process = Popen(cmdline, stdout=self.conda_temp,
                                        bufsize=4096)
-            log.debug('Started: pid %s', self.conda_process.pid)
+            self.log.debug('Started: pid %s', self.conda_process.pid)
 
         return None
 
 searcher = CondaSearcher()
 
 
-class AvailablePackagesHandler(EnvBaseHandler):
+class AvailablePackagesHandler(APIHandler, EnvManagerMixin):
     """
     Handler for `GET /packages/available`, which uses CondaSearcher
     to list the packages available for installation.
@@ -218,7 +226,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
     @web.authenticated
     @json_errors
     def get(self):
-        data = searcher.list_available()
+        data = searcher.list_available(self)
 
         if data is None:
             # tell client to check back later
@@ -229,7 +237,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
             self.finish(json.dumps({"packages": data}))
 
 
-class SearchHandler(EnvBaseHandler):
+class SearchHandler(APIHandler, EnvManagerMixin):
     """
     Handler for `GET /packages/search?q=<query>`, which uses CondaSearcher
     to search the available conda packages. Note, this is pretty slow
@@ -248,9 +256,13 @@ class SearchHandler(EnvBaseHandler):
 
 
 _env_action_regex = r"(?P<action>create|export|clone|delete)"
-_env_regex = r"(?P<env>[^\/]+)"  # there is almost no text that is invalid
 
-_pkg_regex = r"(?P<pkg>[^\/]+)"
+# there is almost no text that is invalid, but no hyphens up front, please
+_env_regex = r"(?P<env>[^\-][^\/]+)"
+
+# no hyphens up front, please
+_pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"
+
 _pkg_action_regex = r"(?P<action>install|update|check|remove)"
 
 default_handlers = [

@@ -271,7 +271,7 @@ define([
 
             if(packages.length == 0) {
                 // If no packages are selected, update all
-                packages = ['--all'];
+                packages = [];
             }
 
             var action;
