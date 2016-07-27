@@ -2,9 +2,10 @@
 # Copyright (c) 2015-2016 Continuum Analytics.
 # See LICENSE.txt for the license.
 """
-
-# Tornado get and post handlers often have different args from their base class methods.
 # pylint: disable=W0221
+
+# Tornado get and post handlers often have different args from their base class
+# methods.
 
 import json
 import logging
@@ -15,7 +16,7 @@ from tempfile import TemporaryFile
 
 from pkg_resources import parse_version
 from notebook.utils import url_path_join as ujoin
-from notebook.base.handlers import IPythonHandler
+from notebook.base.handlers import APIHandler, json_errors
 from tornado import web
 
 from .envmanager import EnvManager, package_map
@@ -27,8 +28,10 @@ log.setLevel(log_level)
 
 static = os.path.join(os.path.dirname(__file__), 'static')
 
+NS = r'conda'
 
-class EnvBaseHandler(IPythonHandler):
+
+class EnvBaseHandler(APIHandler):
     """
     Base request handler class. Just maintains a reference to the
     'env_manager' which implements all of the conda functions.
@@ -44,6 +47,7 @@ class MainEnvHandler(EnvBaseHandler):
     Handler for `GET /environments` which lists the environments.
     """
     @web.authenticated
+    @json_errors
     def get(self):
         self.finish(json.dumps(self.env_manager.list_envs()))
 
@@ -54,6 +58,7 @@ class EnvHandler(EnvBaseHandler):
     the packages in the specified environment.
     """
     @web.authenticated
+    @json_errors
     def get(self, env):
         self.finish(json.dumps(self.env_manager.env_packages(env)))
 
@@ -66,38 +71,55 @@ class EnvActionHandler(EnvBaseHandler):
     which performs the requested action on the environment.
     """
     @web.authenticated
+    @json_errors
     def get(self, env, action):
         if action == 'export':
-            # export environment file
-            self.set_header('Content-Disposition', 'attachment; filename="%s"' % (env + '.txt'))
+            # export requirements file
+            self.set_header('Content-Disposition',
+                            'attachment; filename="%s"' % (env + '.txt'))
             self.finish(self.env_manager.export_env(env))
         else:
             raise web.HTTPError(400)
 
     @web.authenticated
+    @json_errors
     def post(self, env, action):
+        status = None
+
         if action == 'delete':
             data = self.env_manager.delete_env(env)
         elif action == 'clone':
             name = self.get_argument('name', default=None)
             if not name:
-                name = env + '-copy'
+                name = '{}-copy'.format(env)
             data = self.env_manager.clone_env(env, name)
+            if 'error' not in data:
+                status = 201  # CREATED
         elif action == 'create':
             env_type = self.get_argument('type', default=None)
             if env_type not in package_map:
                 raise web.HTTPError(400)
-
             data = self.env_manager.create_env(env, env_type)
+            if 'error' not in data:
+                status = 201  # CREATED
+
+        # catch-all ok
+        if 'error' in data:
+            status = 400
+
+        self.set_status(status or 200)
         self.finish(json.dumps(data))
 
 
 class EnvPkgActionHandler(EnvBaseHandler):
     """
-    Handler for `POST /environments/<name>/packages/{install,update,check,remove}`
-    which performs the requested action on the packages in the specified environment.
+    Handler for
+    `POST /environments/<name>/packages/{install,update,check,remove}`
+    which performs the requested action on the packages in the specified
+    environment.
     """
     @web.authenticated
+    @json_errors
     def post(self, env, action):
         log.debug('req body: %s', self.request.body)
         packages = self.get_arguments('packages[]')
@@ -153,7 +175,8 @@ class CondaSearcher(object):
                 self.conda_temp = None
 
                 if 'error' in data:
-                    # we didn't get back a list of packages, we got a dictionary with error info
+                    # we didn't get back a list of packages, we got a
+                    # dictionary with error info
                     return data
 
                 packages = []
@@ -178,7 +201,8 @@ class CondaSearcher(object):
             log.debug('Starting conda process')
             self.conda_temp = TemporaryFile(mode='w+')
             cmdline = 'conda search --json'.split()
-            self.conda_process = Popen(cmdline, stdout=self.conda_temp, bufsize=4096)
+            self.conda_process = Popen(cmdline, stdout=self.conda_temp,
+                                       bufsize=4096)
             log.debug('Started: pid %s', self.conda_process.pid)
 
         return None
@@ -192,6 +216,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
     to list the packages available for installation.
     """
     @web.authenticated
+    @json_errors
     def get(self):
         data = searcher.list_available()
 
@@ -201,7 +226,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
             self.set_status(202)  # Accepted
             self.finish('{}')
         else:
-            self.finish(json.dumps(data))
+            self.finish(json.dumps({"packages": data}))
 
 
 class SearchHandler(EnvBaseHandler):
@@ -211,6 +236,7 @@ class SearchHandler(EnvBaseHandler):
     and the nb_conda UI doesn't call it.
     """
     @web.authenticated
+    @json_errors
     def get(self):
         q = self.get_argument('q')
         self.finish(json.dumps(self.env_manager.package_search(q)))
@@ -229,8 +255,10 @@ _pkg_action_regex = r"(?P<action>install|update|check|remove)"
 
 default_handlers = [
     (r"/environments", MainEnvHandler),
-    (r"/environments/%s/packages/%s" % (_env_regex, _pkg_action_regex), EnvPkgActionHandler),
-    (r"/environments/%s/%s" % (_env_regex, _env_action_regex), EnvActionHandler),
+    (r"/environments/%s/packages/%s" % (_env_regex, _pkg_action_regex),
+        EnvPkgActionHandler),
+    (r"/environments/%s/%s" % (_env_regex, _env_action_regex),
+        EnvActionHandler),
     (r"/environments/%s" % _env_regex, EnvHandler),
     (r"/packages/available", AvailablePackagesHandler),
     (r"/packages/search", SearchHandler),
@@ -244,7 +272,7 @@ def load_jupyter_server_extension(nbapp):
 
     base_url = webapp.settings['base_url']
     webapp.add_handlers(".*$", [
-        (ujoin(base_url, pat), handler)
+        (ujoin(base_url, NS, pat), handler)
         for pat, handler in default_handlers
     ])
     nbapp.log.info("[nb_conda] enabled")

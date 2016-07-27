@@ -3,6 +3,7 @@ define(function(require) {
     var IPython = require('base/js/namespace');
     var models = require('./models');
     var views = require('./views');
+    var urls = require('./urls');
 
     function load() {
         if (!IPython.notebook_list) return;
@@ -11,10 +12,10 @@ define(function(require) {
             $('<link>')
             .attr('rel', 'stylesheet')
             .attr('type', 'text/css')
-            .attr('href', base_url + 'nbextensions/nb_conda/conda.css')
+            .attr('href', urls.static_url + 'conda.css')
         );
 
-        $.ajax(base_url + 'nbextensions/nb_conda/tab.html', {
+        $.ajax(urls.static_url + 'tab.html', {
             dataType: 'html',
             success: function(env_html, status, xhr) {
                 // Configure Conda tab

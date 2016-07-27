@@ -4,8 +4,8 @@ define(function(require) {
     var IPython = require('base/js/namespace');
     var models = require('./models');
     var views = require('./views');
+    var urls = require('./urls');
     var dialog = require('base/js/dialog');
-    var base_url = IPython.notebook.base_url;
     var $view = $('#conda');
 
     jQuery.fn.center = function () {
@@ -36,7 +36,7 @@ define(function(require) {
     function load_conda_view() {
         if($view.length === 0) {
             // Not loaded yet
-            $.ajax(base_url + 'nbextensions/nb_conda/tab.html', {
+            $.ajax(urls.static_url + 'tab.html', {
                 dataType: 'html',
                 success: function(tab_html, status, xhr) {
                     // Load the 'conda tab', hide the Environments portion
@@ -59,26 +59,7 @@ define(function(require) {
                     // then we'll know the current environment and it will
                     // also trigger a load of the installed packages.
 
-                    models.environments.load().then(function() {
-                        /*
-                        Select the current environment for the running kernel.
-                        This is dependent on behavior of 'nb_conda_kernels' 2.0.0:
-                        - <normal name, like ir, python3, etc>  # server env
-                        - conda-env-<env name>-<lang key, py or ir>
-                        - conda-root-<lang key>
-                        */
-                        var kernel_name = IPython.notebook.kernel.name,
-                            kernel_env_re = /^conda-(env-)?(.+?)(-[^\-]*)?$/,
-                            m = kernel_env_re.exec(kernel_name);
-
-                        if(m) {
-                            models.environments.select({ name: m[2] });
-                        }
-                        else {
-                            models.environments.select({ is_default: true });
-                        }
-
-                    });
+                    models.environments.load().then(select_notebook_kernel_env);
                     show_conda_view($view);
                 }
             });
@@ -87,8 +68,28 @@ define(function(require) {
             // Refresh list of installed packages.
             // This is fast, and more likely to change,
             // so do it every time the menu is shown.
-            models.installed.load();
+            select_notebook_kernel_env().then(models.installed.load)
             show_conda_view($view);
+        }
+    }
+
+    function select_notebook_kernel_env() {
+        /*
+        Select the current environment for the running kernel.
+        This is dependent on behavior of 'nb_conda_kernels' 2.0.0:
+        - <normal name, like ir, python3, etc>  # server env
+        - conda-env-<env name>-<lang key, py or ir>
+        - conda-root-<lang key>
+        */
+        var kernel_name = IPython.notebook.kernel.name,
+            kernel_env_re = /^conda-(env-)?(.+?)(-[^\-]*)?$/,
+            m = kernel_env_re.exec(kernel_name);
+
+        if(m) {
+            return models.environments.select({ name: m[2] });
+        }
+        else {
+            return models.environments.select({ is_default: true });
         }
     }
 
@@ -99,15 +100,14 @@ define(function(require) {
 
     function load() {
         if (!IPython.notebook) return;
-        var base_url = IPython.notebook.base_url;
         $('head').append(
             $('<link>')
             .attr('rel', 'stylesheet')
             .attr('type', 'text/css')
-            .attr('href', base_url + 'nbextensions/nb_conda/conda.css')
+            .attr('href', urls.static_url + 'conda.css')
         );
 
-        $.ajax(base_url + 'nbextensions/nb_conda/menu.html', {
+        $.ajax(urls.static_url + 'menu.html', {
             dataType: 'html',
             success: function(menu_html, status, xhr) {
                 // Configure Conda items in Kernel menu

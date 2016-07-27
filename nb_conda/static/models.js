@@ -4,14 +4,13 @@ define([
     'jquery',
     'base/js/utils',
     './common',
-], function(IPython, $, utils, common) {
+    './urls',
+], function(IPython, $, utils, common, urls) {
     "use strict";
 
     var NullView = {
         refresh: function() {}
     };
-
-    var base_url = (IPython.notebook_list || IPython.notebook).base_url;
 
     var environments = {
         all:      [],
@@ -23,9 +22,10 @@ define([
             var that = this;
             var error_callback = common.MakeErrorCallback('Error', 'An error occurred while listing Conda environments.');
 
-            function handle_response(envs, status, xhr) {
+            function handle_response(data, status, xhr) {
                 var keep_selection = false;
                 var default_env;
+                var envs = data.environments || [];
 
                 that.all = envs;
 
@@ -54,12 +54,11 @@ define([
                 error:   error_callback
             });
 
-            var url = base_url + 'environments';
-            return $.ajax(url, settings);
+            return $.ajax(urls.api_url + 'environments', settings);
         },
 
         select: function(env) {
-            this.selected = env;
+            this.selected = _.findWhere(this.all, env);
 
             // refresh list of packages installed in the selected environment
             return installed.load();
@@ -106,17 +105,13 @@ define([
             error:   on_error
         });
 
-        var url = base_url + utils.url_join_encode('environments', environments.selected.name, 'packages', action);
+        var url = urls.api_url + utils.url_join_encode(
+          'environments', environments.selected.name, 'packages', action);
         return $.ajax(url, settings);
     }
 
     function conda_env_action(env, action, on_success, on_error, data) {
         // Helper function to access the /environments/ENV/ACTION endpoint
-
-        // pre-condition names that may have come from nb_conda_kernels
-        if(env.name === "Root"){
-            env.name = "root";
-        }
 
         var settings = common.AjaxSettings({
             data:    data || {},
@@ -125,7 +120,8 @@ define([
             error:   on_error
         });
 
-        var url = base_url + utils.url_join_encode('environments', env.name, action);
+        var url = urls.api_url + utils.url_join_encode(
+            'environments', env.name, action);
         return $.ajax(url, settings);
     }
 
@@ -137,7 +133,8 @@ define([
             // Load the package list via ajax to the /packages/available endpoint
             var that = this;
 
-            function handle_response(packages, status, xhr) {
+            function handle_response(data, status, xhr) {
+                var packages = data.packages;
                 if(xhr.status == 202) {
                     // "Accepted" - try back later on this async request
                     setTimeout(function() {
@@ -161,7 +158,8 @@ define([
                 error : error_callback
             });
 
-            var url = utils.url_path_join(base_url, 'packages', 'available');
+            var url = urls.api_url + utils.url_path_join(
+                'packages', 'available');
             return $.ajax(url, settings);
         },
 
@@ -238,7 +236,8 @@ define([
             // Load the package list via ajax to the /packages/search endpoint
             var that = this;
 
-            function handle_response(packages, status, xhr) {
+            function handle_response(data, status, xhr) {
+                var packages = data.packages || [];
                 var by_name = {};
 
                 $.each(packages, function(index, pkg) {
@@ -259,7 +258,8 @@ define([
                 error:   error_callback
             });
 
-            var url = base_url + utils.url_join_encode('environments', query);
+            var url = urls.api_url + utils.url_join_encode(
+                'environments', query);
             return $.ajax(url, settings);
         },
 
@@ -341,7 +341,6 @@ define([
     };
 
     return {
-        'base_url':     base_url,
         'environments': environments,
         'available':    available,
         'installed':    installed
