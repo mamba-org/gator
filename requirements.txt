@@ -1,7 +1,7 @@
 coverage
 flake8
 mock
-nb_conda_kernels
+nb_conda_kernels >=2.0.0
 nodejs
 nose
 python

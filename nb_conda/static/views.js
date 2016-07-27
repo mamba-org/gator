@@ -44,6 +44,11 @@ define([
             $.each(this.bindings, function(selector, callback) {
                 $root.find(selector).click(callback);
             });
+
+            $root.find("button[title]").tooltip({
+                container: "body",
+                placement: "top"
+            });
         },
 
         update_label: function(count) {

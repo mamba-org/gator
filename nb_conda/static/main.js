@@ -30,7 +30,7 @@ define(function(require) {
             // detach the conda view so it isn't destroyed with the dialog box
             $view.detach();
         });
-        d.find('.modal-dialog').addClass('modal-lg');
+        d.find('.modal-dialog').css({width: "80vw"});
     }
 
     function load_conda_view() {
@@ -60,22 +60,24 @@ define(function(require) {
                     // also trigger a load of the installed packages.
 
                     models.environments.load().then(function() {
-                        // Select the current environment for the running kernel.
-                        // This is dependent on behavior of the 'nb_conda_kernels'
-                        // extension, which currently creates kernels with
-                        // names of the form 'Python [env_name]' or 'R [env_name]'
+                        /*
+                        Select the current environment for the running kernel.
+                        This is dependent on behavior of 'nb_conda_kernels' 2.0.0:
+                        - <normal name, like ir, python3, etc>  # server env
+                        - conda-env-<env name>-<lang key, py or ir>
+                        - conda-root-<lang key>
+                        */
                         var kernel_name = IPython.notebook.kernel.name,
-                            env_name;
+                            kernel_env_re = /^conda-(env-)?(.+?)(-[^\-]*)?$/,
+                            m = kernel_env_re.exec(kernel_name);
 
-                        var m = /^conda-(env-)?(.+?)(-[^\-]*)?$/.exec(kernel_name);
                         if(m) {
-                            env_name = m[2];
+                            models.environments.select({ name: m[2] });
                         }
                         else {
-                            // old-style kernel names from nb_conda_kernels
-                            env_name = kernel_name;
+                            models.environments.select({ is_default: true });
                         }
-                        models.environments.select({ name: env_name });
+
                     });
                     show_conda_view($view);
                 }
