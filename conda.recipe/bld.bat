@@ -1,1 +1,0 @@
-"%PYTHON%" setup.py install --single-version-externally-managed --record=record.txt && "%PREFIX%\Scripts\jupyter-nbextension.exe" install nb_conda --py --sys-prefix --overwrite && if errorlevel 1 exit 1

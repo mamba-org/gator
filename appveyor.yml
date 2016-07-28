@@ -11,6 +11,15 @@ environment:
   matrix:
     # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
     # Not sure how to resolve this, but maybe we should be tracking the VS version in the build string anyway?
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "27"
+      PY_CONDITION: "python >=2.7,<3"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "34"
+      PY_CONDITION: "python >=3.4,<3.5"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "35"
+      PY_CONDITION: "python >=3.5"
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       PY_CONDITION: "python >=2.7,<3"
@@ -47,11 +56,11 @@ install:
     - cmd: conda config --set show_channel_urls true
     - cmd: conda config --set always_yes yes --set changeps1 no
     - cmd: conda update --yes --quiet conda
+    - cmd: conda install -n root conda conda-env anaconda-client
     - cmd: set PYTHONUNBUFFERED=1
-    - cmd: conda config --add channels conda-forge
     - cmd: conda info
     - cmd: conda create -n nb_conda "%PY_CONDITION%"
-    - cmd: conda env update
+    - cmd: conda install -n nb_conda -c conda-forge --file requirements.txt
     - cmd: activate nb_conda
     - cmd: npm install
 

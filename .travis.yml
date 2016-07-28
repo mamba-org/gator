@@ -24,13 +24,13 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda config --add channels conda-forge
-  - conda update -q conda
+  - conda update --yes --quiet conda
+  - conda install -n root conda conda-env anaconda-client
   - conda info -a
   - conda create -n nb_conda python=$TRAVIS_PYTHON_VERSION
-  - conda env update
+  - conda install -n nb_conda -c conda-forge --file requirements.txt
   - source activate nb_conda
-  - conda install python-coveralls
+  - pip install python-coveralls
   - npm install
 
 script:

@@ -1,11 +1,10 @@
 
 define([
-    'base/js/namespace',
     'jquery',
     'base/js/utils',
     './common',
     './models',
-], function(IPython, $, utils, common, models) {
+], function($, utils, common, models) {
     "use strict";
 
     function action_start(btn) {
@@ -43,6 +42,11 @@ define([
 
             $.each(this.bindings, function(selector, callback) {
                 $root.find(selector).click(callback);
+            });
+
+            $root.find("button[title]").tooltip({
+                container: "body",
+                placement: "top"
             });
         },
 
@@ -159,7 +163,7 @@ define([
             _action: function(row, $row) {
                 // This is a pseudo-attribute
                 // TODO: the view should not know about this URL, need a model method
-                var export_url = utils.url_join_encode(models.base_url, 'environments', row.name, 'export');
+                var export_url = models.base_url + utils.url_join_encode('environments', row.name, 'export');
 
                 function ActionMessage(msg) {
                     var $replacement = $('<div class="inprogress"/>').text(msg);

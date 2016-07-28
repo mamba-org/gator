@@ -13,12 +13,11 @@ if (!String.prototype.endsWith) {
 
 
 define([
-    'base/js/namespace',
     'jquery',
     'base/js/utils',
     'base/js/dialog',
     'base/js/keyboard',
-], function(IPython, $, utils, dialog, keyboard) {
+], function($, utils, dialog, keyboard) {
     "use strict";
 
     function SuccessWrapper(success_callback, error_callback) {

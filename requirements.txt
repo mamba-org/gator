@@ -1,0 +1,9 @@
+coverage
+flake8
+mock
+nb_conda_kernels >=2.0.0
+nodejs
+nose
+notebook >=4.2.0
+python
+requests
