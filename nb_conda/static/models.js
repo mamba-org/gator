@@ -1,11 +1,10 @@
 
 define([
-    'base/js/namespace',
     'jquery',
     'base/js/utils',
     './common',
     './urls',
-], function(IPython, $, utils, common, urls) {
+], function($, utils, common, urls) {
     "use strict";
 
     var NullView = {

@@ -1,11 +1,10 @@
 
 define([
-    'base/js/namespace',
     'jquery',
     'base/js/utils',
     './common',
     './models',
-], function(IPython, $, utils, common, models) {
+], function($, utils, common, models) {
     "use strict";
 
     function action_start(btn) {

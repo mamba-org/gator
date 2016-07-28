@@ -1,7 +1,7 @@
 define(function(require) {
     "use strict";
     var $ = require('jquery');
-    var IPython = require('base/js/namespace');
+    var Jupyter = require('base/js/namespace');
     var models = require('./models');
     var views = require('./views');
     var urls = require('./urls');
@@ -24,7 +24,7 @@ define(function(require) {
             open: function() {
                 $('#searchbox').focus();
             },
-            keyboard_manager: IPython.notebook.keyboard_manager
+            keyboard_manager: Jupyter.notebook.keyboard_manager
         });
         d.on('hide.bs.modal', function() {
             // detach the conda view so it isn't destroyed with the dialog box
@@ -81,7 +81,7 @@ define(function(require) {
         - conda-env-<env name>-<lang key, py or ir>
         - conda-root-<lang key>
         */
-        var kernel_name = IPython.notebook.kernel.name,
+        var kernel_name = Jupyter.notebook.kernel.name,
             kernel_env_re = /^conda-(env-)?(.+?)(-[^\-]*)?$/,
             m = kernel_env_re.exec(kernel_name);
 
@@ -99,7 +99,7 @@ define(function(require) {
     }
 
     function load() {
-        if (!IPython.notebook) return;
+        if (!Jupyter.notebook) return;
         $('head').append(
             $('<link>')
             .attr('rel', 'stylesheet')
