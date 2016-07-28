@@ -30,7 +30,7 @@ static = os.path.join(os.path.dirname(__file__), 'static')
 NS = r'conda'
 
 
-class EnvManagerMixin(object):
+class EnvBaseHandler(APIHandler):
     """
     Mixin for an env manager. Just maintains a reference to the
     'env_manager' which implements all of the conda functions.
@@ -41,7 +41,7 @@ class EnvManagerMixin(object):
         return self.settings['env_manager']
 
 
-class MainEnvHandler(APIHandler, EnvManagerMixin):
+class MainEnvHandler(EnvBaseHandler):
     """
     Handler for `GET /environments` which lists the environments.
     """
@@ -51,7 +51,7 @@ class MainEnvHandler(APIHandler, EnvManagerMixin):
         self.finish(json.dumps(self.env_manager.list_envs()))
 
 
-class EnvHandler(APIHandler, EnvManagerMixin):
+class EnvHandler(EnvBaseHandler):
     """
     Handler for `GET /environments/<name>` which lists
     the packages in the specified environment.
@@ -62,7 +62,7 @@ class EnvHandler(APIHandler, EnvManagerMixin):
         self.finish(json.dumps(self.env_manager.env_packages(env)))
 
 
-class EnvActionHandler(APIHandler, EnvManagerMixin):
+class EnvActionHandler(EnvBaseHandler):
     """
     Handler for `GET /environments/<name>/export` which
     exports the specified environment, and
@@ -110,7 +110,7 @@ class EnvActionHandler(APIHandler, EnvManagerMixin):
         self.finish(json.dumps(data))
 
 
-class EnvPkgActionHandler(APIHandler, EnvManagerMixin):
+class EnvPkgActionHandler(EnvBaseHandler):
     """
     Handler for
     `POST /environments/<name>/packages/{install,update,check,remove}`
@@ -218,7 +218,7 @@ class CondaSearcher(object):
 searcher = CondaSearcher()
 
 
-class AvailablePackagesHandler(APIHandler, EnvManagerMixin):
+class AvailablePackagesHandler(EnvBaseHandler):
     """
     Handler for `GET /packages/available`, which uses CondaSearcher
     to list the packages available for installation.
@@ -237,7 +237,7 @@ class AvailablePackagesHandler(APIHandler, EnvManagerMixin):
             self.finish(json.dumps({"packages": data}))
 
 
-class SearchHandler(APIHandler, EnvManagerMixin):
+class SearchHandler(EnvBaseHandler):
     """
     Handler for `GET /packages/search?q=<query>`, which uses CondaSearcher
     to search the available conda packages. Note, this is pretty slow
