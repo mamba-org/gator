@@ -75,6 +75,10 @@ class NbCondaAPITest(NotebookTestBase):
         r = self.conda_api.post(["environments", self.env_name, "nonsense"])
         self.assertEqual(r.status_code, 404)
 
+    def test_env_export(self):
+        r = self.conda_api.get(["environments", self.env_name, "export"])
+        self.assertEqual(r.status_code, 200)
+
     def test_pkg_install_and_remove(self):
         r = self.conda_api.post(["environments", self.env_name, "packages",
                                  "install"],
