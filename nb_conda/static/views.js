@@ -162,8 +162,6 @@ define([
 
             _action: function(row, $row) {
                 // This is a pseudo-attribute
-                // TODO: the view should not know about this URL, need a model method
-                var export_url = models.base_url + utils.url_join_encode('environments', row.name, 'export');
 
                 function ActionMessage(msg) {
                     var $replacement = $('<div class="inprogress"/>').text(msg);
@@ -172,7 +170,7 @@ define([
 
                 return $('<span class="action_col"/>')
                     .addClass('btn-group')
-                    .append(common.link(export_url, common.icon('external-link')))
+                    .append(common.link(models.environments.export(row), common.icon('external-link')))
                     .append(common.icon('copy').click(function () {
                         common.prompt('Clone Environment', 'Create a copy of "' + row.name + '"', 'New name:', 'Clone', function(new_name) {
                             ActionMessage('Cloning...');

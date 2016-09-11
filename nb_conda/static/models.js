@@ -91,6 +91,10 @@ define([
                 environments.load();
             }
             return conda_env_action(env, 'delete', remove_success, error_callback);
+        },
+
+        export: function(env) {
+            return urls.api_url + utils.url_join_encode('environments', env.name, 'export');
         }
     };
 
