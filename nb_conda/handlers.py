@@ -215,6 +215,7 @@ class CondaSearcher(object):
 
         return None
 
+
 searcher = CondaSearcher()
 
 

@@ -20,6 +20,7 @@ def pkg_info(s):
         'build':   build
     }
 
+
 MAX_LOG_OUTPUT = 6000
 
 # try to match lines of json
