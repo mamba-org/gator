@@ -215,6 +215,7 @@ class CondaSearcher(object):
 
         return None
 
+
 searcher = CondaSearcher()
 
 
@@ -258,7 +259,8 @@ class SearchHandler(EnvBaseHandler):
 _env_action_regex = r"(?P<action>create|export|clone|delete)"
 
 # there is almost no text that is invalid, but no hyphens up front, please
-_env_regex = r"(?P<env>[^\-][^\/]+)"
+# neither all these suspicious but valid caracthers...
+_env_regex = r"(?P<env>[^/&+$?@<>%*-][^/&+$?@<>%*]*)"
 
 # no hyphens up front, please
 _pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"
