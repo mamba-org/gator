@@ -13,12 +13,19 @@ from traitlets import Dict
 
 
 def pkg_info(s):
-    name, version, build = s.rsplit('-', 2)
-    return {
-        'name':    name,
-        'version': version,
-        'build':   build
-    }
+    if hasattr(s, 'rsplit'):  # proxy for isinstance(s, six.string_types)
+        name, version, build = s.rsplit('-', 2)
+        return {
+            'name':    name,
+            'version': version,
+            'build':   build
+        }
+    else:
+        return {
+            'name':    s['name'],
+            'version': s['version'],
+            'build':   s.get('build_string') or s['build']
+        }
 
 
 MAX_LOG_OUTPUT = 6000
