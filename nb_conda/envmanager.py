@@ -13,11 +13,19 @@ from traitlets import Dict
 
 
 def pkg_info(s):
-    name, version, build = s.rsplit('-', 2)
+    try:
+        # for conda >= 4.3, `s` should be a dict
+        name = s['name']
+        version = s['version']
+        build = s.get('build_string') or s['build']
+    except TypeError:
+        # parse legacy string version for information
+        name, version, build = s.rsplit('-', 2)
+
     return {
-        'name':    name,
+        'name': name,
         'version': version,
-        'build':   build
+        'build': build
     }
 
 
