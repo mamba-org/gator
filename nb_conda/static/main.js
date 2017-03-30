@@ -6,6 +6,7 @@ define(function(require) {
     var views = require('./views');
     var urls = require('./urls');
     var dialog = require('base/js/dialog');
+    var utils = require('base/js/utils');
     var $view = $('#conda');
 
     jQuery.fn.center = function () {
@@ -36,7 +37,7 @@ define(function(require) {
     function load_conda_view() {
         if($view.length === 0) {
             // Not loaded yet
-            $.ajax(urls.static_url + 'tab.html', {
+            utils.ajax(urls.static_url + 'tab.html', {
                 dataType: 'html',
                 success: function(tab_html, status, xhr) {
                     // Load the 'conda tab', hide the Environments portion
@@ -107,7 +108,7 @@ define(function(require) {
             .attr('href', urls.static_url + 'conda.css')
         );
 
-        $.ajax(urls.static_url + 'menu.html', {
+        utils.ajax(urls.static_url + 'menu.html', {
             dataType: 'html',
             success: function(menu_html, status, xhr) {
                 // Configure Conda items in Kernel menu

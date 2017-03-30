@@ -1,6 +1,7 @@
 define(function(require) {
     var $ = require('jquery');
     var Jupyter = require('base/js/namespace');
+    var utils = require('base/js/utils');
     var models = require('./models');
     var views = require('./views');
     var urls = require('./urls');
@@ -15,7 +16,7 @@ define(function(require) {
             .attr('href', urls.static_url + 'conda.css')
         );
 
-        $.ajax(urls.static_url + 'tab.html', {
+        utils.ajax(urls.static_url + 'tab.html', {
             dataType: 'html',
             success: function(env_html, status, xhr) {
                 // Configure Conda tab
