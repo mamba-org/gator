@@ -53,7 +53,7 @@ define([
                 error:   error_callback
             });
 
-            return $.ajax(urls.api_url + 'environments', settings);
+            return utils.ajax(urls.api_url + 'environments', settings);
         },
 
         select: function(env) {
@@ -110,7 +110,7 @@ define([
 
         var url = urls.api_url + utils.url_join_encode(
           'environments', environments.selected.name, 'packages', action);
-        return $.ajax(url, settings);
+        return utils.ajax(url, settings);
     }
 
     function conda_env_action(env, action, on_success, on_error, data) {
@@ -125,7 +125,7 @@ define([
 
         var url = urls.api_url + utils.url_join_encode(
             'environments', env.name, action);
-        return $.ajax(url, settings);
+        return utils.ajax(url, settings);
     }
 
     var available = {
@@ -163,7 +163,7 @@ define([
 
             var url = urls.api_url + utils.url_path_join(
                 'packages', 'available');
-            return $.ajax(url, settings);
+            return utils.ajax(url, settings);
         },
 
         get_selection: function() {
@@ -263,7 +263,7 @@ define([
 
             var url = urls.api_url + utils.url_join_encode(
                 'environments', query);
-            return $.ajax(url, settings);
+            return utils.ajax(url, settings);
         },
 
         _update: function(dry_run, handler) {
