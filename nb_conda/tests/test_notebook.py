@@ -80,6 +80,7 @@ class NBCondaTestController(jstest.JSController):
     # copy pasta from...
     # https://github.com/jupyter/notebook/blob/master/notebook/jstest.py#L234
     def setup(self):
+        self.empty = ''
         self.ipydir = jstest.TemporaryDirectory()
         self.config_dir = jstest.TemporaryDirectory()
         self.nbdir = jstest.TemporaryDirectory()
@@ -132,6 +133,8 @@ class NBCondaTestController(jstest.JSController):
             '--no-browser',
             '--notebook-dir', self.nbdir.name,
             '--NotebookApp.base_url=%s' % self.base_url,
+            '--NotebookApp.token=%s' % self.empty,
+            '--NotebookApp.password=%s' % self.empty,
         ]
         # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
         # which run afoul of ipc's maximum path length.

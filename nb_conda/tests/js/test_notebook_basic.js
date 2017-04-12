@@ -1,6 +1,7 @@
 /* global casper */
 casper.dashboard_test(function(){
   casper.screenshot.init("basic");
+  casper.options.waitTimeout = 20000;
   casper.viewport(1440, 900)
     .then(basic_test);
 });
