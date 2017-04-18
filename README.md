@@ -58,6 +58,14 @@ jupyter serverextension enable nb_conda --py --sys-prefix
 
 ## Changelog
 
+### 2.2.0
+- support conda 4.3
+- support notebook security fix introduced in notebook 4.3.1
+
+### 2.1.0
+- fix environment export button
+- allow environment names with one letter and validate against "suspicious" characters
+
 ### 2.0.0
 - update to new nb_conda_kernels naming scheme
 - namespace all API calls into `/conda/`

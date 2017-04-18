@@ -9,8 +9,8 @@ branches:
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
   - "2.7"
-  - "3.4"
   - "3.5"
+  - "3.6"
 
 install:
   - sudo apt-get update
@@ -28,13 +28,13 @@ install:
   - conda install -n root conda conda-env anaconda-client
   - conda info -a
   - conda create -n nb_conda python=$TRAVIS_PYTHON_VERSION
-  - conda install -n nb_conda -c conda-forge --file requirements.txt
+  - conda install -n nb_conda --file requirements.txt
   - source activate nb_conda
   - pip install python-coveralls
   - npm install
 
 script:
-  - python setup.py develop
+  - pip install -e .
   - jupyter nbextension install nb_conda --py --sys-prefix --symlink
   - jupyter nbextension enable nb_conda --py --sys-prefix
   - jupyter serverextension enable nb_conda --py --sys-prefix
