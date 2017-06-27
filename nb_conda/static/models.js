@@ -297,7 +297,7 @@ define([
             var that = this;
 
             function handle_response(updates, status, xhr) {
-                $.each(updates, function(index, pkg) {
+                $.each(updates["updates"], function(index, pkg) {
                     var existing = that.by_name[pkg.name];
 
                     // See if there is an existing entry.
