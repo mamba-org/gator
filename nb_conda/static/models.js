@@ -296,8 +296,8 @@ define([
         conda_check_updates: function() {
             var that = this;
 
-            function handle_response(updates, status, xhr) {
-                $.each(updates, function(index, pkg) {
+            function handle_response(response, status, xhr) {
+                $.each(response.updates, function(index, pkg) {
                     var existing = that.by_name[pkg.name];
 
                     // See if there is an existing entry.

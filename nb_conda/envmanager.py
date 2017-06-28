@@ -143,12 +143,8 @@ class EnvManager(LoggingConfigurable):
             # error info
             return data
         elif 'actions' in data:
-            def link_pkg(s):
-                # LINK entries are package-version-build /path/to/link num
-                return s.split(' ')[0]
-
-            package_versions = [link_pkg(link)
-                                for link in data['actions'].get('LINK', [])]
+            links = data['actions'][0].get('LINK', [])
+            package_versions = [link.get('dist_name') for link in links]
             return {
                 "updates": [pkg_info(pkg_version)
                             for pkg_version in package_versions]
