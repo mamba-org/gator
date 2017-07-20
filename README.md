@@ -58,6 +58,9 @@ jupyter serverextension enable nb_conda --py --sys-prefix
 
 ## Changelog
 
+### 2.2.1
+- fix bug in check updates feature
+
 ### 2.2.0
 - support conda 4.3
 - support notebook security fix introduced in notebook 4.3.1
