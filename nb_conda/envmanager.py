@@ -31,6 +31,8 @@ def pkg_info(s):
 
 MAX_LOG_OUTPUT = 6000
 
+CONDA_EXE = os.environ.get('CONDA_EXE', 'conda')
+
 # try to match lines of json
 JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'
 
@@ -64,7 +66,8 @@ class EnvManager(LoggingConfigurable):
 
     def list_envs(self):
         """List all environments that conda knows about"""
-        info = self.clean_conda_json(self._execute('conda info --json'))
+        info = self.clean_conda_json(self._execute(CONDA_EXE + ' info',
+                                                   '--json'))
         default_env = info['default_prefix']
 
         root_env = {
@@ -86,7 +89,7 @@ class EnvManager(LoggingConfigurable):
         }
 
     def delete_env(self, env):
-        output = self._execute('conda env remove -y -q --json -n', env)
+        output = self._execute(CONDA_EXE + ' env remove -y -q --json -n', env)
         return self.clean_conda_json(output)
 
     def clean_conda_json(self, output):
@@ -108,21 +111,21 @@ class EnvManager(LoggingConfigurable):
         return {"error": True}
 
     def export_env(self, env):
-        return self._execute('conda list -e -n', env)
+        return self._execute(CONDA_EXE + ' list -e -n', env)
 
     def clone_env(self, env, name):
-        output = self._execute('conda create -y -q --json -n', name,
+        output = self._execute(CONDA_EXE + ' create -y -q --json -n', name,
                                '--clone', env)
         return self.clean_conda_json(output)
 
     def create_env(self, env, type):
         packages = package_map[type]
-        output = self._execute('conda create -y -q --json -n', env,
+        output = self._execute(CONDA_EXE + ' create -y -q --json -n', env,
                                *packages.split(" "))
         return self.clean_conda_json(output)
 
     def env_packages(self, env):
-        output = self._execute('conda list --no-pip --json -n', env)
+        output = self._execute(CONDA_EXE + ' list --no-pip --json -n', env)
         data = self.clean_conda_json(output)
         if 'error' in data:
             # we didn't get back a list of packages, we got a dictionary with
@@ -134,8 +137,8 @@ class EnvManager(LoggingConfigurable):
         }
 
     def check_update(self, env, packages):
-        output = self._execute('conda update --dry-run -q --json -n', env,
-                               *packages)
+        output = self._execute(CONDA_EXE + ' update --dry-run -q --json -n',
+                               env, *packages)
         data = self.clean_conda_json(output)
 
         if 'error' in data:
@@ -156,20 +159,23 @@ class EnvManager(LoggingConfigurable):
             }
 
     def install_packages(self, env, packages):
-        output = self._execute('conda install -y -q --json -n', env, *packages)
+        output = self._execute(CONDA_EXE + ' install -y -q --json -n',
+                               env, *packages)
         return self.clean_conda_json(output)
 
     def update_packages(self, env, packages):
-        output = self._execute('conda update -y -q --json -n', env, *packages)
+        output = self._execute(CONDA_EXE + ' update -y -q --json -n',
+                               env, *packages)
         return self.clean_conda_json(output)
 
     def remove_packages(self, env, packages):
-        output = self._execute('conda remove -y -q --json -n', env, *packages)
+        output = self._execute(CONDA_EXE + ' remove -y -q --json -n',
+                               env, *packages)
         return self.clean_conda_json(output)
 
     def package_search(self, q):
         # this method is slow and operates synchronously
-        output = self._execute('conda search --json', q)
+        output = self._execute(CONDA_EXE + ' search --json', q)
         data = self.clean_conda_json(output)
 
         if 'error' in data:
