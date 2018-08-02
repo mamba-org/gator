@@ -27,6 +27,8 @@ from .envmanager import EnvManager, package_map
 
 static = os.path.join(os.path.dirname(__file__), 'static')
 
+CONDA_EXE = os.environ.get("CONDA_EXE", "conda")
+
 NS = r'conda'
 
 
@@ -208,7 +210,7 @@ class CondaSearcher(object):
             # Spawn subprocess to get the data
             self.log.debug('Starting conda process')
             self.conda_temp = TemporaryFile(mode='w+')
-            cmdline = 'conda search --json'.split()
+            cmdline = (CONDA_EXE + ' search --json').split()
             self.conda_process = Popen(cmdline, stdout=self.conda_temp,
                                        bufsize=4096)
             self.log.debug('Started: pid %s', self.conda_process.pid)
