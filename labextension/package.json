@@ -1,0 +1,47 @@
+{
+  "name": "jupyterlab_nb_conda",
+  "version": "0.1.0",
+  "description": "Manage your conda environments from the JupyterLab",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension",
+    "conda"
+  ],
+  "homepage": "https://github.com/Anaconda-Platform/nb_conda",
+  "bugs": {
+    "url": "https://github.com/Anaconda-Platform/nb_conda/issues"
+  },
+  "license": "BSD-3-Clause",
+  "author": "Continuum Analytics",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Anaconda-Platform/nb_conda.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf lib",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^0.16.0",
+    "@jupyterlab/apputils": "^0.16.4",
+    "@jupyterlab/mainmenu": "^0.5.3",
+    "@phosphor/widgets": "^1.6.0",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.1",
+    "typescript": "~2.6.0"
+  },
+  "jupyterlab": {
+    "extension": true
+  }
+}
