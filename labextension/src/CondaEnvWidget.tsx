@@ -5,6 +5,8 @@ import * as ReactDOM from 'react-dom';
 import { Title, Widget } from '@phosphor/widgets';
 import { Token } from '@phosphor/coreutils';
 
+import { CondaEnv } from './components/CondaEnv';
+
 export const condaEnvId = 'jupyterlab_nb_conda:plugin';
 
 export const ICondaEnv = new Token<ICondaEnv>('jupyterlab_nb_conda:ICondaEnv');
@@ -33,21 +35,20 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> implements ICondaEnv
     this.id = condaEnvId;
     this.title.label = 'Conda Packages Manager';
     this.title.closable = true;
-    
+
     this.height = height;
     this.width = width;
     this.whitelist = new Set();
   }
 
   protected onUpdateRequest(): void {
-    // this.reactComponent = (
-    //   <ShortcutUI
-    //     height={this.height}
-    //     width={this.width}
-    //   /> );
+    this.reactComponent = (
+      <CondaEnv
+        height={this.height}
+        width={this.width}
+      /> );
     ReactDOM.render(
-      // this.reactComponent, 
-      <h1>Hello</h1>,
+      this.reactComponent,
       document.getElementById(this.id)
     );
     this.render();

@@ -29,8 +29,6 @@ function activateCondaEnv(app: JupyterLab, palette: ICommandPalette, menu: IMain
         /** Attach the widget to the main work area if it's not there */
         app.shell.addToMainArea(widget as Widget);
       }
-      // Call an update
-      widget.update();
 
       /** Activate the widget */
       app.shell.activateById(widget.id);
