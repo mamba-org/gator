@@ -99,7 +99,7 @@ class EnvManager(LoggingConfigurable):
 
         try:
             return json.loads('\n'.join(lines))
-        except Exception as err:
+        except (ValueError, json.JSONDecodeError) as err:
             self.log.warn('[nb_conda] JSON parse fail:\n%s', err)
 
         # try to remove bad lines
@@ -107,7 +107,7 @@ class EnvManager(LoggingConfigurable):
 
         try:
             return json.loads('\n'.join(lines))
-        except Exception as err:
+        except (ValueError, json.JSONDecodeError) as err:
             self.log.error('[nb_conda] JSON clean/parse fail:\n%s', err)
 
         return {"error": True}
