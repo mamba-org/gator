@@ -103,7 +103,7 @@ class EnvManager(LoggingConfigurable):
             self.log.warn('[nb_conda] JSON parse fail:\n%s', err)
 
         # try to remove bad lines
-        lines = [line for line in lines if re.match(JSONISH_RE)]
+        lines = [line for line in lines if re.match(JSONISH_RE, line)]
 
         try:
             return json.loads('\n'.join(lines))
