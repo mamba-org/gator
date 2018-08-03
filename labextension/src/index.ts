@@ -4,18 +4,18 @@ import {
 
 import { Widget } from '@phosphor/widgets';
 
-import { ICommandPalette, VDomRenderer, VDomModel } from '@jupyterlab/apputils';
+import { ICommandPalette } from '@jupyterlab/apputils';
 
 import { IMainMenu } from '@jupyterlab/mainmenu';
 
 import '../style/index.css';
-import CondaEnvWidget from './CondaEnvWidget';
+import { CondaEnvWidget, ICondaEnv } from './CondaEnvWidget';
 
-const condaEnvId = 'jupyterlab_nb_conda';
+const condaEnvId = 'jupyterlab_nb_conda:plugin';
 
-function activateCondaEnv(app: JupyterLab, palette: ICommandPalette, menu: IMainMenu){
+function activateCondaEnv(app: JupyterLab, palette: ICommandPalette, menu: IMainMenu): ICondaEnv{
 
-  const widget: VDomRenderer<VDomModel> = new CondaEnvWidget(-1, -1);
+  const widget = new CondaEnvWidget(-1, -1);
   widget.id = condaEnvId;
   widget.title.label = 'Conda Packages Manager';
   widget.title.closable = true;
@@ -38,19 +38,22 @@ function activateCondaEnv(app: JupyterLab, palette: ICommandPalette, menu: IMain
 
   /** Add command to settings menu */
   menu.settingsMenu.addGroup([{ command: command }], 999);
+
+  return widget;
 };
 
 /**
  * Initialization data for the jupyterlab_nb_conda extension.
  */
-const extension: JupyterLabPlugin<void> = {
+const extension: JupyterLabPlugin<ICondaEnv> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,
   requires: [
     ICommandPalette,
     IMainMenu
-  ]
+  ],
+  provides: ICondaEnv
 };
 
 export default extension;
