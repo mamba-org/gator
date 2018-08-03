@@ -5,6 +5,8 @@ import * as ReactDOM from 'react-dom';
 import { Title, Widget } from '@phosphor/widgets';
 import { Token } from '@phosphor/coreutils';
 
+export const condaEnvId = 'jupyterlab_nb_conda:plugin';
+
 export const ICondaEnv = new Token<ICondaEnv>('jupyterlab_nb_conda:ICondaEnv');
 
 /* Whitelist of environment to show in the conda package manager. If the list contains
@@ -27,7 +29,11 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> implements ICondaEnv
     height: number, 
     width: number
   ) {
-    super();
+    super();    
+    this.id = condaEnvId;
+    this.title.label = 'Conda Packages Manager';
+    this.title.closable = true;
+    
     this.height = height;
     this.width = width;
     this.whitelist = new Set();
