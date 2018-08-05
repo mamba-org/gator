@@ -229,6 +229,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
     @web.authenticated
     @json_errors
     def get(self):
+        # TODO This is not looking at the selected environment :s
         data = searcher.list_available(self)
 
         if data is None:

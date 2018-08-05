@@ -1,86 +1,53 @@
 import * as React from 'react';
 
-import { CondaEnvList, IEnvListProps } from './CondaEnvList';
-import { CondaPkgList } from './CondaPkgList';
-import { showErrorMessage } from '@jupyterlab/apputils';
-import { ServerConnection } from '@jupyterlab/services';
-import { URLExt } from '@jupyterlab/coreutils';
-import { IEnvironment } from './CondaEnvItem';
-import { IPackage } from './CondaPkgItem';
+import { CondaEnvList } from './CondaEnvList';
+import { CondaPkgPanel } from './CondaPkgPanel';
+import { EnvironmentsModel, PackagesModel } from '../models';
 
-/** Helper functions for carry on python notebook server request 
- * 
- * @param {string} url : request url
- * @param {RequestInit} request : initialization parameters for the request
- * @returns {Promise<Response>} : reponse to the request
- */
-export
-async function requestServer(url: string, request: RequestInit): Promise<Response>{
-  let settings = ServerConnection.makeSettings();
-  let fullUrl = URLExt.join(settings.baseUrl, url);
-
-  try {
-    let response = await ServerConnection.makeRequest(fullUrl, request, settings);
-    if(!response.ok){
-      throw new ServerConnection.ResponseError(response);
-    }
-    return Promise.resolve(response);
-  } catch(reason) {
-    throw new ServerConnection.NetworkError(reason);
-  }
+export interface ICondaEnvProps {
+  height: number,
+  width: number,
+  model: EnvironmentsModel
 }
 
-export interface ICondaEnvState {
-  environments: Array<IEnvironment>
-  currentEnvironment?: string,
-  packages: Array<IPackage>
+export interface ICondaEnvState extends EnvironmentsModel.IEnvironments {
+  currentEnvironment?: string
+  pkgsModel : PackagesModel
 }
-
 
 /** Top level React component for widget */
-export class CondaEnv extends React.Component<any, ICondaEnvState>{
+export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
   
   constructor(props){
     super(props);
     this.state = {
       environments: new Array(),
       currentEnvironment: undefined,
-      packages: new Array()
+      pkgsModel: new PackagesModel()
     };
 
-    this.updateEnvs = this.updateEnvs.bind(this);
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
-    
-    this.updateEnvs();
   }
 
-  /** Update the list of available environments */
-  async updateEnvs() {
-    try {
-      let request: RequestInit = {
-        method: 'GET'
-      }
-      let response = await requestServer('conda/environments', request);
-      let data = await response.json() as IEnvListProps;
-
-      let newState: any = { environments: data.environments };
-      if (this.state.currentEnvironment === undefined) {
-        data.environments.forEach(env => {
-          if (env.is_default){
-            newState.currentEnvironment = env.name;
-          }
-        });
-      }
-
-      this.setState(newState);
-
-    } catch (err) {
-      showErrorMessage('Error', 'An error occurred while listing Conda environments.');
-    }
-  };
-
   handleEnvironmentChange(name: string){
-    this.setState({currentEnvironment: name});
+    this.setState({
+      currentEnvironment: name,
+      pkgsModel: new PackagesModel(name)
+    });
+  }
+
+  async componentDidMount(){
+    let newState: Partial<ICondaEnvState> = await this.props.model.load();
+    if (this.state.currentEnvironment === undefined) {
+      newState.environments.forEach(env => {
+        if (env.is_default){
+          newState.currentEnvironment = env.name;
+          newState.pkgsModel = new PackagesModel(env.name);
+        }
+      });
+    }
+
+    this.setState(newState as ICondaEnvState);
   }
 
   render() {
@@ -90,8 +57,8 @@ export class CondaEnv extends React.Component<any, ICondaEnvState>{
           <CondaEnvList 
             environments={this.state.environments}
             onSelectedChange={this.handleEnvironmentChange} />
-          <CondaPkgList 
-            environment={this.state.currentEnvironment} />
+          <CondaPkgPanel 
+            model={this.state.pkgsModel} />
         </div>
       </div>      
     );

@@ -3,33 +3,25 @@ import { VDomRenderer, VDomModel } from '@jupyterlab/apputils';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Title, Widget } from '@phosphor/widgets';
-import { Token } from '@phosphor/coreutils';
 
 import { CondaEnv } from './components/CondaEnv';
+import { EnvironmentsModel } from './models';
 
 export const condaEnvId = 'jupyterlab_nb_conda:plugin';
 
-export const ICondaEnv = new Token<ICondaEnv>('jupyterlab_nb_conda:ICondaEnv');
-
-/* Whitelist of environment to show in the conda package manager. If the list contains
- * only one entry, the environment list won't be shown.
- */
-export interface ICondaEnv {
-  whitelist: Set<string>
-}
-
-export class CondaEnvWidget extends VDomRenderer<VDomModel> implements ICondaEnv {
+export class CondaEnvWidget extends VDomRenderer<VDomModel> {
   height: number;
   width: number;
   id: string;
   isAttached: boolean;
   title: Title<Widget>;
   reactComponent: React.ReactElement<any>;
-  whitelist: Set<string>;
+  envModel: EnvironmentsModel;
 
   constructor(
     height: number, 
-    width: number
+    width: number,
+    envModel: EnvironmentsModel
   ) {
     super();    
     this.id = condaEnvId;
@@ -38,15 +30,16 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> implements ICondaEnv
 
     this.height = height;
     this.width = width;
-    this.whitelist = new Set();
+    this.envModel = envModel;
   }
 
   protected onUpdateRequest(): void {
     this.reactComponent = (
-      <CondaEnv
-        height={this.height}
-        width={this.width}
-      /> );
+    <CondaEnv 
+      height={this.height}
+      width={this.width}
+      model={this.envModel} 
+    />);
     ReactDOM.render(
       this.reactComponent,
       document.getElementById(this.id)

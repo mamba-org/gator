@@ -1,36 +1,25 @@
 import * as React from 'react';
+import { PackagesModel } from '../models';
 
-export interface IPackage {
-  name: string,
-  version: string,
-  build: string
-}
-
-export interface PkgItemProps {
-  name: string,
-  selected: boolean,
-  version: string,
-  build: string,
+export interface PkgItemProps extends PackagesModel.IPackage {
   onChange: () => void
 }
 
-export class CondaPkgItem extends React.Component<PkgItemProps>{
-  render() {
+export const CondaPkgItem = (props: PkgItemProps) => {
     let checkbox;
-    if (this.props.selected) {
-      checkbox = <input type="checkbox" value={this.props.name.toLowerCase()} onChange={this.props.onChange} checked />;
+    if (props.installed) {
+      checkbox = <input type="checkbox" value={props.name} onChange={props.onChange} checked />;
     } else {
-      checkbox = <input type="checkbox" value={this.props.name.toLowerCase()} onChange={this.props.onChange} />;
+      checkbox = <input type="checkbox" value={props.name} onChange={props.onChange} />;
     }
 
     return (
       <div style={{padding: '10px', width: '100%', display: 'table-row'}} >
         <div style={{ display: 'table-cell', width: '40%'}}>
           {checkbox}
-          <label>{this.props.name}</label>
+          <label>{props.name}</label>
         </div>
-        <div style={{ display: 'table-cell', width: '20%'}}>{this.props.version}</div>
-        <div style={{ display: 'table-cell', width: '20%'}}>{this.props.build}</div>
+        <div style={{ display: 'table-cell', width: '20%'}}>{props.version}</div>
+        <div style={{ display: 'table-cell', width: '20%'}}>{props.build}</div>
       </div>);
-  }
 }

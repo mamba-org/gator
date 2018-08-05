@@ -1,9 +1,9 @@
-import { IEnvironment, CondaEnvItem } from "./CondaEnvItem";
+import { CondaEnvItem } from "./CondaEnvItem";
 
 import * as React from 'react';
+import { EnvironmentsModel } from "../models";
 
-export interface IEnvListProps {
-  environments: Array<IEnvironment>,
+export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
   onSelectedChange: (name: string) => void
 }
 

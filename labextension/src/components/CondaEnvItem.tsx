@@ -1,11 +1,5 @@
 import * as React from 'react';
 
-export interface IEnvironment {
-  name: string;
-  dir: string;
-  is_default: boolean;
-}
-
 export interface EnvItemProps {
   name: string,
   selected?: boolean
