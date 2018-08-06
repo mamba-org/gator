@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { PackagesModel } from '../models';
+import { PkgListStyle } from './CondaPkgList';
 
 export interface PkgItemProps extends PackagesModel.IPackage {
   onChange: () => void
@@ -14,12 +15,12 @@ export const CondaPkgItem = (props: PkgItemProps) => {
     }
 
     return (
-      <div style={{padding: '10px', width: '100%', display: 'table-row'}} >
-        <div style={{ display: 'table-cell', width: '40%'}}>
+      <div className={PkgListStyle.Row} >
+        <div className={PkgListStyle.CellName}>
           {checkbox}
           <label>{props.name}</label>
         </div>
-        <div style={{ display: 'table-cell', width: '20%'}}>{props.version}</div>
-        <div style={{ display: 'table-cell', width: '20%'}}>{props.build}</div>
+        <div className={PkgListStyle.Cell}>{props.version}</div>
+        <div className={PkgListStyle.Cell}>{props.build}</div>
       </div>);
 }

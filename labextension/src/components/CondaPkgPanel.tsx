@@ -4,7 +4,7 @@ import { CondaPkgList } from './CondaPkgList';
 import { CondaPkgToolBar } from './CondaPkgToolBar';
 import { CondaPkgStatusBar } from './CondaPkgStatusBar';
 import { showErrorMessage } from '@jupyterlab/apputils';
-import { style } from 'typestyle/lib';
+import { style } from 'typestyle';
 
 export interface IPkgPanelProps {
   environment: string
