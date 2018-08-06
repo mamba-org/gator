@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { style } from 'typestyle';
 
 import { CondaEnvList } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
-import { EnvironmentsModel, PackagesModel } from '../models';
+import { EnvironmentsModel } from '../models';
+import { showErrorMessage } from '@jupyterlab/apputils';
 
 export interface ICondaEnvProps {
   height: number,
@@ -12,7 +14,6 @@ export interface ICondaEnvProps {
 
 export interface ICondaEnvState extends EnvironmentsModel.IEnvironments {
   currentEnvironment?: string
-  pkgsModel : PackagesModel
 }
 
 /** Top level React component for widget */
@@ -22,17 +23,19 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
     super(props);
     this.state = {
       environments: new Array(),
-      currentEnvironment: undefined,
-      pkgsModel: new PackagesModel()
+      currentEnvironment: undefined
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
+    this.handleCreateEnvironment = this.handleCreateEnvironment.bind(this);
+    this.handleCloneEnvironment = this.handleCloneEnvironment.bind(this);
+    this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
+    this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
   }
 
   handleEnvironmentChange(name: string){
     this.setState({
-      currentEnvironment: name,
-      pkgsModel: new PackagesModel(name)
+      currentEnvironment: name
     });
   }
 
@@ -53,34 +56,44 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
   }
 
   async componentDidMount(){
-    let newState: Partial<ICondaEnvState> = await this.props.model.load();
-    if (this.state.currentEnvironment === undefined) {
-      newState.environments.forEach(env => {
-        if (env.is_default){
-          newState.currentEnvironment = env.name;
-          newState.pkgsModel = new PackagesModel(env.name);
-        }
-      });
-    }
+    try{
+      let newState: Partial<ICondaEnvState> = await this.props.model.load();
+      if (this.state.currentEnvironment === undefined) {
+        newState.environments.forEach(env => {
+          if (env.is_default){
+            newState.currentEnvironment = env.name;
+          }
+        });
+      }
 
-    this.setState(newState as ICondaEnvState);
+      this.setState(newState as ICondaEnvState);
+    } catch (error) {
+      showErrorMessage('Error', error);
+    }
   }
 
   render() {
     return (
-      <div id="conda" className="tab-pane" style={{width: '100%', display: 'table', borderCollapse: 'collapse'}}>
-        <div style={{  padding: '10px', width: '100%', display: 'table-row'}}>
-          <CondaEnvList 
-            environments={this.state.environments}
-            onSelectedChange={this.handleEnvironmentChange}
-            onCreate={this.handleCreateEnvironment}
-            onClone={this.handleCloneEnvironment}
-            onImport={this.handleImportEnvironment}
-            onRemove={this.handleRemoveEnvironment} />
-          <CondaPkgPanel 
-            model={this.state.pkgsModel} />
-        </div>
+      <div className={Style.Panel}>
+        <CondaEnvList 
+          environments={this.state.environments}
+          onSelectedChange={this.handleEnvironmentChange}
+          onCreate={this.handleCreateEnvironment}
+          onClone={this.handleCloneEnvironment}
+          onImport={this.handleImportEnvironment}
+          onRemove={this.handleRemoveEnvironment} />
+        <CondaPkgPanel 
+          environment={this.state.currentEnvironment} />
       </div>      
     );
   }
+}
+
+namespace Style {
+  export const Panel = style({
+    width: '100%', 
+    display: 'flex', 
+    flexDirection: 'row',
+    borderCollapse: 'collapse'
+  });
 }

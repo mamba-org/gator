@@ -1,7 +1,6 @@
 import { Token } from "@phosphor/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { URLExt } from "@jupyterlab/coreutils";
-import { showErrorMessage } from "@jupyterlab/apputils";
 
 export const ICondaEnv = new Token<ICondaEnv>('jupyterlab_nb_conda:ICondaEnv');
 
@@ -31,16 +30,16 @@ async function requestServer(url: string, request: RequestInit): Promise<Respons
  * only one entry, the environment list won't be shown.
  */
 export interface ICondaEnv {
-  whitelist: Set<string>,
+  selectedEnv?: string,
   environments: Promise<Array<EnvironmentsModel.IEnvironment>>
 }
 
 export class EnvironmentsModel implements ICondaEnv{
 
-  public whitelist: Set<string>;
+  public selectedEnv?: string;
 
   constructor(){
-    this.whitelist = new Set<string>();
+    this.selectedEnv = undefined;
     this._environments = new Array<EnvironmentsModel.IEnvironment>();
   }
   
@@ -79,7 +78,7 @@ export class EnvironmentsModel implements ICondaEnv{
       return data;
 
     } catch (err) {
-      showErrorMessage('Error', {message: 'An error occurred while listing Conda environments.'});
+      throw new Error('An error occurred while listing Conda environments.');
     }
   };
 
@@ -171,7 +170,7 @@ export class PackagesModel{
       // return {packages: final_list};
 
     } catch (err) {
-      showErrorMessage('Error', {message: 'An error occurred while retrieving available packages.'});
+      throw new Error('An error occurred while retrieving available packages.');
     }
   }
 

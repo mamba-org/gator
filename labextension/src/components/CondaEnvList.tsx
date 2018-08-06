@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { style } from 'typestyle';
 
 import { EnvironmentsModel } from "../models";
 
@@ -7,10 +8,10 @@ import { CondaEnvToolBar } from './CondaEnvToolBar';
 
 export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
   onSelectedChange: (name: string) => void,
-  onCreate: () => void,
-  onClone: () => void,
-  onImport: () => void,
-  onRemove: () => void
+  onCreate(),
+  onClone(),
+  onImport(),
+  onRemove()
 }
 
 /** React component for the environment list */
@@ -22,24 +23,41 @@ export class CondaEnvList extends React.Component<IEnvListProps>{
     });
 
     return (
-      <div>
-        <div style={{display: 'table-cell', width: '30%'}}>
-          <div className="list_toolbar row">
-              <span className="toolbar_info">Conda environments</span>
-          </div>
-          <div className="list_container" style={{width: '100%', display: 'table'}}>
-            <div className="list_body">
-              {listItems}
-            </div>
-          </div>
-        </div>      
-        
-        <CondaEnvToolBar 
-          onCreate={this.props.onCreate} 
-          onClone={this.props.onClone}
-          onImport={this.props.onImport}
-          onRemove={this.props.onRemove} />
+      <div className={Style.Panel}>
+        <div className={Style.NoGrow}>
+            <span>Conda environments</span>
+        </div>
+        <div className={Style.ListEnvs}>
+          {listItems}
+        </div>  
+        <div className={Style.NoGrow}>
+          <CondaEnvToolBar
+            onCreate={this.props.onCreate} 
+            onClone={this.props.onClone}
+            onImport={this.props.onImport}
+            onRemove={this.props.onRemove} />
+        </div>
       </div>
     );
   }
+}
+
+namespace Style{
+  export const Panel = style({
+    flexGrow: 1,
+    flexShrink: 0,
+    display: 'flex',
+    flexDirection: 'column'
+  });
+
+  export const NoGrow = style({
+    flexGrow: 0,
+    flexShrink: 0
+  });
+
+  export const ListEnvs = style({
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column'
+  });
 }
