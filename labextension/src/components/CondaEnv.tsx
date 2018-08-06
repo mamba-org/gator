@@ -21,6 +21,7 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
   
   constructor(props){
     super(props);
+
     this.state = {
       environments: new Array(),
       currentEnvironment: undefined
@@ -74,7 +75,7 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
 
   render() {
     return (
-      <div className={Style.Panel}>
+      <div className={Style.Panel(this.props.height)}>
         <CondaEnvList 
           environments={this.state.environments}
           onSelectedChange={this.handleEnvironmentChange}
@@ -82,7 +83,8 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
           onClone={this.handleCloneEnvironment}
           onImport={this.handleImportEnvironment}
           onRemove={this.handleRemoveEnvironment} />
-        <CondaPkgPanel 
+        <CondaPkgPanel
+          height={this.props.height} 
           environment={this.state.currentEnvironment} />
       </div>      
     );
@@ -90,10 +92,13 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
 }
 
 namespace Style {
-  export const Panel = style({
-    width: '100%', 
-    display: 'flex', 
-    flexDirection: 'row',
-    borderCollapse: 'collapse'
-  });
+  export const Panel = (height: number) =>{
+    return style({
+      width: '100%',
+      height: height,
+      display: 'flex', 
+      flexDirection: 'row',
+      borderCollapse: 'collapse'
+    });
+  } 
 }

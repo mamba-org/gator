@@ -26,6 +26,7 @@ export const TitleItem = (props: ITitleItemProps) => {
 }
 
 export interface IPkgListProps extends PackagesModel.IPackages {
+  height: number
 }
 
 /** Top level React component for widget */
@@ -56,58 +57,67 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
     });
 
     return (
-        <div className={PkgListStyle.List}>
-          <div className={PkgListStyle.Header}>
-            <div className={PkgListStyle.CellName}>
-              <TitleItem
-                title='Name'
-                updateSort={this.handleSort}
-                active={false} />
-            </div>
-            <div className={PkgListStyle.Cell}>
-              <TitleItem 
-                title='Version'
-                updateSort={this.handleSort}
-                active={false} />
-            </div>
-            <div className={PkgListStyle.CellName}>
-              <TitleItem 
-                title='Build'
-                updateSort={this.handleSort}
-                active={false} />
-            </div>
+      <div>
+        <div className={PkgListStyle.Header}>
+          <div className={PkgListStyle.CellName}>
+            <TitleItem
+              title='Name'
+              updateSort={this.handleSort}
+              active={false} />
           </div>
+          <div className={PkgListStyle.Cell}>
+            <TitleItem 
+              title='Version'
+              updateSort={this.handleSort}
+              active={false} />
+          </div>
+          <div className={PkgListStyle.Cell}>
+            <TitleItem 
+              title='Build'
+              updateSort={this.handleSort}
+              active={false} />
+          </div>
+        </div>
+        <div className={PkgListStyle.List(this.props.height)}>
           {listItems}
         </div>
+      </div>
     );
   }
 }
 
 export namespace PkgListStyle{
-  export const List = style({
-    display: 'table'
-  });
+  export const List = (height: number) => {
+    return  style({
+      display: 'flex',
+      height: height,
+      flexDirection: 'column',
+      width: '100%',
+      overflowY: 'auto'
+    });
+  };
 
   export const Header = style({
-    display: 'table-row',
-    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    width: 'calc(100% - 16px)', // Remove sidebar width
     fontWeight: 'bold',
     fontSize: 'var(--jp-ui-font-size2)'
   });
 
   export const Row = style({
-    display: 'table-row',
-    width: '100%'
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    flexShrink: 0
   });
 
   export const CellName = style({
-    display: 'table-cell',
-    width: '40%'
+    flex: '1 0 auto'
   });
 
   export const Cell = style({
-    display: 'table-cell',
-    width: '20%'
+    flex: '0 0 164px'
   });
 
   export const HeaderItem = style({

@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { style, keyframes } from 'typestyle';
-import { NestedCSSProperties } from 'typestyle/lib/types';
+import { style, keyframes, classes } from 'typestyle';
 
 // Credits goes to https://www.pexels.com/blog/css-only-loaders/
 namespace Style{
@@ -10,29 +9,40 @@ namespace Style{
     '100%': {left: '100%'}
   })
 
-  export const DotStyle =  (idx: number, size?: number): NestedCSSProperties => {
+  const CommonDotStyle = style({
+    position: 'relative',
+    backgroundColor: 'var(--jp-layout-color4)',
+    borderRadius: '50%',
+    animationName: DotsLoaderFrames,
+    animationDuration: '4s',
+    animationIterationCount: 'infinite',
+    animationTimingFunction: 'cubic-bezier(.2,.64,.81,.23)',
+  });
+
+  export const DotStyle = (idx: number, size?: number) => {
     if (size === undefined){
-      size = 20
+      size = 20;
     }
-    return { 
-      width: size,
-      height: size,
-      position: 'relative',
-      left: -1 * size,
-      top: -1 * size * idx,
-      backgroundColor: 'var(--jp-layout-color4)',
-      borderRadius: '50%',
-      animationName: DotsLoaderFrames,
-      animationDuration: '4s',
-      animationIterationCount: 'infinite',
-      animationTimingFunction: 'cubic-bezier(.2,.64,.81,.23)',
-      animationDelay: (idx * 150).toString() + 'ms'
-    }
+    return classes(
+      style({ 
+        width: size,
+        height: size,
+        left: -1 * size,
+        top: -1 * size * idx,
+        animationDelay: (idx * 150).toString() + 'ms'
+      }), 
+      CommonDotStyle)
   };
 
-  export const Container = style({
-    overflowX: 'hidden'
-  })
+  export const Container = (size?: number) => {
+    if(size === undefined){
+      size = 20;
+    }
+    return style({
+      height: size,
+      overflow: 'hidden'
+    });
+  };
 }
 
 export interface DotsLoaderProps{
@@ -44,10 +54,10 @@ export const DotsLoader = (props: DotsLoaderProps) => {
   let n = props.nDots ? props.nDots : 4;
   
   for(let i = 0; i < n; i++){
-    dots.push(<div key={'dots-' + i} className={style(Style.DotStyle(i, 10))}></div>);
+    dots.push(<div key={'dots-' + i} className={Style.DotStyle(i, 10)}></div>);
   }
   return (
-    <div className={Style.Container}>
+    <div className={Style.Container(10)}>
       {dots}
     </div>
   );

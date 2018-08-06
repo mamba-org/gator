@@ -7,6 +7,7 @@ import { showErrorMessage } from '@jupyterlab/apputils';
 import { style } from 'typestyle';
 
 export interface IPkgPanelProps {
+  height: number,
   environment: string
 }
 
@@ -68,7 +69,9 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           onApply={this.handleApply}
           onCancel={this.handleCancel}
           />
-        <CondaPkgList packages={this.state.packages}/>
+        <CondaPkgList 
+          height={this.props.height - 75}  // Remove height for top and bottom elements
+          packages={this.state.packages}/>
         <CondaPkgStatusBar isLoading={true} infoText={'Loading packages'}/>
       </div>
     );
