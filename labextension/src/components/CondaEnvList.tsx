@@ -1,10 +1,16 @@
-import { CondaEnvItem } from "./CondaEnvItem";
-
 import * as React from 'react';
+
 import { EnvironmentsModel } from "../models";
 
+import { CondaEnvItem } from "./CondaEnvItem";
+import { CondaEnvToolBar } from './CondaEnvToolBar';
+
 export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
-  onSelectedChange: (name: string) => void
+  onSelectedChange: (name: string) => void,
+  onCreate: () => void,
+  onClone: () => void,
+  onImport: () => void,
+  onRemove: () => void
 }
 
 /** React component for the environment list */
@@ -16,25 +22,23 @@ export class CondaEnvList extends React.Component<IEnvListProps>{
     });
 
     return (
-      <div id="environments" style={{display: 'table-cell', width: '30%'}}>
-        <div id="env_toolbar" className="list_toolbar row">
-          <div className="col-xs-10 no-padding">
-            <span id="env_list_info" className="toolbar_info">Conda environments</span>
+      <div>
+        <div style={{display: 'table-cell', width: '30%'}}>
+          <div className="list_toolbar row">
+              <span className="toolbar_info">Conda environments</span>
           </div>
-          <div className="col-xs-2 no-padding tree-buttons">
-            <span id="env_buttons" className="toolbar_buttons pull-right">
-            <button id="new_env" title="Create new environment" className="btn btn-default btn-xs"><i className="fa fa-plus"></i></button>
-            <button id="refresh_env_list" title="Refresh environment list" className="btn btn-default btn-xs"><i className="fa fa-refresh"></i></button>
-            </span>
+          <div className="list_container" style={{width: '100%', display: 'table'}}>
+            <div className="list_body">
+              {listItems}
+            </div>
           </div>
-        </div>
-        <div id="env_list" className="list_container" style={{width: '100%', display: 'table'}}>
-          <div id="env_list_header" className="list_header row">
-          </div>
-          <div id="env_list_body" className="list_body scrollable">
-            {listItems}
-          </div>
-        </div>
+        </div>      
+        
+        <CondaEnvToolBar 
+          onCreate={this.props.onCreate} 
+          onClone={this.props.onClone}
+          onImport={this.props.onImport}
+          onRemove={this.props.onRemove} />
       </div>
     );
   }

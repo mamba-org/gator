@@ -6,6 +6,22 @@ export const CondaEnvListStyle = style({
   borderCollapse: 'collapse'
 });
 
+export const CondaEnvToolBarStyle = style({
+  width: '100%',
+  flexDirection: 'row'
+});
+
+export const EnvCreateIcon = style({
+  // backgroundImage: 'var()'
+});
+
+export const EnvCloneIcon = style({
+});
+
+export const EnvImportIcon = style({});
+
+export const EnvRemoveIcon = style({});
+
 export const CellStyle = style({
   padding: '6px 12px',
   display: 'table-cell',

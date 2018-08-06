@@ -36,6 +36,22 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
     });
   }
 
+  handleCreateEnvironment(){
+    // TODO
+  }
+
+  handleCloneEnvironment(){
+    // TODO
+  }
+
+  handleImportEnvironment(){
+    // TODO
+  }
+
+  handleRemoveEnvironment(){
+    // TODO
+  }
+
   async componentDidMount(){
     let newState: Partial<ICondaEnvState> = await this.props.model.load();
     if (this.state.currentEnvironment === undefined) {
@@ -56,7 +72,11 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
         <div style={{  padding: '10px', width: '100%', display: 'table-row'}}>
           <CondaEnvList 
             environments={this.state.environments}
-            onSelectedChange={this.handleEnvironmentChange} />
+            onSelectedChange={this.handleEnvironmentChange}
+            onCreate={this.handleCreateEnvironment}
+            onClone={this.handleCloneEnvironment}
+            onImport={this.handleImportEnvironment}
+            onRemove={this.handleRemoveEnvironment} />
           <CondaPkgPanel 
             model={this.state.pkgsModel} />
         </div>
