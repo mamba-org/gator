@@ -6,6 +6,7 @@ import { Title, Widget } from '@phosphor/widgets';
 
 import { CondaEnv } from './components/CondaEnv';
 import { EnvironmentsModel } from './models';
+import { Message } from '@phosphor/messaging';
 
 export const condaEnvId = 'jupyterlab_nb_conda:plugin';
 
@@ -24,22 +25,35 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> {
     envModel: EnvironmentsModel
   ) {
     super();    
-    this.id = condaEnvId;
-    this.title.label = 'Conda Packages Manager';
-    this.title.closable = true;
 
     this.height = height;
     this.width = width;
     this.envModel = envModel;
   }
 
+  /**
+   * Handle activate requests for the widget.
+   */
+  protected onActivateRequest(msg: Message): void {
+    this.node.tabIndex = -1;
+    this.node.focus();
+  }
+
+  /**
+   * Dispose of the IFrame when closing
+   */
+  protected onCloseRequest(msg: Message): void {
+    super.onCloseRequest(msg);
+    this.dispose();
+  }
+
   protected onUpdateRequest(): void {
     this.reactComponent = (
-    <CondaEnv 
-      height={this.height}
-      width={this.width}
-      model={this.envModel} 
-    />);
+      <CondaEnv 
+        height={this.height}
+        width={this.width}
+        model={this.envModel} 
+      />);
     ReactDOM.render(
       this.reactComponent,
       document.getElementById(this.id)
