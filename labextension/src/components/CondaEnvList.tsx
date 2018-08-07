@@ -34,7 +34,7 @@ export class CondaEnvList extends React.Component<IEnvListProps>{
         <div className={Style.Title}>
             <span>Conda environments</span>
         </div>
-        <div className={Style.ListEnvs(this.props.height - 28 - 32)}>
+        <div className={Style.ListEnvs(this.props.height - 29 - 32)}>
           {listItems}
         </div>  
         <div className={Style.NoGrow}>
@@ -54,12 +54,12 @@ namespace Style{
     flexGrow: 1,
     flexShrink: 0,
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflowX: 'hidden'
   });
 
   export const Title = style({
-    flex: '1 0 auto',
-    color: 'var(--jp-ui-font-color2)',
+    color: 'var(--jp-ui-font-color1)',
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 'var(--jp-ui-font-size2)',    
@@ -74,7 +74,6 @@ namespace Style{
   export const ListEnvs = (height: number) => style({
     height: 'calc(' + height + 'px - var(--jp-toolbar-micro-height))',
     overflowY: 'auto',
-    flexGrow: 1,
     display: 'flex',
     flexDirection: 'column'
   });

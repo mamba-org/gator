@@ -20,7 +20,6 @@ export const TitleItem = (props: ITitleItemProps) => {
       onClick={() => props.updateSort(props.title.toLowerCase())}
     >
       {props.title}
-      <div className={PkgListStyle.SortButton}>⌃</div>
     </div>
   );
 }
@@ -71,12 +70,12 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
               updateSort={this.handleSort}
               active={false} />
           </div>
-          <div className={PkgListStyle.Cell}>
+          {/* <div className={PkgListStyle.Cell}>
             <TitleItem 
               title='Build'
               updateSort={this.handleSort}
               active={false} />
-          </div>
+          </div> */}
         </div>
         <div className={PkgListStyle.List(this.props.height)}>
           {listItems}
@@ -90,14 +89,16 @@ export namespace PkgListStyle{
   export const List = (height: number) => {
     return  style({
       display: 'flex',
-      height: height,
+      height: 'calc(' + height + 'px - var(--jp-toolbar-micro-height))',
       flexDirection: 'column',
       width: '100%',
+      overflowX: 'hidden',
       overflowY: 'auto'
     });
   };
 
   export const Header = style({
+    color: 'var(--jp-ui-font-color1)',
     display: 'flex',
     flexDirection: 'row',
     width: 'calc(100% - 16px)', // Remove sidebar width
@@ -122,27 +123,31 @@ export namespace PkgListStyle{
 
   export const HeaderItem = style({
     display: 'flex',
+    padding: '0px 5px'
   
-    $nest: {
-      '&:hover div': {
-        fontWeight: 600,
-        color: 'var(--jp-ui-font-color0)'
-      },
-      '&:focus div': {
-        outline: 'none'
-      },
-      '&:active div': {
-        fontWeight: 600,
-        color: 'var(--jp-ui-font-color0)'
-      }
-    }
+    // $nest: {
+    //   '&:hover div': {
+    //     fontWeight: 600,
+    //     color: 'var(--jp-ui-font-color0)'
+    //   },
+    //   '&:focus div': {
+    //     outline: 'none'
+    //   },
+    //   '&:active div': {
+    //     fontWeight: 600,
+    //     color: 'var(--jp-ui-font-color0)'
+    //   }
+    // }
   });
   
   export const CurrentHeaderItem = style({
     $nest: {
-      '& div': {
-        color: 'var(--jp-ui-font-color0)',
-        fontWeight: 'bold'
+      '&::after': {
+        content: `'🔻'`, //🔻🔺
+        display: 'inline-block',
+        textAlign: 'right',
+        flex: '1 1 auto',
+        padding: '0 5px'
       }
     }
   });

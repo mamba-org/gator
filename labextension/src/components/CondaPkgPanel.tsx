@@ -63,14 +63,14 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
       <div className={Style.Panel}>
         <CondaPkgToolBar
           category='installed'
-          hasSelection={false}
+          hasSelection={true}
           onCategoryChanged={this.handleCategoryChanged}
           onSearch={this.handleSearch}
           onApply={this.handleApply}
           onCancel={this.handleCancel}
           />
         <CondaPkgList 
-          height={this.props.height - 75}  // Remove height for top and bottom elements
+          height={this.props.height - 24 - 26 - 30 -5}  // Remove height for top and bottom elements
           packages={this.state.packages}/>
         <CondaPkgStatusBar isLoading={true} infoText={'Loading packages'}/>
       </div>
@@ -82,6 +82,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
 
 namespace Style {
   export const Panel = style({
-    flexGrow: 3
+    flexGrow: 3,
+    borderLeft: '1px solid var(--jp-border-color2)'
   });
 }

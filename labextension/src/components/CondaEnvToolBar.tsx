@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { style } from 'typestyle';
+
+import { GlobalStyle } from './globalStyles';
+import { style, classes } from 'typestyle/lib';
 
 
 export interface CondaEnvToolBarProps {
@@ -13,58 +15,44 @@ export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
   return (
     <div className='jp-Toolbar'>
       <button 
-        className={Style.Button} 
-        onClick={props.onCreate}>
-          Create</button>
+        className={classes('jp-MaterialIcon', 'jp-AddIcon', Style.Button)}
+        type='button'
+        title='Create'
+        onClick={props.onCreate}></button>
       <button 
-        className={Style.Button} 
-        onClick={props.onClone}>
-          Clone</button>
+        className={classes('jp-MaterialIcon', 'jp-DuplicateIcon', Style.Button)}
+        type='button'
+        title='Clone'
+        onClick={props.onClone}></button>
       <button 
-        className={Style.Button} 
-        onClick={props.onImport}>
-          Import</button>
+        className={classes('jp-MaterialIcon', 'jp-UploadIcon', Style.Button)}
+        type='button'
+        title='Import'
+        onClick={props.onImport}></button>
       <button 
-        className={Style.Button} 
-        onClick={props.onRemove}>
-          Remove</button>
+        className={classes('jp-MaterialIcon', 'jp-CloseIcon', Style.Button)}
+        type='button'
+        title='Remove'
+        onClick={props.onRemove}></button>
     </div>
   );
 }
 
-namespace Style {
-  export const Button = style({
-    flex: '1 1 auto',
-    display: 'inline-block',
-    height: '24px',
-    width: '32px',
-    backgroundColor: 'var(--jp-layout-color1)',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    backgroundSize: '16px',
-    border: '1px solid var(--jp-layout-color1)',
-    paddingLeft: '8px',
-    paddingRight: '8px',
-    fontSize: 'var(--jp-ui-font-size1)',
-    lineHeight: '28px', // var(--jp-private-toolbar-height);
-
-    $nest: {
-      '&:focus': {
-        boxShadow: 'var(--jp-toolbar-box-shadow)',
-        border: '1px solid var(--jp-toolbar-border-color)'
-      },
-      '&:enabled:hover': {
-        border: '1px solid var(--jp-toolbar-border-color)',
-        boxShadow: '0px 0px 2px 0px rgba(0,0,0,0.24)'
-      },
-      '&:enabled:active': {
-        border: '1px solid var(--jp-toolbar-border-color)',
-        backgroundColor: 'var(--jp-toolbar-active-background)',
-        boxShadow: 'var(--jp-toolbar-box-shadow)'
-      },
-      '&:disabled': {
-        opacity: 0.4
-      }
-    }
-  });
+namespace Style{
+  export const Button = classes(
+    GlobalStyle.CustomizedButton,
+    style({
+      flex: '1 1 auto',
+      fontSize: 'var(--jp-ui-font-size1)',
+      color: 'var(--jp-ui-font-color0)',
+      boxSizing: 'border-box',
+      textTransform: 'uppercase',
+      textAlign: 'center',
+      lineHeight: '32px',
+      height: '32px',
+      padding: '0px 12px',
+      letterSpacing: '.8px',
+      outline: 'none'
+    })
+  );
 }
