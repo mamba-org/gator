@@ -79,6 +79,7 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
         <CondaEnvList 
           height={this.props.height}
           environments={this.state.environments}
+          selected={this.state.currentEnvironment}
           onSelectedChange={this.handleEnvironmentChange}
           onCreate={this.handleCreateEnvironment}
           onClone={this.handleCloneEnvironment}

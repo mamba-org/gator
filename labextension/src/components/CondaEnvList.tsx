@@ -6,7 +6,10 @@ import { EnvironmentsModel } from "../models";
 import { CondaEnvItem } from "./CondaEnvItem";
 import { CondaEnvToolBar } from './CondaEnvToolBar';
 
-export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
+export interface IEnvListProps extends EnvironmentsModel.IEnvironments {  
+  height: number,
+  environments: Array<EnvironmentsModel.IEnvironment>,
+  selected: string,
   onSelectedChange: (name: string) => void,
   onCreate(),
   onClone(),
@@ -19,15 +22,19 @@ export class CondaEnvList extends React.Component<IEnvListProps>{
 
   render(){
     const listItems = this.props.environments.map((env, idx) => {
-      return <CondaEnvItem name={env.name} key={"env-" + idx} />;
+      return (
+      <CondaEnvItem 
+        name={env.name} 
+        key={"env-" + idx} 
+        selected={this.props.selected ? env.name === this.props.selected : false}/>);
     });
 
     return (
       <div className={Style.Panel}>
-        <div className={Style.NoGrow}>
+        <div className={Style.Title}>
             <span>Conda environments</span>
         </div>
-        <div className={Style.ListEnvs}>
+        <div className={Style.ListEnvs(this.props.height - 28 - 32)}>
           {listItems}
         </div>  
         <div className={Style.NoGrow}>
@@ -50,12 +57,23 @@ namespace Style{
     flexDirection: 'column'
   });
 
+  export const Title = style({
+    flex: '1 0 auto',
+    color: 'var(--jp-ui-font-color2)',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 'var(--jp-ui-font-size2)',    
+    height: '32px' // --jp-private-settingeditor-switcher-height
+  });
+
   export const NoGrow = style({
     flexGrow: 0,
     flexShrink: 0
   });
 
-  export const ListEnvs = style({
+  export const ListEnvs = (height: number) => style({
+    height: 'calc(' + height + 'px - var(--jp-toolbar-micro-height))',
+    overflowY: 'auto',
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column'
