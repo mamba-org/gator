@@ -55,16 +55,46 @@ export class EnvironmentsModel implements ICondaEnv{
     }
   }  
 
-  clone(){
+  async clone(target: string, name: string): Promise<any>{
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify({ name }),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', target, 'clone'), request);
+      let data = await response.json();
+      return data;
 
+    } catch (err) {
+      throw new Error('An error occurred while cloning "' + target + '".');
+    }
   };
 
-  create(){
+  async create(name: string, type?: 'python2' | 'python3' | 'r'): Promise<any>{
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify({ type }),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', name, 'create'), request);
+      let data = await response.json();
+      return data;
 
+    } catch (err) {
+      throw new Error('An error occurred while creating "' + name + '".');
+    }
   };
 
-  export(){
-
+  export(name: string): Promise<any>{
+    try {
+      let request: RequestInit = {
+        method: 'GET'
+      }
+      return requestServer(URLExt.join('conda', 'environments', name, 'export'), request);
+      
+    } catch (err) {
+      throw new Error('An error occurred while exporting Conda environment "' + name + '".');
+    }
   };
 
   async load(): Promise<EnvironmentsModel.IEnvironments>{
@@ -82,8 +112,18 @@ export class EnvironmentsModel implements ICondaEnv{
     }
   };
 
-  remove(){
+  async remove(name: string){
+    try {
+      let request: RequestInit = {
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', name, 'delete'), request);
+      let data = await response.json();
+      return data;
 
+    } catch (err) {
+      throw new Error('An error occurred while removing "' + name + '".');
+    }
   };
 
   private _environments: Array<EnvironmentsModel.IEnvironment>;
@@ -174,28 +214,79 @@ export class PackagesModel{
     }
   }
 
-  conda_install(){
-    if (this.environment === undefined){
-      return
+  async conda_install(packages: Array<string>): Promise<any>{
+    if (this.environment === undefined || packages.length === 0){
+      return Promise.resolve();
     }
 
-  }
-
-  conda_check_updates(){
-    if (this.environment === undefined){
-      return
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify(packages),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'install'), request);
+      let data = await response.json();
+      return data;
+      
+    } catch (error) {
+      throw new Error('An error occurred while installing packages.');
     }
   }
 
-  conda_update(){
+  async conda_check_updates(packages: Array<string>): Promise<any>{
     if (this.environment === undefined){
-      return
+      return Promise.resolve();
+    }
+
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify(packages),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'check'), request);
+      let data = await response.json();
+      return data;
+      
+    } catch (error) {
+      throw new Error('An error occurred while checking for package updates.');
     }
   }
 
-  conda_remove(){
+  async conda_update(packages: Array<string>): Promise<any>{
     if (this.environment === undefined){
-      return
+      return Promise.resolve();
+    }
+
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify(packages),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'update'), request);
+      let data = await response.json();
+      return data;
+      
+    } catch (error) {
+      throw new Error('An error occurred while updating packages.');
+    }
+  }
+
+  async conda_remove(packages: Array<string>): Promise<any>{
+    if (this.environment === undefined){
+      return Promise.resolve();
+    }
+
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify(packages),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'remove'), request);
+      let data = await response.json();
+      return data;
+      
+    } catch (error) {
+      throw new Error('An error occurred while removing packages.');
     }
   }
 }
