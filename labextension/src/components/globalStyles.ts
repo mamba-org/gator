@@ -2,6 +2,16 @@ import { style, classes } from 'typestyle';
 import { NestedCSSProperties } from 'typestyle/lib/types';
 
 export namespace GlobalStyle {
+
+  export const FaIcon : NestedCSSProperties = {
+    minWidth: 16,
+    minHeight: 16,
+    display: 'inline-block',
+    verticalAlign: 'text-top',
+    fontWeight: 'bold',
+    color: 'var(--jp-ui-font-color0)'
+  };
+
   export const CustomizedButton = style({
     display: 'inline-block',
     height: '24px',

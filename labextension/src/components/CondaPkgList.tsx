@@ -25,7 +25,9 @@ export const TitleItem = (props: ITitleItemProps) => {
 }
 
 export interface IPkgListProps extends PackagesModel.IPackages {
-  height: number
+  height: number,
+  onSort: (name: string) => void,
+  onPkgClick()
 }
 
 /** Top level React component for widget */
@@ -33,14 +35,7 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
 
   constructor(props){
     super(props);
-
-    this.handleChangePackage = this.handleChangePackage.bind(this);
-    this.handleSort = this.handleSort.bind(this);
   }
-
-  handleChangePackage(){}
-
-  handleSort(name: string){}
 
   render(){
     const listItems = this.props.packages.map((pkg, idx) => {
@@ -48,26 +43,39 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
         <CondaPkgItem 
           name={pkg.name} 
           key={"pkg-" + idx} 
-          installed={pkg.installed}
+          status={pkg.status}
           updatable={pkg.updatable}
           version={pkg.version} 
-          build={pkg.build} 
-          onChange={this.handleChangePackage} />);
+          build={pkg.build}
+          channel={pkg.channel}
+          onChange={this.props.onPkgClick} />);
     });
 
     return (
       <div>
         <div className={PkgListStyle.Header}>
+          <div className={PkgListStyle.CellStatus}>
+            <TitleItem 
+              title=''
+              updateSort={() => {}}
+              active={false}/>
+          </div>
           <div className={PkgListStyle.CellName}>
             <TitleItem
               title='Name'
-              updateSort={this.handleSort}
+              updateSort={this.props.onSort}
               active={false} />
           </div>
           <div className={PkgListStyle.Cell}>
             <TitleItem 
               title='Version'
-              updateSort={this.handleSort}
+              updateSort={this.props.onSort}
+              active={false} />
+          </div>
+          <div className={PkgListStyle.Cell}>
+            <TitleItem 
+              title='Channel'
+              updateSort={this.props.onSort}
               active={false} />
           </div>
           {/* <div className={PkgListStyle.Cell}>
@@ -111,6 +119,11 @@ export namespace PkgListStyle{
     flexDirection: 'row',
     width: '100%',
     flexShrink: 0
+  });
+
+  export const CellStatus = style({
+    flex: '0 0 auto',
+    padding: '0px 2px'
   });
 
   export const CellName = style({

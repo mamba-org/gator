@@ -27,9 +27,11 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
     this._model = new PackagesModel(this.props.environment);
 
     this.handleCategoryChanged = this.handleCategoryChanged.bind(this);
+    this.handleClick = this.handleClick.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
+    this.handleSort = this.handleSort.bind(this);
 
     this._updatePackages();
   }
@@ -44,12 +46,16 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   }
 
   handleCategoryChanged() {}
+
+  handleClick(){}
   
   handleSearch(){}
 
   handleApply(){}
 
   handleCancel(){}
+
+  handleSort(){}
 
   componentWillReceiveProps(newProps: IPkgPanelProps){
     if(newProps.environment !== this.props.environment){
@@ -59,6 +65,8 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   }
 
   render(){
+    let info: string = this.state.packages.length === 0 ? 'Loading packages' : '';
+
     return (
       <div className={Style.Panel}>
         <CondaPkgToolBar
@@ -71,8 +79,13 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           />
         <CondaPkgList 
           height={this.props.height - 24 - 26 - 30 -5}  // Remove height for top and bottom elements
-          packages={this.state.packages}/>
-        <CondaPkgStatusBar isLoading={true} infoText={'Loading packages'}/>
+          packages={this.state.packages}
+          onPkgClick={this.handleClick}
+          onSort={this.handleSort}
+          />
+        <CondaPkgStatusBar 
+          isLoading={this.state.packages.length === 0} 
+          infoText={info}/>
       </div>
     );
   }

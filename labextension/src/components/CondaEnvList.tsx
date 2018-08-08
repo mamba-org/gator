@@ -21,12 +21,18 @@ export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
 export class CondaEnvList extends React.Component<IEnvListProps>{
 
   render(){
+    let isDefault = false;
     const listItems = this.props.environments.map((env, idx) => {
+      let selected = env.name === this.props.selected;
+      if (selected){
+        isDefault = env.is_default;
+      }
       return (
       <CondaEnvItem 
         name={env.name} 
         key={"env-" + idx} 
-        selected={this.props.selected ? env.name === this.props.selected : false}/>);
+        selected={this.props.selected ? env.name === this.props.selected : false}
+        onClick={this.props.onSelectedChange} />);
     });
 
     return (
@@ -39,6 +45,7 @@ export class CondaEnvList extends React.Component<IEnvListProps>{
         </div>  
         <div className={Style.NoGrow}>
           <CondaEnvToolBar
+            isBase={isDefault}
             onCreate={this.props.onCreate} 
             onClone={this.props.onClone}
             onImport={this.props.onImport}

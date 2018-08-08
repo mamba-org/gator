@@ -300,7 +300,8 @@ export namespace PackagesModel {
     name: string,
     version: string,
     build: string,
-    installed?: boolean,
+    channel?: string,
+    status?: 'installed' | 'update' | 'remove' | 'available',
     updatable?: boolean
   }
 

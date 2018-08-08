@@ -1,10 +1,12 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { style } from 'typestyle';
 
 import { CondaEnvList } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
 import { EnvironmentsModel } from '../models';
-import { showErrorMessage } from '@jupyterlab/apputils';
+import { showErrorMessage, showDialog, Dialog } from '@jupyterlab/apputils';
+import { Widget } from '@phosphor/widgets';
 
 export interface ICondaEnvProps {
   height: number,
@@ -40,8 +42,35 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
     });
   }
 
-  handleCreateEnvironment(){
-    // TODO
+  async handleCreateEnvironment(){
+    try{
+      let body = document.createElement('div');
+      let content = (props: any) => {
+        return (
+          <div>
+            <label>Name: </label>
+            <input value={props.name} />
+            <label>Type: </label>
+            <select value={props.type}>
+              <option value='python2'>Python 2</option>
+              <option value='python3'>Python 3</option>
+              <option value='r'>R</option>
+            </select>
+          </div>
+        );
+      };
+      ReactDOM.render(content({name: '', type: 'python3'}), body);
+      let response = await showDialog({
+        title: 'Environment Creation',
+        body: new Widget({node: body}),
+        buttons: [Dialog.cancelButton(), Dialog.okButton()]
+      });
+      if (response.button.accept){
+        this.props.model.create(name);
+      }
+    } catch (error) {
+      showErrorMessage('Error', error);
+    }
   }
 
   handleCloneEnvironment(){

@@ -9,20 +9,23 @@ export interface PkgItemProps extends PackagesModel.IPackage {
 }
 
 export const CondaPkgItem = (props: PkgItemProps) => {
-    let checkbox;
-    if (props.installed) {
-      checkbox = <input type="checkbox" value={props.name} onChange={props.onChange} checked />;
-    } else {
-      checkbox = <input type="checkbox" value={props.name} onChange={props.onChange} />;
+    let status = <i className={Style.StatusAvailable}></i>
+    if (props.status === 'installed'){
+      status = <i className={Style.StatusInstalled}></i>
+    } else if (props.status === 'update'){
+      status = <i className={Style.StatusUpdate}></i>
+    } else if (props.status === 'remove'){
+      status = <i className={Style.StatusRemove}></i>
     }
 
     return (
       <div className={classes(PkgListStyle.Row, Style.Item)} >
+        <div className={PkgListStyle.CellStatus}>{status}</div>
         <div className={PkgListStyle.CellName}>
-          {checkbox}
-          <label>{props.name}</label>
+          {props.name}
         </div>
         <div className={PkgListStyle.Cell}>{props.version}</div>
+        <div className={PkgListStyle.Cell}>{props.channel}</div>
         {/* <div className={PkgListStyle.Cell}>{props.build}</div> */}
       </div>);
 }
@@ -48,4 +51,43 @@ namespace Style{
       border: '1px solid var(--jp-brand-color1)',
       display: 'flex'
     });
+  
+    export const StatusAvailable = classes(
+      'fa', 'fa-square-o', 'fa-fw',
+      style(
+        GlobalStyle.FaIcon,
+        {
+          verticalAlign: 'middle'
+        })
+    );
+  
+  export const StatusInstalled = classes(
+    'fa', 'fa-check-square', 'fa-fw', 
+    style(
+      GlobalStyle.FaIcon,
+      {
+        verticalAlign: 'middle',
+      color: 'var(--jp-brand-color1)'
+      })
+  );
+  
+  export const StatusUpdate = classes(
+    'fa', 'fa-external-link-square', 'fa-fw', 
+    style(
+      GlobalStyle.FaIcon,
+      {
+        verticalAlign: 'middle',
+      color: 'var(--jp-accent-color1)'
+      })
+  );
+  
+  export const StatusRemove = classes(
+    'fa', 'fa-minus-square', 'fa-fw', 
+    style(
+      GlobalStyle.FaIcon,
+      {
+        verticalAlign: 'middle',
+      color: 'var(--jp-error-color1)'
+      })
+  );
 }

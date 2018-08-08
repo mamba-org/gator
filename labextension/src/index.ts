@@ -12,6 +12,8 @@ import { CondaEnvWidget, condaEnvId } from './CondaEnvWidget';
 import { JSONExt } from '@phosphor/coreutils';
 import { ICondaEnv, EnvironmentsModel } from './models';
 import '../style/index.css';
+import { GlobalStyle } from './components/globalStyles';
+import { classes, style } from 'typestyle';
 
 function activateCondaEnv(app: JupyterLab, palette: ICommandPalette, menu: IMainMenu, 
   restorer: ILayoutRestorer): ICondaEnv{
@@ -43,7 +45,9 @@ function activateCondaEnv(app: JupyterLab, palette: ICommandPalette, menu: IMain
       }
       if (!widget.isAttached) {
         widget.id = plugin_namespace;
-        widget.title.label = 'Conda Packages Manager';
+        widget.title.label = 'Packages';
+        widget.title.caption = 'Conda Packages Manager'
+        widget.title.iconClass = Style.TabIcon;
         widget.title.closable = true;
         /** Attach the widget to the main work area if it's not there */
         shell.addToMainArea(widget as Widget);
@@ -79,3 +83,16 @@ const extension: JupyterLabPlugin<ICondaEnv> = {
 };
 
 export default extension;
+
+namespace Style {
+  export const TabIcon = classes(
+    'fa', 'fa-cubes',
+    style(
+      GlobalStyle.FaIcon,
+      {
+        lineHeight: 'unset',
+        fontWeight: 'normal'
+      }
+    )
+  );
+}

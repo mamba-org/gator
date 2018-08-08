@@ -4,13 +4,16 @@ import { GlobalStyle } from './globalStyles';
 
 export interface EnvItemProps {
   name: string,
-  selected?: boolean
+  selected?: boolean,
+  onClick: (name: string) => void
 }
 
 export class CondaEnvItem extends React.Component<EnvItemProps>{
   render() {
     return (
-      <div className={this.props.selected ? Style.SelectedItem : Style.Item}>
+      <div 
+        className={this.props.selected ? Style.SelectedItem : Style.Item}
+        onClick={() => this.props.onClick(this.props.name)}>
         {this.props.name}
       </div>
     );

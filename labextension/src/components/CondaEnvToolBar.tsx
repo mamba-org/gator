@@ -5,6 +5,7 @@ import { style, classes } from 'typestyle/lib';
 
 
 export interface CondaEnvToolBarProps {
+  isBase: boolean,
   onCreate(),
   onClone(),
   onImport(),
@@ -20,10 +21,13 @@ export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
         title='Create'
         onClick={props.onCreate}></button>
       <button 
-        className={classes('jp-MaterialIcon', 'jp-DuplicateIcon', Style.Button)}
+        className={Style.Button}
         type='button'
         title='Clone'
-        onClick={props.onClone}></button>
+        onClick={props.onClone}
+        disabled={props.isBase}>
+          <i className={classes('fa', 'fa-clone', style(GlobalStyle.FaIcon))}></i>
+      </button>
       <button 
         className={classes('jp-MaterialIcon', 'jp-UploadIcon', Style.Button)}
         type='button'
@@ -33,7 +37,8 @@ export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
         className={classes('jp-MaterialIcon', 'jp-CloseIcon', Style.Button)}
         type='button'
         title='Remove'
-        onClick={props.onRemove}></button>
+        onClick={props.onRemove}
+        disabled={props.isBase}></button>
     </div>
   );
 }
