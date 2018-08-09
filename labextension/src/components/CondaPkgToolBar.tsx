@@ -5,7 +5,7 @@ import { classes, style } from 'typestyle/lib';
 export interface CondaPkgToolBarProps {
   category: 'all' | 'installed' | 'available' | 'updatable' | 'selected',
   hasSelection: boolean,
-  onCategoryChanged(),
+  onCategoryChanged: (name: string) => void,
   onSearch(),
   onApply(),
   onCancel()
@@ -19,7 +19,7 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
           <select 
             className={Style.Select}
             value={props.category} 
-            onChange={props.onCategoryChanged}>
+            onChange={() => { props.onCategoryChanged(props.category) }}>
               <option value='all'>All</option>        
               <option value='installed'>Installed</option>        
               <option value='available'>Not installed</option>        

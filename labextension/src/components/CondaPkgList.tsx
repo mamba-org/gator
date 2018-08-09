@@ -5,29 +5,50 @@ import { style, classes } from 'typestyle';
 
 export interface ITitleItemProps {
   title: string,
-  updateSort: (name: string) => void,
-  active: boolean
+  field: TitleItem.SortField,  
+  status: TitleItem.SortStatus,
+  updateSort: (name: TitleItem.SortField, status: TitleItem.SortStatus) => void
 }
 
-export const TitleItem = (props: ITitleItemProps) => {
-  return (
-    <div
-      className={
-        props.active
-          ? classes(PkgListStyle.HeaderItem, PkgListStyle.CurrentHeaderItem)
-          : PkgListStyle.HeaderItem
-      }
-      onClick={() => props.updateSort(props.title.toLowerCase())}
-    >
-      {props.title}
-    </div>
-  );
+export class TitleItem extends React.Component<ITitleItemProps>{
+  render(){
+    return (
+      <div
+        className={
+          this.props.status === TitleItem.SortStatus.None
+            ? PkgListStyle.HeaderItem
+            : classes(PkgListStyle.HeaderItem, PkgListStyle.CurrentHeaderItem)
+        }
+        onClick={() => this.props.updateSort(this.props.field, this.props.status)}
+      >
+        {this.props.title}
+      </div>
+    );
+  }
+};
+
+export namespace TitleItem {
+  export enum SortStatus {
+    Down = -1,
+    None,
+    Up,
+  }
+
+  export enum SortField {
+    Name = 'NAME',
+    Channel = 'CHANNEL',
+    Status = 'STATUS',
+    Version = 'VERSION'
+  }
 }
 
-export interface IPkgListProps extends PackagesModel.IPackages {
+export interface IPkgListProps {
+  packages: PackagesModel.IPackages,
   height: number,
-  onSort: (name: string) => void,
-  onPkgClick()
+  sortedBy: TitleItem.SortField,
+  sortDirection: TitleItem.SortStatus,
+  onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void,
+  onPkgClick: (name: string) => void
 }
 
 /** Top level React component for widget */
@@ -38,7 +59,8 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
   }
 
   render(){
-    const listItems = this.props.packages.map((pkg, idx) => {
+    const listItems = Object.keys(this.props.packages).map((name, idx) => {
+      let pkg = this.props.packages[name];
       return (
         <CondaPkgItem 
           name={pkg.name} 
@@ -48,7 +70,7 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
           version={pkg.version} 
           build={pkg.build}
           channel={pkg.channel}
-          onChange={this.props.onPkgClick} />);
+          onClick={this.props.onPkgClick} />);
     });
 
     return (
@@ -57,33 +79,43 @@ export class CondaPkgList extends React.Component<IPkgListProps>{
           <div className={PkgListStyle.CellStatus}>
             <TitleItem 
               title=''
+              field={TitleItem.SortField.Status}
               updateSort={() => {}}
-              active={false}/>
+              status={
+                this.props.sortedBy === TitleItem.SortField.Status 
+                  ? this.props.sortDirection 
+                  : TitleItem.SortStatus.None}/>
           </div>
           <div className={PkgListStyle.CellName}>
             <TitleItem
               title='Name'
+              field={TitleItem.SortField.Name}
               updateSort={this.props.onSort}
-              active={false} />
+              status={
+                this.props.sortedBy === TitleItem.SortField.Name 
+                  ? this.props.sortDirection 
+                  : TitleItem.SortStatus.None}/>
           </div>
           <div className={PkgListStyle.Cell}>
             <TitleItem 
               title='Version'
+              field={TitleItem.SortField.Version}
               updateSort={this.props.onSort}
-              active={false} />
+              status={
+                this.props.sortedBy === TitleItem.SortField.Version 
+                  ? this.props.sortDirection 
+                  : TitleItem.SortStatus.None}/>
           </div>
           <div className={PkgListStyle.Cell}>
             <TitleItem 
               title='Channel'
+              field={TitleItem.SortField.Channel}
               updateSort={this.props.onSort}
-              active={false} />
+              status={
+                this.props.sortedBy === TitleItem.SortField.Channel 
+                  ? this.props.sortDirection 
+                  : TitleItem.SortStatus.None}/>
           </div>
-          {/* <div className={PkgListStyle.Cell}>
-            <TitleItem 
-              title='Build'
-              updateSort={this.handleSort}
-              active={false} />
-          </div> */}
         </div>
         <div className={PkgListStyle.List(this.props.height)}>
           {listItems}
@@ -156,7 +188,9 @@ export namespace PkgListStyle{
   export const CurrentHeaderItem = style({
     $nest: {
       '&::after': {
-        content: `'🔻'`, //🔻🔺
+        // content: `'🔻'`, //🔻🔺
+        content: `'\\F0DD'`, // up \f0de
+        fontFamily: 'FontAwesome',
         display: 'inline-block',
         textAlign: 'right',
         flex: '1 1 auto',

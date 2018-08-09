@@ -150,19 +150,19 @@ export namespace EnvironmentsModel {
 
 export class PackagesModel{
 
-  packages: Array<PackagesModel.IPackage>;
+  packages: PackagesModel.IPackages;
   environment?: string;
 
   constructor(environment? : string){
     this.environment = environment;
-    this.packages = new Array<PackagesModel.IPackage>();
+    this.packages = {};
     this.load();
   }
 
   async load(): Promise<PackagesModel.IPackages>{
     if (this.environment === undefined){
-      this.packages = new Array<PackagesModel.IPackage>();
-      return Promise.resolve({ packages: new Array<PackagesModel.IPackage>()});
+      this.packages = {};
+      return Promise.resolve({});
     }
 
     try {
@@ -175,10 +175,13 @@ export class PackagesModel{
 
       // Get installed packages
       let response = await requestServer(URLExt.join('conda', 'environments', this.environment), request);
-      let data = await response.json() as PackagesModel.IPackages;
+      let data = await response.json() as {packages: Array<PackagesModel.IPackage>};
       
-      this.packages = data.packages;
-      return data;
+      this.packages = {};
+      data.packages.forEach(pkg => {
+        this.packages[pkg.name] = pkg;
+      });
+      return this.packages;
 
       // // Set installed package status
       // //- packages are sorted by name, we take advantage of this.
@@ -293,6 +296,13 @@ export class PackagesModel{
 
 export namespace PackagesModel {
 
+  export enum PkgStatus {
+    Installed = 'INSTALLED',
+    Update = 'UPDATE',
+    Remove = 'REMOVE',
+    Available = 'AVAILABLE'
+  }
+
   /**
    * Description of the REST API attributes for each package
    */
@@ -301,7 +311,7 @@ export namespace PackagesModel {
     version: string,
     build: string,
     channel?: string,
-    status?: 'installed' | 'update' | 'remove' | 'available',
+    status?: PkgStatus,
     updatable?: boolean
   }
 
@@ -309,6 +319,6 @@ export namespace PackagesModel {
    * Description of the REST API response when loading packages
    */
   export interface IPackages {
-    packages: Array<IPackage>
+    [key: string] : IPackage
   }
 }

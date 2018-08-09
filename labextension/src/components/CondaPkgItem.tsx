@@ -5,28 +5,30 @@ import { style, classes } from 'typestyle';
 import { GlobalStyle } from './globalStyles';
 
 export interface PkgItemProps extends PackagesModel.IPackage {
-  onChange: () => void
+  onClick: (name: string) => void
 }
 
 export const CondaPkgItem = (props: PkgItemProps) => {
     let status = <i className={Style.StatusAvailable}></i>
-    if (props.status === 'installed'){
+    if (props.status === PackagesModel.PkgStatus.Installed){
       status = <i className={Style.StatusInstalled}></i>
-    } else if (props.status === 'update'){
+    } else if (props.status === PackagesModel.PkgStatus.Update){
       status = <i className={Style.StatusUpdate}></i>
-    } else if (props.status === 'remove'){
+    } else if (props.status === PackagesModel.PkgStatus.Remove){
       status = <i className={Style.StatusRemove}></i>
     }
 
     return (
       <div className={classes(PkgListStyle.Row, Style.Item)} >
-        <div className={PkgListStyle.CellStatus}>{status}</div>
+        <div 
+          className={PkgListStyle.CellStatus}
+          onClick={() => props.onClick(props.name)}>
+            {status}</div>
         <div className={PkgListStyle.CellName}>
           {props.name}
         </div>
         <div className={PkgListStyle.Cell}>{props.version}</div>
         <div className={PkgListStyle.Cell}>{props.channel}</div>
-        {/* <div className={PkgListStyle.Cell}>{props.build}</div> */}
       </div>);
 }
 
