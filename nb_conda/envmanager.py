@@ -7,7 +7,7 @@ import re
 import typing
 
 from pkg_resources import parse_version
-from subprocess import check_output, CalledProcessError
+from subprocess import Popen, PIPE
 
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Dict
@@ -52,18 +52,21 @@ class EnvManager(LoggingConfigurable):
         cmdline = cmd.split() + list(args)
         self.log.debug('[nb_conda] command: %s', cmdline)
 
-        try:
-            output = check_output(cmdline)
-        except CalledProcessError as exc:
-            self.log.debug('[nb_conda] exit code: %s', exc.returncode)
-            output = exc.output
+        process = Popen(cmdline, stdout=PIPE, stderr=PIPE)
+        output, error = process.communicate()
+
+        if process.returncode == 0:
+            output = output.decode('utf-8').splitlines()
+        else:
+            self.log.debug('[nb_conda] exit code: %s', process.returncode)
+            output = error.decode("utf-8")
 
         self.log.debug('[nb_conda] output: %s', output[:MAX_LOG_OUTPUT])
 
         if len(output) > MAX_LOG_OUTPUT:
             self.log.debug('[nb_conda] ...')
 
-        return output.decode("utf-8")
+        return output
 
     def list_envs(self) -> typing.Dict[str, str]:
         """List all environments that conda knows about"""
@@ -87,7 +90,7 @@ class EnvManager(LoggingConfigurable):
         return {
             "environments": [root_env] +
             [get_info(env)
-             for env in info['envs'] if env != info['root_prefix']]
+             for env in info['envs'] if env != info['root_prefix'] and env.startswith(info['root_prefix'])]
         }
 
     def delete_env(self, env: str) -> dict:
