@@ -56,7 +56,7 @@ class EnvManager(LoggingConfigurable):
         output, error = process.communicate()
 
         if process.returncode == 0:
-            output = output.decode('utf-8').splitlines()
+            output = output.decode('utf-8')
         else:
             self.log.debug('[nb_conda] exit code: %s', process.returncode)
             output = error.decode("utf-8")
@@ -87,10 +87,12 @@ class EnvManager(LoggingConfigurable):
                 'is_default': env == default_env
             }
 
+        envs_folder = os.path.join(info['root_prefix'], 'envs')
+
         return {
             "environments": [root_env] +
             [get_info(env)
-             for env in info['envs'] if env != info['root_prefix'] and env.startswith(info['root_prefix'])]
+             for env in info['envs'] if env.startswith(envs_folder)]
         }
 
     def delete_env(self, env: str) -> dict:
