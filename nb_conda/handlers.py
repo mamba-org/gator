@@ -42,6 +42,18 @@ class EnvBaseHandler(APIHandler):
         """Return our env_manager instance"""
         return self.settings['env_manager']
 
+class OptionsHandler(EnvBaseHandler):
+    """Handler for settings default options for conda commands."""
+
+    @web.authenticated
+    def get(self):
+        """Get conda command lines options.
+
+        `GET /options`
+        """
+        self.finish(json.dumps(self.env_manager.options))
+    
+    # TODO allow POST options
 
 class MainEnvHandler(EnvBaseHandler):
     """
@@ -157,7 +169,7 @@ class CondaSearcher(object):
         self.conda_process = None
         self.conda_temp = None
 
-    def list_available(self, handler=None):
+    def list_available(self, handler=None, options=None):
         """
         List the available conda packages by kicking off a background
         conda process. Will return None. Call again to poll the process
@@ -167,6 +179,9 @@ class CondaSearcher(object):
         TODO - break up this method.
         """
         self.log = handler.log
+
+        if options is None:
+            options = []
 
         if self.conda_process is not None:
             # already running, check for completion
@@ -210,7 +225,7 @@ class CondaSearcher(object):
             # Spawn subprocess to get the data
             self.log.debug('Starting conda process')
             self.conda_temp = TemporaryFile(mode='w+')
-            cmdline = (CONDA_EXE + ' search --json').split()
+            cmdline = [CONDA_EXE, 'search', '--json'] + options
             self.conda_process = Popen(cmdline, stdout=self.conda_temp,
                                        bufsize=4096)
             self.log.debug('Started: pid %s', self.conda_process.pid)
@@ -230,7 +245,8 @@ class AvailablePackagesHandler(EnvBaseHandler):
     @json_errors
     def get(self):
         # TODO This is not looking at the selected environment :s
-        data = searcher.list_available(self)
+        data = searcher.list_available(self, 
+                                       options=self.env_manager.get_cmd_options(list(self.env_manager.options)))
 
         if data is None:
             # tell client to check back later
@@ -271,6 +287,7 @@ _pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"
 _pkg_action_regex = r"(?P<action>install|update|check|remove)"
 
 default_handlers = [
+    (r"/options", OptionsHandler),
     (r"/environments", MainEnvHandler),
     (r"/environments/%s/packages/%s" % (_env_regex, _pkg_action_regex),
         EnvPkgActionHandler),
