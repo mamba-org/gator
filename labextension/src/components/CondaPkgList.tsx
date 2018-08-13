@@ -188,8 +188,7 @@ export namespace PkgListStyle{
   export const CurrentHeaderItem = style({
     $nest: {
       '&::after': {
-        // content: `'🔻'`, //🔻🔺
-        content: `'\\F0DD'`, // up \f0de
+        content: `'\\F0DD'`, // up \\F0DE
         fontFamily: 'FontAwesome',
         display: 'inline-block',
         textAlign: 'right',

@@ -15,7 +15,8 @@ export interface ICondaEnvProps {
 }
 
 export interface ICondaEnvState extends EnvironmentsModel.IEnvironments {
-  currentEnvironment?: string
+  currentEnvironment?: string,
+  isLoading: boolean
 }
 
 /** Top level React component for widget */
@@ -26,7 +27,8 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
 
     this.state = {
       environments: new Array(),
-      currentEnvironment: undefined
+      currentEnvironment: undefined,
+      isLoading: false
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
@@ -86,19 +88,22 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
   }
 
   async componentDidMount(){
-    try{
-      let newState: Partial<ICondaEnvState> = await this.props.model.load();
-      if (this.state.currentEnvironment === undefined) {
-        newState.environments.forEach(env => {
-          if (env.is_default){
-            newState.currentEnvironment = env.name;
-          }
-        });
+    if (!this.state.isLoading){
+      this.setState({isLoading: true});
+      try{
+        let newState: Partial<ICondaEnvState> = await this.props.model.load();
+        if (this.state.currentEnvironment === undefined) {
+          newState.environments.forEach(env => {
+            if (env.is_default){
+              newState.currentEnvironment = env.name;
+            }
+          });
+        }
+        newState.isLoading = false;
+        this.setState(newState as ICondaEnvState);
+      } catch (error) {
+        showErrorMessage('Error', error);
       }
-
-      this.setState(newState as ICondaEnvState);
-    } catch (error) {
-      showErrorMessage('Error', error);
     }
   }
 

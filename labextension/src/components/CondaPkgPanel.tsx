@@ -12,6 +12,7 @@ export interface IPkgPanelProps {
 }
 
 export interface IPkgPanelState {
+  isLoading: boolean,
   packages: PackagesModel.IPackages,
   selected: Array<string>,
   sortedField: TitleItem.SortField,
@@ -24,6 +25,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   constructor(props: IPkgPanelProps){
     super(props);
     this.state = {
+      isLoading: false,
       packages: {},
       selected: [],
       sortedField: TitleItem.SortField.Name,
@@ -38,16 +40,23 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleSort = this.handleSort.bind(this);
-
-    this._updatePackages();
   }
 
   private async _updatePackages(){
-    try {
-      let packages = await this._model.load();
-      this.setState({packages: packages});
-    } catch (error) {
-      showErrorMessage('Error', error);
+    console.log('Calling update packages with environment ' + this.props.environment)
+    if (!this.state.isLoading){
+      this.setState({isLoading: true});
+      try {
+        let packages = await this._model.load();
+        this.setState({
+          isLoading: false,
+          packages: packages});
+        // Now get the updatable packages
+        let updates = await this._model.conda_check_updates();
+        console.log(updates);
+      } catch (error) {
+        showErrorMessage('Error', error);
+      }      
     }
   }
 
@@ -94,17 +103,16 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
 
   handleSort(field: TitleItem.SortField, status: TitleItem.SortStatus){}
 
-  componentWillReceiveProps(newProps: IPkgPanelProps){
-    if(newProps.environment !== this.props.environment){
-      this._model = new PackagesModel(newProps.environment);
+  componentDidUpdate(prevProps: IPkgPanelProps){
+    if(prevProps.environment !== this.props.environment){
+      this._model = new PackagesModel(this.props.environment);
       this.setState({packages: {}});
       this._updatePackages();
     }
   }
 
   render(){
-    let hasPackages = Object.keys(this.state.packages).length === 0;
-    let info: string = hasPackages ? 'Loading packages' : '';
+    let info: string = this.state.isLoading ? 'Loading packages' : '';
 
     return (
       <div className={Style.Panel}>
@@ -125,7 +133,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           onSort={this.handleSort}
           />
         <CondaPkgStatusBar 
-          isLoading={hasPackages} 
+          isLoading={this.state.isLoading} 
           infoText={info}/>
       </div>
     );
