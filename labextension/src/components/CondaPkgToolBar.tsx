@@ -2,10 +2,18 @@ import * as React from 'react';
 import { GlobalStyle } from './globalStyles';
 import { classes, style } from 'typestyle/lib';
 
+export enum PkgFilters{
+  All = 'ALL',
+  Installed = 'INSTALLED',
+  Available = 'AVAILABLE',
+  Updatable = 'UPDATABLE',
+  Selected = 'SELECTED'
+}
+
 export interface CondaPkgToolBarProps {
-  category: 'all' | 'installed' | 'available' | 'updatable' | 'selected',
+  category: PkgFilters,
   hasSelection: boolean,
-  onCategoryChanged: (name: string) => void,
+  onCategoryChanged: (event) => void,
   onSearch(),
   onApply(),
   onCancel()
@@ -19,12 +27,12 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
           <select 
             className={Style.Select}
             value={props.category} 
-            onChange={() => { props.onCategoryChanged(props.category) }}>
-              <option value='all'>All</option>        
-              <option value='installed'>Installed</option>        
-              <option value='available'>Not installed</option>        
-              <option value='updatable'>Updatable</option>        
-              <option value='selected'>Selected</option>        
+            onChange={props.onCategoryChanged}>
+              <option value={PkgFilters.All}>All</option>        
+              <option value={PkgFilters.Installed}>Installed</option>        
+              <option value={PkgFilters.Available}>Not installed</option>        
+              <option value={PkgFilters.Updatable}>Updatable</option>        
+              <option value={PkgFilters.Selected}>Selected</option>        
           </select>
         </div>
       </div>
@@ -62,6 +70,7 @@ namespace Style{
     flex: '1 1 auto',
     height: '32px',
     width: '100%',
+    minWidth: 125,
     fontSize: 'var(--jp-ui-font-size2)',
     color: 'var(--jp-ui-font-color0)',
     paddingLeft: '8px',

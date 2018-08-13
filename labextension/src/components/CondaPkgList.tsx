@@ -43,8 +43,9 @@ export namespace TitleItem {
 }
 
 export interface IPkgListProps {
-  packages: PackagesModel.IPackages,
   height: number,
+  packages: PackagesModel.IPackages,
+  selection: { [key: string] : PackagesModel.PkgStatus },
   sortedBy: TitleItem.SortField,
   sortDirection: TitleItem.SortStatus,
   onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void,
@@ -54,18 +55,27 @@ export interface IPkgListProps {
 /** Top level React component for widget */
 export class CondaPkgList extends React.Component<IPkgListProps>{
 
+  public static defaultProps: Partial<IPkgListProps> = {
+    packages: {},
+    selection: {}
+  }
+
   constructor(props){
     super(props);
   }
 
   render(){
-    const listItems = Object.keys(this.props.packages).map((name, idx) => {
+    const listItems = Object.keys(this.props.packages).map(name => {
       let pkg = this.props.packages[name];
+      let status = name in this.props.selection 
+        ? this.props.selection[name]
+        : pkg.status
+
       return (
         <CondaPkgItem 
-          name={pkg.name} 
-          key={"pkg-" + idx} 
-          status={pkg.status}
+          name={pkg.name}
+          key={pkg.name} 
+          status={status}
           updatable={pkg.updatable}
           version={pkg.version} 
           build={pkg.build}

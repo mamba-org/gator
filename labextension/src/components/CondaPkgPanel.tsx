@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { PackagesModel } from '../models';
 import { CondaPkgList, TitleItem } from './CondaPkgList';
-import { CondaPkgToolBar } from './CondaPkgToolBar';
+import { CondaPkgToolBar, PkgFilters } from './CondaPkgToolBar';
 import { CondaPkgStatusBar } from './CondaPkgStatusBar';
 import { showErrorMessage } from '@jupyterlab/apputils';
 import { style } from 'typestyle';
-
 export interface IPkgPanelProps {
   height: number,
   environment: string
@@ -13,8 +12,10 @@ export interface IPkgPanelProps {
 
 export interface IPkgPanelState {
   isLoading: boolean,
+  isCheckingUpdate: boolean,
   packages: PackagesModel.IPackages,
-  selected: Array<string>,
+  selected: { [key: string] : PackagesModel.PkgStatus },
+  activeFilter: PkgFilters,
   sortedField: TitleItem.SortField,
   sortDirection: TitleItem.SortStatus
 }
@@ -26,8 +27,10 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
     super(props);
     this.state = {
       isLoading: false,
+      isCheckingUpdate: false,
       packages: {},
-      selected: [],
+      selected: {},
+      activeFilter: PkgFilters.All,
       sortedField: TitleItem.SortField.Name,
       sortDirection: TitleItem.SortStatus.Down
     }
@@ -49,50 +52,60 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
         let packages = await this._model.load();
         this.setState({
           isLoading: false,
+          isCheckingUpdate: true,
           packages: packages});
         // Now get the updatable packages
         let data = await this._model.conda_check_updates();
-        data.updates.forEach(element => {
-          this.state.packages[element.name].updatable = true;
-        });
-        this.setState({
-          packages: this.state.packages
-        })
+        if(this.state.isCheckingUpdate){
+          data.updates.forEach(element => {
+            let pkg = this.state.packages[element.name];
+            if (pkg.status === PackagesModel.PkgStatus.Installed){
+              this.state.packages[element.name].updatable = true;
+            }          
+          });
+          this.setState({
+            isCheckingUpdate: false,
+            packages: this.state.packages
+          });
+        }
       } catch (error) {
         showErrorMessage('Error', error);
       }      
     }
   }
 
-  handleCategoryChanged(name: string) {}
+  handleCategoryChanged(event: any) {
+    this.setState({
+      activeFilter: event.target.value
+    });
+  }
 
   handleClick(name: string){
     let clicked = this.state.packages[name];
     let selection = this.state.selected;
 
     if (clicked.status === PackagesModel.PkgStatus.Installed){
-      let foundIdx = selection.findIndex(pkgName => pkgName === name);
-      if(foundIdx > -1){
-        clicked.status = PackagesModel.PkgStatus.Available;
-        selection.splice(foundIdx, 1);
+      if(name in selection){
+        if (selection[name] === PackagesModel.PkgStatus.Update){
+          selection[name] = PackagesModel.PkgStatus.Remove;
+        } else {
+          delete selection[name];
+        }
       } else {
         if (clicked.updatable){
-          clicked.status = PackagesModel.PkgStatus.Update;
+          selection[name] = PackagesModel.PkgStatus.Update;
         } else {
-          clicked.status = PackagesModel.PkgStatus.Remove;
-        }
-        selection.push(name);
-      } 
-    } else if (clicked.status === PackagesModel.PkgStatus.Update){
-      clicked.status = PackagesModel.PkgStatus.Remove;
+          selection[name] = PackagesModel.PkgStatus.Remove;
+        }        
+      }
     } else if (clicked.status === PackagesModel.PkgStatus.Available){
-      clicked.status = PackagesModel.PkgStatus.Installed;
-      selection.push(name);
-    } else if (clicked.status === PackagesModel.PkgStatus.Remove){
-      clicked.status = PackagesModel.PkgStatus.Installed;
-      selection.splice(selection.findIndex(pkgName => pkgName === name), 1);
+      if(name in selection){
+        delete selection[name];
+      } else {
+        selection[name] = PackagesModel.PkgStatus.Installed;
+      }
     }
-
+    console.log(selection);
     this.setState({
       packages: this.state.packages,
       selected: selection
@@ -103,26 +116,69 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
 
   handleApply(){}
 
-  handleCancel(){}
+  handleCancel(){
+    this.setState({
+      selected: {},
+    });
+  }
 
   handleSort(field: TitleItem.SortField, status: TitleItem.SortStatus){}
 
   componentDidUpdate(prevProps: IPkgPanelProps){
     if(prevProps.environment !== this.props.environment){
       this._model = new PackagesModel(this.props.environment);
-      this.setState({packages: {}});
+      this.setState({
+        isCheckingUpdate: false,
+        packages: {}});
       this._updatePackages();
     }
   }
 
   render(){
-    let info: string = this.state.isLoading ? 'Loading packages' : '';
+    let info: string = '';
+    if(this.state.isLoading) {
+      info = 'Loading packages';
+    } else if (this.state.isCheckingUpdate){
+      info = 'Searching available updates';
+    }
+
+    let filteredPkgs = {};
+    if (this.state.activeFilter === PkgFilters.All){
+      filteredPkgs = this.state.packages
+    } else if (this.state.activeFilter === PkgFilters.Installed){
+      Object.keys(this.state.packages).forEach(name => {
+        let pkg = this.state.packages[name];
+        if(pkg.status === PackagesModel.PkgStatus.Installed){
+          filteredPkgs[name] = pkg;
+        }
+      });
+    } else if (this.state.activeFilter === PkgFilters.Available){
+      Object.keys(this.state.packages).forEach(name => {
+        let pkg = this.state.packages[name];
+        if(pkg.status === PackagesModel.PkgStatus.Available){
+          filteredPkgs[name] = pkg;
+        }
+      });
+    }else if (this.state.activeFilter === PkgFilters.Updatable) {
+      Object.keys(this.state.packages).forEach(name => {
+        let pkg = this.state.packages[name];
+        if(pkg.updatable){
+          filteredPkgs[name] = pkg;
+        }
+      });
+    } else if (this.state.activeFilter === PkgFilters.Selected) {
+      Object.keys(this.state.selected).forEach(name => {
+        let pkg = this.state.packages[name];
+        filteredPkgs[name] = pkg;
+      });
+    }
+    
 
     return (
       <div className={Style.Panel}>
         <CondaPkgToolBar
-          category='installed'
-          hasSelection={true}
+          category={this.state.activeFilter}
+          hasSelection={Object.keys(this.state.selected).length > 0}
           onCategoryChanged={this.handleCategoryChanged}
           onSearch={this.handleSearch}
           onApply={this.handleApply}
@@ -132,12 +188,13 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           height={this.props.height - 24 - 26 - 30 -5}  // Remove height for top and bottom elements
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
-          packages={this.state.packages}
+          packages={filteredPkgs}
+          selection={this.state.selected}
           onPkgClick={this.handleClick}
           onSort={this.handleSort}
           />
         <CondaPkgStatusBar 
-          isLoading={this.state.isLoading} 
+          isLoading={this.state.isLoading || this.state.isCheckingUpdate} 
           infoText={info}/>
       </div>
     );
