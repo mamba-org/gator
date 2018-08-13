@@ -14,20 +14,21 @@ from traitlets import Dict, List, Bool, Unicode
 
 
 def pkg_info(s):
-    try:
-        # for conda >= 4.3, `s` should be a dict
-        name = s['name']
-        version = s['version']
-        build = s.get('build_string') or s['build']
-    except TypeError:
-        # parse legacy string version for information
-        name, version, build = s.rsplit('-', 2)
+    # try:
+    #     # for conda >= 4.3, `s` should be a dict
+    #     name = s['name']
+    #     version = s['version']
+    #     build = s.get('build_string') or s['build']
+    # except TypeError:
+    #     # parse legacy string version for information
+    #     name, version, build = s.rsplit('-', 2)
 
-    return {
-        'name': name,
-        'version': version,
-        'build': build
-    }
+    # return {
+    #     'name': name,
+    #     'version': version,
+    #     'build': build
+    # }
+    return s
 
 
 MAX_LOG_OUTPUT = 6000
