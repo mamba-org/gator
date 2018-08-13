@@ -19,10 +19,11 @@ export const CondaPkgItem = (props: PkgItemProps) => {
     }
 
     return (
-      <div className={classes(PkgListStyle.Row, Style.Item)} >
+      <div 
+        className={classes(PkgListStyle.Row, Style.Item)}
+        onClick={() => props.onClick(props.name)} >
         <div 
-          className={PkgListStyle.CellStatus}
-          onClick={() => props.onClick(props.name)}>
+          className={PkgListStyle.CellStatus}>
             {status}</div>
         <div className={PkgListStyle.CellName}>
           {props.name}
