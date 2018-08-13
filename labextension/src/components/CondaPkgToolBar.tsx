@@ -14,7 +14,7 @@ export interface CondaPkgToolBarProps {
   category: PkgFilters,
   hasSelection: boolean,
   onCategoryChanged: (event) => void,
-  onSearch(),
+  onSearch: (event) => void,
   onApply(),
   onCancel()
 }

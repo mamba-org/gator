@@ -16,6 +16,7 @@ export interface IPkgPanelState {
   packages: PackagesModel.IPackages,
   selected: { [key: string] : PackagesModel.PkgStatus },
   activeFilter: PkgFilters,
+  searchTerm: string,
   sortedField: TitleItem.SortField,
   sortDirection: TitleItem.SortStatus
 }
@@ -30,6 +31,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
       isCheckingUpdate: false,
       packages: {},
       selected: {},
+      searchTerm: null,
       activeFilter: PkgFilters.All,
       sortedField: TitleItem.SortField.Name,
       sortDirection: TitleItem.SortStatus.Down
@@ -112,7 +114,12 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
     });
   }
   
-  handleSearch(){}
+  handleSearch(event: any){
+    console.log(event.target.value);
+    this.setState({
+      searchTerm: event.target.value
+    })
+  }
 
   handleApply(){}
 
@@ -142,7 +149,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
       info = 'Searching available updates';
     }
 
-    let filteredPkgs = {};
+    let filteredPkgs: PackagesModel.IPackages = {};
     if (this.state.activeFilter === PkgFilters.All){
       filteredPkgs = this.state.packages
     } else if (this.state.activeFilter === PkgFilters.Installed){
@@ -172,6 +179,17 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
         filteredPkgs[name] = pkg;
       });
     }
+
+    let searchPkgs: PackagesModel.IPackages = {};
+    if (this.state.searchTerm === null){
+      searchPkgs = filteredPkgs;
+    } else {
+      Object.keys(filteredPkgs).forEach(name => {
+        if(name.indexOf(this.state.searchTerm) > -1){
+          searchPkgs[name] = filteredPkgs[name];
+        }
+      });
+    }
     
 
     return (
@@ -188,7 +206,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           height={this.props.height - 24 - 26 - 30 -5}  // Remove height for top and bottom elements
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
-          packages={filteredPkgs}
+          packages={searchPkgs}
           selection={this.state.selected}
           onPkgClick={this.handleClick}
           onSort={this.handleSort}
