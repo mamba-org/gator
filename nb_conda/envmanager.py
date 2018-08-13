@@ -179,7 +179,7 @@ class EnvManager(LoggingConfigurable):
             return data
         elif 'actions' in data:
             links = data['actions'].get('LINK', [])
-            package_versions = [link.get('dist_name') for link in links]
+            package_versions = [link for link in links]
             return {
                 "updates": [pkg_info(pkg_version)
                             for pkg_version in package_versions]

@@ -28,7 +28,11 @@ export const CondaPkgItem = (props: PkgItemProps) => {
         <div className={PkgListStyle.CellName}>
           {props.name}
         </div>
-        <div className={PkgListStyle.Cell}>{props.version}</div>
+        <div 
+          className={props.updatable 
+            ? classes(Style.Updatable, PkgListStyle.Cell)
+            : PkgListStyle.Cell}>
+          {props.version}</div>
         <div className={PkgListStyle.Cell}>{props.channel}</div>
       </div>);
 }
@@ -92,5 +96,17 @@ namespace Style{
         verticalAlign: 'middle',
       color: 'var(--jp-error-color1)'
       })
+  );
+
+  export const Updatable = style({
+      color: 'var(--jp-brand-color1)',
+
+      $nest: {
+        '&::before': {
+          content: `'↗️'`,
+          paddingRight: 2
+        }
+      }
+    }
   );
 }

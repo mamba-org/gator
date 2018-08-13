@@ -43,7 +43,6 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   }
 
   private async _updatePackages(){
-    console.log('Calling update packages with environment ' + this.props.environment)
     if (!this.state.isLoading){
       this.setState({isLoading: true});
       try {
@@ -52,8 +51,13 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           isLoading: false,
           packages: packages});
         // Now get the updatable packages
-        let updates = await this._model.conda_check_updates();
-        console.log(updates);
+        let data = await this._model.conda_check_updates();
+        data.updates.forEach(element => {
+          this.state.packages[element.name].updatable = true;
+        });
+        this.setState({
+          packages: this.state.packages
+        })
       } catch (error) {
         showErrorMessage('Error', error);
       }      

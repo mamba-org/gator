@@ -221,6 +221,10 @@ export class PackagesModel{
             installedIdx += 1;
           }
         }
+        let split_url = pkg.channel.split('/');
+        if (split_url.length > 1){
+          pkg.channel = split_url[split_url.length - 2];
+        }
         final_list[pkg.name] = pkg;
         availableIdx += 1;
       }
@@ -253,14 +257,14 @@ export class PackagesModel{
     }
   }
 
-  async conda_check_updates(packages: Array<string>): Promise<any>{
+  async conda_check_updates(): Promise<{updates: Array<PackagesModel.UpdateAPI>}>{
     if (this.environment === undefined){
-      return Promise.resolve();
+      return Promise.resolve({updates: []});
     }
 
     try {
       let request: RequestInit = {
-        body: JSON.stringify(packages),
+        body: JSON.stringify([]),
         method: 'POST'
       }
       let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'check'), request);
@@ -346,6 +350,17 @@ export namespace PackagesModel {
     subdir: string,
     timestamp: number,
     url: string
+  }
+
+  export interface UpdateAPI {
+    base_url: string | null,
+    build_number: number,
+    build_string: string,
+    channel: string,
+    dist_name: string,
+    name: string,
+    platform: string | null,
+    version: string
   }
 
   /**
