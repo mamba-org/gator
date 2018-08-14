@@ -99,17 +99,25 @@ class EnvActionHandler(EnvBaseHandler):
     def post(self, env, action):
         status = None
 
+        if self.request.headers['Content-Type'] == 'application/json':
+            data = self.get_json_body()
+            name = data.get('name', None)
+            env_type = data.get('type', None)
+            file_content = data.get('file', None)
+        else:
+            name = self.get_argument('name', default=None)
+            env_type = self.get_argument('type', default=None)
+            file_content = self.get_argument('file', default=None)
+
         if action == 'delete':
             data = self.env_manager.delete_env(env)
         elif action == 'clone':
-            name = self.get_argument('name', default=None)
             if not name:
                 name = '{}-copy'.format(env)
             data = self.env_manager.clone_env(env, name)
             if 'error' not in data:
                 status = 201  # CREATED
         elif action == 'create':
-            env_type = self.get_argument('type', default=None)
             if env_type not in package_map:
                 raise web.HTTPError(400)
             data = self.env_manager.create_env(env, env_type)
@@ -135,6 +143,9 @@ class EnvPkgActionHandler(EnvBaseHandler):
     @json_errors
     def post(self, env, action):
         self.log.debug('req body: %s', self.request.body)
+        if self.request.headers['Content-Type'] == 'application/json':
+            packages = self.get_json_body()['packages']
+        else:
         packages = self.get_arguments('packages[]')
 
         # don't allow arbitrary switches
