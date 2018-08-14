@@ -158,12 +158,13 @@ class EnvManager(LoggingConfigurable):
         return self.clean_conda_json(output)
 
     def import_env(self, env: str, file_content: str) -> dict:
-        with NamedTemporaryFile() as f:
+        with NamedTemporaryFile(mode='w', delete=False) as f:
+            name = f.name
             f.write(file_content)
-            f.close()
-            output = self._execute(
-                CONDA_EXE + ' create -y -q --json -n ' + env + ' --file ' + f.name, 
-                options=list(self.options))
+        output = self._execute(
+            CONDA_EXE + ' create -y -q --json -n ' + env + ' --file ' + name, 
+            options=list(self.options))
+        os.unlink(name)
         return self.clean_conda_json(output)
 
     def env_packages(self, env: str) -> dict:

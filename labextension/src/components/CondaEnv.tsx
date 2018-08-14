@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { style } from 'typestyle';
+import { INotification, toast } from 'jupyterlab_toastify';
 
 import { CondaEnvList } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
@@ -78,7 +79,20 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept){
-        this.props.model.create(nameInput.value, typeInput.value);
+        if(nameInput.value.length === 0){
+          throw new Error('A environment name should be provided.')
+        }
+        let toastId = INotification.notify(
+          'Creating environment ' + nameInput.value, { autoClose: false });
+        let r = await this.props.model.create(nameInput.value, typeInput.value);
+        console.debug(r);
+        toast.update(toastId, {
+          render: 'Environment ' + nameInput.value + ' has been created.',
+          type: toast.TYPE.SUCCESS,
+          autoClose: 5000
+        } as any);
+        this.setState({ currentEnvironment: nameInput.value });
+        this.loadEnvironments();
       }
     } catch (error) {
       showErrorMessage('Error', error);
@@ -100,7 +114,20 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
         buttons: [Dialog.cancelButton(), Dialog.okButton({caption: 'Clone'})]
       });
       if (response.button.accept){
-        this.props.model.clone(this.state.currentEnvironment, nameInput.value);
+        if(nameInput.value.length === 0){
+          throw new Error('A environment name should be provided.')
+        }
+        let toastId = INotification.notify(
+          'Cloning environment ' + this.state.currentEnvironment, { autoClose: false });
+        let r = await this.props.model.clone(this.state.currentEnvironment, nameInput.value);
+        console.debug(r);
+        toast.update(toastId, {
+          render: 'Environment ' + nameInput.value + ' created.',
+          type: toast.TYPE.SUCCESS,
+          autoClose: 5000
+        } as any);
+        this.setState({ currentEnvironment: nameInput.value });
+        this.loadEnvironments();
       }
     } catch (error) {
       showErrorMessage('Error', error);
@@ -140,8 +167,24 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept){
-        var file = await this._readText(fileInput.value);
-        this.props.model.import(nameInput.value, file);
+        if(nameInput.value.length === 0){
+          throw new Error('A environment name should be provided.')
+        }
+        if(fileInput.files.length === 0){
+          throw new Error('A environment file should be selected.')
+        }
+        let toastId = INotification.notify(
+          'Import environment ' + nameInput.value, { autoClose: false });
+        var file = await this._readText(fileInput.files[0]);
+        let r = await this.props.model.import(nameInput.value, file);
+        console.debug(r);
+        toast.update(toastId, {
+          render: 'Environment ' + nameInput.value + ' created.',
+          type: toast.TYPE.SUCCESS,
+          autoClose: 5000
+        } as any);
+        this.setState({ currentEnvironment: nameInput.value });
+        this.loadEnvironments();
       }
     } catch (error) {
       showErrorMessage('Error', error);
@@ -150,7 +193,20 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
 
   async handleExportEnvironment(){
     try{
-      this.props.model.export(this.state.currentEnvironment);
+      let response = await this.props.model.export(this.state.currentEnvironment);
+      if(response.ok){
+        let content = await response.text();
+        let node = document.createElement('div');
+        let link = document.createElement('a');
+        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        link.setAttribute('download', this.state.currentEnvironment + '.txt');
+        
+        node.style.display = 'none'; // hide the element
+        node.appendChild(link);
+        document.body.appendChild(node);
+        link.click();
+        document.body.removeChild(node);
+      }
     } catch (error) {
       showErrorMessage('Error', error);
     }
@@ -167,14 +223,24 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
                     displayType: 'warn'})]
       });
       if (response.button.accept){
-        this.props.model.remove(this.state.currentEnvironment);
+        let toastId = INotification.notify(
+          'Removing environment ' + this.state.currentEnvironment, { autoClose: false });
+        let r = await this.props.model.remove(this.state.currentEnvironment);
+        console.log(r);
+        toast.update(toastId, {
+          render: 'Environment ' + this.state.currentEnvironment + ' has been removed.',
+          type: toast.TYPE.SUCCESS,
+          autoClose: 5000
+        } as any);
+        this.setState({ currentEnvironment: undefined });
+        this.loadEnvironments();
       }
     } catch (error) {
       showErrorMessage('Error', error);
     }
   }
 
-  async componentDidMount(){
+  async loadEnvironments() {    
     if (!this.state.isLoading){
       this.setState({isLoading: true});
       try{
@@ -192,6 +258,10 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
         showErrorMessage('Error', error);
       }
     }
+  }
+
+  componentDidMount(){
+    this.loadEnvironments();
   }
 
   render() {

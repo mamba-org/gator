@@ -85,7 +85,7 @@ export class EnvironmentsModel implements ICondaEnv{
     }
   };
 
-  export(name: string): Promise<any>{
+  export(name: string): Promise<Response>{
     try {
       let request: RequestInit = {
         method: 'GET'

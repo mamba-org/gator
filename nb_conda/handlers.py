@@ -100,7 +100,7 @@ class EnvActionHandler(EnvBaseHandler):
         status = None
 
         if self.request.headers['Content-Type'] == 'application/json':
-            data = self.get_json_body()
+            data = self.get_json_body() or {}
             name = data.get('name', None)
             env_type = data.get('type', None)
             file_content = data.get('file', None)
@@ -124,7 +124,7 @@ class EnvActionHandler(EnvBaseHandler):
             if 'error' not in data:
                 status = 201  # CREATED
         elif action == 'import':
-            data = self.env_manager.import_env(name, file_content)
+            data = self.env_manager.import_env(env, file_content)
             if 'error' not in data:
                 status = 201 # CREATED
 
