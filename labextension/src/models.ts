@@ -70,7 +70,7 @@ export class EnvironmentsModel implements ICondaEnv{
     }
   };
 
-  async create(name: string, type?: 'python2' | 'python3' | 'r'): Promise<any>{
+  async create(name: string, type?: 'python2' | 'python3' | 'r' | string): Promise<any>{
     try {
       let request: RequestInit = {
         body: JSON.stringify({ type }),
@@ -96,6 +96,21 @@ export class EnvironmentsModel implements ICondaEnv{
       throw new Error('An error occurred while exporting Conda environment "' + name + '".');
     }
   };
+
+  async import(name: string, fileContent: string){
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify({ file: fileContent }),
+        method: 'POST'
+      }
+      let response = await requestServer(URLExt.join('conda', 'environments', name, 'import'), request);
+      let data = await response.json();
+      return data;
+
+    } catch (err) {
+      throw new Error('An error occurred while creating "' + name + '".');
+    }
+  }
 
   async load(): Promise<EnvironmentsModel.IEnvironments>{
     try {
@@ -162,8 +177,6 @@ export class PackagesModel{
   private waitAnswer(response: Response): Promise<Response>{
       return new Promise((resolve, reject) => {
         if (response.status == 202){
-          console.log('Retry requesting the packages');
-
           setTimeout(() => { 
             requestServer(URLExt.join('conda', 'packages', 'available'), { method: 'GET' })
             .then(response => {
@@ -172,7 +185,6 @@ export class PackagesModel{
           },
           1000)
         } else {
-          console.log('Found the packages');
           resolve(response);
         }
       });
@@ -185,7 +197,6 @@ export class PackagesModel{
     }
 
     try {
-      console.log('in loading package for environment ' + this.environment)
       let request: RequestInit = {
         method: 'GET'
       }
@@ -245,7 +256,7 @@ export class PackagesModel{
 
     try {
       let request: RequestInit = {
-        body: JSON.stringify(packages),
+        body: JSON.stringify({ packages }),
         method: 'POST'
       }
       let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'install'), request);
@@ -264,7 +275,7 @@ export class PackagesModel{
 
     try {
       let request: RequestInit = {
-        body: JSON.stringify([]),
+        body: JSON.stringify({packages: []}),
         method: 'POST'
       }
       let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'check'), request);
@@ -283,7 +294,7 @@ export class PackagesModel{
 
     try {
       let request: RequestInit = {
-        body: JSON.stringify(packages),
+        body: JSON.stringify({ packages }),
         method: 'POST'
       }
       let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'update'), request);
@@ -302,7 +313,7 @@ export class PackagesModel{
 
     try {
       let request: RequestInit = {
-        body: JSON.stringify(packages),
+        body: JSON.stringify({ packages }),
         method: 'POST'
       }
       let response = await requestServer(URLExt.join('conda', 'environments', this.environment, 'packages', 'remove'), request);
