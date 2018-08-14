@@ -13,6 +13,7 @@ export interface IPkgPanelProps {
 export interface IPkgPanelState {
   isLoading: boolean,
   isCheckingUpdate: boolean,
+  isApplyingChanges: boolean,
   packages: PackagesModel.IPackages,
   selected: { [key: string] : PackagesModel.PkgStatus },
   activeFilter: PkgFilters,
@@ -29,6 +30,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
     this.state = {
       isLoading: false,
       isCheckingUpdate: false,
+      isApplyingChanges: false,
       packages: {},
       selected: {},
       searchTerm: null,
@@ -77,12 +79,20 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   }
 
   handleCategoryChanged(event: any) {
+    if(this.state.isApplyingChanges){
+      return;
+    }
+
     this.setState({
       activeFilter: event.target.value
     });
   }
 
-  handleClick(name: string){
+  handleClick(name: string){   
+    if(this.state.isApplyingChanges){
+      return;
+    }
+ 
     let clicked = this.state.packages[name];
     let selection = this.state.selected;
 
@@ -107,7 +117,6 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
         selection[name] = PackagesModel.PkgStatus.Installed;
       }
     }
-    console.log(selection);
     this.setState({
       packages: this.state.packages,
       selected: selection
@@ -115,21 +124,79 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   }
   
   handleSearch(event: any){
-    console.log(event.target.value);
+    if(this.state.isApplyingChanges){
+      return;
+    }
+
     this.setState({
       searchTerm: event.target.value
     })
   }
 
-  handleApply(){}
+  /**
+   * Execute requested task in the following order
+   * 1. Remove packages
+   * 2. Apply updates
+   * 3. Install new packages
+   */
+  async handleApply(){
+    if(this.state.isApplyingChanges){
+      return;
+    }
+
+    this.setState({
+      isApplyingChanges: true
+    });
+
+    try{
+      let pkgs = Object.keys(this.state.selected)
+        .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Remove)
+      if (pkgs.length > 0){
+        let response = await this._model.conda_remove(pkgs);
+        console.log(response);
+      }
+      pkgs = Object.keys(this.state.selected)
+        .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Update)
+      if (pkgs.length > 0){
+        let response = await this._model.conda_update(pkgs);
+        console.log(response);
+      }    
+      pkgs = Object.keys(this.state.selected)
+        .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Installed)
+      if (pkgs.length > 0){
+        let response = await this._model.conda_install(pkgs);
+        console.log(response);
+      }
+
+    } catch(error) {
+      showErrorMessage('Error', error);
+    } finally {
+      this.setState({
+        isApplyingChanges: false,
+        selected: {}
+      });
+      this._updatePackages();
+    }
+
+  }
 
   handleCancel(){
+    if(this.state.isApplyingChanges){
+      return;
+    }
+
     this.setState({
       selected: {},
     });
   }
 
-  handleSort(field: TitleItem.SortField, status: TitleItem.SortStatus){}
+  handleSort(field: TitleItem.SortField, status: TitleItem.SortStatus){
+    // TODO
+    if(this.state.isApplyingChanges){
+      return;
+    }
+
+  }
 
   componentDidUpdate(prevProps: IPkgPanelProps){
     if(prevProps.environment !== this.props.environment){
@@ -147,6 +214,8 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
       info = 'Loading packages';
     } else if (this.state.isCheckingUpdate){
       info = 'Searching available updates';
+    } else if(this.state.isApplyingChanges){
+      info = 'Applying changes';
     }
 
     let filteredPkgs: PackagesModel.IPackages = {};
@@ -189,8 +258,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           searchPkgs[name] = filteredPkgs[name];
         }
       });
-    }
-    
+    }    
 
     return (
       <div className={Style.Panel}>
@@ -212,7 +280,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           onSort={this.handleSort}
           />
         <CondaPkgStatusBar 
-          isLoading={this.state.isLoading || this.state.isCheckingUpdate} 
+          isLoading={this.state.isLoading || this.state.isCheckingUpdate || this.state.isApplyingChanges} 
           infoText={info}/>
       </div>
     );
