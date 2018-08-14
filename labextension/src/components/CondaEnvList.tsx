@@ -14,6 +14,7 @@ export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
   onCreate(),
   onClone(),
   onImport(),
+  onExport(),
   onRemove()
 }
 
@@ -49,6 +50,7 @@ export class CondaEnvList extends React.Component<IEnvListProps>{
             onCreate={this.props.onCreate} 
             onClone={this.props.onClone}
             onImport={this.props.onImport}
+            onExport={this.props.onExport}
             onRemove={this.props.onRemove} />
         </div>
       </div>

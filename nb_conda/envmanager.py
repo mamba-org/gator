@@ -4,6 +4,7 @@
 import json
 import os
 import re
+from tempfile import NamedTemporaryFile
 import typing
 
 from pkg_resources import parse_version
@@ -154,6 +155,15 @@ class EnvManager(LoggingConfigurable):
         packages = package_map[type]
         output = self._execute(CONDA_EXE + ' create -y -q --json -n ' + env,
                                *packages.split(), options=list(self.options))
+        return self.clean_conda_json(output)
+
+    def import_env(self, env: str, file_content: str) -> dict:
+        with NamedTemporaryFile() as f:
+            f.write(file_content)
+            f.close()
+            output = self._execute(
+                CONDA_EXE + ' create -y -q --json -n ' + env + ' --file ' + f.name, 
+                options=list(self.options))
         return self.clean_conda_json(output)
 
     def env_packages(self, env: str) -> dict:

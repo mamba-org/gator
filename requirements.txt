@@ -1,3 +1,4 @@
+conda >= 4.5
 coverage
 flake8
 mock

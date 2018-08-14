@@ -123,6 +123,10 @@ class EnvActionHandler(EnvBaseHandler):
             data = self.env_manager.create_env(env, env_type)
             if 'error' not in data:
                 status = 201  # CREATED
+        elif action == 'import':
+            data = self.env_manager.import_env(name, file_content)
+            if 'error' not in data:
+                status = 201 # CREATED
 
         # catch-all ok
         if 'error' in data:
@@ -146,11 +150,10 @@ class EnvPkgActionHandler(EnvBaseHandler):
         if self.request.headers['Content-Type'] == 'application/json':
             packages = self.get_json_body()['packages']
         else:
-        packages = self.get_arguments('packages[]')
+            packages = self.get_arguments('packages[]')
 
         # don't allow arbitrary switches
         packages = [pkg for pkg in packages if re.match(_pkg_regex, pkg)]
-
         if not packages:
             if action in ["install", "remove"]:
                 raise web.HTTPError(400)
@@ -286,7 +289,7 @@ class SearchHandler(EnvBaseHandler):
 # -----------------------------------------------------------------------------
 
 
-_env_action_regex = r"(?P<action>create|export|clone|delete)"
+_env_action_regex = r"(?P<action>create|export|import|clone|delete)"
 
 # there is almost no text that is invalid, but no hyphens up front, please
 # neither all these suspicious but valid caracthers...

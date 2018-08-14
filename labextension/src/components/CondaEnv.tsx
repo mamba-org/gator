@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { style } from 'typestyle';
 
 import { CondaEnvList } from './CondaEnvList';
@@ -35,6 +34,7 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
     this.handleCreateEnvironment = this.handleCreateEnvironment.bind(this);
     this.handleCloneEnvironment = this.handleCloneEnvironment.bind(this);
     this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
+    this.handleExportEnvironment = this.handleExportEnvironment.bind(this);
     this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
   }
 
@@ -47,44 +47,131 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
   async handleCreateEnvironment(){
     try{
       let body = document.createElement('div');
-      let content = (props: any) => {
-        return (
-          <div>
-            <label>Name: </label>
-            <input value={props.name} />
-            <label>Type: </label>
-            <select value={props.type}>
-              <option value='python2'>Python 2</option>
-              <option value='python3'>Python 3</option>
-              <option value='r'>R</option>
-            </select>
-          </div>
-        );
-      };
-      ReactDOM.render(content({name: '', type: 'python3'}), body);
+      let nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Name : ';
+      let nameInput = document.createElement('input');
+      body.appendChild(nameLabel);
+      body.appendChild(nameInput);
+      
+      let typeLabel = document.createElement('label');
+      typeLabel.textContent = 'Type : ';
+      let typeInput = document.createElement('select');
+      let opt = document.createElement('option');
+      opt.setAttribute('value', 'python2');
+      opt.innerText = 'Python 2';
+      typeInput.appendChild(opt);
+      opt = document.createElement('option');
+      opt.setAttribute('value', 'python3');
+      opt.selected = true;
+      opt.innerText = 'Python 3';
+      typeInput.appendChild(opt);
+      opt = document.createElement('option');
+      opt.setAttribute('value', 'r');
+      opt.innerText = 'R';
+      typeInput.appendChild(opt);
+      body.appendChild(typeLabel);
+      body.appendChild(typeInput);
+
       let response = await showDialog({
-        title: 'Environment Creation',
+        title: 'New Environment',
         body: new Widget({node: body}),
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept){
-        this.props.model.create(name);
+        this.props.model.create(nameInput.value, typeInput.value);
       }
     } catch (error) {
       showErrorMessage('Error', error);
     }
   }
 
-  handleCloneEnvironment(){
-    // TODO
+  async handleCloneEnvironment(){
+    try{
+      let body = document.createElement('div');
+      let nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Name : ';
+      let nameInput = document.createElement('input');
+      body.appendChild(nameLabel);
+      body.appendChild(nameInput);
+
+      let response = await showDialog({
+        title: 'Clone Environment',
+        body: new Widget({node: body}),
+        buttons: [Dialog.cancelButton(), Dialog.okButton({caption: 'Clone'})]
+      });
+      if (response.button.accept){
+        this.props.model.clone(this.state.currentEnvironment, nameInput.value);
+      }
+    } catch (error) {
+      showErrorMessage('Error', error);
+    }
   }
 
-  handleImportEnvironment(){
-    // TODO
+  private _readText(file): Promise<any>{
+    return new Promise((resolve, reject) => {
+      var reader = new FileReader();
+      reader.onload = function(event: any){
+        resolve(event.target.result);
+      };
+      reader.readAsText(file);
+    });
   }
 
-  handleRemoveEnvironment(){
-    // TODO
+  async handleImportEnvironment(){
+    try{
+      let body = document.createElement('div');
+      let nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Name : ';
+      let nameInput = document.createElement('input');
+      body.appendChild(nameLabel);
+      body.appendChild(nameInput);
+      
+      let fileLabel = document.createElement('label');
+      fileLabel.textContent = 'File : ';
+      let fileInput = document.createElement('input');
+      fileInput.setAttribute('type', 'file');
+
+      body.appendChild(fileLabel);
+      body.appendChild(fileInput);
+
+      let response = await showDialog({
+        title: 'Import Environment',
+        body: new Widget({node: body}),
+        buttons: [Dialog.cancelButton(), Dialog.okButton()]
+      });
+      if (response.button.accept){
+        var file = await this._readText(fileInput.value);
+        this.props.model.import(nameInput.value, file);
+      }
+    } catch (error) {
+      showErrorMessage('Error', error);
+    }
+  }
+
+  async handleExportEnvironment(){
+    try{
+      this.props.model.export(this.state.currentEnvironment);
+    } catch (error) {
+      showErrorMessage('Error', error);
+    }
+  }
+
+  async handleRemoveEnvironment(){
+    try{
+      let response = await showDialog({
+        title: 'Remove Environment',
+        body: `Are you sure you want to permanently delete environment "${this.state.currentEnvironment}" ?`,
+        buttons: [Dialog.cancelButton(), 
+                  Dialog.okButton({
+                    caption: 'Delete', 
+                    displayType: 'warn'})]
+      });
+      if (response.button.accept){
+        this.props.model.remove(this.state.currentEnvironment);
+      }
+    } catch (error) {
+      showErrorMessage('Error', error);
+    }
   }
 
   async componentDidMount(){
@@ -118,6 +205,7 @@ export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState>{
           onCreate={this.handleCreateEnvironment}
           onClone={this.handleCloneEnvironment}
           onImport={this.handleImportEnvironment}
+          onExport={this.handleExportEnvironment}
           onRemove={this.handleRemoveEnvironment} />
         <CondaPkgPanel
           height={this.props.height} 

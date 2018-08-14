@@ -9,6 +9,7 @@ export interface CondaEnvToolBarProps {
   onCreate(),
   onClone(),
   onImport(),
+  onExport(),
   onRemove()
 }
 
@@ -33,6 +34,11 @@ export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
         type='button'
         title='Import'
         onClick={props.onImport}></button>
+      <button 
+        className={classes('jp-MaterialIcon', 'jp-DownloadIcon', Style.Button)}
+        type='button'
+        title='Export'
+        onClick={props.onExport}></button>
       <button 
         className={classes('jp-MaterialIcon', 'jp-CloseIcon', Style.Button)}
         type='button'
