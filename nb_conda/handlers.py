@@ -20,7 +20,7 @@ from notebook.base.handlers import (
     APIHandler,
     json_errors,
 )
-from tornado import web
+from tornado import gen, web
 
 from .envmanager import EnvManager, package_map
 
@@ -60,9 +60,11 @@ class MainEnvHandler(EnvBaseHandler):
     Handler for `GET /environments` which lists the environments.
     """
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def get(self):
-        self.finish(json.dumps(self.env_manager.list_envs()))
+        list_envs = yield self.env_manager.list_envs()
+        self.finish(json.dumps(list_envs))
 
 
 class EnvHandler(EnvBaseHandler):
@@ -71,9 +73,11 @@ class EnvHandler(EnvBaseHandler):
     the packages in the specified environment.
     """
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def get(self, env):
-        self.finish(json.dumps(self.env_manager.env_packages(env)))
+        packages = yield self.env_manager.env_packages(env)
+        self.finish(json.dumps(packages))
 
 
 class EnvActionHandler(EnvBaseHandler):
@@ -84,17 +88,20 @@ class EnvActionHandler(EnvBaseHandler):
     which performs the requested action on the environment.
     """
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def get(self, env, action):
         if action == 'export':
             # export requirements file
             self.set_header('Content-Disposition',
                             'attachment; filename="%s"' % (env + '.txt'))
-            self.finish(self.env_manager.export_env(env))
+            export_env = yield self.env_manager.export_env(env)
+            self.finish(export_env)
         else:
             raise web.HTTPError(400)
 
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def post(self, env, action):
         status = None
@@ -111,21 +118,21 @@ class EnvActionHandler(EnvBaseHandler):
             file_content = self.get_argument('file', default=None)
 
         if action == 'delete':
-            data = self.env_manager.delete_env(env)
+            data = yield self.env_manager.delete_env(env)
         elif action == 'clone':
             if not name:
                 name = '{}-copy'.format(env)
-            data = self.env_manager.clone_env(env, name)
+            data = yield self.env_manager.clone_env(env, name)
             if 'error' not in data:
                 status = 201  # CREATED
         elif action == 'create':
             if env_type not in package_map:
                 raise web.HTTPError(400)
-            data = self.env_manager.create_env(env, env_type)
+            data = yield self.env_manager.create_env(env, env_type)
             if 'error' not in data:
                 status = 201  # CREATED
         elif action == 'import':
-            data = self.env_manager.import_env(env, file_content)
+            data = yield self.env_manager.import_env(env, file_content)
             if 'error' not in data:
                 status = 201 # CREATED
 
@@ -145,6 +152,7 @@ class EnvPkgActionHandler(EnvBaseHandler):
     environment.
     """
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def post(self, env, action):
         self.log.debug('req body: %s', self.request.body)
@@ -163,13 +171,13 @@ class EnvPkgActionHandler(EnvBaseHandler):
                 packages = ["--all"]
 
         if action == 'install':
-            resp = self.env_manager.install_packages(env, packages)
+            resp = yield self.env_manager.install_packages(env, packages)
         elif action == 'update':
-            resp = self.env_manager.update_packages(env, packages)
+            resp = yield self.env_manager.update_packages(env, packages)
         elif action == 'check':
-            resp = self.env_manager.check_update(env, packages)
+            resp = yield self.env_manager.check_update(env, packages)
         elif action == 'remove':
-            resp = self.env_manager.remove_packages(env, packages)
+            resp = yield self.env_manager.remove_packages(env, packages)
         else:
             raise web.HTTPError(400)
 
@@ -280,10 +288,12 @@ class SearchHandler(EnvBaseHandler):
     and the nb_conda UI doesn't call it.
     """
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def get(self):
         q = self.get_argument('q')
-        self.finish(json.dumps(self.env_manager.package_search(q)))
+        answer = yield self.env_manager.package_search(q)
+        self.finish(json.dumps(answer))
 
 
 # -----------------------------------------------------------------------------
