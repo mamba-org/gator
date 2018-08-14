@@ -99,7 +99,8 @@ class EnvActionHandler(EnvBaseHandler):
     def post(self, env, action):
         status = None
 
-        if self.request.headers['Content-Type'] == 'application/json':
+        content_type = self.request.headers.get('Content-Type', None)
+        if content_type == 'application/json':
             data = self.get_json_body() or {}
             name = data.get('name', None)
             env_type = data.get('type', None)
@@ -147,7 +148,8 @@ class EnvPkgActionHandler(EnvBaseHandler):
     @json_errors
     def post(self, env, action):
         self.log.debug('req body: %s', self.request.body)
-        if self.request.headers['Content-Type'] == 'application/json':
+        content_type = self.request.headers.get('Content-Type', None)
+        if content_type == 'application/json':
             packages = self.get_json_body()['packages']
         else:
             packages = self.get_arguments('packages[]')
