@@ -44,18 +44,20 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
           placeholder='Search Packages' />
       </div>
       <div className='jp-Toolbar-item jp-Toolbar-spacer'></div>
-      {props.hasSelection && 
-        <button
-          className={classes(Style.Button, 'jp-mod-accept')} 
-          type='button' 
-          onClick={props.onApply}>
-            Apply</button>}
-      {props.hasSelection && 
-        <button 
-          className={classes(Style.Button, 'jp-mod-reject')} 
-          type='button' 
-          onClick={props.onCancel}>
-            Clear</button>}
+      <button
+        className={props.hasSelection 
+          ? classes(Style.Button, 'jp-mod-accept') 
+          : 'jp-button-hide'} 
+        type='button' 
+        onClick={props.onApply}>
+          Apply</button>
+      <button 
+        className={props.hasSelection 
+          ? classes(Style.Button, 'jp-mod-reject') 
+          : 'jp-button-hide'} 
+        type='button' 
+        onClick={props.onCancel}>
+          Clear</button>
     </div>
   );
 }

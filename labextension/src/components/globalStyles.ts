@@ -9,7 +9,7 @@ export namespace GlobalStyle {
     display: 'inline-block',
     verticalAlign: 'text-top',
     fontWeight: 'bold',
-    color: 'var(--jp-ui-font-color0)'
+    color: 'var(--jp-ui-font-color2)'
   };
 
   export const CustomizedButton = style({

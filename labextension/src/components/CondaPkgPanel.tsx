@@ -3,8 +3,9 @@ import { PackagesModel } from '../models';
 import { CondaPkgList, TitleItem } from './CondaPkgList';
 import { CondaPkgToolBar, PkgFilters } from './CondaPkgToolBar';
 import { CondaPkgStatusBar } from './CondaPkgStatusBar';
-import { showErrorMessage } from '@jupyterlab/apputils';
+import { showDialog } from '@jupyterlab/apputils';
 import { style } from 'typestyle';
+import { INotification } from 'jupyterlab_toastify';
 export interface IPkgPanelProps {
   height: number,
   environment: string
@@ -51,15 +52,37 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
 
   private async _updatePackages(){
     if (!this.state.isLoading){
-      this.setState({isLoading: true});
+      this.setState({
+        isCheckingUpdate: false,
+        isLoading: true});
       try {
+        let environmentLoading = this._model.environment;
         let packages = await this._model.load();
+        // If current environment changes when waiting for the packages
+        if(this._model.environment !== environmentLoading){
+          this.setState({
+            isLoading: false,
+            packages: {},
+            selected: {}});
+          this._updatePackages();
+          return;
+        }
         this.setState({
           isLoading: false,
           isCheckingUpdate: true,
           packages: packages});
         // Now get the updatable packages
         let data = await this._model.conda_check_updates();
+        // If current environment changes when waiting for the update status
+        if(this._model.environment !== environmentLoading){
+          this.setState({
+            isLoading: false,
+            isCheckingUpdate: false,
+            packages: {},
+            selected: {}});
+          this._updatePackages();
+          return;
+        }
         if(this.state.isCheckingUpdate){
           data.updates.forEach(element => {
             let pkg = this.state.packages[element.name];
@@ -73,7 +96,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           });
         }
       } catch (error) {
-        showErrorMessage('Error', error);
+        INotification.error(error.message);
       }      
     }
   }
@@ -143,37 +166,58 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
     if(this.state.isApplyingChanges){
       return;
     }
-
-    this.setState({
-      isApplyingChanges: true
-    });
-
+    
+    let toastId = null;
     try{
-      let pkgs = Object.keys(this.state.selected)
-        .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Remove)
-      if (pkgs.length > 0){
-        let response = await this._model.conda_remove(pkgs);
-        console.log(response);
-      }
-      pkgs = Object.keys(this.state.selected)
-        .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Update)
-      if (pkgs.length > 0){
-        let response = await this._model.conda_update(pkgs);
-        console.log(response);
-      }    
-      pkgs = Object.keys(this.state.selected)
-        .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Installed)
-      if (pkgs.length > 0){
-        let response = await this._model.conda_install(pkgs);
-        console.log(response);
+      this.setState({
+        searchTerm: '',
+        activeFilter: PkgFilters.Selected
+      })
+
+      let confirmation = await showDialog({
+        title: 'Packages actions',
+        body: 'Please confirm you want to apply the selected actions?'
+      });
+
+      if(confirmation.button.accept){
+        this.setState({
+          isApplyingChanges: true
+        });
+        toastId = INotification.inProgress('Starting packages actions');
+        let pkgs = Object.keys(this.state.selected)
+          .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Remove)
+        if (pkgs.length > 0){
+          INotification.update(toastId, 'Removing selected packages');
+          let response = await this._model.conda_remove(pkgs);
+          console.log(response);
+        }
+        pkgs = Object.keys(this.state.selected)
+          .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Update)
+        if (pkgs.length > 0){
+          INotification.update(toastId, 'Updating selected packages');
+          let response = await this._model.conda_update(pkgs);
+          console.log(response);
+        }    
+        pkgs = Object.keys(this.state.selected)
+          .filter(name => this.state.selected[name] === PackagesModel.PkgStatus.Installed)
+        if (pkgs.length > 0){
+          INotification.update(toastId, 'Installing new packages');
+          let response = await this._model.conda_install(pkgs);
+          console.log(response);
+        }
       }
 
     } catch(error) {
-      showErrorMessage('Error', error);
+      if(toastId){
+        INotification.update(toastId, error.message, 'error', 5000);
+      } else {
+        toastId = INotification.error(error.message);
+      }
     } finally {
       this.setState({
         isApplyingChanges: false,
-        selected: {}
+        selected: {},
+        activeFilter: PkgFilters.All
       });
       this._updatePackages();
     }
@@ -209,13 +253,14 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
   }
 
   render(){
-    let info: string = '';
+    let info = '';
+    let nActions = Object.keys(this.state.selected).length;
     if(this.state.isLoading) {
       info = 'Loading packages';
     } else if (this.state.isCheckingUpdate){
       info = 'Searching available updates';
-    } else if(this.state.isApplyingChanges){
-      info = 'Applying changes';
+    } else if (nActions > 0) {
+      info = nActions + ' packages selected';
     }
 
     let filteredPkgs: PackagesModel.IPackages = {};
@@ -280,7 +325,7 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           onSort={this.handleSort}
           />
         <CondaPkgStatusBar 
-          isLoading={this.state.isLoading || this.state.isCheckingUpdate || this.state.isApplyingChanges} 
+          isLoading={this.state.isLoading || this.state.isCheckingUpdate} 
           infoText={info}/>
       </div>
     );

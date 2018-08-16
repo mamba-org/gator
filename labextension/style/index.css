@@ -11,3 +11,7 @@
   box-shadow: var(--jp-toolbar-box-shadow);
   z-index: 10;
 }
+
+button.jp-button-hide {
+  display: none;
+}
