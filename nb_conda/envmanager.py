@@ -157,7 +157,8 @@ class EnvManager(LoggingConfigurable):
 
     @gen.coroutine
     def export_env(self, env: str) -> str:
-        yield self._execute(CONDA_EXE + ' list -e -n ' + env)
+        output = yield self._execute(CONDA_EXE + ' list -e -n ' + env)
+        return output
 
     @gen.coroutine
     def clone_env(self, env: str, name: str) -> dict:
@@ -195,6 +196,36 @@ class EnvManager(LoggingConfigurable):
         return {
             "packages": [pkg_info(package) for package in data]
         }
+
+    @gen.coroutine
+    def list_available(self):
+        output = yield self._execute(CONDA_EXE + ' search --json', 
+                                     options=list(self.options))
+        
+        data = self.clean_conda_json(output)
+
+        if 'error' in data:
+            # we didn't get back a list of packages, we got a
+            # dictionary with error info
+            return data
+
+        packages = []
+
+        for entries in data.values():
+            max_version = None
+            max_version_entry = None
+
+            for entry in entries:
+                version = parse_version(entry.get('version', ''))
+
+                if max_version is None or version > max_version:
+                    max_version = version
+                    max_version_entry = entry
+
+            packages.append(max_version_entry)
+
+        return sorted(packages, key=lambda entry: entry.get('name'))
+
 
     @gen.coroutine
     def check_update(self, env: str, packages: typing.List[str]) -> dict:

@@ -184,99 +184,20 @@ class EnvPkgActionHandler(EnvBaseHandler):
         self.finish(json.dumps(resp))
 
 
-class CondaSearcher(object):
-    """
-    Helper object that runs `conda search` to retrieve the
-    list of packages available in the current conda channels.
-    """
-    def __init__(self):
-        self.conda_process = None
-        self.conda_temp = None
-
-    def list_available(self, handler=None, options=None):
-        """
-        List the available conda packages by kicking off a background
-        conda process. Will return None. Call again to poll the process
-        status. When the process completes, a list of packages will be
-        returned upon success. On failure, the results of `conda search --json`
-        will be returned (this will be a dict containing error information).
-        TODO - break up this method.
-        """
-        self.log = handler.log
-
-        if options is None:
-            options = []
-
-        if self.conda_process is not None:
-            # already running, check for completion
-            self.log.debug('Already running: pid %s', self.conda_process.pid)
-
-            status = self.conda_process.poll()
-            self.log.debug('Status %s', status)
-
-            if status is not None:
-                # completed, return the data
-                self.log.debug('Done, reading output')
-                self.conda_process = None
-
-                self.conda_temp.seek(0)
-                data = json.loads(self.conda_temp.read())
-                self.conda_temp = None
-
-                if 'error' in data:
-                    # we didn't get back a list of packages, we got a
-                    # dictionary with error info
-                    return data
-
-                packages = []
-
-                for entries in data.values():
-                    max_version = None
-                    max_version_entry = None
-
-                    for entry in entries:
-                        version = parse_version(entry.get('version', ''))
-
-                        if max_version is None or version > max_version:
-                            max_version = version
-                            max_version_entry = entry
-
-                    packages.append(max_version_entry)
-
-                return sorted(packages, key=lambda entry: entry.get('name'))
-
-        else:
-            # Spawn subprocess to get the data
-            self.log.debug('Starting conda process')
-            self.conda_temp = TemporaryFile(mode='w+')
-            cmdline = [CONDA_EXE, 'search', '--json'] + options
-            self.conda_process = Popen(cmdline, stdout=self.conda_temp,
-                                       bufsize=4096)
-            self.log.debug('Started: pid %s', self.conda_process.pid)
-
-        return None
-
-
-searcher = CondaSearcher()
-
-
 class AvailablePackagesHandler(EnvBaseHandler):
     """
     Handler for `GET /packages/available`, which uses CondaSearcher
     to list the packages available for installation.
     """
     @web.authenticated
+    @gen.coroutine
     @json_errors
     def get(self):
         # TODO This is not looking at the selected environment :s
-        data = searcher.list_available(self, 
-                                       options=self.env_manager.get_cmd_options(list(self.env_manager.options)))
+        data = yield self.env_manager.list_available()
 
-        if data is None:
-            # tell client to check back later
-            self.clear()
-            self.set_status(202)  # Accepted
-            self.finish('{}')
+        if 'error' in data:
+            raise web.HTTPError(400)
         else:
             self.finish(json.dumps({"packages": data}))
 
