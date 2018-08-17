@@ -205,6 +205,8 @@ export class CondaPkgPanel extends React.Component<IPkgPanelProps, IPkgPanelStat
           let response = await this._model.conda_install(pkgs);
           console.log(response);
         }
+        
+        INotification.update(toastId, 'Package actions successfully done.', 'success', 5000);
       }
 
     } catch(error) {
