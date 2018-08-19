@@ -1,14 +1,14 @@
-import { VDomRenderer, VDomModel } from '@jupyterlab/apputils';
+import { VDomRenderer, VDomModel } from "@jupyterlab/apputils";
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { Title, Widget } from '@phosphor/widgets';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { Title, Widget } from "@phosphor/widgets";
 
-import { CondaEnv } from './components/CondaEnv';
-import { EnvironmentsModel } from './models';
-import { Message } from '@phosphor/messaging';
+import { CondaEnv } from "./components/CondaEnv";
+import { EnvironmentsModel } from "./models";
+import { Message } from "@phosphor/messaging";
 
-export const condaEnvId = 'jupyterlab_nb_conda:plugin';
+export const condaEnvId = "jupyterlab_nb_conda:plugin";
 
 export class CondaEnvWidget extends VDomRenderer<VDomModel> {
   height: number;
@@ -19,12 +19,8 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> {
   reactComponent: React.ReactElement<any>;
   envModel: EnvironmentsModel;
 
-  constructor(
-    height: number, 
-    width: number,
-    envModel: EnvironmentsModel
-  ) {
-    super();    
+  constructor(height: number, width: number, envModel: EnvironmentsModel) {
+    super();
 
     this.height = height;
     this.width = width;
@@ -49,15 +45,9 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> {
 
   protected onUpdateRequest(): void {
     this.reactComponent = (
-      <CondaEnv 
-        height={this.height}
-        width={this.width}
-        model={this.envModel} 
-      />);
-    ReactDOM.render(
-      this.reactComponent,
-      document.getElementById(this.id)
+      <CondaEnv height={this.height} width={this.width} model={this.envModel} />
     );
+    ReactDOM.render(this.reactComponent, document.getElementById(this.id));
     this.render();
   }
 
@@ -70,4 +60,4 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> {
   render() {
     return this.reactComponent;
   }
-};
+}

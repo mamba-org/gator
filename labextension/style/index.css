@@ -3,7 +3,7 @@
 }
 
 .jp-CondaEnv::before {
-  content: '';
+  content: "";
   display: block;
   height: var(--jp-toolbar-micro-height);
   background: var(--jp-toolbar-background);

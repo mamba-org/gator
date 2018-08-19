@@ -1,17 +1,17 @@
-import * as React from 'react';
-import { CondaPkgItem } from './CondaPkgItem';
-import { PackagesModel } from '../models';
-import { style, classes } from 'typestyle';
+import * as React from "react";
+import { CondaPkgItem } from "./CondaPkgItem";
+import { PackagesModel } from "../models";
+import { style, classes } from "typestyle";
 
 export interface ITitleItemProps {
-  title: string,
-  field: TitleItem.SortField,  
-  status: TitleItem.SortStatus,
-  updateSort: (name: TitleItem.SortField, status: TitleItem.SortStatus) => void
+  title: string;
+  field: TitleItem.SortField;
+  status: TitleItem.SortStatus;
+  updateSort: (name: TitleItem.SortField, status: TitleItem.SortStatus) => void;
 }
 
-export class TitleItem extends React.Component<ITitleItemProps>{
-  render(){
+export class TitleItem extends React.Component<ITitleItemProps> {
+  render() {
     return (
       <div
         className={
@@ -19,167 +19,175 @@ export class TitleItem extends React.Component<ITitleItemProps>{
             ? PkgListStyle.HeaderItem
             : classes(PkgListStyle.HeaderItem, PkgListStyle.CurrentHeaderItem)
         }
-        onClick={() => this.props.updateSort(this.props.field, this.props.status)}
+        onClick={() =>
+          this.props.updateSort(this.props.field, this.props.status)
+        }
       >
         {this.props.title}
       </div>
     );
   }
-};
+}
 
 export namespace TitleItem {
   export enum SortStatus {
     Down = -1,
     None,
-    Up,
+    Up
   }
 
   export enum SortField {
-    Name = 'NAME',
-    Channel = 'CHANNEL',
-    Status = 'STATUS',
-    Version = 'VERSION'
+    Name = "NAME",
+    Channel = "CHANNEL",
+    Status = "STATUS",
+    Version = "VERSION"
   }
 }
 
 export interface IPkgListProps {
-  height: number,
-  packages: PackagesModel.IPackages,
-  selection: { [key: string] : PackagesModel.PkgStatus },
-  sortedBy: TitleItem.SortField,
-  sortDirection: TitleItem.SortStatus,
-  onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void,
-  onPkgClick: (name: string) => void
+  height: number;
+  packages: PackagesModel.IPackages;
+  selection: { [key: string]: PackagesModel.PkgStatus };
+  sortedBy: TitleItem.SortField;
+  sortDirection: TitleItem.SortStatus;
+  onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void;
+  onPkgClick: (name: string) => void;
 }
 
 /** Top level React component for widget */
-export class CondaPkgList extends React.Component<IPkgListProps>{
-
+export class CondaPkgList extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
     packages: {},
     selection: {}
-  }
+  };
 
-  constructor(props){
+  constructor(props) {
     super(props);
   }
 
-  render(){
+  render() {
     const listItems = Object.keys(this.props.packages).map(name => {
       let pkg = this.props.packages[name];
-      let status = name in this.props.selection 
-        ? this.props.selection[name]
-        : pkg.status
+      let status =
+        name in this.props.selection ? this.props.selection[name] : pkg.status;
 
       return (
-        <CondaPkgItem 
+        <CondaPkgItem
           name={pkg.name}
-          key={pkg.name} 
+          key={pkg.name}
           status={status}
           updatable={pkg.updatable}
-          version={pkg.version} 
+          version={pkg.version}
           build={pkg.build}
           channel={pkg.channel}
-          onClick={this.props.onPkgClick} />);
+          onClick={this.props.onPkgClick}
+        />
+      );
     });
 
     return (
       <div>
         <div className={PkgListStyle.Header}>
           <div className={PkgListStyle.CellStatus}>
-            <TitleItem 
-              title=''
+            <TitleItem
+              title=""
               field={TitleItem.SortField.Status}
               updateSort={() => {}}
               status={
-                this.props.sortedBy === TitleItem.SortField.Status 
-                  ? this.props.sortDirection 
-                  : TitleItem.SortStatus.None}/>
+                this.props.sortedBy === TitleItem.SortField.Status
+                  ? this.props.sortDirection
+                  : TitleItem.SortStatus.None
+              }
+            />
           </div>
           <div className={PkgListStyle.CellName}>
             <TitleItem
-              title='Name'
+              title="Name"
               field={TitleItem.SortField.Name}
               updateSort={this.props.onSort}
               status={
-                this.props.sortedBy === TitleItem.SortField.Name 
-                  ? this.props.sortDirection 
-                  : TitleItem.SortStatus.None}/>
+                this.props.sortedBy === TitleItem.SortField.Name
+                  ? this.props.sortDirection
+                  : TitleItem.SortStatus.None
+              }
+            />
           </div>
           <div className={PkgListStyle.Cell}>
-            <TitleItem 
-              title='Version'
+            <TitleItem
+              title="Version"
               field={TitleItem.SortField.Version}
               updateSort={this.props.onSort}
               status={
-                this.props.sortedBy === TitleItem.SortField.Version 
-                  ? this.props.sortDirection 
-                  : TitleItem.SortStatus.None}/>
+                this.props.sortedBy === TitleItem.SortField.Version
+                  ? this.props.sortDirection
+                  : TitleItem.SortStatus.None
+              }
+            />
           </div>
           <div className={PkgListStyle.Cell}>
-            <TitleItem 
-              title='Channel'
+            <TitleItem
+              title="Channel"
               field={TitleItem.SortField.Channel}
               updateSort={this.props.onSort}
               status={
-                this.props.sortedBy === TitleItem.SortField.Channel 
-                  ? this.props.sortDirection 
-                  : TitleItem.SortStatus.None}/>
+                this.props.sortedBy === TitleItem.SortField.Channel
+                  ? this.props.sortDirection
+                  : TitleItem.SortStatus.None
+              }
+            />
           </div>
         </div>
-        <div className={PkgListStyle.List(this.props.height)}>
-          {listItems}
-        </div>
+        <div className={PkgListStyle.List(this.props.height)}>{listItems}</div>
       </div>
     );
   }
 }
 
-export namespace PkgListStyle{
+export namespace PkgListStyle {
   export const List = (height: number) => {
-    return  style({
-      display: 'flex',
-      height: 'calc(' + height + 'px - var(--jp-toolbar-micro-height))',
-      flexDirection: 'column',
-      width: '100%',
-      overflowX: 'hidden',
-      overflowY: 'auto'
+    return style({
+      display: "flex",
+      height: "calc(" + height + "px - var(--jp-toolbar-micro-height))",
+      flexDirection: "column",
+      width: "100%",
+      overflowX: "hidden",
+      overflowY: "auto"
     });
   };
 
   export const Header = style({
-    color: 'var(--jp-ui-font-color1)',
-    display: 'flex',
-    flexDirection: 'row',
-    width: 'calc(100% - 16px)', // Remove sidebar width
-    fontWeight: 'bold',
-    fontSize: 'var(--jp-ui-font-size2)'
+    color: "var(--jp-ui-font-color1)",
+    display: "flex",
+    flexDirection: "row",
+    width: "calc(100% - 16px)", // Remove sidebar width
+    fontWeight: "bold",
+    fontSize: "var(--jp-ui-font-size2)"
   });
 
   export const Row = style({
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
     flexShrink: 0
   });
 
   export const CellStatus = style({
-    flex: '0 0 auto',
-    padding: '0px 2px'
+    flex: "0 0 auto",
+    padding: "0px 2px"
   });
 
   export const CellName = style({
-    flex: '1 0 auto'
+    flex: "1 0 auto"
   });
 
   export const Cell = style({
-    flex: '0 0 164px'
+    flex: "0 0 164px"
   });
 
   export const HeaderItem = style({
-    display: 'flex',
-    padding: '0px 5px'
-  
+    display: "flex",
+    padding: "0px 5px"
+
     // $nest: {
     //   '&:hover div': {
     //     fontWeight: 600,
@@ -194,26 +202,26 @@ export namespace PkgListStyle{
     //   }
     // }
   });
-  
+
   export const CurrentHeaderItem = style({
     $nest: {
-      '&::after': {
+      "&::after": {
         content: `'\\F0DD'`, // up \\F0DE
-        fontFamily: 'FontAwesome',
-        display: 'inline-block',
-        textAlign: 'right',
-        flex: '1 1 auto',
-        padding: '0 5px'
+        fontFamily: "FontAwesome",
+        display: "inline-block",
+        textAlign: "right",
+        flex: "1 1 auto",
+        padding: "0 5px"
       }
     }
   });
-  
+
   export const SortButton = style({
-    transform: 'rotate(180deg)',
-    marginLeft: '10px',
-    color: 'var(--jp-ui-font-color2)',
-    border: 'none',
-    backgroundColor: 'var(--jp-layout-color0)',
-    fontSize: 'var(--jp-ui-font-size1)'
+    transform: "rotate(180deg)",
+    marginLeft: "10px",
+    color: "var(--jp-ui-font-color2)",
+    border: "none",
+    backgroundColor: "var(--jp-layout-color0)",
+    fontSize: "var(--jp-ui-font-size1)"
   });
 }
