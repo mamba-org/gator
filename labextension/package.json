@@ -29,7 +29,7 @@
     "clean": "rimraf lib",
     "watch": "tsc -w",
     "precommit": "pretty-quick --staged",
-    "prepare": "npm run clean && npm run prettier && npm run build",
+    "prepare": "npm run clean && npm run build",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\""
   },
   "dependencies": {
