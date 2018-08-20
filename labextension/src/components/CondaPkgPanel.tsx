@@ -329,7 +329,7 @@ export class CondaPkgPanel extends React.Component<
           onCancel={this.handleCancel}
         />
         <CondaPkgList
-          height={this.props.height - 24 - 26 - 30 - 5} // Remove height for top and bottom elements
+          height={this.props.height - 24 - 26 - 39} // Remove height for top and bottom elements
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
           packages={searchPkgs}
