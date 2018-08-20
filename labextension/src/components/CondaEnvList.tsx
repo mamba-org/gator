@@ -68,7 +68,7 @@ namespace Style {
     flexShrink: 0,
     display: "flex",
     flexDirection: "column",
-    overflowX: "hidden"
+    overflow: "hidden"
   });
 
   export const Title = style({
