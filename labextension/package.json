@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_nb_conda",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Manage your conda environments from the JupyterLab",
   "keywords": [
     "jupyter",
@@ -33,21 +33,21 @@
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\""
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.17.0",
-    "@jupyterlab/apputils": "^0.17.0",
-    "@jupyterlab/mainmenu": "^0.6.0",
+    "@jupyterlab/application": "^0.18.0",
+    "@jupyterlab/apputils": "^0.18.0",
+    "@jupyterlab/mainmenu": "^0.7.0",
     "@phosphor/coreutils": "^1.3.0",
     "@phosphor/widgets": "^1.6.0",
     "typestyle": "^2.0.1"
   },
   "peerDependencies": {
-    "jupyterlab_toastify": ">=1.2.1",
+    "jupyterlab_toastify": ">=1.3.0",
     "react": ">=16.0.0",
     "react-dom": ">=16.0.0"
   },
   "devDependencies": {
     "husky": "^0.14.3",
-    "jupyterlab_toastify": "^1.2.1",
+    "jupyterlab_toastify": "^1.3.0",
     "prettier": "1.14.2",
     "pretty-quick": "^1.6.0",
     "react": "^16.0.0",
@@ -56,6 +56,16 @@
     "typescript": "~2.9.2"
   },
   "jupyterlab": {
-    "extension": true
+    "extension": true,
+    "discovery": {
+      "server": {
+        "base": {
+          "name": "nb_conda"
+        },
+        "managers": [
+          "conda"
+        ]
+      }
+    }
   }
 }
