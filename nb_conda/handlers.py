@@ -11,10 +11,6 @@ import json
 import os
 import re
 
-from subprocess import Popen
-from tempfile import TemporaryFile
-
-from pkg_resources import parse_version
 from notebook.utils import url_path_join as ujoin
 from notebook.base.handlers import APIHandler, json_errors
 from tornado import gen, web
