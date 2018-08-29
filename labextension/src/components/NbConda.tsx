@@ -20,7 +20,7 @@ export interface ICondaEnvState extends EnvironmentsModel.IEnvironments {
 }
 
 /** Top level React component for widget */
-export class CondaEnv extends React.Component<ICondaEnvProps, ICondaEnvState> {
+export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   constructor(props) {
     super(props);
 

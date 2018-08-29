@@ -4,7 +4,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Title, Widget } from "@phosphor/widgets";
 
-import { CondaEnv } from "./components/CondaEnv";
+import { NbConda } from "./components/NbConda";
 import { EnvironmentsModel } from "./models";
 import { Message } from "@phosphor/messaging";
 
@@ -45,7 +45,7 @@ export class CondaEnvWidget extends VDomRenderer<VDomModel> {
 
   protected onUpdateRequest(): void {
     this.reactComponent = (
-      <CondaEnv height={this.height} width={this.width} model={this.envModel} />
+      <NbConda height={this.height} width={this.width} model={this.envModel} />
     );
     ReactDOM.render(this.reactComponent, document.getElementById(this.id));
     this.render();

@@ -52,7 +52,7 @@ function activateCondaEnv(
 
       if (!widget) {
         widget = new CondaEnvWidget(-1, -1, model);
-        widget.addClass("jp-CondaEnv");
+        widget.addClass("jp-NbConda");
       }
 
       if (!widget.isAttached) {
