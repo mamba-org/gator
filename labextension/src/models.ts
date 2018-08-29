@@ -2,6 +2,8 @@ import { Token } from "@phosphor/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { URLExt } from "@jupyterlab/coreutils";
 
+let CHANNEL_MAX_LENGTH = 30;
+
 export const ICondaEnv = new Token<ICondaEnv>("jupyterlab_nb_conda:ICondaEnv");
 
 /** Helper functions for carry on python notebook server request
@@ -262,9 +264,31 @@ export class PackagesModel {
             installedIdx += 1;
           }
         }
-        let split_url = pkg.channel.split("/");
-        if (split_url.length > 1) {
-          pkg.channel = split_url[split_url.length - 2];
+
+        if (pkg.channel.length > CHANNEL_MAX_LENGTH) {
+          let split_url = pkg.channel.split("/");
+          if (split_url.length > 1) {
+            let firstNotEmpty = 1;
+            while (split_url[firstNotEmpty].length === 0) {
+              firstNotEmpty += 1;
+            }
+            let n = split_url[firstNotEmpty].length + 5;
+            pkg.channel = split_url[firstNotEmpty] + "/...";
+            let pos = split_url.length - 1;
+            while (n < CHANNEL_MAX_LENGTH && pos > firstNotEmpty) {
+              n += split_url[pos].length + 1;
+              pos -= 1;
+            }
+            pos += 1;
+            do {
+              pkg.channel += "/" + split_url[pos];
+              pos += 1;
+            } while (pos < split_url.length);
+          } else {
+            let n = pkg.channel.length;
+            pkg.channel =
+              pkg.channel.slice(0, 10) + "..." + pkg.channel.slice(n - 11, n);
+          }
         }
         final_list[pkg.name] = pkg;
         availableIdx += 1;
