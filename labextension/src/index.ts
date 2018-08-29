@@ -4,9 +4,11 @@ import {
   ILayoutRestorer
 } from "@jupyterlab/application";
 
-import { Widget } from "@phosphor/widgets";
-
-import { ICommandPalette, InstanceTracker } from "@jupyterlab/apputils";
+import {
+  ICommandPalette,
+  InstanceTracker,
+  MainAreaWidget
+} from "@jupyterlab/apputils";
 
 import { IMainMenu } from "@jupyterlab/mainmenu";
 
@@ -30,36 +32,43 @@ function activateCondaEnv(
 
   const command: string = "condaenv:open-ui";
 
-  let tracker = new InstanceTracker<Widget>({ namespace: plugin_namespace });
+  let tracker = new InstanceTracker<MainAreaWidget<CondaEnvWidget>>({
+    namespace: plugin_namespace
+  });
   restorer.restore(tracker, {
     command,
-    args: () => JSONExt.emptyObject,
-    name: () => plugin_namespace
+    args: widget => JSONExt.emptyObject,
+    name: widget => plugin_namespace
   });
 
   commands.addCommand(command, {
     label: "Conda Packages Manager",
     execute: () => {
+      if (tracker.currentWidget) {
+        /** Activate the widget */
+        shell.activateById(widget.id);
+        return;
+      }
+
       if (!widget) {
         widget = new CondaEnvWidget(-1, -1, model);
         widget.addClass("jp-CondaEnv");
       }
-      if (!tracker.has(widget)) {
-        // Track the state of the widget for later restoration
-        tracker.add(widget);
-      }
+
       if (!widget.isAttached) {
         widget.id = plugin_namespace;
         widget.title.label = "Packages";
         widget.title.caption = "Conda Packages Manager";
         widget.title.iconClass = Style.TabIcon;
-        widget.title.closable = true;
-        /** Attach the widget to the main work area if it's not there */
-        shell.addToMainArea(widget as Widget);
-      }
 
-      /** Activate the widget */
-      shell.activateById(widget.id);
+        let main = new MainAreaWidget({ content: widget });
+        if (!tracker.has(main)) {
+          // Track the state of the widget for later restoration
+          tracker.add(main);
+        }
+        /** Attach the widget to the main work area if it's not there */
+        shell.addToMainArea(main);
+      }
     }
   });
 
