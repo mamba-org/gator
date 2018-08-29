@@ -330,6 +330,7 @@ export class CondaPkgPanel extends React.Component<
         />
         <CondaPkgList
           height={this.props.height - 28 - 26 - 29 - 4} // Remove height for top and bottom elements
+          isPending={this.state.isLoading || this.state.isCheckingUpdate}
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
           packages={searchPkgs}
@@ -337,10 +338,7 @@ export class CondaPkgPanel extends React.Component<
           onPkgClick={this.handleClick}
           onSort={this.handleSort}
         />
-        <CondaPkgStatusBar
-          isLoading={this.state.isLoading || this.state.isCheckingUpdate}
-          infoText={info}
-        />
+        <CondaPkgStatusBar isLoading={false} infoText={info} />
       </div>
     );
   }

@@ -46,6 +46,7 @@ export namespace TitleItem {
 
 export interface IPkgListProps {
   height: number;
+  isPending: boolean;
   packages: PackagesModel.IPackages;
   selection: { [key: string]: PackagesModel.PkgStatus };
   sortedBy: TitleItem.SortField;
@@ -87,6 +88,13 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
     return (
       <div>
+        <div
+          className={
+            this.props.isPending
+              ? "jp-NbConda-pending jp-mod-hasPending"
+              : "jp-NbConda-pending"
+          }
+        />
         <div className={PkgListStyle.Header}>
           <div className={PkgListStyle.CellStatus}>
             <TitleItem
@@ -124,7 +132,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
               }
             />
           </div>
-          <div className={PkgListStyle.Cell}>
+          <div className={PkgListStyle.CellChannel}>
             <TitleItem
               title="Channel"
               field={TitleItem.SortField.Channel}
@@ -181,8 +189,12 @@ export namespace PkgListStyle {
     flex: "1 0 auto"
   });
 
+  export const CellChannel = style({
+    flex: "0 0 220px"
+  });
+
   export const Cell = style({
-    flex: "0 0 164px"
+    flex: "0 0 160px"
   });
 
   export const HeaderItem = style({

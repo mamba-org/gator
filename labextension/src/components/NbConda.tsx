@@ -309,6 +309,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       <div className={Style.Panel}>
         <CondaEnvList
           height={this.props.height}
+          isPending={this.state.isLoading}
           environments={this.state.environments}
           selected={this.state.currentEnvironment}
           onSelectedChange={this.handleEnvironmentChange}

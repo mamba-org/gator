@@ -1,5 +1,4 @@
 import * as React from "react";
-import { DotsLoader } from "./DotsLoader";
 import { style } from "typestyle/lib";
 
 export interface CondaPkgStatusBarProps {
@@ -11,11 +10,6 @@ export const CondaPkgStatusBar = (props: CondaPkgStatusBarProps) => {
   return (
     <div className={Style.Container}>
       <div className={Style.Text}>{props.infoText}</div>
-      {props.isLoading && (
-        <div className={Style.Loader}>
-          <DotsLoader />
-        </div>
-      )}
     </div>
   );
 };
@@ -36,9 +30,5 @@ namespace Style {
     whiteSpace: "nowrap",
     color: "var(--jp-ui-font-color1)",
     fontSize: "var(--jp-ui-font-size1)"
-  });
-
-  export const Loader = style({
-    flex: "1 1 auto"
   });
 }

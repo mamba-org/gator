@@ -8,6 +8,7 @@ import { CondaEnvToolBar } from "./CondaEnvToolBar";
 
 export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
   height: number;
+  isPending: boolean;
   environments: Array<EnvironmentsModel.IEnvironment>;
   selected: string;
   onSelectedChange: (name: string) => void;
@@ -44,6 +45,13 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
         <div className={Style.Title}>
           <span>Conda environments</span>
         </div>
+        <div
+          className={
+            this.props.isPending
+              ? "jp-NbConda-pending jp-mod-hasPending"
+              : "jp-NbConda-pending"
+          }
+        />
         <div className={Style.ListEnvs(this.props.height - 29 - 32)}>
           {listItems}
         </div>

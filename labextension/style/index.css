@@ -46,3 +46,51 @@
 button.jp-button-hide {
   display: none;
 }
+
+/*
+  Pending entry progress indicator
+
+  Stolen from jlab extensions manager ;-)
+*/
+
+.jp-NbConda-pending {
+  height: 4px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--jp-layout-color1);
+}
+
+.jp-NbConda-pending.jp-mod-hasPending:before {
+  display: block;
+  position: absolute;
+  content: "";
+  left: -200px;
+  width: 200px;
+  height: 4px;
+  border-radius: 5px;
+  background-color: var(--jp-brand-color1);
+  animation: loading 2s linear infinite;
+}
+
+@keyframes loading {
+  from {
+    left: -200px;
+    width: 30%;
+  }
+  50% {
+    width: 30%;
+  }
+  70% {
+    width: 70%;
+  }
+  80% {
+    left: 50%;
+  }
+  95% {
+    left: 120%;
+  }
+  to {
+    left: 100%;
+  }
+}
