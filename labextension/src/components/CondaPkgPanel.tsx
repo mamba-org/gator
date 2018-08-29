@@ -194,7 +194,11 @@ export class CondaPkgPanel extends React.Component<
           name => this.state.selected[name] === PackagesModel.PkgStatus.Remove
         );
         if (pkgs.length > 0) {
-          INotification.update(toastId, "Removing selected packages");
+          INotification.update({
+            toastId: toastId,
+            message: "Removing selected packages",
+            buttons: []
+          });
           await this._model.conda_remove(pkgs);
           // console.log(response);
         }
@@ -202,7 +206,11 @@ export class CondaPkgPanel extends React.Component<
           name => this.state.selected[name] === PackagesModel.PkgStatus.Update
         );
         if (pkgs.length > 0) {
-          INotification.update(toastId, "Updating selected packages");
+          INotification.update({
+            toastId: toastId,
+            message: "Updating selected packages",
+            buttons: []
+          });
           await this._model.conda_update(pkgs);
         }
         pkgs = Object.keys(this.state.selected).filter(
@@ -210,20 +218,31 @@ export class CondaPkgPanel extends React.Component<
             this.state.selected[name] === PackagesModel.PkgStatus.Installed
         );
         if (pkgs.length > 0) {
-          INotification.update(toastId, "Installing new packages");
+          INotification.update({
+            toastId: toastId,
+            message: "Installing new packages",
+            buttons: []
+          });
           await this._model.conda_install(pkgs);
         }
 
-        INotification.update(
-          toastId,
-          "Package actions successfully done.",
-          "success",
-          5000
-        );
+        INotification.update({
+          toastId: toastId,
+          message: "Package actions successfully done.",
+          type: "success",
+          autoClose: 5000,
+          buttons: []
+        });
       }
     } catch (error) {
       if (toastId) {
-        INotification.update(toastId, error.message, "error", 5000);
+        INotification.update({
+          toastId: toastId,
+          message: error.message,
+          type: "error",
+          autoClose: 5000,
+          buttons: []
+        });
       } else {
         toastId = INotification.error(error.message);
       }

@@ -87,18 +87,25 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         );
         let r = await this.props.model.create(nameInput.value, typeInput.value);
         console.debug(r);
-        INotification.update(
-          toastId,
-          "Environment " + nameInput.value + " has been created.",
-          "success",
-          5000
-        );
+        INotification.update({
+          toastId: toastId,
+          message: "Environment " + nameInput.value + " has been created.",
+          type: "success",
+          autoClose: 5000,
+          buttons: []
+        });
         this.setState({ currentEnvironment: nameInput.value });
         this.loadEnvironments();
       }
     } catch (error) {
       if (toastId) {
-        INotification.update(toastId, error.message, "error", 5000);
+        INotification.update({
+          toastId: toastId,
+          message: error.message,
+          type: "error",
+          autoClose: 5000,
+          buttons: []
+        });
       } else {
         toastId = INotification.error(error.message);
       }
@@ -132,18 +139,25 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           nameInput.value
         );
         console.debug(r);
-        INotification.update(
-          toastId,
-          "Environment " + nameInput.value + " created.",
-          "success",
-          5000
-        );
+        INotification.update({
+          toastId: toastId,
+          message: "Environment " + nameInput.value + " created.",
+          type: "success",
+          autoClose: 5000,
+          buttons: []
+        });
         this.setState({ currentEnvironment: nameInput.value });
         this.loadEnvironments();
       }
     } catch (error) {
       if (toastId) {
-        INotification.update(toastId, error.message, "error", 5000);
+        INotification.update({
+          toastId: toastId,
+          message: error.message,
+          type: "error",
+          autoClose: 5000,
+          buttons: []
+        });
       } else {
         toastId = INotification.error(error.message);
       }
@@ -196,18 +210,25 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         var file = await this._readText(fileInput.files[0]);
         let r = await this.props.model.import(nameInput.value, file);
         console.debug(r);
-        INotification.update(
-          toastId,
-          "Environment " + nameInput.value + " created.",
-          "success",
-          5000
-        );
+        INotification.update({
+          toastId: toastId,
+          message: "Environment " + nameInput.value + " created.",
+          type: "success",
+          autoClose: 5000,
+          buttons: []
+        });
         this.setState({ currentEnvironment: nameInput.value });
         this.loadEnvironments();
       }
     } catch (error) {
       if (toastId) {
-        INotification.update(toastId, error.message, "error", 5000);
+        INotification.update({
+          toastId: toastId,
+          message: error.message,
+          type: "error",
+          autoClose: 5000,
+          buttons: []
+        });
       } else {
         toastId = INotification.error(error.message);
       }
@@ -262,18 +283,28 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         );
         let r = await this.props.model.remove(this.state.currentEnvironment);
         console.log(r);
-        INotification.update(
-          toastId,
-          "Environment " + this.state.currentEnvironment + " has been removed.",
-          "success",
-          5000
-        );
+        INotification.update({
+          toastId: toastId,
+          message:
+            "Environment " +
+            this.state.currentEnvironment +
+            " has been removed.",
+          type: "success",
+          autoClose: 5000,
+          buttons: []
+        });
         this.setState({ currentEnvironment: undefined });
         this.loadEnvironments();
       }
     } catch (error) {
       if (toastId) {
-        INotification.update(toastId, error.message, "error", 5000);
+        INotification.update({
+          toastId: toastId,
+          message: error.message,
+          type: "error",
+          autoClose: 5000,
+          buttons: []
+        });
       } else {
         toastId = INotification.error(error.message);
       }
