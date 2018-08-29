@@ -1,8 +1,5 @@
 import * as React from "react";
 
-import { GlobalStyle } from "./globalStyles";
-import { style, classes } from "typestyle/lib";
-
 export interface CondaEnvToolBarProps {
   isBase: boolean;
   onCreate();
@@ -14,60 +11,54 @@ export interface CondaEnvToolBarProps {
 
 export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
   return (
-    <div className="jp-Toolbar">
-      <button
-        className={classes("jp-MaterialIcon", "jp-AddIcon", Style.Button)}
-        type="button"
-        title="Create"
-        onClick={props.onCreate}
-      />
-      <button
-        className={Style.Button}
-        type="button"
-        title="Clone"
-        onClick={props.onClone}
-        disabled={props.isBase}
-      >
-        <i className={classes("fa", "fa-clone", style(GlobalStyle.FaIcon))} />
-      </button>
-      <button
-        className={classes("jp-MaterialIcon", "jp-UploadIcon", Style.Button)}
-        type="button"
-        title="Import"
-        onClick={props.onImport}
-      />
-      <button
-        className={classes("jp-MaterialIcon", "jp-DownloadIcon", Style.Button)}
-        type="button"
-        title="Export"
-        onClick={props.onExport}
-      />
-      <button
-        className={classes("jp-MaterialIcon", "jp-CloseIcon", Style.Button)}
-        type="button"
-        title="Remove"
-        onClick={props.onRemove}
-        disabled={props.isBase}
-      />
+    <div className="p-Widget jp-Toolbar jp-NbConda-EnvToolbar">
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className="jp-ToolbarButtonComponent"
+          title="Create"
+          onClick={props.onCreate}
+        >
+          <span className="jp-AddIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
+        </button>
+      </div>
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className="jp-ToolbarButtonComponent"
+          title="Clone"
+          onClick={props.onClone}
+          disabled={props.isBase}
+        >
+          <span className="fa fa-clone jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
+        </button>
+      </div>
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className="jp-ToolbarButtonComponent"
+          title="Import"
+          onClick={props.onImport}
+        >
+          <span className="jp-FileUploadIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
+        </button>
+      </div>
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className="jp-ToolbarButtonComponent"
+          title="Export"
+          onClick={props.onExport}
+        >
+          <span className="jp-DownloadIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
+        </button>
+      </div>
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className="jp-ToolbarButtonComponent"
+          title="Remove"
+          onClick={props.onRemove}
+          disabled={props.isBase}
+        >
+          <span className="jp-CloseIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
+        </button>
+      </div>
     </div>
   );
 };
-
-namespace Style {
-  export const Button = classes(
-    GlobalStyle.CustomizedButton,
-    style({
-      flex: "1 1 auto",
-      fontSize: "var(--jp-ui-font-size1)",
-      color: "var(--jp-ui-font-color0)",
-      boxSizing: "border-box",
-      textTransform: "uppercase",
-      textAlign: "center",
-      lineHeight: "32px",
-      height: "32px",
-      padding: "0px 12px",
-      letterSpacing: ".8px",
-      outline: "none"
-    })
-  );
-}
