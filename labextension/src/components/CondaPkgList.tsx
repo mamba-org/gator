@@ -147,7 +147,7 @@ export namespace PkgListStyle {
   export const List = (height: number) => {
     return style({
       display: "flex",
-      height: "calc(" + height + "px - var(--jp-toolbar-micro-height))",
+      height: height,
       flexDirection: "column",
       width: "100%",
       overflowX: "hidden",

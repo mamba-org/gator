@@ -86,7 +86,7 @@ namespace Style {
 
   export const ListEnvs = (height: number) =>
     style({
-      height: "calc(" + height + "px - var(--jp-toolbar-micro-height))",
+      height: height,
       overflowY: "auto",
       display: "flex",
       flexDirection: "column"
