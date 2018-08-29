@@ -87,6 +87,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         );
         let r = await this.props.model.create(nameInput.value, typeInput.value);
         console.debug(r);
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: "Environment " + nameInput.value + " has been created.",
@@ -99,6 +100,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       }
     } catch (error) {
       if (toastId) {
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: error.message,
@@ -139,6 +141,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           nameInput.value
         );
         console.debug(r);
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: "Environment " + nameInput.value + " created.",
@@ -151,6 +154,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       }
     } catch (error) {
       if (toastId) {
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: error.message,
@@ -210,6 +214,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         var file = await this._readText(fileInput.files[0]);
         let r = await this.props.model.import(nameInput.value, file);
         console.debug(r);
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: "Environment " + nameInput.value + " created.",
@@ -222,6 +227,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       }
     } catch (error) {
       if (toastId) {
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: error.message,
@@ -283,6 +289,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         );
         let r = await this.props.model.remove(this.state.currentEnvironment);
         console.log(r);
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message:
@@ -298,6 +305,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       }
     } catch (error) {
       if (toastId) {
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: error.message,

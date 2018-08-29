@@ -194,6 +194,7 @@ export class CondaPkgPanel extends React.Component<
           name => this.state.selected[name] === PackagesModel.PkgStatus.Remove
         );
         if (pkgs.length > 0) {
+          // @ts-ignore
           INotification.update({
             toastId: toastId,
             message: "Removing selected packages",
@@ -206,6 +207,7 @@ export class CondaPkgPanel extends React.Component<
           name => this.state.selected[name] === PackagesModel.PkgStatus.Update
         );
         if (pkgs.length > 0) {
+          // @ts-ignore
           INotification.update({
             toastId: toastId,
             message: "Updating selected packages",
@@ -218,6 +220,7 @@ export class CondaPkgPanel extends React.Component<
             this.state.selected[name] === PackagesModel.PkgStatus.Installed
         );
         if (pkgs.length > 0) {
+          // @ts-ignore
           INotification.update({
             toastId: toastId,
             message: "Installing new packages",
@@ -226,6 +229,7 @@ export class CondaPkgPanel extends React.Component<
           await this._model.conda_install(pkgs);
         }
 
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: "Package actions successfully done.",
@@ -236,6 +240,7 @@ export class CondaPkgPanel extends React.Component<
       }
     } catch (error) {
       if (toastId) {
+        // @ts-ignore
         INotification.update({
           toastId: toastId,
           message: error.message,
