@@ -39,14 +39,20 @@ namespace Style {
     color: "var(--jp-ui-inverse-font-color1)",
     border: "1px solid var(--jp-brand-color1)",
     display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
 
     $nest: {
       "&::after": {
-        content: `'▶️'`,
+        content: `' '`,
         display: "inline-block",
-        textAlign: "right",
-        flex: "1 1 auto",
-        padding: "0 5px"
+        padding: "0 5px",
+        width: 0,
+        height: 0,
+        borderTop: "calc(var(--jp-ui-font-size1) / 2) solid transparent",
+        borderBottom: "calc(var(--jp-ui-font-size1) / 2) solid transparent",
+        borderLeft:
+          "calc(var(--jp-ui-font-size1) / 2) solid var(--jp-ui-inverse-font-color1)"
       }
     }
   });

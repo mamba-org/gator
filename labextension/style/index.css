@@ -1,5 +1,6 @@
 .jp-NbConda-EnvToolbar {
   justify-content: space-evenly;
+  border-bottom: none;
 }
 
 button.jp-button-hide {
