@@ -3,6 +3,46 @@
   border-bottom: none;
 }
 
+.jp-NbConda-ToolbarPackages {
+  align-items: center;
+  height: 29px;
+}
+
+.jp-NbConda-ToolbarPackages > .jp-Toolbar-item > .jp-select-wrapper {
+  height: 100%;
+  background-color: var(--jp-notebook-select-background);
+}
+
+.jp-NbConda-ToolbarPackages select.jp-mod-styled {
+  font-size: var(--jp-ui-font-size1);
+  background-size: 16px;
+  padding-right: 16px;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  background-color: transparent;
+}
+
+.jp-NbConda-ToolbarPackages > .jp-Toolbar-item > button.jp-mod-accept {
+  background: var(--jp-brand-color1);
+  color: white;
+  border: 1px solid var(--jp-brand-color1);
+}
+
+.jp-NbConda-ToolbarPackages > .jp-Toolbar-item > button.jp-mod-accept:hover {
+  background: var(--jp-brand-color2);
+}
+
+.jp-NbConda-ToolbarPackages > .jp-Toolbar-item > button.jp-mod-reject {
+  background: var(--md-grey-500);
+  border: 1px solid var(--md-grey-500);
+  color: white;
+}
+
+.jp-NbConda-ToolbarPackages > .jp-Toolbar-item > button.jp-mod-reject:hover {
+  background: var(--md-grey-400);
+}
+
 button.jp-button-hide {
   display: none;
 }

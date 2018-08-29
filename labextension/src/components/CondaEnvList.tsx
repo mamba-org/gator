@@ -76,7 +76,7 @@ namespace Style {
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: "32px" // --jp-private-settingeditor-switcher-height
+    height: "29px" //Toolbar height to align with package toolbar
   });
 
   export const NoGrow = style({

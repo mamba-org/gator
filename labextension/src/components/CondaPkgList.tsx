@@ -161,7 +161,8 @@ export namespace PkgListStyle {
     flexDirection: "row",
     width: "calc(100% - 16px)", // Remove sidebar width
     fontWeight: "bold",
-    fontSize: "var(--jp-ui-font-size2)"
+    fontSize: "var(--jp-ui-font-size2)",
+    height: 26
   });
 
   export const Row = style({

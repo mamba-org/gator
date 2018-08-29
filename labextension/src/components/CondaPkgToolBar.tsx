@@ -21,11 +21,11 @@ export interface CondaPkgToolBarProps {
 
 export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
   return (
-    <div className={classes(Style.Toolbar, "jp-Toolbar")}>
-      <div className="jp-Toolbar-item">
+    <div className="p-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
+      <div className="p-Widget jp-Toolbar-item">
         <div className="jp-select-wrapper">
           <select
-            className={Style.Select}
+            className="jp-mod-styled"
             value={props.category}
             onChange={props.onCategoryChanged}
           >
@@ -37,37 +37,41 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
           </select>
         </div>
       </div>
-      <div className={classes("jp-Toolbar-item", Style.Search)}>
-        <input
-          className={Style.SearchInput}
-          type="search"
-          onChange={props.onSearch}
-          placeholder="Search Packages"
-        />
+      <div className="p-Widget jp-Toolbar-item">
+        <div className={Style.Search}>
+          <input
+            className={Style.SearchInput}
+            type="search"
+            onChange={props.onSearch}
+            placeholder="Search Packages"
+          />
+        </div>
       </div>
-      <div className="jp-Toolbar-item jp-Toolbar-spacer" />
-      <button
-        className={
-          props.hasSelection
-            ? classes(Style.Button, "jp-mod-accept")
-            : "jp-button-hide"
-        }
-        type="button"
-        onClick={props.onApply}
-      >
-        Apply
-      </button>
-      <button
-        className={
-          props.hasSelection
-            ? classes(Style.Button, "jp-mod-reject")
-            : "jp-button-hide"
-        }
-        type="button"
-        onClick={props.onCancel}
-      >
-        Clear
-      </button>
+      <div className="p-Widget jp-Toolbar-spacer jp-Toolbar-item" />
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className={
+            props.hasSelection
+              ? "jp-ToolbarButtonComponent jp-mod-accept"
+              : "jp-ToolbarButtonComponent jp-button-hide"
+          }
+          onClick={props.onApply}
+        >
+          <span>Apply</span>
+        </button>
+      </div>
+      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
+        <button
+          className={
+            props.hasSelection
+              ? "jp-ToolbarButtonComponent jp-mod-reject"
+              : "jp-ToolbarButtonComponent jp-button-hide"
+          }
+          onClick={props.onCancel}
+        >
+          <span>Clear</span>
+        </button>
+      </div>
     </div>
   );
 };
@@ -75,82 +79,46 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
 namespace Style {
   export const Toolbar = style({
     alignItems: "center",
-    height: 32
-  });
-
-  export const Select = style({
-    flex: "1 1 auto",
-    height: "32px",
-    width: "100%",
-    minWidth: 125,
-    fontSize: "var(--jp-ui-font-size2)",
-    color: "var(--jp-ui-font-color0)",
-    paddingLeft: "8px",
-    paddingRight: "8px",
-    backgroundImage: "var(--jp-ui-select-caret)",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "99% center",
-    backgroundSize: "18px",
-    border: "var(--jp-border-width) solid var(--jp-input-border-color)", //'none',
-    borderRadius: 0,
-    appearance: "none",
-    "-webkit-appearance": "none",
-    outline: "none",
-    backgroundColor: "transparent",
-
-    $nest: {
-      "&:hover": {
-        cursor: "pointer",
-        color: "var(--jp-ui-font-color0)",
-        boxShadow: "inset 0 0px 1px rgba(0, 0, 0, 0.5)"
-      }
-    }
+    height: 29
   });
 
   export const SearchInput = style({
-    height: "30px",
-    boxSizing: "border-box",
-    // border: 'none',
-    paddingLeft: "7px",
-    paddingRight: "7px",
-    fontSize: "var(--jp-ui-font-size2)",
-    color: "var(--jp-ui-font-color0)",
+    background: "transparent",
+    width: "100%",
+    float: "left",
+    border: "1px solid var(--jp-border-color0)",
     outline: "none",
-    appearance: "none",
-    backgroundColor: "transparent",
-    border: "var(--jp-border-width) solid var(--jp-brand-color1)",
-    boxShadow: "inset 0 0 4px var(--jp-brand-color2)",
-    marginTop: 1,
+    fontSize: "var(--jp-ui-font-size1)",
+    color: "var(--jp-ui-font-color0)",
+    lineHeight: "20px",
 
     $nest: {
-      "&:hover": {
-        cursor: "pointer",
-        color: "var(--jp-ui-font-color0)",
-        boxShadow: "inset 0 0px 1px rgba(0, 0, 0, 0.5)"
+      "&:focus": {
+        border: "var(--jp-border-width) solid var(--jp-brand-color1)",
+        boxShadow: "inset 0 0 4px var(--jp-brand-color2)"
       }
     }
   });
 
   export const Search = style({
-    display: "flex",
+    overflow: "overlay",
+    height: "100%",
     backgroundColor: "var(--jp-input-active-background)",
 
     $nest: {
       "&::after": {
         content: '" "',
-        color: "white",
+        color: "var(--jp-ui-inverse-font-color1)",
         backgroundColor: "var(--jp-brand-color1)",
-        // position: 'absolute',
-        top: "8px",
-        right: "8px",
-        height: "30px",
+        position: "absolute",
+        right: "0px",
+        height: "100%",
         width: "12px",
         padding: "0px 12px",
-        backgroundImage: "var(--jp-icon-search)",
+        backgroundImage: "var(--jp-icon-search-white)",
         backgroundSize: "20px",
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        marginTop: 1
+        backgroundPosition: "center"
       }
     }
   });
