@@ -1,6 +1,6 @@
 .jp-NbConda-EnvToolbar {
   justify-content: space-evenly;
-  border-bottom: none;
+  box-shadow: none;
 }
 
 .jp-NbConda-ToolbarPackages {
