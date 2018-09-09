@@ -2,7 +2,7 @@ import * as React from "react";
 import { PackagesModel } from "../models";
 import { CondaPkgList, TitleItem } from "./CondaPkgList";
 import { CondaPkgToolBar, PkgFilters } from "./CondaPkgToolBar";
-import { CondaPkgStatusBar } from "./CondaPkgStatusBar";
+// import { CondaPkgStatusBar } from "./CondaPkgStatusBar";
 import { showDialog } from "@jupyterlab/apputils";
 import { style } from "typestyle";
 import { INotification } from "jupyterlab_toastify";
@@ -290,15 +290,15 @@ export class CondaPkgPanel extends React.Component<
   }
 
   render() {
-    let info = "";
-    let nActions = Object.keys(this.state.selected).length;
-    if (this.state.isLoading) {
-      info = "Loading packages";
-    } else if (this.state.isCheckingUpdate) {
-      info = "Searching available updates";
-    } else if (nActions > 0) {
-      info = nActions + " packages selected";
-    }
+    // let info = "";
+    // let nActions = Object.keys(this.state.selected).length;
+    // if (this.state.isLoading) {
+    //   info = "Loading packages";
+    // } else if (this.state.isCheckingUpdate) {
+    //   info = "Searching available updates";
+    // } else if (nActions > 0) {
+    //   info = nActions + " packages selected";
+    // }
 
     let filteredPkgs: PackagesModel.IPackages = {};
     if (this.state.activeFilter === PkgFilters.All) {
@@ -353,7 +353,7 @@ export class CondaPkgPanel extends React.Component<
           onCancel={this.handleCancel}
         />
         <CondaPkgList
-          height={this.props.height - 28 - 26 - 29 - 4} // Remove height for top and bottom elements
+          height={this.props.height - 29 - 29 - 4} // Remove height for top and bottom elements
           isPending={this.state.isLoading || this.state.isCheckingUpdate}
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
@@ -362,7 +362,7 @@ export class CondaPkgPanel extends React.Component<
           onPkgClick={this.handleClick}
           onSort={this.handleSort}
         />
-        <CondaPkgStatusBar isLoading={false} infoText={info} />
+        {/* <CondaPkgStatusBar isLoading={false} infoText={info} /> */}
       </div>
     );
   }

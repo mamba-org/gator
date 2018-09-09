@@ -32,7 +32,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
             : PkgListStyle.Cell
         }
       >
-        {props.version}
+        {props.version_installed}
       </div>
       <div className={PkgListStyle.CellChannel}>{props.channel}</div>
     </div>

@@ -2,11 +2,9 @@ import { Token } from "@phosphor/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { URLExt } from "@jupyterlab/coreutils";
 
-let CHANNEL_MAX_LENGTH = 30;
-
 export const ICondaEnv = new Token<ICondaEnv>("jupyterlab_nb_conda:ICondaEnv");
 
-/** Helper functions for carry on python notebook server request
+/** Helper functions to carry on python notebook server request
  *
  * @param {string} url : request url
  * @param {RequestInit} request : initialization parameters for the request
@@ -34,6 +32,155 @@ export async function requestServer(
   }
 }
 
+// class Version {
+//   private _str: string;
+//   private _epoch: number;
+//   private _release: number[];
+//   private _prerelease?: [string, number];
+//   private _postrelease?: number;
+//   private _devrelease?: number;
+//   private _cmpkey: number[]; // Comparison keys - taken from Python packaging._cmpkey
+
+//   public constructor(
+//     release: number[],
+//     epoch?: number,
+//     prerelease?: [string, number],
+//     postrelease?: number,
+//     devrelease?: number
+//   ) {
+//     this._epoch = epoch === undefined ? 0 : epoch;
+//     let lastIndex = 0;
+//     let revertedRelease = release.reverse();
+//     for (lastIndex = 0; lastIndex < release.length; lastIndex) {
+//       if (revertedRelease[lastIndex] > 0) {
+//         break;
+//       }
+//     }
+
+//     this._release = release.slice(0, release.length - 1 - lastIndex);
+//     this._prerelease = prerelease;
+//     this._postrelease = postrelease;
+//     this._devrelease = devrelease;
+
+//     this._str = release.join(".");
+//     if (this._epoch !== 0) {
+//       this._str = this._epoch + "!" + this._str;
+//     }
+//     if (this._prerelease !== undefined) {
+//       this._str += this._prerelease[0] + this._prerelease[1];
+//     }
+//     if (this._postrelease !== undefined) {
+//       this._str += ".post" + this._postrelease;
+//     }
+//     if (this._devrelease !== undefined) {
+//       this._str += ".dev" + this._devrelease;
+//     }
+
+//     // Build comparison keys - taken from Python packaging._cmpkey
+//     this._cmpkey = [this._prerelease[1], this._postrelease, this._devrelease];
+//     if (
+//       this._prerelease === undefined &&
+//       this._postrelease === undefined &&
+//       this._devrelease !== undefined
+//     ) {
+//       this._cmpkey[0] = -Infinity;
+//     } else if (this._prerelease === undefined) {
+//       this._cmpkey[0] = Infinity;
+//     }
+//     if (this._postrelease === undefined) {
+//       this._cmpkey[1] = -Infinity;
+//     }
+//     if (this._devrelease === undefined) {
+//       this._cmpkey[2] = Infinity;
+//     }
+//   }
+
+//   public get epoch(): number | undefined {
+//     return this._epoch;
+//   }
+
+//   public get release(): number[] {
+//     return this._release;
+//   }
+
+//   public get prerelease(): [string, number] | undefined {
+//     return this._prerelease;
+//   }
+
+//   public get postrelease(): number | undefined {
+//     return this._postrelease;
+//   }
+
+//   public get devrelease(): number | undefined {
+//     return this._devrelease;
+//   }
+
+//   /**
+//    * toString
+//    */
+//   public toString(): string {
+//     return this._str;
+//   }
+
+//   public equals(other: Version): boolean {
+//     let releaseEquality = this.release.length === other.release.length;
+//     if (releaseEquality) {
+//       releaseEquality = this.release.every(
+//         (value, idx) => value === other.release[idx]
+//       );
+//     }
+//     return (
+//       this.epoch === other.epoch &&
+//       releaseEquality &&
+//       this._cmpkey.every((value, idx) => value === other._cmpkey[idx])
+//     );
+//   }
+
+//   public greaterThan(other: Version): boolean {
+//     let releaseEquality = this.release.length >= other.release.length;
+//     if (releaseEquality) {
+//       releaseEquality = other.release.every(
+//         (value, idx) => value < this.release[idx]
+//       );
+//     }
+//     return (
+//       this.epoch >= other.epoch &&
+//       releaseEquality &&
+//       this._cmpkey.every((value, idx) => value >= other._cmpkey[idx])
+//     );
+//   }
+
+//   public lesserThan(other: Version): boolean {
+//     let releaseEquality = this.release.length <= other.release.length;
+//     if (releaseEquality) {
+//       releaseEquality = this.release.every(
+//         (value, idx) => value <= other.release[idx]
+//       );
+//     }
+//     return (
+//       this.epoch <= other.epoch &&
+//       releaseEquality &&
+//       this._cmpkey.every((value, idx) => value <= other._cmpkey[idx])
+//     );
+//   }
+
+//   public static parseVersion(version: string): Version {
+//     let pattern = /^([1-9]\d*!)?((0|[1-9]\d*)(\.(0|[1-9]\d*))*)((a|b|rc)(0|[1-9]\d*))?(\.post(0|[1-9]\d*))?(\.dev(0|[1-9]\d*))?$/g;
+//     let match = pattern.exec(version);
+//     try {
+//       return new Version(
+//         match[2].split(".").map(level => parseInt(level)),
+//         match[1] !== undefined ? parseInt(match[1].slice(0, -1)) : undefined,
+//         match[6] !== undefined ? [match[7], parseInt(match[8])] : undefined,
+//         match[10] !== undefined ? parseInt(match[10]) : undefined,
+//         match[12] !== undefined ? parseInt(match[12]) : undefined
+//       );
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+// }
+
 /* Whitelist of environment to show in the conda package manager. If the list contains
  * only one entry, the environment list won't be shown.
  */
@@ -58,6 +205,26 @@ export class EnvironmentsModel implements ICondaEnv {
       });
     } else {
       return Promise.resolve(this._environments);
+    }
+  }
+
+  async getChannels(name: string): Promise<EnvironmentsModel.IChannels> {
+    try {
+      let request = {
+        method: "GET"
+      };
+      let response = await requestServer(
+        URLExt.join("conda", "environments", name, "channels"),
+        request
+      );
+      if (response.ok) {
+        let data = await response.json();
+        return data["channels"] as EnvironmentsModel.IChannels;
+      } else {
+        throw new Error(`Fail to get the channels for environment ${name}.`);
+      }
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
@@ -183,6 +350,10 @@ export namespace EnvironmentsModel {
   export interface IEnvironments {
     environments: Array<IEnvironment>;
   }
+
+  export interface IChannels {
+    [key: string]: Array<string>;
+  }
 }
 
 export class PackagesModel {
@@ -237,7 +408,7 @@ export class PackagesModel {
         request
       );
       let data = (await response.json()) as {
-        packages: Array<PackagesModel.IPackage>;
+        packages: Array<PackagesModel.IRawPackage>;
       };
 
       // Set installed package status
@@ -255,40 +426,46 @@ export class PackagesModel {
           let installed = data.packages[installedIdx];
           if (pkg.name > installed.name) {
             // installed is not in available
-            pkg = installed;
+            pkg = {
+              ...installed,
+              version: [installed.version],
+              build_number: [installed.build_number],
+              build_string: [installed.build_string]
+            };
             availableIdx -= 1;
           }
           if (pkg.name === installed.name) {
-            pkg = installed; // If available name matching installed, installed is added as it may be updatable
+            pkg = {
+              // If available name matching installed, installed is added as it may be updatable
+              ...installed,
+              version: pkg.version,
+              build_number: pkg.build_number,
+              build_string: pkg.build_string
+            };
+            pkg.version_installed = installed.version;
             pkg.status = PackagesModel.PkgStatus.Installed;
             installedIdx += 1;
           }
         }
 
-        if (pkg.channel.length > CHANNEL_MAX_LENGTH) {
-          let split_url = pkg.channel.split("/");
-          if (split_url.length > 1) {
-            let firstNotEmpty = 1;
-            while (split_url[firstNotEmpty].length === 0) {
-              firstNotEmpty += 1;
-            }
-            let n = split_url[firstNotEmpty].length + 5;
-            pkg.channel = split_url[firstNotEmpty] + "/...";
-            let pos = split_url.length - 1;
-            while (n < CHANNEL_MAX_LENGTH && pos > firstNotEmpty) {
-              n += split_url[pos].length + 1;
-              pos -= 1;
-            }
-            pos += 1;
-            do {
-              pkg.channel += "/" + split_url[pos];
-              pos += 1;
-            } while (pos < split_url.length);
-          } else {
-            let n = pkg.channel.length;
-            pkg.channel =
-              pkg.channel.slice(0, 10) + "..." + pkg.channel.slice(n - 11, n);
+        let split_url = pkg.channel.split("/");
+        if (split_url.length > 2) {
+          let firstNotEmpty = 1; // Skip the scheme http, https or file
+          while (split_url[firstNotEmpty].length === 0) {
+            firstNotEmpty += 1;
           }
+          pkg.channel = split_url[firstNotEmpty];
+          let pos = split_url.length - 1;
+          while (
+            PackagesModel.PkgSubDirs.indexOf(split_url[pos]) > -1 &&
+            pos > firstNotEmpty
+          ) {
+            pos -= 1;
+          }
+          if (pos > firstNotEmpty) {
+            pkg.channel += "/...";
+          }
+          pkg.channel += "/" + split_url[pos];
         }
         final_list[pkg.name] = pkg;
         availableIdx += 1;
@@ -421,44 +598,45 @@ export namespace PackagesModel {
     Available = "AVAILABLE"
   }
 
+  export const PkgSubDirs = [
+    "linux-64",
+    "linux-32",
+    "linux-ppc64le",
+    "linux-armv6l",
+    "linux-armv7l",
+    "linux-aarch64",
+    "win-64",
+    "win-32",
+    "osx-64",
+    "zos-z",
+    "noarch"
+  ];
+
   /**
    * Description of the REST API attributes for each package
    */
   export interface IPackage {
     name: string;
-    version: string;
-    build: string;
-    channel?: string;
+    version: Array<string>;
+    build_number: Array<number>;
+    build_string: Array<string>;
+    channel: string;
+    platform: string;
+    version_installed?: string;
     status?: PkgStatus;
     updatable?: boolean;
   }
 
-  export interface IRawPackage extends IPackage {
-    arch: string | null;
-    build_number: number;
-    channel: string;
-    constrains: Array<string>;
-    depends: Array<string>;
-    fn: string;
-    license: string;
-    md5: string;
-    platform: string | null;
-    size: number;
-    subdir: string;
-    timestamp: number;
-    url: string;
-  }
-
-  export interface UpdateAPI {
-    base_url: string | null;
+  export interface IRawPackage {
+    name: string;
+    version: string;
     build_number: number;
     build_string: string;
     channel: string;
-    dist_name: string;
-    name: string;
-    platform: string | null;
-    version: string;
+    platform: string;
   }
+
+  export interface UpdateAPI extends IRawPackage {}
 
   /**
    * Description of the REST API response when loading packages

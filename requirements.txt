@@ -6,5 +6,6 @@ nb_conda_kernels >=2.0.0
 nodejs
 nose
 notebook >=4.3.1
+packaging
 python
 requests

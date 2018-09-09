@@ -76,11 +76,14 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         <CondaPkgItem
           name={pkg.name}
           key={pkg.name}
+          version={pkg.version}
+          build_number={pkg.build_number}
+          build_string={pkg.build_string}
+          channel={pkg.channel}
+          platform={pkg.platform}
+          version_installed={pkg.version_installed || pkg.version.slice(-1)[0]}
           status={status}
           updatable={pkg.updatable}
-          version={pkg.version}
-          build={pkg.build}
-          channel={pkg.channel}
           onClick={this.props.onPkgClick}
         />
       );
@@ -88,13 +91,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
     return (
       <div>
-        <div
-          className={
-            this.props.isPending
-              ? "jp-NbConda-pending jp-mod-hasPending"
-              : "jp-NbConda-pending"
-          }
-        />
         <div className={PkgListStyle.Header}>
           <div className={PkgListStyle.CellStatus}>
             <TitleItem
@@ -145,6 +141,13 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             />
           </div>
         </div>
+        <div
+          className={
+            this.props.isPending
+              ? "jp-NbConda-pending jp-mod-hasPending"
+              : "jp-NbConda-pending"
+          }
+        />
         <div className={PkgListStyle.List(this.props.height)}>{listItems}</div>
       </div>
     );
@@ -170,7 +173,7 @@ export namespace PkgListStyle {
     width: "calc(100% - 16px)", // Remove sidebar width
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: 26
+    height: 29
   });
 
   export const Row = style({

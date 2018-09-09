@@ -45,16 +45,6 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
         <div className={Style.Title}>
           <span>Conda environments</span>
         </div>
-        <div
-          className={
-            this.props.isPending
-              ? "jp-NbConda-pending jp-mod-hasPending"
-              : "jp-NbConda-pending"
-          }
-        />
-        <div className={Style.ListEnvs(this.props.height - 29 - 32)}>
-          {listItems}
-        </div>
         <div className={Style.NoGrow}>
           <CondaEnvToolBar
             isBase={isDefault}
@@ -64,6 +54,16 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
             onExport={this.props.onExport}
             onRemove={this.props.onRemove}
           />
+        </div>
+        <div
+          className={
+            this.props.isPending
+              ? "jp-NbConda-pending jp-mod-hasPending"
+              : "jp-NbConda-pending"
+          }
+        />
+        <div className={Style.ListEnvs(this.props.height - 29 - 32)}>
+          {listItems}
         </div>
       </div>
     );

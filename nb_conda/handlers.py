@@ -78,6 +78,20 @@ class EnvHandler(EnvBaseHandler):
         self.finish(json.dumps(packages))
 
 
+class ChannelsHandler(EnvBaseHandler):
+    """
+    Handler for `GET /environments/<name>/channels` which lists
+    the channels in the specified environment.
+    """
+
+    @web.authenticated
+    @gen.coroutine
+    @json_errors
+    def get(self, env):
+        channels = yield self.env_manager.env_channels(env)
+        self.finish(json.dumps(channels))
+
+
 class EnvActionHandler(EnvBaseHandler):
     """
     Handler for `GET /environments/<name>/export` which
@@ -244,6 +258,7 @@ default_handlers = [
         EnvPkgActionHandler,
     ),
     (r"/environments/%s/%s" % (_env_regex, _env_action_regex), EnvActionHandler),
+    (r"/environments/%s/channels" % _env_regex, ChannelsHandler),
     (r"/environments/%s" % _env_regex, EnvHandler),
     (r"/packages/available", AvailablePackagesHandler),
     (r"/packages/search", SearchHandler),

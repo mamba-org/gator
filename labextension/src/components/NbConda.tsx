@@ -16,6 +16,7 @@ export interface ICondaEnvProps {
 
 export interface ICondaEnvState extends EnvironmentsModel.IEnvironments {
   currentEnvironment?: string;
+  channels?: EnvironmentsModel.IChannels;
   isLoading: boolean;
 }
 
@@ -38,9 +39,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
   }
 
-  handleEnvironmentChange(name: string) {
+  async handleEnvironmentChange(name: string) {
     this.setState({
-      currentEnvironment: name
+      currentEnvironment: name,
+      channels: await this.props.model.getChannels(name)
     });
   }
 
@@ -330,6 +332,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
               newState.currentEnvironment = env.name;
             }
           });
+          newState.channels = await this.props.model.getChannels(
+            newState.currentEnvironment
+          );
         }
         newState.isLoading = false;
         this.setState(newState as ICondaEnvState);

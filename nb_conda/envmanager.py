@@ -7,7 +7,7 @@ import re
 from tempfile import NamedTemporaryFile
 import typing
 
-from pkg_resources import parse_version
+from packaging.version import parse
 from subprocess import Popen, PIPE
 
 from tornado import gen, ioloop
@@ -16,21 +16,14 @@ from traitlets import Dict, List, Bool, Unicode
 
 
 def pkg_info(s):
-    # try:
-    #     # for conda >= 4.3, `s` should be a dict
-    #     name = s['name']
-    #     version = s['version']
-    #     build = s.get('build_string') or s['build']
-    # except TypeError:
-    #     # parse legacy string version for information
-    #     name, version, build = s.rsplit('-', 2)
-
-    # return {
-    #     'name': name,
-    #     'version': version,
-    #     'build': build
-    # }
-    return s
+    return {
+        "build_number": s.get("build_number"),
+        "build_string": s.get("build_string", s.get("build")),
+        "channel": s.get("channel"),
+        "name": s.get("name"),
+        "platform": s.get("platform"),
+        "version": s.get("version"),
+    }
 
 
 MAX_LOG_OUTPUT = 6000
@@ -200,9 +193,68 @@ class EnvManager(LoggingConfigurable):
         return self.clean_conda_json(output)
 
     @gen.coroutine
+    def env_channels(self, env: str) -> typing.List[str]:
+        output = yield self._execute(CONDA_EXE + " config --show --json")
+        info = self.clean_conda_json(output)
+        if env != "base":
+            old_prefix = os.environ["CONDA_PREFIX"]
+            envs = yield self.list_envs()
+            envs = envs["environments"]
+            env_dir = None
+            for env in envs:
+                if env["name"] == env:
+                    env_dir = env["dir"]
+                    break
+
+            os.environ["CONDA_PREFIX"] = env_dir
+            output = yield self._execute(CONDA_EXE + " config --show --json")
+            info = self.clean_conda_json(output)
+            os.environ["CONDA_PREFIX"] = old_prefix
+
+        deployed_channels = {}
+
+        def get_uri(spec):
+            location = "/".join((spec["location"], spec["name"]))
+            if location[0] != "/":
+                location = "/" + location
+            return spec["scheme"] + "://" + location
+
+        for channel in info["channels"]:
+            if channel in info["custom_multichannels"]:
+                deployed_channels[channel] = [
+                    get_uri(entry) for entry in info["custom_multichannels"][channel]
+                ]
+            elif os.path.sep not in channel:
+                spec = info["channel_alias"]
+                spec["name"] = channel
+                deployed_channels[channel] = [get_uri(spec)]
+            else:
+                deployed_channels[channel] = ["file:///" + channel]
+
+        self.log.debug("[nb_conda] {} channels: {}".format(env, deployed_channels))
+
+        if "error" in info:
+            return info
+        return {"channels": deployed_channels}
+
+    @gen.coroutine
     def env_packages(self, env: str) -> dict:
         output = yield self._execute(CONDA_EXE + " list --no-pip --json -n " + env)
         data = self.clean_conda_json(output)
+
+        # Data structure
+        #   List of dictionary. Example:
+        # {
+        #     "base_url": null,
+        #     "build_number": 0,
+        #     "build_string": "py36_0",
+        #     "channel": "defaults",
+        #     "dist_name": "anaconda-client-1.6.14-py36_0",
+        #     "name": "anaconda-client",
+        #     "platform": null,
+        #     "version": "1.6.14"
+        # }
+
         if "error" in data:
             # we didn't get back a list of packages, we got a dictionary with
             # error info
@@ -225,18 +277,61 @@ class EnvManager(LoggingConfigurable):
 
         packages = []
 
+        # Data structure
+        #  Dictionary with package name key and value is a list of dictionary. Example:
+        #  {
+        #   "arch": "x86_64",
+        #   "build": "np17py33_0",
+        #   "build_number": 0,
+        #   "channel": "https://repo.anaconda.com/pkgs/free/win-64",
+        #   "constrains": [],
+        #   "date": "2013-02-20",
+        #   "depends": [
+        #     "numpy 1.7*",
+        #     "python 3.3*"
+        #   ],
+        #   "fn": "astropy-0.2-np17py33_0.tar.bz2",
+        #   "license": "BSD",
+        #   "md5": "3522090a8922faebac78558fbde9b492",
+        #   "name": "astropy",
+        #   "platform": "win32",
+        #   "size": 3352442,
+        #   "subdir": "win-64",
+        #   "url": "https://repo.anaconda.com/pkgs/free/win-64/astropy-0.2-np17py33_0.tar.bz2",
+        #   "version": "0.2"
+        # }
+
         for entries in data.values():
-            max_version = None
-            max_version_entry = None
+            pkg_entry = None
+            versions = list()
+            max_build_numbers = list()
+            max_build_strings = list()
 
             for entry in entries:
-                version = parse_version(entry.get("version", ""))
+                entry = pkg_info(entry)
+                if pkg_entry is None:
+                    pkg_entry = entry
 
-                if max_version is None or version > max_version:
-                    max_version = version
-                    max_version_entry = entry
+                version = parse(entry.get("version", ""))
 
-            packages.append(max_version_entry)
+                if version not in versions:
+                    versions.append(version)
+                    max_build_numbers.append(entry.get("build_number", 0))
+                    max_build_strings.append(entry.get("build_string", ""))
+                else:
+                    version_idx = versions.index(version)
+                    build_number = entry.get("build_number", 0)
+                    if build_number > max_build_numbers[version_idx]:
+                        max_build_numbers[version_idx] = build_number
+                        max_build_strings[version_idx] = entry.get("build_string", "")
+
+            sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
+
+            pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
+            pkg_entry["build_number"] = [max_build_numbers[i] for i in sorted_versions_idx]
+            pkg_entry["build_string"] = [max_build_strings[i] for i in sorted_versions_idx]
+
+            packages.append(pkg_entry)
 
         return sorted(packages, key=lambda entry: entry.get("name"))
 
@@ -248,6 +343,19 @@ class EnvManager(LoggingConfigurable):
             options=list(self.options)
         )
         data = self.clean_conda_json(output)
+
+        # Data structure in LINK
+        #   List of dictionary. Example:
+        # {
+        #     "base_url": null,
+        #     "build_number": 0,
+        #     "build_string": "mkl",
+        #     "channel": "defaults",
+        #     "dist_name": "blas-1.0-mkl",
+        #     "name": "blas",
+        #     "platform": null,
+        #     "version": "1.0"
+        # }
 
         if "error" in data:
             # we didn't get back a list of packages, we got a dictionary with
@@ -305,12 +413,12 @@ class EnvManager(LoggingConfigurable):
 
         packages = []
 
-        for name, entries in data.items():
+        for entries in data.values():
             max_version = None
             max_version_entry = None
 
             for entry in entries:
-                version = parse_version(entry.get("version", ""))
+                version = parse(entry.get("version", ""))
 
                 if max_version is None or version > max_version:
                     max_version = version
