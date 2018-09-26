@@ -208,9 +208,8 @@ class AvailablePackagesHandler(EnvBaseHandler):
     @web.authenticated
     @gen.coroutine
     @json_errors
-    def get(self):
-        # TODO This is not looking at the selected environment :s
-        data = yield self.env_manager.list_available()
+    def get(self, env):
+        data = yield self.env_manager.list_available(env)
 
         if "error" in data:
             raise web.HTTPError(400)
@@ -228,9 +227,9 @@ class SearchHandler(EnvBaseHandler):
     @web.authenticated
     @gen.coroutine
     @json_errors
-    def get(self):
+    def get(self, env):
         q = self.get_argument("q")
-        answer = yield self.env_manager.package_search(q)
+        answer = yield self.env_manager.package_search(env, q)
         self.finish(json.dumps(answer))
 
 
@@ -260,8 +259,8 @@ default_handlers = [
     (r"/environments/%s/%s" % (_env_regex, _env_action_regex), EnvActionHandler),
     (r"/environments/%s/channels" % _env_regex, ChannelsHandler),
     (r"/environments/%s" % _env_regex, EnvHandler),
-    (r"/packages/available", AvailablePackagesHandler),
-    (r"/packages/search", SearchHandler),
+    (r"/packages/%s/available" % _env_regex, AvailablePackagesHandler),
+    (r"/packages/%s/search" % _env_regex, SearchHandler),
 ]
 
 

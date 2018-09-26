@@ -263,9 +263,9 @@ class EnvManager(LoggingConfigurable):
         return {"packages": [pkg_info(package) for package in data]}
 
     @gen.coroutine
-    def list_available(self):
+    def list_available(self, env: str):
         output = yield self._execute(
-            CONDA_EXE + " search --json", options=list(self.options)
+            CONDA_EXE + " search --json -n " + env, options=list(self.options)
         )
 
         data = self.clean_conda_json(output)
@@ -301,6 +301,7 @@ class EnvManager(LoggingConfigurable):
         #   "version": "0.2"
         # }
 
+        # List all available version for packages
         for entries in data.values():
             pkg_entry = None
             versions = list()
@@ -332,6 +333,9 @@ class EnvManager(LoggingConfigurable):
             pkg_entry["build_string"] = [max_build_strings[i] for i in sorted_versions_idx]
 
             packages.append(pkg_entry)
+
+        # Get channel short names
+        channels = yield self.env_channels(env)
 
         return sorted(packages, key=lambda entry: entry.get("name"))
 
@@ -399,10 +403,10 @@ class EnvManager(LoggingConfigurable):
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def package_search(self, q: str) -> dict:
-        # this method is slow and operates synchronously
+    def package_search(self, env: str, q: str) -> dict:
+        # this method is slow
         output = yield self._execute(
-            CONDA_EXE + " search --json", q, options=list(self.options)
+            CONDA_EXE + " search --json -n " + env, q, options=list(self.options)
         )
         data = self.clean_conda_json(output)
 
@@ -426,4 +430,3 @@ class EnvManager(LoggingConfigurable):
 
             packages.append(max_version_entry)
         return {"packages": sorted(packages, key=lambda entry: entry.get("name"))}
-
