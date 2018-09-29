@@ -81,6 +81,10 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           build_string={pkg.build_string}
           channel={pkg.channel}
           platform={pkg.platform}
+          summary={pkg.summary}
+          home={pkg.home}
+          keywords={pkg.keywords}
+          tags={pkg.tags}
           version_installed={pkg.version_installed || pkg.version.slice(-1)[0]}
           status={status}
           updatable={pkg.updatable}
@@ -115,6 +119,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   : TitleItem.SortStatus.None
               }
             />
+          </div>
+          <div className={PkgListStyle.CellName}>
+            <div className={PkgListStyle.HeaderItem}>Description</div>
           </div>
           <div className={PkgListStyle.Cell}>
             <TitleItem

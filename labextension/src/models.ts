@@ -366,21 +366,22 @@ export class PackagesModel {
     // this.load();
   }
 
-  private waitAnswer(response: Response): Promise<Response> {
-    return new Promise((resolve, reject) => {
-      if (response.status == 202) {
-        setTimeout(() => {
-          requestServer(URLExt.join("conda", "packages", "available"), {
-            method: "GET"
-          }).then(response => {
-            resolve(this.waitAnswer(response));
-          });
-        }, 1000);
-      } else {
-        resolve(response);
-      }
-    });
-  }
+  // Handler is now asynchronous
+  // private waitAnswer(response: Response): Promise<Response> {
+  //   return new Promise((resolve, reject) => {
+  //     if (response.status == 202) {
+  //       setTimeout(() => {
+  //         requestServer(URLExt.join("conda", "packages", "available"), {
+  //           method: "GET"
+  //         }).then(response => {
+  //           resolve(this.waitAnswer(response));
+  //         });
+  //       }, 1000);
+  //     } else {
+  //       resolve(response);
+  //     }
+  //   });
+  // }
 
   async load(): Promise<PackagesModel.IPackages> {
     if (this.environment === undefined) {
@@ -393,11 +394,15 @@ export class PackagesModel {
         method: "GET"
       };
       // Get all available packages
-      let first_reply = await requestServer(
-        URLExt.join("conda", "packages", "available"),
+      // let first_reply = await requestServer(
+      //   URLExt.join("conda", "packages", "available"),
+      //   request
+      // );
+      // let available_pkgs = await this.waitAnswer(first_reply);
+      let available_pkgs = await requestServer(
+        URLExt.join("conda", "packages", this.environment, "available"),
         request
       );
-      let available_pkgs = await this.waitAnswer(first_reply);
       let all_data = (await available_pkgs.json()) as {
         packages: Array<PackagesModel.IPackage>;
       };
@@ -430,18 +435,15 @@ export class PackagesModel {
               ...installed,
               version: [installed.version],
               build_number: [installed.build_number],
-              build_string: [installed.build_string]
+              build_string: [installed.build_string],
+              summary: "",
+              home: "",
+              keywords: [],
+              tags: []
             };
             availableIdx -= 1;
           }
           if (pkg.name === installed.name) {
-            pkg = {
-              // If available name matching installed, installed is added as it may be updatable
-              ...installed,
-              version: pkg.version,
-              build_number: pkg.build_number,
-              build_string: pkg.build_string
-            };
             pkg.version_installed = installed.version;
             pkg.status = PackagesModel.PkgStatus.Installed;
             installedIdx += 1;
@@ -622,6 +624,10 @@ export namespace PackagesModel {
     build_string: Array<string>;
     channel: string;
     platform: string;
+    summary: string;
+    home: string;
+    keywords: Array<string>;
+    tags: Array<string>;
     version_installed?: string;
     status?: PkgStatus;
     updatable?: boolean;

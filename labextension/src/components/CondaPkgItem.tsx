@@ -18,13 +18,24 @@ export const CondaPkgItem = (props: PkgItemProps) => {
     status = <i className={Style.StatusRemove} />;
   }
 
+  let name = <span>{props.name}</span>;
+  if (props.home.length > 0) {
+    // TODO possible enhancement - open in a JupyterLab Panel
+    name = (
+      <a href={props.home} target="_blank">
+        {props.name}
+      </a>
+    );
+  }
+
   return (
     <div
       className={classes(PkgListStyle.Row, Style.Item)}
       onClick={() => props.onClick(props.name)}
     >
       <div className={PkgListStyle.CellStatus}>{status}</div>
-      <div className={PkgListStyle.CellName}>{props.name}</div>
+      <div className={PkgListStyle.CellName}>{name}</div>
+      <div className={PkgListStyle.CellName}>{props.summary}</div>
       <div
         className={
           props.updatable
