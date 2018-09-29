@@ -10,12 +10,13 @@ import typing
 from packaging.version import parse
 from subprocess import Popen, PIPE
 
-from tornado import gen, ioloop
+from notebook.utils import url_path_join
+from tornado import gen, ioloop, httpclient, httputil, web
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Dict, List, Bool, Unicode
 
 
-def pkg_info(s):
+def normalize_pkg_info(s):
     return {
         "build_number": s.get("build_number"),
         "build_string": s.get("build_string", s.get("build")),
@@ -23,6 +24,10 @@ def pkg_info(s):
         "name": s.get("name"),
         "platform": s.get("platform"),
         "version": s.get("version"),
+        "summary": s.get("summary", ""),
+        "home": s.get("home", ""),
+        "keywords": s.get("keywords", []),
+        "tags": s.get("tags", [])
     }
 
 
@@ -260,7 +265,7 @@ class EnvManager(LoggingConfigurable):
             # error info
             return data
 
-        return {"packages": [pkg_info(package) for package in data]}
+        return {"packages": [normalize_pkg_info(package) for package in data]}
 
     @gen.coroutine
     def list_available(self, env: str):
@@ -309,7 +314,7 @@ class EnvManager(LoggingConfigurable):
             max_build_strings = list()
 
             for entry in entries:
-                entry = pkg_info(entry)
+                entry = normalize_pkg_info(entry)
                 if pkg_entry is None:
                     pkg_entry = entry
 
@@ -329,13 +334,101 @@ class EnvManager(LoggingConfigurable):
             sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
 
             pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
-            pkg_entry["build_number"] = [max_build_numbers[i] for i in sorted_versions_idx]
-            pkg_entry["build_string"] = [max_build_strings[i] for i in sorted_versions_idx]
+            pkg_entry["build_number"] = [
+                max_build_numbers[i] for i in sorted_versions_idx
+            ]
+            pkg_entry["build_string"] = [
+                max_build_strings[i] for i in sorted_versions_idx
+            ]
 
             packages.append(pkg_entry)
 
         # Get channel short names
         channels = yield self.env_channels(env)
+        channels = channels["channels"]
+        tr_channels = {}
+        for short_name, channel in channels.items():
+            tr_channels.update({uri: short_name for uri in channel})
+
+        # # Get top channel URI to request channeldata.json
+        # top_channels = set()
+        # for uri in tr_channels:
+        #     channel, arch = os.path.split(uri)
+        #     if arch in PLATFORMS:
+        #         top_channels.add(channel)
+        #     else:
+        #         top_channels.add(uri)
+
+        # Request channeldata.json
+        pkg_info = {}
+        client = httpclient.AsyncHTTPClient()
+        for channel in tr_channels:
+            url = httputil.urlparse(channel)
+            if url.scheme == "file":
+                path = (
+                    "".join(("//", url.netloc, url.path))
+                    if url.netloc
+                    else url.path.lstrip("/")
+                )
+                path = path.rstrip("/") + "/channeldata.json"
+                try:  # Skip if file is not accessible
+                    with open(path) as f:
+                        channeldata = json.load(f)
+                except OSError as err:
+                    self.log.info("[nb_conda] Error: {}".format(str(err)))
+                else:
+                    pkg_info.update(channeldata["packages"])
+            else:
+                try:  # Skip if file is not accessible
+                    response = yield client.fetch(
+                        url_path_join(channel, "channeldata.json"),
+                        headers={"Content-Type": "application/json"},
+                    )
+                except web.HTTPError as e:
+                    self.log.info("[nb_conda] Error: {}".format(str(e)))
+                else:
+                    # TODO
+                    self.log.info(response.body.decode("utf-8"))
+                    channeldata = response.body.decode("utf-8")
+                    pkg_info.update(json.loads(channeldata)["packages"])
+
+        # Example structure channeldata['packages'] for channeldata_version == 1
+        # "tmpc0d7d950": {
+        #     "activate.d": false,
+        #     "binary_prefix": false,
+        #     "deactivate.d": false,
+        #     "identifiers": [],
+        #     "keywords": [
+        #         "['cosapp', 'tmpc0d7d950']"
+        #     ],
+        #     "license": "MIT",
+        #     "post_link": false,
+        #     "pre_link": false,
+        #     "pre_unlink": false,
+        #     "reference_package": "win-64/tmpc0d7d950-0.1.0.dev1-py36_0.tar.bz2",
+        #     "run_exports": {},
+        #     "subdirs": [
+        #         "win-64"
+        #     ],
+        #     "summary": "Dummy workspace",
+        #     "tags": [],
+        #     "text_prefix": false,
+        #     "version": "0.1.0.dev1"
+        # }
+
+        # Update channel and add some info
+        for package in packages:
+            name = package["name"]
+            if name in pkg_info:
+                package["summary"] = pkg_info[name].get("summary", "")
+                package["home"] = pkg_info[name].get("home", "")
+                package["keywords"] = pkg_info[name].get("keywords", [])
+                package["tags"] = pkg_info[name].get("tags", [])
+
+            # Convert to short channel names
+            channel, _ = os.path.split(package["channel"])
+            if channel in tr_channels:
+                package["channel"] = tr_channels[channel]
 
         return sorted(packages, key=lambda entry: entry.get("name"))
 
@@ -369,7 +462,9 @@ class EnvManager(LoggingConfigurable):
             links = data["actions"].get("LINK", [])
             package_versions = [link for link in links]
             return {
-                "updates": [pkg_info(pkg_version) for pkg_version in package_versions]
+                "updates": [
+                    normalize_pkg_info(pkg_version) for pkg_version in package_versions
+                ]
             }
         else:
             # no action plan returned means everything is already up to date
@@ -429,4 +524,5 @@ class EnvManager(LoggingConfigurable):
                     max_version_entry = entry
 
             packages.append(max_version_entry)
+
         return {"packages": sorted(packages, key=lambda entry: entry.get("name"))}
