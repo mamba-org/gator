@@ -206,9 +206,9 @@ class EnvManager(LoggingConfigurable):
             envs = yield self.list_envs()
             envs = envs["environments"]
             env_dir = None
-            for env in envs:
-                if env["name"] == env:
-                    env_dir = env["dir"]
+            for env_i in envs:
+                if env_i["name"] == env:
+                    env_dir = env_i["dir"]
                     break
 
             os.environ["CONDA_PREFIX"] = env_dir
@@ -220,7 +220,7 @@ class EnvManager(LoggingConfigurable):
 
         def get_uri(spec):
             location = "/".join((spec["location"], spec["name"]))
-            if location[0] != "/":
+            if spec["scheme"] == "file" and location[0] != "/":
                 location = "/" + location
             return spec["scheme"] + "://" + location
 
@@ -361,7 +361,7 @@ class EnvManager(LoggingConfigurable):
 
         # Request channeldata.json
         pkg_info = {}
-        client = httpclient.AsyncHTTPClient()
+        client = httpclient.AsyncHTTPClient(force_instance=True)
         for channel in tr_channels:
             url = httputil.urlparse(channel)
             if url.scheme == "file":
@@ -380,12 +380,12 @@ class EnvManager(LoggingConfigurable):
                     pkg_info.update(channeldata["packages"])
             else:
                 try:  # Skip if file is not accessible
-                    response = yield client.fetch(
+                    response = yield client.fetch(httpclient.HTTPRequest(
                         url_path_join(channel, "channeldata.json"),
-                        headers={"Content-Type": "application/json"},
+                        headers={"Content-Type": "application/json"}),
                     )
-                except web.HTTPError as e:
-                    self.log.info("[nb_conda] Error: {}".format(str(e)))
+                except (httpclient.HTTPClientError, ConnectionError) as e:
+                    self.log.info("[nb_conda] Error getting {}/channeldata.json: {}".format(channel, str(e)))
                 else:
                     # TODO
                     self.log.info(response.body.decode("utf-8"))

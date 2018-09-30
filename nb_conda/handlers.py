@@ -201,7 +201,7 @@ class EnvPkgActionHandler(EnvBaseHandler):
 
 class AvailablePackagesHandler(EnvBaseHandler):
     """
-    Handler for `GET /packages/available`, which uses CondaSearcher
+    Handler for `GET /packages/<name>/available`, which uses CondaSearcher
     to list the packages available for installation.
     """
 
@@ -219,7 +219,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
 
 class SearchHandler(EnvBaseHandler):
     """
-    Handler for `GET /packages/search?q=<query>`, which uses CondaSearcher
+    Handler for `GET /packages/<name>/search?q=<query>`, which uses CondaSearcher
     to search the available conda packages. Note, this is pretty slow
     and the nb_conda UI doesn't call it.
     """
