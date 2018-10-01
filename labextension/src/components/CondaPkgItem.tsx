@@ -35,7 +35,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
     >
       <div className={PkgListStyle.CellStatus}>{status}</div>
       <div className={PkgListStyle.CellName}>{name}</div>
-      <div className={PkgListStyle.CellName}>{props.summary}</div>
+      <div className={PkgListStyle.CellSummary}>{props.summary}</div>
       <div
         className={
           props.updatable

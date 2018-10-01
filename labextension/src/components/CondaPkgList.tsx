@@ -120,7 +120,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
               }
             />
           </div>
-          <div className={PkgListStyle.CellName}>
+          <div className={PkgListStyle.CellSummary}>
             <div className={PkgListStyle.HeaderItem}>Description</div>
           </div>
           <div className={PkgListStyle.Cell}>
@@ -196,7 +196,13 @@ export namespace PkgListStyle {
   });
 
   export const CellName = style({
-    flex: "1 0 auto"
+    flex: "0 0 160px"
+  });
+
+  export const CellSummary = style({
+    flex: "1 1 auto",
+    whiteSpace: "normal",
+    maxWidth: "60%"
   });
 
   export const CellChannel = style({
