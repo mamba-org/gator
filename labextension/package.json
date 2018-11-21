@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_nb_conda",
-  "version": "0.4.0",
+  "version": "0.5.0-dev1",
   "description": "Manage your conda environments from the JupyterLab",
   "keywords": [
     "jupyter",
@@ -33,27 +33,29 @@
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\""
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.18.0",
-    "@jupyterlab/apputils": "^0.18.0",
-    "@jupyterlab/mainmenu": "^0.7.0",
+    "@jupyterlab/application": "^0.19.0",
+    "@jupyterlab/apputils": "^0.19.0",
+    "@jupyterlab/coreutils": "^2.2.1",
+    "@jupyterlab/mainmenu": "^0.8.0",
+    "@jupyterlab/services": "^3.2.1",
     "@phosphor/coreutils": "^1.3.0",
     "@phosphor/widgets": "^1.6.0",
     "typestyle": "^2.0.1"
   },
   "peerDependencies": {
-    "jupyterlab_toastify": ">=2.0.0",
+    "jupyterlab_toastify": ">=2.1.0",
     "react": ">=16.0.0",
     "react-dom": ">=16.0.0"
   },
   "devDependencies": {
     "husky": "^0.14.3",
-    "jupyterlab_toastify": "^2.0.0",
+    "jupyterlab_toastify": "^2.1.0",
     "prettier": "1.14.2",
     "pretty-quick": "^1.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "rimraf": "^2.6.1",
-    "typescript": "~2.9.2"
+    "typescript": "^3.1.6"
   },
   "jupyterlab": {
     "extension": true,
