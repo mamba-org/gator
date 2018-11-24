@@ -90,7 +90,7 @@ class EnvManager(LoggingConfigurable):
         cmdline.extend(self.get_cmd_options(options))
         cmdline.extend(args)
 
-        self.log.debug("[nb_conda] command: %s", cmdline)
+        self.log.debug("[jupyter_conda] command: %s", cmdline)
 
         # process = Popen(cmdline, stdout=PIPE, stderr=PIPE)
         # output, error = process.communicate()
@@ -102,13 +102,13 @@ class EnvManager(LoggingConfigurable):
         if returncode == 0:
             output = output.decode("utf-8")
         else:
-            self.log.debug("[nb_conda] exit code: %s", returncode)
+            self.log.debug("[jupyter_conda] exit code: %s", returncode)
             output = error.decode("utf-8")
 
-        self.log.debug("[nb_conda] output: %s", output[:MAX_LOG_OUTPUT])
+        self.log.debug("[jupyter_conda] output: %s", output[:MAX_LOG_OUTPUT])
 
         if len(output) > MAX_LOG_OUTPUT:
-            self.log.debug("[nb_conda] ...")
+            self.log.debug("[jupyter_conda] ...")
 
         return output
 
@@ -150,7 +150,7 @@ class EnvManager(LoggingConfigurable):
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.warn("[nb_conda] JSON parse fail:\n%s", err)
+            self.log.warn("[jupyter_conda] JSON parse fail:\n%s", err)
 
         # try to remove bad lines
         lines = [line for line in lines if re.match(JSONISH_RE, line)]
@@ -158,7 +158,7 @@ class EnvManager(LoggingConfigurable):
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.error("[nb_conda] JSON clean/parse fail:\n%s", err)
+            self.log.error("[jupyter_conda] JSON clean/parse fail:\n%s", err)
 
         return {"error": True}
 
@@ -236,7 +236,7 @@ class EnvManager(LoggingConfigurable):
             else:
                 deployed_channels[channel] = ["file:///" + channel]
 
-        self.log.debug("[nb_conda] {} channels: {}".format(env, deployed_channels))
+        self.log.debug("[jupyter_conda] {} channels: {}".format(env, deployed_channels))
 
         if "error" in info:
             return info
@@ -375,7 +375,7 @@ class EnvManager(LoggingConfigurable):
                     with open(path) as f:
                         channeldata = json.load(f)
                 except OSError as err:
-                    self.log.info("[nb_conda] Error: {}".format(str(err)))
+                    self.log.info("[jupyter_conda] Error: {}".format(str(err)))
                 else:
                     pkg_info.update(channeldata["packages"])
             else:
@@ -385,7 +385,7 @@ class EnvManager(LoggingConfigurable):
                         headers={"Content-Type": "application/json"}),
                     )
                 except (httpclient.HTTPClientError, ConnectionError) as e:
-                    self.log.info("[nb_conda] Error getting {}/channeldata.json: {}".format(channel, str(e)))
+                    self.log.info("[jupyter_conda] Error getting {}/channeldata.json: {}".format(channel, str(e)))
                 else:
                     # TODO
                     self.log.info(response.body.decode("utf-8"))

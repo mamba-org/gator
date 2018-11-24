@@ -8,7 +8,7 @@ import { NbConda } from "./components/NbConda";
 import { EnvironmentsModel } from "./models";
 import { Message } from "@phosphor/messaging";
 
-export const condaEnvId = "jupyterlab_nb_conda:plugin";
+export const condaEnvId = "jupyterlab_conda:plugin";
 
 export class CondaEnvWidget extends VDomRenderer<VDomModel> {
   height: number;
