@@ -106,7 +106,7 @@ class NBCondaTestController(jstest.JSController):
         if self.url:
             try:
                 alive = jstest.requests.get(self.url).status_code == 200
-            except:
+            except BaseException:
                 alive = False
 
             if alive:
