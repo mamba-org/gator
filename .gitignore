@@ -59,3 +59,5 @@ target/
 *.xunit.xml
 screenshots/
 node_modules/
+
+.vscode/

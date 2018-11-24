@@ -221,7 +221,7 @@ class SearchHandler(EnvBaseHandler):
     """
     Handler for `GET /packages/<name>/search?q=<query>`, which uses CondaSearcher
     to search the available conda packages. Note, this is pretty slow
-    and the nb_conda UI doesn't call it.
+    and the jupyter_conda UI doesn't call it.
     """
 
     @web.authenticated
@@ -274,4 +274,4 @@ def load_jupyter_server_extension(nbapp):
         ".*$",
         [(ujoin(base_url, NS, pat), handler) for pat, handler in default_handlers],
     )
-    nbapp.log.info("[nb_conda] enabled")
+    nbapp.log.info("[jupyter_conda] enabled")

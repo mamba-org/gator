@@ -2,7 +2,7 @@ import { Token } from "@phosphor/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { URLExt } from "@jupyterlab/coreutils";
 
-export const ICondaEnv = new Token<ICondaEnv>("jupyterlab_nb_conda:ICondaEnv");
+export const ICondaEnv = new Token<ICondaEnv>("jupyterlab_conda:ICondaEnv");
 
 /** Helper functions to carry on python notebook server request
  *

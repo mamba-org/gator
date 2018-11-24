@@ -1,20 +1,53 @@
 import setuptools
-from os.path import join
+import os
 
 # should be loaded below
 __version__ = None
 
-with open(join('nb_conda', '_version.py')) as version:
+with open(os.path.join("jupyter_conda", "_version.py")) as version:
     exec(version.read())
 
+static_folder = "jupyter_conda/static"
+
 setuptools.setup(
-    name="nb_conda",
+    name="jupyter_conda",
     version=__version__,
-    url="https://github.com/Anaconda-Platform/nb_conda",
-    author="Continuum Analytics",
-    description="Manage your conda environments from the Jupyter Notebook",
-    long_description=open('README.md').read(),
+    url="https://github.com/fcollonval/jupyter_conda",
+    author="Continuum Analytics, Frederic Collonval",
+    description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
+    long_description=open("README.md").read(),
     packages=setuptools.find_packages(),
     include_package_data=True,
-    zip_safe=False
+    data_files=[
+        # like `jupyter nbextension install --sys-prefix`
+        (
+            "share/jupyter/nbextensions/jupyter_conda",
+            [
+                os.path.join(static_folder, a_file)
+                for a_file in os.listdir(static_folder)
+            ],
+        ),
+        # like `jupyter nbextension enable --sys-prefix`
+        (
+            "etc/jupyter/nbconfig/notebook.d",
+            ["jupyter-config/nbconfig/notebook.d/jupyter_conda.json"],
+        ),
+        (
+            "etc/jupyter/nbconfig/tree.d",
+            ["jupyter-config/nbconfig/tree.d/jupyter_conda.json"],
+        ),
+        # like `jupyter serverextension enable --sys-prefix`
+        (
+            "etc/jupyter/jupyter_notebook_config.d",
+            ["jupyter-config/jupyter_notebook_config.d/jupyter_conda.json"],
+        ),
+    ],
+    zip_safe=False,
+    install_requires=[
+        # "conda>=4.5",  # Required conda not available through PyPi anymore
+        "nb_conda_kernels>=2.0.0",
+        "notebook>=4.3.1",
+        "packaging",
+        "requests",
+    ],
 )

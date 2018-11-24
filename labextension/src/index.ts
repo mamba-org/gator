@@ -78,7 +78,7 @@ function activateCondaEnv(
 }
 
 /**
- * Initialization data for the jupyterlab_nb_conda extension.
+ * Initialization data for the jupyterlab_conda extension.
  */
 const extension: JupyterLabPlugin<ICondaEnv> = {
   id: condaEnvId,

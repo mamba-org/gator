@@ -17,36 +17,36 @@ install:
   - sudo apt-get update
   - sudo apt-get install -y libfreetype6-dev libfontconfig1-dev
   - if [ "$PYTHON_VERSION" == "2.7" ]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - if [ "$CONDA_4_4_STYLE" = "true" ]; then
-      . $HOME/miniconda/etc/profile.d/conda.sh;
+    . $HOME/miniconda/etc/profile.d/conda.sh;
     else
-      export PATH="$HOME/miniconda/bin:$PATH";
+    export PATH="$HOME/miniconda/bin:$PATH";
     fi
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes --quiet conda
   - conda install -n root conda conda-env anaconda-client
   - conda info -a
-  - conda create -n nb_conda python=$PYTHON_VERSION
-  - conda install -n nb_conda -c conda-forge --file requirements.txt
+  - conda create -n jupyter_conda python=$PYTHON_VERSION
+  - conda install -n jupyter_conda -c conda-forge --file requirements.txt
   - if [ "$CONDA_4_4_STYLE" = true ]; then
-      conda activate nb_conda;
+    conda activate jupyter_conda;
     else
-      source activate nb_conda;
+    source activate jupyter_conda;
     fi
   - pip install python-coveralls
   - npm install
 
 script:
   - pip install -e .
-  - jupyter nbextension install nb_conda --py --sys-prefix --symlink
-  - jupyter nbextension enable nb_conda --py --sys-prefix
-  - jupyter serverextension enable nb_conda --py --sys-prefix
+  - jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
+  - jupyter nbextension enable jupyter_conda --py --sys-prefix
+  - jupyter serverextension enable jupyter_conda --py --sys-prefix
   - npm run test
 
 after_success:

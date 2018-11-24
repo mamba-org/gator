@@ -1,22 +1,22 @@
 {
-  "name": "nb_conda",
-  "version": "2.2.0",
-  "description": "Development tools for nb_conda",
+  "name": "jupyter_conda",
+  "version": "2.3.0",
+  "description": "Development tools for jupyter_conda",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && python -m nose nb_conda",
-    "lint": "flake8 setup.py nb_conda"
+    "test": "npm run lint && python -m nose jupyter_conda",
+    "lint": "flake8 setup.py jupyter_conda"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Anaconda-Platform/nb_conda.git"
+    "url": "git+https://github.com/fcollonval/jupyter_conda.git"
   },
   "author": "Continuum Analytics",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/Anaconda-Platform/nb_conda/issues"
+    "url": "https://github.com/fcollonval/jupyter_conda/issues"
   },
-  "homepage": "https://github.com/Anaconda-Platform/nb_conda",
+  "homepage": "https://github.com/fcollonval/jupyter_conda",
   "devDependencies": {
     "casperjs": "^1.1.1",
     "eslint": "^1.10.3",
