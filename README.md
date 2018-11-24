@@ -36,7 +36,9 @@ against the current environment.
 
 ## JupyterLab
 
-This extension add a new entry
+This extension add a new entry _Conda Packages Manager_ in the _Settings_ menu.
+
+![jupyterlab_conda_extension](labextension/jupyterlab_conda.gif)
 
 ## Creating New Environments
 
@@ -55,16 +57,28 @@ There are two ways to create an environment:
 ## Development
 
 ```shell
-conda create -y -n jupyter_conda python
+conda create -y -n jupyter_conda python jupyterlab
 conda install -y -n jupyter_conda --file requirements.txt -c conda-forge
 source activate jupyter_conda
 python setup.py develop
 jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
 jupyter nbextension enable jupyter_conda --py --sys-prefix
 jupyter serverextension enable jupyter_conda --py --sys-prefix
+
+cd labextension
+jupyter labextension install .
 ```
 
 ## Changelog
+
+### 2.3.x
+
+- Add JupyterLab extension inspired by Anaconda Navigator
+  - Retrieve conda package description
+  - Add link to package website (if available)
+- Support conda >=4.5
+- Make all conda request asynchronously
+- Use the automatic installation for Jupyter Notebook extension (see [here](https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.html))
 
 ### 2.2.1
 
