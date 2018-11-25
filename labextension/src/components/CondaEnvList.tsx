@@ -1,15 +1,15 @@
 import * as React from "react";
 import { style } from "typestyle";
 
-import { EnvironmentsModel } from "../models";
+import { Environments } from "../services";
 
 import { CondaEnvItem } from "./CondaEnvItem";
 import { CondaEnvToolBar } from "./CondaEnvToolBar";
 
-export interface IEnvListProps extends EnvironmentsModel.IEnvironments {
+export interface IEnvListProps extends Environments.IEnvironments {
   height: number;
   isPending: boolean;
-  environments: Array<EnvironmentsModel.IEnvironment>;
+  environments: Array<Environments.IEnvironment>;
   selected: string;
   onSelectedChange: (name: string) => void;
   onCreate();
@@ -26,7 +26,9 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
     const listItems = this.props.environments.map((env, idx) => {
       let selected = env.name === this.props.selected;
       if (selected) {
-        isDefault = env.is_default;
+        // Forbid clone and removing the environment named "base" (base conda environment)
+        // and the default one (i.e. the one containing JupyterLab)
+        isDefault = env.is_default || env.name === "base";
       }
       return (
         <CondaEnvItem
@@ -72,11 +74,12 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
 
 namespace Style {
   export const Panel = style({
-    flexGrow: 1,
+    flexGrow: 0,
     flexShrink: 0,
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden"
+    overflow: "hidden",
+    width: 250
   });
 
   export const Title = style({

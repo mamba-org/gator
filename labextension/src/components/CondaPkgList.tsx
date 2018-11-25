@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CondaPkgItem } from "./CondaPkgItem";
-import { PackagesModel } from "../models";
+import { Package } from "../services";
 import { style, classes } from "typestyle";
 
 export interface ITitleItemProps {
@@ -47,8 +47,8 @@ export namespace TitleItem {
 export interface IPkgListProps {
   height: number;
   isPending: boolean;
-  packages: PackagesModel.IPackages;
-  selection: { [key: string]: PackagesModel.PkgStatus };
+  packages: Package.IPackages;
+  selection: { [key: string]: Package.PkgStatus };
   sortedBy: TitleItem.SortField;
   sortDirection: TitleItem.SortStatus;
   onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void;
@@ -94,127 +94,129 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     });
 
     return (
-      <div>
-        <div className={PkgListStyle.Header}>
-          <div className={PkgListStyle.CellStatus}>
-            <TitleItem
-              title=""
-              field={TitleItem.SortField.Status}
-              updateSort={() => {}}
-              status={
-                this.props.sortedBy === TitleItem.SortField.Status
-                  ? this.props.sortDirection
-                  : TitleItem.SortStatus.None
-              }
-            />
-          </div>
-          <div className={PkgListStyle.CellName}>
-            <TitleItem
-              title="Name"
-              field={TitleItem.SortField.Name}
-              updateSort={this.props.onSort}
-              status={
-                this.props.sortedBy === TitleItem.SortField.Name
-                  ? this.props.sortDirection
-                  : TitleItem.SortStatus.None
-              }
-            />
-          </div>
-          <div className={PkgListStyle.CellSummary}>
-            <div className={PkgListStyle.HeaderItem}>Description</div>
-          </div>
-          <div className={PkgListStyle.Cell}>
-            <TitleItem
-              title="Version"
-              field={TitleItem.SortField.Version}
-              updateSort={this.props.onSort}
-              status={
-                this.props.sortedBy === TitleItem.SortField.Version
-                  ? this.props.sortDirection
-                  : TitleItem.SortStatus.None
-              }
-            />
-          </div>
-          <div className={PkgListStyle.CellChannel}>
-            <TitleItem
-              title="Channel"
-              field={TitleItem.SortField.Channel}
-              updateSort={this.props.onSort}
-              status={
-                this.props.sortedBy === TitleItem.SortField.Channel
-                  ? this.props.sortDirection
-                  : TitleItem.SortStatus.None
-              }
-            />
-          </div>
-        </div>
-        <div
-          className={
-            this.props.isPending
-              ? "jp-NbConda-pending jp-mod-hasPending"
-              : "jp-NbConda-pending"
-          }
-        />
-        <div className={PkgListStyle.List(this.props.height)}>{listItems}</div>
+      <div className={PkgListStyle.TableContainer(this.props.height)}>
+        <table className={PkgListStyle.Table}>
+          <thead>
+            <tr className={PkgListStyle.Header}>
+              <th className={PkgListStyle.CellStatus}>
+                <TitleItem
+                  title=""
+                  field={TitleItem.SortField.Status}
+                  updateSort={() => {}}
+                  status={
+                    this.props.sortedBy === TitleItem.SortField.Status
+                      ? this.props.sortDirection
+                      : TitleItem.SortStatus.None
+                  }
+                />
+              </th>
+              <th className={PkgListStyle.CellName}>
+                <TitleItem
+                  title="Name"
+                  field={TitleItem.SortField.Name}
+                  updateSort={this.props.onSort}
+                  status={
+                    this.props.sortedBy === TitleItem.SortField.Name
+                      ? this.props.sortDirection
+                      : TitleItem.SortStatus.None
+                  }
+                />
+              </th>
+              <th className={PkgListStyle.CellSummary}>
+                <div className={PkgListStyle.HeaderItem}>Description</div>
+              </th>
+              <th className={PkgListStyle.Cell}>
+                <TitleItem
+                  title="Version"
+                  field={TitleItem.SortField.Version}
+                  updateSort={this.props.onSort}
+                  status={
+                    this.props.sortedBy === TitleItem.SortField.Version
+                      ? this.props.sortDirection
+                      : TitleItem.SortStatus.None
+                  }
+                />
+              </th>
+              <th className={PkgListStyle.CellChannel}>
+                <TitleItem
+                  title="Channel"
+                  field={TitleItem.SortField.Channel}
+                  updateSort={this.props.onSort}
+                  status={
+                    this.props.sortedBy === TitleItem.SortField.Channel
+                      ? this.props.sortDirection
+                      : TitleItem.SortStatus.None
+                  }
+                />
+              </th>
+            </tr>
+            <tr>
+              <th
+                colSpan={5}
+                className={
+                  this.props.isPending
+                    ? "jp-NbConda-pending jp-mod-hasPending"
+                    : "jp-NbConda-pending"
+                }
+              />
+            </tr>
+          </thead>
+          <tbody>{listItems}</tbody>
+        </table>
       </div>
     );
   }
 }
 
 export namespace PkgListStyle {
-  export const List = (height: number) => {
+  export const TableContainer = (height: number) => {
     return style({
-      display: "flex",
       height: height,
-      flexDirection: "column",
       width: "100%",
-      overflowX: "hidden",
-      overflowY: "auto"
+      overflowX: "auto",
+      overflowY: "auto",
+
+      $nest: {
+        table: {
+          borderCollapse: "collapse"
+        }
+      }
     });
   };
 
+  export const Table = style({
+    width: "100%"
+  });
+
   export const Header = style({
     color: "var(--jp-ui-font-color1)",
-    display: "flex",
-    flexDirection: "row",
-    width: "calc(100% - 16px)", // Remove sidebar width
+    width: "100%",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: 29
+    height: 29,
+    textAlign: "left"
   });
 
   export const Row = style({
-    display: "flex",
-    flexDirection: "row",
-    width: "100%",
-    flexShrink: 0
+    width: "100%"
   });
 
   export const CellStatus = style({
-    flex: "0 0 auto",
     padding: "0px 2px"
   });
 
-  export const CellName = style({
-    flex: "0 0 160px"
-  });
+  export const CellName = style({});
 
   export const CellSummary = style({
-    flex: "1 1 auto",
     whiteSpace: "normal",
     maxWidth: "60%"
   });
 
-  export const CellChannel = style({
-    flex: "0 0 220px"
-  });
+  export const CellChannel = style({});
 
-  export const Cell = style({
-    flex: "0 0 160px"
-  });
+  export const Cell = style({});
 
   export const HeaderItem = style({
-    display: "flex",
     padding: "0px 5px"
 
     // $nest: {

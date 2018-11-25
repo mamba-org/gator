@@ -4,19 +4,19 @@ import { INotification } from "jupyterlab_toastify";
 
 import { CondaEnvList } from "./CondaEnvList";
 import { CondaPkgPanel } from "./CondaPkgPanel";
-import { EnvironmentsModel } from "../models";
+import { IEnvironmentService, Environments } from "../services";
 import { showDialog, Dialog } from "@jupyterlab/apputils";
 import { Widget } from "@phosphor/widgets";
 
 export interface ICondaEnvProps {
   height: number;
   width: number;
-  model: EnvironmentsModel;
+  model: IEnvironmentService;
 }
 
-export interface ICondaEnvState extends EnvironmentsModel.IEnvironments {
+export interface ICondaEnvState extends Environments.IEnvironments {
   currentEnvironment?: string;
-  channels?: EnvironmentsModel.IChannels;
+  channels?: Environments.IChannels;
   isLoading: boolean;
 }
 

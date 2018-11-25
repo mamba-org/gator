@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_conda",
-  "version": "0.5.0-dev1",
+  "version": "0.5.0",
   "description": "Manage your conda environments from the JupyterLab",
   "keywords": [
     "jupyter",
@@ -41,11 +41,6 @@
     "@phosphor/coreutils": "^1.3.0",
     "@phosphor/widgets": "^1.6.0",
     "typestyle": "^2.0.1"
-  },
-  "peerDependencies": {
-    "jupyterlab_toastify": ">=2.1.0",
-    "react": ">=16.0.0",
-    "react-dom": ">=16.0.0"
   },
   "devDependencies": {
     "husky": "^0.14.3",
