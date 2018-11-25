@@ -74,11 +74,12 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
 
 namespace Style {
   export const Panel = style({
-    flexGrow: 1,
+    flexGrow: 0,
     flexShrink: 0,
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden"
+    overflow: "hidden",
+    width: 250
   });
 
   export const Title = style({

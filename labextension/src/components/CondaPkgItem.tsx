@@ -29,14 +29,14 @@ export const CondaPkgItem = (props: PkgItemProps) => {
   }
 
   return (
-    <div
+    <tr
       className={classes(PkgListStyle.Row, Style.Item)}
       onClick={() => props.onClick(props.name)}
     >
-      <div className={PkgListStyle.CellStatus}>{status}</div>
-      <div className={PkgListStyle.CellName}>{name}</div>
-      <div className={PkgListStyle.CellSummary}>{props.summary}</div>
-      <div
+      <td className={PkgListStyle.CellStatus}>{status}</td>
+      <td className={PkgListStyle.CellName}>{name}</td>
+      <td className={PkgListStyle.CellSummary}>{props.summary}</td>
+      <td
         className={
           props.updatable
             ? classes(Style.Updatable, PkgListStyle.Cell)
@@ -44,9 +44,9 @@ export const CondaPkgItem = (props: PkgItemProps) => {
         }
       >
         {props.version_installed}
-      </div>
-      <div className={PkgListStyle.CellChannel}>{props.channel}</div>
-    </div>
+      </td>
+      <td className={PkgListStyle.CellChannel}>{props.channel}</td>
+    </tr>
   );
 };
 

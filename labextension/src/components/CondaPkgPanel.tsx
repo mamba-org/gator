@@ -37,7 +37,7 @@ export class CondaPkgPanel extends React.Component<
       isApplyingChanges: false,
       packages: {},
       selected: {},
-      searchTerm: null,
+      searchTerm: "",
       activeFilter: PkgFilters.All,
       sortedField: TitleItem.SortField.Name,
       sortDirection: TitleItem.SortStatus.Down
@@ -337,13 +337,14 @@ export class CondaPkgPanel extends React.Component<
         <CondaPkgToolBar
           category={this.state.activeFilter}
           hasSelection={Object.keys(this.state.selected).length > 0}
+          searchTerm={this.state.searchTerm}
           onCategoryChanged={this.handleCategoryChanged}
           onSearch={this.handleSearch}
           onApply={this.handleApply}
           onCancel={this.handleCancel}
         />
         <CondaPkgList
-          height={this.props.height - 29 - 29 - 4} // Remove height for top and bottom elements
+          height={this.props.height - 29} // Remove height for top and bottom elements
           isPending={this.state.isLoading || this.state.isCheckingUpdate}
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
@@ -361,7 +362,7 @@ export class CondaPkgPanel extends React.Component<
 
 namespace Style {
   export const Panel = style({
-    flexGrow: 3,
+    flexGrow: 1,
     borderLeft: "1px solid var(--jp-border-color2)"
   });
 }
