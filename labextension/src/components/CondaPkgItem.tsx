@@ -1,20 +1,20 @@
 import * as React from "react";
-import { PackagesModel } from "../models";
+import { Package } from "../services";
 import { PkgListStyle } from "./CondaPkgList";
 import { style, classes } from "typestyle";
 import { GlobalStyle } from "./globalStyles";
 
-export interface PkgItemProps extends PackagesModel.IPackage {
+export interface PkgItemProps extends Package.IPackage {
   onClick: (name: string) => void;
 }
 
 export const CondaPkgItem = (props: PkgItemProps) => {
   let status = <i className={Style.StatusAvailable} />;
-  if (props.status === PackagesModel.PkgStatus.Installed) {
+  if (props.status === Package.PkgStatus.Installed) {
     status = <i className={Style.StatusInstalled} />;
-  } else if (props.status === PackagesModel.PkgStatus.Update) {
+  } else if (props.status === Package.PkgStatus.Update) {
     status = <i className={Style.StatusUpdate} />;
-  } else if (props.status === PackagesModel.PkgStatus.Remove) {
+  } else if (props.status === Package.PkgStatus.Remove) {
     status = <i className={Style.StatusRemove} />;
   }
 

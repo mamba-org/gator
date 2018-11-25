@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CondaPkgItem } from "./CondaPkgItem";
-import { PackagesModel } from "../models";
+import { Package } from "../services";
 import { style, classes } from "typestyle";
 
 export interface ITitleItemProps {
@@ -47,8 +47,8 @@ export namespace TitleItem {
 export interface IPkgListProps {
   height: number;
   isPending: boolean;
-  packages: PackagesModel.IPackages;
-  selection: { [key: string]: PackagesModel.PkgStatus };
+  packages: Package.IPackages;
+  selection: { [key: string]: Package.PkgStatus };
   sortedBy: TitleItem.SortField;
   sortDirection: TitleItem.SortStatus;
   onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void;
