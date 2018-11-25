@@ -13,6 +13,7 @@ export enum PkgFilters {
 export interface CondaPkgToolBarProps {
   category: PkgFilters;
   hasSelection: boolean;
+  searchTerm: string;
   onCategoryChanged: (event) => void;
   onSearch: (event) => void;
   onApply();
@@ -44,6 +45,7 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
             type="search"
             onChange={props.onSearch}
             placeholder="Search Packages"
+            value={props.searchTerm}
           />
         </div>
       </div>
