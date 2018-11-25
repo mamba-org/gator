@@ -8,6 +8,29 @@ Provides Conda environment and package access extension from within Jupyter Note
 This is a fork of the Anaconda [nb_conda package](https://github.com/Anaconda-Platform/nb_conda). The decision to fork it came due
 to apparently dead status of the previous package and a need to integrate it within JupyterLab.
 
+## Install
+
+_Requirements_
+
+- conda >= 4.5
+- notebook >= 4.3
+- JupyterLab 0.35 (for the jupyterlab extension only)
+
+Nota: the following does not work as packages have not been published yet.
+
+To install in the classical notebook:
+
+```shell
+conda install -c conda-forge jupyter_conda
+```
+
+To install in the JupyterLab:
+
+```shell
+conda install -c conda-forge jupyter_conda
+jupyter labextension install jupyterlab_toastify jupyterlab_conda
+```
+
 ## Classical Jupyter Notebook
 
 ### Conda tab in the Jupyter file browser
