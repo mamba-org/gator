@@ -352,8 +352,6 @@ class EnvManager(LoggingConfigurable):
                 except (httpclient.HTTPClientError, ConnectionError) as e:
                     self.log.info("[jupyter_conda] Error getting {}/channeldata.json: {}".format(channel, str(e)))
                 else:
-                    # TODO
-                    self.log.info(response.body.decode("utf-8"))
                     channeldata = response.body.decode("utf-8")
                     pkg_info.update(json.loads(channeldata)["packages"])
 
