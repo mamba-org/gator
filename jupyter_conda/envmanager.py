@@ -5,7 +5,6 @@ import json
 import os
 import re
 from tempfile import NamedTemporaryFile
-import typing
 
 from packaging.version import parse
 from subprocess import Popen, PIPE
@@ -47,35 +46,6 @@ package_map = {
 
 
 class EnvManager(LoggingConfigurable):
-    envs = Dict()
-    options = Dict(
-        traits={
-            "channels": List(
-                trait=Unicode(), help="Additional channel to include in the export."
-            ),
-            "override-channels": Bool(False, help="Do not include .condarc channels."),
-            "offline": Bool(False, help="Offline mode, don't connect to the Internet."),
-        },
-        help="Conda command lines options.",
-        config=True,
-    )
-
-    def get_cmd_options(
-        self, options: typing.Optional[typing.List[str]] = None
-    ) -> typing.List[str]:
-        cmd_options = []
-
-        if options is None:
-            options = []
-
-        if "channels" in options:
-            for channel in self.options["channels"]:
-                cmd_options.extend(["-c", channel])
-        for option in ("override-channels", "offline"):
-            if option in options:
-                cmd_options.append("--" + option)
-
-        return cmd_options
 
     def _call_subprocess(self, cmdline: typing.List[str]):
         process = Popen(cmdline, stdout=PIPE, stderr=PIPE)
@@ -84,10 +54,9 @@ class EnvManager(LoggingConfigurable):
 
     @gen.coroutine
     def _execute(
-        self, cmd: str, *args, options: typing.Optional[typing.List[str]] = None
-    ) -> str:
+        self, cmd: str, *args
+        ) -> str:
         cmdline = cmd.split()
-        cmdline.extend(self.get_cmd_options(options))
         cmdline.extend(args)
 
         self.log.debug("[jupyter_conda] command: %s", cmdline)
@@ -171,7 +140,6 @@ class EnvManager(LoggingConfigurable):
     def clone_env(self, env: str, name: str) -> dict:
         output = yield self._execute(
             CONDA_EXE + " create -y -q --json -n " + name + " --clone " + env,
-            options=list(self.options),
         )
         return self.clean_conda_json(output)
 
@@ -181,7 +149,6 @@ class EnvManager(LoggingConfigurable):
         output = yield self._execute(
             CONDA_EXE + " create -y -q --json -n " + env,
             *packages.split(),
-            options=list(self.options)
         )
         return self.clean_conda_json(output)
 
@@ -192,7 +159,6 @@ class EnvManager(LoggingConfigurable):
             f.write(file_content)
         output = yield self._execute(
             CONDA_EXE + " create -y -q --json -n " + env + " --file " + name,
-            options=list(self.options),
         )
         os.unlink(name)
         return self.clean_conda_json(output)
@@ -270,7 +236,7 @@ class EnvManager(LoggingConfigurable):
     @gen.coroutine
     def list_available(self, env: str):
         output = yield self._execute(
-            CONDA_EXE + " search --json -n " + env, options=list(self.options)
+            CONDA_EXE + " search --json -n " + env
         )
 
         data = self.clean_conda_json(output)
@@ -399,7 +365,7 @@ class EnvManager(LoggingConfigurable):
         #     "deactivate.d": false,
         #     "identifiers": [],
         #     "keywords": [
-        #         "['cosapp', 'tmpc0d7d950']"
+        #         "['package', 'tmpc0d7d950']"
         #     ],
         #     "license": "MIT",
         #     "post_link": false,
@@ -410,7 +376,7 @@ class EnvManager(LoggingConfigurable):
         #     "subdirs": [
         #         "win-64"
         #     ],
-        #     "summary": "Dummy workspace",
+        #     "summary": "Dummy package",
         #     "tags": [],
         #     "text_prefix": false,
         #     "version": "0.1.0.dev1"
@@ -437,7 +403,6 @@ class EnvManager(LoggingConfigurable):
         output = yield self._execute(
             CONDA_EXE + " update --dry-run -q --json -n " + env,
             *packages,
-            options=list(self.options)
         )
         data = self.clean_conda_json(output)
 
@@ -475,7 +440,6 @@ class EnvManager(LoggingConfigurable):
         output = yield self._execute(
             CONDA_EXE + " install -y -q --json -n " + env,
             *packages,
-            options=list(self.options)
         )
         return self.clean_conda_json(output)
 
@@ -484,7 +448,6 @@ class EnvManager(LoggingConfigurable):
         output = yield self._execute(
             CONDA_EXE + " update -y -q --json -n " + env,
             *packages,
-            options=list(self.options)
         )
         return self.clean_conda_json(output)
 
@@ -493,7 +456,6 @@ class EnvManager(LoggingConfigurable):
         output = yield self._execute(
             CONDA_EXE + " remove -y -q --json -n " + env,
             *packages,
-            options=list(self.options)
         )
         return self.clean_conda_json(output)
 
@@ -501,7 +463,7 @@ class EnvManager(LoggingConfigurable):
     def package_search(self, env: str, q: str) -> dict:
         # this method is slow
         output = yield self._execute(
-            CONDA_EXE + " search --json -n " + env, q, options=list(self.options)
+            CONDA_EXE + " search --json -n " + env, q
         )
         data = self.clean_conda_json(output)
 

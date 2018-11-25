@@ -37,20 +37,6 @@ class EnvBaseHandler(APIHandler):
         return self.settings["env_manager"]
 
 
-class OptionsHandler(EnvBaseHandler):
-    """Handler for settings default options for conda commands."""
-
-    @web.authenticated
-    def get(self):
-        """Get conda command lines options.
-
-        `GET /options`
-        """
-        self.finish(json.dumps(self.env_manager.options))
-
-    # TODO allow POST options
-
-
 class MainEnvHandler(EnvBaseHandler):
     """
     Handler for `GET /environments` which lists the environments.
@@ -250,7 +236,6 @@ _pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"
 _pkg_action_regex = r"(?P<action>install|update|check|remove)"
 
 default_handlers = [
-    (r"/options", OptionsHandler),
     (r"/environments", MainEnvHandler),
     (
         r"/environments/%s/packages/%s" % (_env_regex, _pkg_action_regex),
