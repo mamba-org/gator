@@ -141,7 +141,7 @@ class EnvManager(LoggingConfigurable):
 
     @gen.coroutine
     def create_env(self, env, type):
-        packages = package_map[type]
+        packages = package_map.get(type, type)
         output = yield self._execute(
             CONDA_EXE + " create -y -q --json -n " + env, *packages.split()
         )

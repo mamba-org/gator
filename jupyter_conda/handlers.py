@@ -126,8 +126,6 @@ class EnvActionHandler(EnvBaseHandler):
             if "error" not in data:
                 status = 201  # CREATED
         elif action == "create":
-            if env_type not in package_map:
-                raise web.HTTPError(400)
             data = yield self.env_manager.create_env(env, env_type)
             if "error" not in data:
                 status = 201  # CREATED
