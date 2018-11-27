@@ -145,7 +145,7 @@ class EnvActionHandler(EnvBaseHandler):
 class EnvPkgActionHandler(EnvBaseHandler):
     """
     Handler for
-    `POST /environments/<name>/packages/{install,update,check,remove}`
+    `POST /environments/<name>/packages/{install,develop,update,check,remove}`
     which performs the requested action on the packages in the specified
     environment.
     """
@@ -161,16 +161,19 @@ class EnvPkgActionHandler(EnvBaseHandler):
         else:
             packages = self.get_arguments("packages[]")
 
-        # don't allow arbitrary switches
-        packages = [pkg for pkg in packages if re.match(_pkg_regex, pkg)]
-        if not packages:
-            if action in ["install", "remove"]:
-                raise web.HTTPError(400)
-            else:
-                packages = ["--all"]
+        if action != "develop":
+            # don't allow arbitrary switches
+            packages = [pkg for pkg in packages if re.match(_pkg_regex, pkg)]
+            if not packages:
+                if action in ["install", "remove"]:
+                    raise web.HTTPError(400)
+                else:
+                    packages = ["--all"]
 
         if action == "install":
             resp = yield self.env_manager.install_packages(env, packages)
+        elif action == "develop":
+            resp = yield self.env_manager.develop_packages(env, packages)
         elif action == "update":
             resp = yield self.env_manager.update_packages(env, packages)
         elif action == "check":
@@ -231,7 +234,7 @@ _env_regex = r"(?P<env>[^/&+$?@<>%*-][^/&+$?@<>%*]*)"
 # no hyphens up front, please
 _pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"
 
-_pkg_action_regex = r"(?P<action>install|update|check|remove)"
+_pkg_action_regex = r"(?P<action>install|develop|update|check|remove)"
 
 default_handlers = [
     (r"/environments", MainEnvHandler),

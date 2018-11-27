@@ -439,6 +439,23 @@ class EnvManager(LoggingConfigurable):
         return self.clean_conda_json(output)
 
     @gen.coroutine
+    def develop_packages(self, env, packages):
+        envs = yield self.list_envs()
+        env_rootpath = list(filter(lambda e: e["name"] == env, envs["environments"]))
+        result = []
+        if env_rootpath:
+            python_cmd = os.path.join(env_rootpath[0]["dir"], "python")
+            for path in packages:
+                output = yield self._execute(python_cmd + " -m pip install --progress-bar off -e " + path)
+                feedback = {"path": path}
+                if "error" in output:
+                    feedback["error"] = output
+                else:
+                    feedback["output"] = output
+                result.append(feedback)
+        return {"packages": result}
+
+    @gen.coroutine
     def update_packages(self, env, packages):
         output = yield self._execute(
             CONDA_EXE + " update -y -q --json -n " + env, *packages

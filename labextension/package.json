@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_conda",
-  "version": "0.6.0-dev",
+  "version": "0.6.0",
   "description": "Manage your conda environments from the JupyterLab",
   "keywords": [
     "jupyter",

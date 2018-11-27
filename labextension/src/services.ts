@@ -1,6 +1,7 @@
 import { Token } from "@phosphor/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { URLExt } from "@jupyterlab/coreutils";
+import { IDisposable } from "@phosphor/disposable";
 
 export const IEnvironmentService = new Token<IEnvironmentService>(
   "jupyterlab_conda:IEnvironmentService"
@@ -13,16 +14,16 @@ export const IEnvironmentService = new Token<IEnvironmentService>(
 /**
  * Interface for the environment service
  */
-export interface IEnvironmentService {
+export interface IEnvironmentService extends IDisposable {
   /**
    * Get all available environments
    */
   environments: Promise<Array<Environments.IEnvironment>>;
 
   /**
-   * Get all available environments (force requesting the API)
+   * Refersh available environments list
    */
-  load(): Promise<Environments.IEnvironments>;
+  refresh(): Promise<Environments.IEnvironments>;
 
   /**
    * Get all packages channels avalaible in the requested environment
@@ -120,9 +121,9 @@ export namespace Environments {
     environment?: string;
 
     /**
-     * Request available packages of the environment
+     * Refresh available packages of the environment
      */
-    load(): Promise<Package.IPackages>;
+    refresh(): Promise<Package.IPackages>;
 
     /**
      * Install packages
@@ -130,6 +131,13 @@ export namespace Environments {
      * @param packages List of packages to be installed
      */
     install(packages: Array<string>): Promise<any>;
+
+    /**
+     * Install a package in development mode
+     *
+     * @param path Path to the package to install in development mode
+     */
+    develop(path: string): Promise<any>;
 
     /**
      * Check for updates
@@ -245,11 +253,14 @@ export async function requestServer(
 export class CondaEnvironments implements IEnvironmentService {
   constructor() {
     this._environments = new Array<Environments.IEnvironment>();
+    this._environmentsTimer = (setInterval as any)(() => {
+      this.refresh();
+    }, 61000);
   }
 
   public get environments(): Promise<Array<Environments.IEnvironment>> {
     if (this._environments.length === 0) {
-      return this.load().then(envs => {
+      return this.refresh().then(envs => {
         this._environments = envs.environments;
         return Promise.resolve(this._environments);
       });
@@ -260,6 +271,13 @@ export class CondaEnvironments implements IEnvironmentService {
 
   getPackageService(name: string): Environments.IPackageService {
     return new CondaPackage(name);
+  }
+
+  /**
+   * Test whether the manager is disposed.
+   */
+  get isDisposed(): boolean {
+    return this._isDisposed;
   }
 
   async getChannels(name: string): Promise<Environments.IChannels> {
@@ -349,7 +367,7 @@ export class CondaEnvironments implements IEnvironmentService {
     }
   }
 
-  async load(): Promise<Environments.IEnvironments> {
+  async refresh(): Promise<Environments.IEnvironments> {
     try {
       let request: RequestInit = {
         method: "GET"
@@ -382,7 +400,21 @@ export class CondaEnvironments implements IEnvironmentService {
     }
   }
 
+  /**
+   * Dispose of the resources used by the manager.
+   */
+  dispose(): void {
+    if (this.isDisposed) {
+      return;
+    }
+    this._isDisposed = true;
+    clearInterval(this._environmentsTimer);
+    this._environments.length = 0;
+  }
+
+  private _isDisposed = false;
   private _environments: Array<Environments.IEnvironment>;
+  private _environmentsTimer = -1;
 }
 
 export class CondaPackage implements Environments.IPackageService {
@@ -394,7 +426,7 @@ export class CondaPackage implements Environments.IPackageService {
     this.packages = {};
   }
 
-  async load(): Promise<Package.IPackages> {
+  async refresh(): Promise<Package.IPackages> {
     if (this.environment === undefined) {
       this.packages = {};
       return Promise.resolve({});
@@ -511,6 +543,35 @@ export class CondaPackage implements Environments.IPackageService {
       return data;
     } catch (error) {
       throw new Error("An error occurred while installing packages.");
+    }
+  }
+
+  async develop(path: string): Promise<any> {
+    if (this.environment === undefined || path.length === 0) {
+      return Promise.resolve();
+    }
+
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify({ packages: [path] }),
+        method: "POST"
+      };
+      let response = await requestServer(
+        URLExt.join(
+          "conda",
+          "environments",
+          this.environment,
+          "packages",
+          "develop"
+        ),
+        request
+      );
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error(
+        `An error occurred while installing in development mode package in ${path}.`
+      );
     }
   }
 

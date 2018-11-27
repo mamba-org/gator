@@ -325,7 +325,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
       try {
-        let newState: Partial<ICondaEnvState> = await this.props.model.load();
+        let newState: Partial<
+          ICondaEnvState
+        > = await this.props.model.refresh();
         if (this.state.currentEnvironment === undefined) {
           newState.environments.forEach(env => {
             if (env.is_default) {

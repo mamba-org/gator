@@ -61,7 +61,7 @@ export class CondaPkgPanel extends React.Component<
       });
       try {
         let environmentLoading = this._model.environment;
-        let packages = await this._model.load();
+        let packages = await this._model.refresh();
         // If current environment changes when waiting for the packages
         if (this._model.environment !== environmentLoading) {
           this.setState({
