@@ -43,6 +43,8 @@
     "typestyle": "^2.0.1"
   },
   "devDependencies": {
+    "@types/react": "~16.4.13",
+    "@types/react-dom": "~16.0.7",
     "husky": "^0.14.3",
     "jupyterlab_toastify": "^2.1.0",
     "prettier": "1.14.2",
@@ -64,5 +66,11 @@
         ]
       }
     }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "resolutions": {
+    "@types/react": "~16.4.13"
   }
 }
