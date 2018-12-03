@@ -94,6 +94,10 @@ jupyter labextension install .
 
 ## Changelog
 
+### 2.4.0
+
+- Add installation of package in development mode (through `pip`)
+
 ### 2.3.x
 
 - Add JupyterLab extension inspired by Anaconda Navigator
