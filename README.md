@@ -16,8 +16,6 @@ _Requirements_
 - notebook >= 4.3
 - JupyterLab 0.35 (for the jupyterlab extension only)
 
-Nota: the following does not work as packages have not been published yet.
-
 To install in the classical notebook:
 
 ```shell
