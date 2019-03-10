@@ -230,7 +230,7 @@ class EnvManager(LoggingConfigurable):
 
     @gen.coroutine
     def list_available(self, env):
-        output = yield self._execute(CONDA_EXE + " search --json -n " + env)
+        output = yield self._execute(CONDA_EXE + " search --json")
 
         data = self.clean_conda_json(output)
 
@@ -472,7 +472,7 @@ class EnvManager(LoggingConfigurable):
     @gen.coroutine
     def package_search(self, env, q):
         # this method is slow
-        output = yield self._execute(CONDA_EXE + " search --json -n " + env, q)
+        output = yield self._execute(CONDA_EXE + " search --json", q)
         data = self.clean_conda_json(output)
 
         if "error" in data:
