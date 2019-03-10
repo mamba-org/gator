@@ -92,6 +92,10 @@ jupyter labextension install .
 
 ## Changelog
 
+### 2.4.1
+
+- BUG `conda search` crashes for conda 4.6
+
 ### 2.4.0
 
 - Add installation of package in development mode (through `pip`)
