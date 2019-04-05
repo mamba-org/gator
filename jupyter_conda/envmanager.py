@@ -167,7 +167,7 @@ class EnvManager(LoggingConfigurable):
     def env_channels(self, env):
         output = yield self._execute(CONDA_EXE + " config --show --json")
         info = self.clean_conda_json(output)
-        if env != "base":
+        if env != "base" and "CONDA_PREFIX" in os.environ:
             old_prefix = os.environ["CONDA_PREFIX"]
             envs = yield self.list_envs()
             envs = envs["environments"]
