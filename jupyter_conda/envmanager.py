@@ -91,18 +91,23 @@ class EnvManager(LoggingConfigurable):
         }
 
         def get_info(env):
+            base_dir = os.path.dirname(env)
+            if base_dir not in info["envs_dirs"]:
+                return None
+
             return {
                 "name": os.path.basename(env),
                 "dir": env,
                 "is_default": env == default_env,
             }
 
-        envs_folder = os.path.join(info["root_prefix"], "envs")
+        envs_list = [root_env]
+        for env in info["envs"]:
+            env_info = get_info(env)
+            if env_info is not None:
+                envs_list.append(env_info)
 
-        return {
-            "environments": [root_env]
-            + [get_info(env) for env in info["envs"] if env.startswith(envs_folder)]
-        }
+        return {"environments": envs_list}
 
     @gen.coroutine
     def delete_env(self, env):
@@ -162,7 +167,7 @@ class EnvManager(LoggingConfigurable):
     def env_channels(self, env):
         output = yield self._execute(CONDA_EXE + " config --show --json")
         info = self.clean_conda_json(output)
-        if env != "base":
+        if env != "base" and "CONDA_PREFIX" in os.environ:
             old_prefix = os.environ["CONDA_PREFIX"]
             envs = yield self.list_envs()
             envs = envs["environments"]
@@ -446,7 +451,9 @@ class EnvManager(LoggingConfigurable):
         if env_rootpath:
             python_cmd = os.path.join(env_rootpath[0]["dir"], "python")
             for path in packages:
-                output = yield self._execute(python_cmd + " -m pip install --progress-bar off -e " + path)
+                output = yield self._execute(
+                    python_cmd + " -m pip install --progress-bar off -e " + path
+                )
                 feedback = {"path": path}
                 if "error" in output:
                     feedback["error"] = output
