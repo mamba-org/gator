@@ -12,10 +12,10 @@ import os
 import re
 
 from notebook.utils import url_path_join as ujoin
-from notebook.base.handlers import APIHandler, json_errors
+from notebook.base.handlers import APIHandler
 from tornado import gen, web
 
-from .envmanager import EnvManager, package_map
+from .envmanager import EnvManager
 
 
 static = os.path.join(os.path.dirname(__file__), "static")
@@ -44,7 +44,6 @@ class MainEnvHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def get(self):
         list_envs = yield self.env_manager.list_envs()
         self.finish(json.dumps(list_envs))
@@ -58,7 +57,6 @@ class EnvHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def get(self, env):
         packages = yield self.env_manager.env_packages(env)
         self.finish(json.dumps(packages))
@@ -72,7 +70,6 @@ class ChannelsHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def get(self, env):
         channels = yield self.env_manager.env_channels(env)
         self.finish(json.dumps(channels))
@@ -88,7 +85,6 @@ class EnvActionHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def get(self, env, action):
         if action == "export":
             # export requirements file
@@ -102,7 +98,6 @@ class EnvActionHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def post(self, env, action):
         status = None
 
@@ -152,7 +147,6 @@ class EnvPkgActionHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def post(self, env, action):
         self.log.debug("req body: %s", self.request.body)
         content_type = self.request.headers.get("Content-Type", None)
@@ -194,7 +188,6 @@ class AvailablePackagesHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def get(self, env):
         data = yield self.env_manager.list_available(env)
 
@@ -213,7 +206,6 @@ class SearchHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    @json_errors
     def get(self, env):
         q = self.get_argument("q")
         answer = yield self.env_manager.package_search(env, q)

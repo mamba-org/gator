@@ -10,7 +10,7 @@ from packaging.version import parse
 from subprocess import Popen, PIPE
 
 from notebook.utils import url_path_join
-from tornado import gen, ioloop, httpclient, httputil, web
+from tornado import gen, ioloop, httpclient, httputil
 from traitlets.config.configurable import LoggingConfigurable
 
 
