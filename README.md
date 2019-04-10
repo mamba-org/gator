@@ -1,6 +1,7 @@
 # jupyter_conda
 
 [![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
+[![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
 [![Build Status](https://travis-ci.com/fcollonval/jupyter_conda.svg)](https://travis-ci.org/fcollonval/jupyter_conda) [![Build status](https://ci.appveyor.com/api/projects/status/4emsa8vjg8kv7uhv?svg=true)](https://ci.appveyor.com/project/fcollonval/jupyter-conda) [![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter_conda/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter_conda?branch=master)
 
 Provides Conda environment and package access extension from within Jupyter Notebook and JupyterLab.
