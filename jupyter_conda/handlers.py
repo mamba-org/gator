@@ -1,5 +1,6 @@
 """
 # Copyright (c) 2015-2016 Continuum Analytics.
+# Copyright (c) 2016-2019 Jupyter Development Team.
 # See LICENSE.txt for the license.
 """
 # pylint: disable=W0221
@@ -16,11 +17,6 @@ from notebook.base.handlers import APIHandler
 from tornado import gen, web
 
 from .envmanager import EnvManager
-
-
-static = os.path.join(os.path.dirname(__file__), "static")
-
-CONDA_EXE = os.environ.get("CONDA_EXE", "conda")
 
 NS = r"conda"
 
