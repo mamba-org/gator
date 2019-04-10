@@ -11,6 +11,7 @@
 import json
 import os
 import re
+import typing as tp
 
 from notebook.utils import url_path_join as ujoin
 from notebook.base.handlers import APIHandler
@@ -28,7 +29,7 @@ class EnvBaseHandler(APIHandler):
     """
 
     @property
-    def env_manager(self):
+    def env_manager(self) -> EnvManager:
         """Return our env_manager instance"""
         return self.settings["env_manager"]
 
@@ -53,7 +54,7 @@ class EnvHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def get(self, env):
+    def get(self, env: str):
         packages = yield self.env_manager.env_packages(env)
         self.finish(json.dumps(packages))
 
@@ -66,7 +67,7 @@ class ChannelsHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def get(self, env):
+    def get(self, env: str):
         channels = yield self.env_manager.env_channels(env)
         self.finish(json.dumps(channels))
 
@@ -81,7 +82,7 @@ class EnvActionHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def get(self, env, action):
+    def get(self, env: str, action: str):
         if action == "export":
             # export requirements file
             self.set_header(
@@ -94,7 +95,7 @@ class EnvActionHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def post(self, env, action):
+    def post(self, env: str, action: str):
         status = None
 
         content_type = self.request.headers.get("Content-Type", None)
@@ -143,7 +144,7 @@ class EnvPkgActionHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def post(self, env, action):
+    def post(self, env: str, action: str):
         self.log.debug("req body: %s", self.request.body)
         content_type = self.request.headers.get("Content-Type", None)
         if content_type == "application/json":
@@ -184,7 +185,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def get(self, env):
+    def get(self, env: str):
         data = yield self.env_manager.list_available(env)
 
         if "error" in data:
@@ -202,7 +203,7 @@ class SearchHandler(EnvBaseHandler):
 
     @web.authenticated
     @gen.coroutine
-    def get(self, env):
+    def get(self, env: str):
         q = self.get_argument("q")
         answer = yield self.env_manager.package_search(env, q)
         self.finish(json.dumps(answer))
@@ -213,16 +214,16 @@ class SearchHandler(EnvBaseHandler):
 # -----------------------------------------------------------------------------
 
 
-_env_action_regex = r"(?P<action>create|export|import|clone|delete)"
+_env_action_regex = r"(?P<action>create|export|import|clone|delete)"  # type: str
 
 # there is almost no text that is invalid, but no hyphens up front, please
 # neither all these suspicious but valid caracthers...
-_env_regex = r"(?P<env>[^/&+$?@<>%*-][^/&+$?@<>%*]*)"
+_env_regex = r"(?P<env>[^/&+$?@<>%*-][^/&+$?@<>%*]*)"  # type: str
 
 # no hyphens up front, please
-_pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"
+_pkg_regex = r"(?P<pkg>[^\-][\-\da-zA-Z\._]+)"  # type: str
 
-_pkg_action_regex = r"(?P<action>install|develop|update|check|remove)"
+_pkg_action_regex = r"(?P<action>install|develop|update|check|remove)"  # type: str
 
 default_handlers = [
     (r"/environments", MainEnvHandler),

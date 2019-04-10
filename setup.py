@@ -49,5 +49,6 @@ setuptools.setup(
         "notebook>=4.3.1",
         "packaging",
         "requests",
+        "typing",
     ],
 )
