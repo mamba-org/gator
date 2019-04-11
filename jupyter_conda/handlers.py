@@ -43,6 +43,8 @@ class MainEnvHandler(EnvBaseHandler):
     @gen.coroutine
     def get(self):
         list_envs = yield self.env_manager.list_envs()
+        if "error" in list_envs:
+            self.set_status(500)
         self.finish(json.dumps(list_envs))
 
 
@@ -56,6 +58,8 @@ class EnvHandler(EnvBaseHandler):
     @gen.coroutine
     def get(self, env: str):
         packages = yield self.env_manager.env_packages(env)
+        if "error" in packages:
+            self.set_status(500)
         self.finish(json.dumps(packages))
 
 
@@ -69,6 +73,8 @@ class ChannelsHandler(EnvBaseHandler):
     @gen.coroutine
     def get(self, env: str):
         channels = yield self.env_manager.env_channels(env)
+        if "error" in channels:
+            self.set_status(500)
         self.finish(json.dumps(channels))
 
 
@@ -83,15 +89,27 @@ class EnvActionHandler(EnvBaseHandler):
     @web.authenticated
     @gen.coroutine
     def get(self, env: str, action: str):
-        if action == "export":
-            # export requirements file
-            self.set_header(
-                "Content-Disposition", 'attachment; filename="%s"' % (env + ".txt")
+        if action != "export":
+            self.set_status(404)
+            self.finish(
+                json.dumps(
+                    {
+                        "error": "Unknown action '{}' with GET /environments/<name>; available action 'export'.".format(
+                            action
+                        )
+                    }
+                )
             )
-            export_env = yield self.env_manager.export_env(env)
-            self.finish(export_env)
-        else:
-            raise web.HTTPError(400)
+            return
+
+        # export requirements file
+        self.set_header(
+            "Content-Disposition", 'attachment; filename="%s"' % (env + ".txt")
+        )
+        export_env = yield self.env_manager.export_env(env)
+        if "error" in export_env:
+            self.set_status(500)
+        self.finish(export_env)
 
     @web.authenticated
     @gen.coroutine
@@ -115,20 +133,17 @@ class EnvActionHandler(EnvBaseHandler):
             if not name:
                 name = "{}-copy".format(env)
             data = yield self.env_manager.clone_env(env, name)
-            if "error" not in data:
-                status = 201  # CREATED
+            status = 201  # CREATED
         elif action == "create":
             data = yield self.env_manager.create_env(env, env_type)
-            if "error" not in data:
-                status = 201  # CREATED
+            status = 201  # CREATED
         elif action == "import":
             data = yield self.env_manager.import_env(env, file_content)
-            if "error" not in data:
-                status = 201  # CREATED
+            status = 201  # CREATED
 
         # catch-all ok
         if "error" in data:
-            status = 400
+            status = 500
 
         self.set_status(status or 200)
         self.finish(json.dumps(data))
@@ -157,9 +172,21 @@ class EnvPkgActionHandler(EnvBaseHandler):
             packages = [pkg for pkg in packages if re.match(_pkg_regex, pkg)]
             if not packages:
                 if action in ["install", "remove"]:
-                    raise web.HTTPError(400)
+                    self.set_status(404)
+                    self.finish(
+                        json.dumps(
+                            {
+                                "error": "Install or remove require packages to be specified."
+                            }
+                        )
+                    )
+                    return
                 else:
                     packages = ["--all"]
+        if action not in ("install", "develop", "update", "check", "remove"):
+            self.set_status(404)
+            self.finish(json.dumps({"error": "Unknown action {} on packages.".format(action)}))
+            return
 
         if action == "install":
             resp = yield self.env_manager.install_packages(env, packages)
@@ -171,8 +198,9 @@ class EnvPkgActionHandler(EnvBaseHandler):
             resp = yield self.env_manager.check_update(env, packages)
         elif action == "remove":
             resp = yield self.env_manager.remove_packages(env, packages)
-        else:
-            raise web.HTTPError(400)
+
+        if "error" in resp:
+            self.set_status(500)
 
         self.finish(json.dumps(resp))
 
@@ -189,9 +217,11 @@ class AvailablePackagesHandler(EnvBaseHandler):
         data = yield self.env_manager.list_available(env)
 
         if "error" in data:
-            raise web.HTTPError(400)
-        else:
-            self.finish(json.dumps({"packages": data}))
+            self.set_status(500)
+            self.finish(json.dumps(data))
+            return
+
+        self.finish(json.dumps({"packages": data}))
 
 
 class SearchHandler(EnvBaseHandler):
@@ -206,6 +236,9 @@ class SearchHandler(EnvBaseHandler):
     def get(self, env: str):
         q = self.get_argument("q")
         answer = yield self.env_manager.package_search(env, q)
+        if "error" in answer:
+            self.set_status(500)
+
         self.finish(json.dumps(answer))
 
 

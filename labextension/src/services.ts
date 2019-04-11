@@ -242,7 +242,8 @@ export async function requestServer(
       settings
     );
     if (!response.ok) {
-      throw new ServerConnection.ResponseError(response);
+      let body = await response.json();
+      throw new ServerConnection.ResponseError(response, body.error);
     }
     return Promise.resolve(response);
   } catch (reason) {
@@ -313,6 +314,7 @@ export class CondaEnvironments implements IEnvironmentService {
       let data = await response.json();
       return data;
     } catch (err) {
+      console.error(err);
       throw new Error('An error occurred while cloning "' + target + '".');
     }
   }
@@ -330,6 +332,7 @@ export class CondaEnvironments implements IEnvironmentService {
       let data = await response.json();
       return data;
     } catch (err) {
+      console.error(err);
       throw new Error('An error occurred while creating "' + name + '".');
     }
   }
@@ -344,6 +347,7 @@ export class CondaEnvironments implements IEnvironmentService {
         request
       );
     } catch (err) {
+      console.error(err);
       throw new Error(
         'An error occurred while exporting Conda environment "' + name + '".'
       );
@@ -363,6 +367,7 @@ export class CondaEnvironments implements IEnvironmentService {
       let data = await response.json();
       return data;
     } catch (err) {
+      console.error(err);
       throw new Error('An error occurred while creating "' + name + '".');
     }
   }
@@ -380,6 +385,7 @@ export class CondaEnvironments implements IEnvironmentService {
       this._environments = data.environments;
       return data;
     } catch (err) {
+      console.error(err);
       throw new Error("An error occurred while listing Conda environments.");
     }
   }
@@ -396,6 +402,7 @@ export class CondaEnvironments implements IEnvironmentService {
       let data = await response.json();
       return data;
     } catch (err) {
+      console.error(err);
       throw new Error('An error occurred while removing "' + name + '".');
     }
   }
@@ -515,6 +522,7 @@ export class CondaPackage implements Environments.IPackageService {
 
       return final_list;
     } catch (err) {
+      console.error(err);
       throw new Error("An error occurred while retrieving available packages.");
     }
   }
@@ -542,6 +550,7 @@ export class CondaPackage implements Environments.IPackageService {
       let data = await response.json();
       return data;
     } catch (error) {
+      console.error(error);
       throw new Error("An error occurred while installing packages.");
     }
   }
@@ -569,6 +578,7 @@ export class CondaPackage implements Environments.IPackageService {
       let data = await response.json();
       return data;
     } catch (error) {
+      console.error(error);
       throw new Error(
         `An error occurred while installing in development mode package in ${path}.`
       );
@@ -600,6 +610,7 @@ export class CondaPackage implements Environments.IPackageService {
       let data = await response.json();
       return data;
     } catch (error) {
+      console.error(error);
       throw new Error("An error occurred while checking for package updates.");
     }
   }
@@ -627,6 +638,7 @@ export class CondaPackage implements Environments.IPackageService {
       let data = await response.json();
       return data;
     } catch (error) {
+      console.error(error);
       throw new Error("An error occurred while updating packages.");
     }
   }
@@ -654,6 +666,7 @@ export class CondaPackage implements Environments.IPackageService {
       let data = await response.json();
       return data;
     } catch (error) {
+      console.error(error);
       throw new Error("An error occurred while removing packages.");
     }
   }

@@ -103,6 +103,10 @@ export class CondaPkgPanel extends React.Component<
           });
         }
       } catch (error) {
+        this.setState({
+          isLoading: false,
+          isCheckingUpdate: false
+        });
         INotification.error(error.message);
       }
     }
