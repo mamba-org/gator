@@ -93,6 +93,12 @@ jupyter labextension install .
 
 ## Changelog
 
+### 2.4.2
+
+- BUG environment not shown
+- BUG Installing package in develop mode fails if in user home or containing spaces
+- Improve error feedback from API to frontend
+
 ### 2.4.1
 
 - BUG `conda search` crashes for conda 4.6
