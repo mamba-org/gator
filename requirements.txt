@@ -9,3 +9,4 @@ notebook >=4.3.1
 packaging
 python
 requests
+typing

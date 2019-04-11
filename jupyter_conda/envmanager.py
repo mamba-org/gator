@@ -1,20 +1,23 @@
-# Copyright (c) Jupyter Development Team.
+# Copyright (c) 2016-2019 Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import json
 import os
 import re
 from tempfile import NamedTemporaryFile
+import typing as tp
 
 from packaging.version import parse
 from subprocess import Popen, PIPE
 
-from notebook.utils import url_path_join
-from tornado import gen, ioloop, httpclient, httputil, web
+from notebook.utils import url_path_join, url2path
+from tornado import gen, httpclient, httputil, ioloop, web
 from traitlets.config.configurable import LoggingConfigurable
 
 
-def normalize_pkg_info(s):
+def normalize_pkg_info(
+    s: tp.Dict[str, tp.Any]
+) -> tp.Dict[str, tp.Union[str, tp.List[str]]]:
     return {
         "build_number": s.get("build_number"),
         "build_string": s.get("build_string", s.get("build")),
@@ -29,36 +32,34 @@ def normalize_pkg_info(s):
     }
 
 
-MAX_LOG_OUTPUT = 6000
+MAX_LOG_OUTPUT = 6000  # type: int
 
-CONDA_EXE = os.environ.get("CONDA_EXE", "conda")
+CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
 
 # try to match lines of json
-JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'
+JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
 
 # these are the types of environments that can be created
 package_map = {
     "python2": "python=2 ipykernel",
     "python3": "python=3 ipykernel",
     "r": "r-base r-essentials",
-}
+}  # type: tp.Dict[str, str]
 
 
 class EnvManager(LoggingConfigurable):
-    def _call_subprocess(self, cmdline):
+    def _call_subprocess(self, cmdline: tp.List[str]) -> tp.Tuple[int, bytes, bytes]:
         process = Popen(cmdline, stdout=PIPE, stderr=PIPE)
         output, error = process.communicate()
         return (process.returncode, output, error)
 
     @gen.coroutine
-    def _execute(self, cmd, *args):
-        cmdline = cmd.split()
+    def _execute(self, cmd: str, *args) -> tp.Tuple[int, str]:
+        cmdline = [cmd]
         cmdline.extend(args)
 
-        self.log.debug("[jupyter_conda] command: %s", cmdline)
+        self.log.debug("[jupyter_conda] command: {!s}".format(" ".join(cmdline)))
 
-        # process = Popen(cmdline, stdout=PIPE, stderr=PIPE)
-        # output, error = process.communicate()
         current_loop = ioloop.IOLoop.current()
         returncode, output, error = yield current_loop.run_in_executor(
             None, self._call_subprocess, cmdline
@@ -67,21 +68,25 @@ class EnvManager(LoggingConfigurable):
         if returncode == 0:
             output = output.decode("utf-8")
         else:
-            self.log.debug("[jupyter_conda] exit code: %s", returncode)
-            output = error.decode("utf-8")
+            self.log.debug("[jupyter_conda] exit code: {!s}".format(returncode))
+            output = error.decode("utf-8") + output.decode("utf-8")
 
-        self.log.debug("[jupyter_conda] output: %s", output[:MAX_LOG_OUTPUT])
+        self.log.debug("[jupyter_conda] output: {!s}".format(output[:MAX_LOG_OUTPUT]))
 
         if len(output) > MAX_LOG_OUTPUT:
             self.log.debug("[jupyter_conda] ...")
 
-        return output
+        return returncode, output
 
     @gen.coroutine
-    def list_envs(self):
+    def list_envs(self) -> tp.Dict[str, tp.List[tp.Dict[str, tp.Union[str, bool]]]]:
         """List all environments that conda knows about"""
-        output = yield self._execute(CONDA_EXE + " info --json")
+        ans = yield self._execute(CONDA_EXE, "info", "--json")
+        rcode, output = ans
         info = self.clean_conda_json(output)
+        if rcode > 0:
+            return info
+
         default_env = info["default_prefix"]
 
         root_env = {
@@ -110,17 +115,20 @@ class EnvManager(LoggingConfigurable):
         return {"environments": envs_list}
 
     @gen.coroutine
-    def delete_env(self, env):
-        output = yield self._execute(CONDA_EXE + " env remove -y -q --json -n " + env)
+    def delete_env(self, env: str) -> tp.Dict[str, str]:
+        ans = yield self._execute(
+            CONDA_EXE, "env", "remove", "-y", "-q", "--json", "-n", env
+        )
+        _, output = ans
         return self.clean_conda_json(output)
 
-    def clean_conda_json(self, output):
+    def clean_conda_json(self, output: str) -> tp.Dict[str, tp.Any]:
         lines = output.splitlines()
 
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.warn("[jupyter_conda] JSON parse fail:\n%s", err)
+            self.log.warn("[jupyter_conda] JSON parse fail:\n{!s}".format(err))
 
         # try to remove bad lines
         lines = [line for line in lines if re.match(JSONISH_RE, line)]
@@ -128,44 +136,51 @@ class EnvManager(LoggingConfigurable):
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.error("[jupyter_conda] JSON clean/parse fail:\n%s", err)
+            self.log.error("[jupyter_conda] JSON clean/parse fail:\n{!s}".format(err))
 
         return {"error": True}
 
     @gen.coroutine
-    def export_env(self, env):
-        output = yield self._execute(CONDA_EXE + " list -e -n " + env)
+    def export_env(self, env: str) -> tp.Dict[str, str]:
+        ans = yield self._execute(CONDA_EXE, "list", "-e", "-n", env)
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
         return output
 
     @gen.coroutine
-    def clone_env(self, env, name):
-        output = yield self._execute(
-            CONDA_EXE + " create -y -q --json -n " + name + " --clone " + env
+    def clone_env(self, env: str, name: str) -> tp.Dict[str, str]:
+        ans = yield self._execute(
+            CONDA_EXE, "create", "-y", "-q", "--json", "-n", name, "--clone", env
         )
+        _, output = ans
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def create_env(self, env, type):
+    def create_env(self, env: str, type: str) -> tp.Dict[str, str]:
         packages = package_map.get(type, type)
-        output = yield self._execute(
-            CONDA_EXE + " create -y -q --json -n " + env, *packages.split()
+        ans = yield self._execute(
+            CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, *packages.split()
         )
+        _, output = ans
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def import_env(self, env, file_content):
+    def import_env(self, env: str, file_content: str) -> tp.Dict[str, str]:
         with NamedTemporaryFile(mode="w", delete=False) as f:
             name = f.name
             f.write(file_content)
-        output = yield self._execute(
-            CONDA_EXE + " create -y -q --json -n " + env + " --file " + name
+        ans = yield self._execute(
+            CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, "--file", name
         )
+        _, output = ans
         os.unlink(name)
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def env_channels(self, env):
-        output = yield self._execute(CONDA_EXE + " config --show --json")
+    def env_channels(self, env: str) -> tp.Dict[str, tp.Dict[str, tp.List[str]]]:
+        ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
+        _, output = ans
         info = self.clean_conda_json(output)
         if env != "base" and "CONDA_PREFIX" in os.environ:
             old_prefix = os.environ["CONDA_PREFIX"]
@@ -178,9 +193,13 @@ class EnvManager(LoggingConfigurable):
                     break
 
             os.environ["CONDA_PREFIX"] = env_dir
-            output = yield self._execute(CONDA_EXE + " config --show --json")
+            ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
+            _, output = ans
             info = self.clean_conda_json(output)
             os.environ["CONDA_PREFIX"] = old_prefix
+
+        if "error" in info:
+            return info
 
         deployed_channels = {}
 
@@ -203,14 +222,12 @@ class EnvManager(LoggingConfigurable):
                 deployed_channels[channel] = ["file:///" + channel]
 
         self.log.debug("[jupyter_conda] {} channels: {}".format(env, deployed_channels))
-
-        if "error" in info:
-            return info
         return {"channels": deployed_channels}
 
     @gen.coroutine
-    def env_packages(self, env):
-        output = yield self._execute(CONDA_EXE + " list --no-pip --json -n " + env)
+    def env_packages(self, env: str) -> tp.Dict[str, tp.List[str]]:
+        ans = yield self._execute(CONDA_EXE, "list", "--no-pip", "--json", "-n", env)
+        _, output = ans
         data = self.clean_conda_json(output)
 
         # Data structure
@@ -234,9 +251,9 @@ class EnvManager(LoggingConfigurable):
         return {"packages": [normalize_pkg_info(package) for package in data]}
 
     @gen.coroutine
-    def list_available(self, env):
-        output = yield self._execute(CONDA_EXE + " search --json")
-
+    def list_available(self, env: str) -> tp.List[tp.Dict[str, str]]:
+        ans = yield self._execute(CONDA_EXE, "search", "--json")
+        _, output = ans
         data = self.clean_conda_json(output)
 
         if "error" in data:
@@ -401,10 +418,13 @@ class EnvManager(LoggingConfigurable):
         return sorted(packages, key=lambda entry: entry.get("name"))
 
     @gen.coroutine
-    def check_update(self, env, packages):
-        output = yield self._execute(
-            CONDA_EXE + " update --dry-run -q --json -n " + env, *packages
+    def check_update(
+        self, env: str, packages: tp.List[str]
+    ) -> tp.Dict[str, tp.List[tp.Dict[str, str]]]:
+        ans = yield self._execute(
+            CONDA_EXE, "update", "--dry-run", "-q", "--json", "-n", env, *packages
         )
+        _, output = ans
         data = self.clean_conda_json(output)
 
         # Data structure in LINK
@@ -437,49 +457,65 @@ class EnvManager(LoggingConfigurable):
             return {"updates": []}
 
     @gen.coroutine
-    def install_packages(self, env, packages):
-        output = yield self._execute(
-            CONDA_EXE + " install -y -q --json -n " + env, *packages
+    def install_packages(self, env: str, packages: tp.List[str]) -> tp.Dict[str, str]:
+        ans = yield self._execute(
+            CONDA_EXE, "install", "-y", "-q", "--json", "-n", env, *packages
         )
+        _, output = ans
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def develop_packages(self, env, packages):
+    def develop_packages(
+        self, env: str, packages: tp.List[str]
+    ) -> tp.Dict[str, tp.List[tp.Dict[str, str]]]:
         envs = yield self.list_envs()
+        if "error" in envs:
+            return envs
+
         env_rootpath = list(filter(lambda e: e["name"] == env, envs["environments"]))
         result = []
         if env_rootpath:
             python_cmd = os.path.join(env_rootpath[0]["dir"], "python")
             for path in packages:
-                output = yield self._execute(
-                    python_cmd + " -m pip install --progress-bar off -e " + path
+                realpath = os.path.realpath(os.path.expanduser(path))
+                ans = yield self._execute(
+                    python_cmd,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--progress-bar",
+                    "off",
+                    "-e",
+                    realpath,
                 )
-                feedback = {"path": path}
-                if "error" in output:
-                    feedback["error"] = output
-                else:
-                    feedback["output"] = output
+                rcode, output = ans
+                if rcode > 0:
+                    return {"error": output}
+                feedback = {"path": path, "output": output}
                 result.append(feedback)
         return {"packages": result}
 
     @gen.coroutine
-    def update_packages(self, env, packages):
-        output = yield self._execute(
-            CONDA_EXE + " update -y -q --json -n " + env, *packages
+    def update_packages(self, env: str, packages: tp.List[str]) -> tp.Dict[str, str]:
+        ans = yield self._execute(
+            CONDA_EXE, "update", "-y", "-q", "--json", "-n", env, *packages
         )
+        _, output = ans
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def remove_packages(self, env, packages):
-        output = yield self._execute(
-            CONDA_EXE + " remove -y -q --json -n " + env, *packages
+    def remove_packages(self, env: str, packages: tp.List[str]) -> tp.Dict[str, str]:
+        ans = yield self._execute(
+            CONDA_EXE, "remove", "-y", "-q", "--json", "-n", env, *packages
         )
+        _, output = ans
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def package_search(self, env, q):
+    def package_search(self, env: str, q: str) -> tp.Dict[str, str]:
         # this method is slow
-        output = yield self._execute(CONDA_EXE + " search --json", q)
+        ans = yield self._execute(CONDA_EXE, "search", "--json", q)
+        _, output = ans
         data = self.clean_conda_json(output)
 
         if "error" in data:
