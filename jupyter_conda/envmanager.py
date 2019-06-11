@@ -142,7 +142,7 @@ class EnvManager(LoggingConfigurable):
 
     @gen.coroutine
     def export_env(self, env: str) -> tp.Dict[str, str]:
-        ans = yield self._execute(CONDA_EXE, "list", "-e", "-n", env)
+        ans = yield self._execute(CONDA_EXE, "env", "export", "-n", env)
         rcode, output = ans
         if rcode > 0:
             return {"error": output}

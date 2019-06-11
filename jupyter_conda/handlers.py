@@ -104,7 +104,7 @@ class EnvActionHandler(EnvBaseHandler):
 
         # export requirements file
         self.set_header(
-            "Content-Disposition", 'attachment; filename="%s"' % (env + ".txt")
+            "Content-Disposition", 'attachment; filename="%s"' % (env + ".yml")
         )
         export_env = yield self.env_manager.export_env(env)
         if "error" in export_env:
