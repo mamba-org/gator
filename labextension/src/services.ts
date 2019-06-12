@@ -21,7 +21,7 @@ export interface IEnvironmentService extends IDisposable {
   environments: Promise<Array<Environments.IEnvironment>>;
 
   /**
-   * Refersh available environments list
+   * Refresh available environments list
    */
   refresh(): Promise<Environments.IEnvironments>;
 
@@ -61,7 +61,7 @@ export interface IEnvironmentService extends IDisposable {
    * @param name name of the environment to create
    * @param fileContent file content of the file containing the packages list to import
    */
-  import(name: string, fileContent: string): Promise<any>;
+  import(name: string, fileContent: string, fileName: string): Promise<any>;
 
   /**
    * Remove a given environment
@@ -121,7 +121,7 @@ export namespace Environments {
     environment?: string;
 
     /**
-     * Refresh available packages of the environment
+     * Refresh packages of the environment
      */
     refresh(status?: Package.PkgStatus): Promise<Package.IPackages>;
 
@@ -226,14 +226,16 @@ export namespace Package {
  *
  * @param {string} url : request url
  * @param {RequestInit} request : initialization parameters for the request
+ * @param {boolean} isfull : the request url is the complete
  * @returns {Promise<Response>} : reponse to the request
  */
 export async function requestServer(
   url: string,
-  request: RequestInit
+  request: RequestInit,
+  isfull: boolean = false
 ): Promise<Response> {
   let settings = ServerConnection.makeSettings();
-  let fullUrl = URLExt.join(settings.baseUrl, url);
+  let fullUrl = isfull ? url : URLExt.join(settings.baseUrl, url);
 
   try {
     let response = await ServerConnection.makeRequest(
@@ -354,10 +356,14 @@ export class CondaEnvironments implements IEnvironmentService {
     }
   }
 
-  async import(name: string, fileContent: string): Promise<any> {
+  async import(
+    name: string,
+    fileContent: string,
+    fileName: string
+  ): Promise<any> {
     try {
       let request: RequestInit = {
-        body: JSON.stringify({ file: fileContent }),
+        body: JSON.stringify({ file: fileContent, filename: fileName }),
         method: "POST"
       };
       let response = await requestServer(
@@ -471,8 +477,17 @@ export class CondaPackage implements Environments.IPackageService {
         );
         let data = (await response.json()) as {
           packages: Array<Package.IPackage>;
+          $next?: string;
         };
-        all_packages = data.packages;
+        while (data.$next !== undefined) {
+          all_packages.push(...data.packages);
+          let response = await requestServer(data.$next, request, true);
+          data = (await response.json()) as {
+            packages: Array<Package.IPackage>;
+            $next?: string;
+          };
+        }
+        all_packages.push(...data.packages);
       }
 
       // Set installed package status

@@ -11,15 +11,19 @@
 import json
 import os
 import re
+import datetime
+import urllib
 import typing as tp
 
 from notebook.utils import url_path_join as ujoin
 from notebook.base.handlers import APIHandler
-from tornado import gen, web
+from tornado import gen, httputil, web
 
 from .envmanager import EnvManager
 
 NS = r"conda"
+TIMEOUT = 900  # Time out in seconds to clear request caching
+MAXPAYLOAD = 100  # Maximal number of packages to return from a request
 
 
 class EnvBaseHandler(APIHandler):
@@ -122,10 +126,12 @@ class EnvActionHandler(EnvBaseHandler):
             name = data.get("name", None)
             env_type = data.get("type", None)
             file_content = data.get("file", None)
+            file_name = data.get("filename", None)
         else:
             name = self.get_argument("name", default=None)
             env_type = self.get_argument("type", default=None)
             file_content = self.get_argument("file", default=None)
+            file_name = self.get_argument("filename", default=None)
 
         if action == "delete":
             data = yield self.env_manager.delete_env(env)
@@ -138,7 +144,10 @@ class EnvActionHandler(EnvBaseHandler):
             data = yield self.env_manager.create_env(env, env_type)
             status = 201  # CREATED
         elif action == "import":
-            data = yield self.env_manager.import_env(env, file_content)
+            if file_name:
+                data = yield self.env_manager.import_env(env, file_content, file_name)
+            else:
+                data = yield self.env_manager.import_env(env, file_content)
             status = 201  # CREATED
 
         # catch-all ok
@@ -185,7 +194,9 @@ class EnvPkgActionHandler(EnvBaseHandler):
                     packages = ["--all"]
         if action not in ("install", "develop", "update", "check", "remove"):
             self.set_status(404)
-            self.finish(json.dumps({"error": "Unknown action {} on packages.".format(action)}))
+            self.finish(
+                json.dumps({"error": "Unknown action {} on packages.".format(action)})
+            )
             return
 
         if action == "install":
@@ -209,19 +220,39 @@ class AvailablePackagesHandler(EnvBaseHandler):
     """
     Handler for `GET /packages/<name>/available`, which uses CondaSearcher
     to list the packages available for installation.
+
+    This returns only the 100 packages. You can get the next one by using
+    the query argument `$skip=N`.
+    If there are more than 100 packages, the return payload will have a key
+    `$next` informing more packages are available.
     """
+
+    timeout = datetime.datetime(datetime.MINYEAR, 1, 1)
 
     @web.authenticated
     @gen.coroutine
     def get(self, env: str):
-        data = yield self.env_manager.list_available(env)
+        if (
+            datetime.datetime.now() - AvailablePackagesHandler.timeout
+        ).total_seconds() > TIMEOUT:
+            self.env_manager.list_available.cache_clear()
+        data = yield self.env_manager.list_available()
 
         if "error" in data:
             self.set_status(500)
             self.finish(json.dumps(data))
             return
 
-        self.finish(json.dumps({"packages": data}))
+        skip = int(self.get_query_argument("$skip", "0"))
+        subdata = data[skip : MAXPAYLOAD + skip]
+        payload = {"packages": subdata}
+        if len(data) > MAXPAYLOAD + skip:
+            url = urllib.parse.urlparse(self.request.full_url())
+            args = urllib.parse.parse_qs(url.query)
+            args["$skip"] = MAXPAYLOAD + skip
+            raw_url = url.geturl().split('?', maxsplit=1)[0]
+            payload["$next"] = httputil.url_concat(raw_url, args)
+        self.finish(json.dumps(payload))
 
 
 class SearchHandler(EnvBaseHandler):
@@ -235,7 +266,7 @@ class SearchHandler(EnvBaseHandler):
     @gen.coroutine
     def get(self, env: str):
         q = self.get_argument("q")
-        answer = yield self.env_manager.package_search(env, q)
+        answer = yield self.env_manager.package_search(q)
         if "error" in answer:
             self.set_status(500)
 

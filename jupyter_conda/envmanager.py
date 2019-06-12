@@ -2,6 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import json
+from functools import lru_cache
 import os
 import re
 from tempfile import NamedTemporaryFile
@@ -13,6 +14,8 @@ from subprocess import Popen, PIPE
 from notebook.utils import url_path_join, url2path
 from tornado import gen, httpclient, httputil, ioloop, web
 from traitlets.config.configurable import LoggingConfigurable
+
+ROOT_ENV_NAME = "base"
 
 
 def normalize_pkg_info(
@@ -78,6 +81,7 @@ class EnvManager(LoggingConfigurable):
 
         return returncode, output
 
+    @lru_cache(maxsize=4)
     @gen.coroutine
     def list_envs(self) -> tp.Dict[str, tp.List[tp.Dict[str, tp.Union[str, bool]]]]:
         """List all environments that conda knows about"""
@@ -90,7 +94,7 @@ class EnvManager(LoggingConfigurable):
         default_env = info["default_prefix"]
 
         root_env = {
-            "name": "base",
+            "name": ROOT_ENV_NAME,
             "dir": info["root_prefix"],
             "is_default": info["root_prefix"] == default_env,
         }
@@ -119,8 +123,14 @@ class EnvManager(LoggingConfigurable):
         ans = yield self._execute(
             CONDA_EXE, "env", "remove", "-y", "-q", "--json", "-n", env
         )
-        _, output = ans
-        return self.clean_conda_json(output)
+
+        # Force updating environment listing
+        self.list_envs.cache_clear()
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
 
     def clean_conda_json(self, output: str) -> tp.Dict[str, tp.Any]:
         lines = output.splitlines()
@@ -153,8 +163,14 @@ class EnvManager(LoggingConfigurable):
         ans = yield self._execute(
             CONDA_EXE, "create", "-y", "-q", "--json", "-n", name, "--clone", env
         )
-        _, output = ans
-        return self.clean_conda_json(output)
+
+        # Force updating environment listing
+        self.list_envs.cache_clear()
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
 
     @gen.coroutine
     def create_env(self, env: str, type: str) -> tp.Dict[str, str]:
@@ -162,27 +178,39 @@ class EnvManager(LoggingConfigurable):
         ans = yield self._execute(
             CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, *packages.split()
         )
-        _, output = ans
-        return self.clean_conda_json(output)
+
+        # Force updating environment listing
+        self.list_envs.cache_clear()
+        
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
 
     @gen.coroutine
-    def import_env(self, env: str, file_content: str) -> tp.Dict[str, str]:
-        with NamedTemporaryFile(mode="w", delete=False) as f:
+    def import_env(self, env: str, file_content: str, file_name: str="environment.txt") -> tp.Dict[str, str]:
+        with NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
             name = f.name
             f.write(file_content)
-        ans = yield self._execute(
-            CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, "--file", name
-        )
-        _, output = ans
-        os.unlink(name)
-        return self.clean_conda_json(output)
 
+        ans = yield self._execute(
+            CONDA_EXE, "env", "create", "-q", "--json", "-n", env, "--file", name
+        )
+        # Remove temporary file
+        os.unlink(name)
+
+        # Force updating environment listing
+        self.list_envs.cache_clear()
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
+
+    @lru_cache(maxsize=64)
     @gen.coroutine
     def env_channels(self, env: str) -> tp.Dict[str, tp.Dict[str, tp.List[str]]]:
-        ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
-        _, output = ans
-        info = self.clean_conda_json(output)
-        if env != "base" and "CONDA_PREFIX" in os.environ:
+        if env != ROOT_ENV_NAME and "CONDA_PREFIX" in os.environ:
             old_prefix = os.environ["CONDA_PREFIX"]
             envs = yield self.list_envs()
             envs = envs["environments"]
@@ -197,6 +225,10 @@ class EnvManager(LoggingConfigurable):
             _, output = ans
             info = self.clean_conda_json(output)
             os.environ["CONDA_PREFIX"] = old_prefix
+        else:
+            ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
+            _, output = ans
+            info = self.clean_conda_json(output)
 
         if "error" in info:
             return info
@@ -250,8 +282,9 @@ class EnvManager(LoggingConfigurable):
 
         return {"packages": [normalize_pkg_info(package) for package in data]}
 
+    @lru_cache(maxsize=64)
     @gen.coroutine
-    def list_available(self, env: str) -> tp.List[tp.Dict[str, str]]:
+    def list_available(self) -> tp.List[tp.Dict[str, str]]:
         ans = yield self._execute(CONDA_EXE, "search", "--json")
         _, output = ans
         data = self.clean_conda_json(output)
@@ -325,7 +358,7 @@ class EnvManager(LoggingConfigurable):
             packages.append(pkg_entry)
 
         # Get channel short names
-        channels = yield self.env_channels(env)
+        channels = yield self.env_channels(ROOT_ENV_NAME)
         channels = channels["channels"]
         tr_channels = {}
         for short_name, channel in channels.items():
@@ -512,7 +545,7 @@ class EnvManager(LoggingConfigurable):
         return self.clean_conda_json(output)
 
     @gen.coroutine
-    def package_search(self, env: str, q: str) -> tp.Dict[str, str]:
+    def package_search(self, q: str) -> tp.Dict[str, str]:
         # this method is slow
         ans = yield self._execute(CONDA_EXE, "search", "--json", q)
         _, output = ans

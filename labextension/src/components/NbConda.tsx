@@ -101,6 +101,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
+      console.error(error);
       if (toastId) {
         // @ts-ignore
         INotification.update({
@@ -155,6 +156,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
+      console.error(error);
       if (toastId) {
         // @ts-ignore
         INotification.update({
@@ -170,7 +172,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  private _readText(file): Promise<any> {
+  private _readText(file: Blob): Promise<any> {
     return new Promise((resolve, reject) => {
       var reader = new FileReader();
       reader.onload = function(event: any) {
@@ -213,8 +215,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         toastId = INotification.inProgress(
           "Import environment " + nameInput.value
         );
-        var file = await this._readText(fileInput.files[0]);
-        let r = await this.props.model.import(nameInput.value, file);
+        const selectedFile = fileInput.files[0];
+        const file = await this._readText(selectedFile);
+        let r = await this.props.model.import(
+          nameInput.value,
+          file,
+          selectedFile.name
+        );
         console.debug(r);
         // @ts-ignore
         INotification.update({
@@ -228,6 +235,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
+      console.error(error);
       if (toastId) {
         // @ts-ignore
         INotification.update({
@@ -256,7 +264,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           "href",
           "data:text/plain;charset=utf-8," + encodeURIComponent(content)
         );
-        link.setAttribute("download", this.state.currentEnvironment + ".txt");
+        link.setAttribute("download", this.state.currentEnvironment + ".yml");
 
         node.style.display = "none"; // hide the element
         node.appendChild(link);
@@ -265,6 +273,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         document.body.removeChild(node);
       }
     } catch (error) {
+      console.error(error);
       INotification.error(error.message);
     }
   }
@@ -306,6 +315,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
+      console.error(error);
       if (toastId) {
         // @ts-ignore
         INotification.update({
@@ -341,6 +351,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         newState.isLoading = false;
         this.setState(newState as ICondaEnvState);
       } catch (error) {
+        console.error(error);
         INotification.error(error.message);
       }
     }
