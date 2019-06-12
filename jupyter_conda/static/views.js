@@ -252,6 +252,12 @@ define(["jquery", "base/js/utils", "./common", "./models"], function(
       { heading: "Channel", attr: "channel", width: 5 }
     ],
 
+    transforms: {
+      version: function(row) {
+        return row.version[row.version.length - 1];
+      }
+    },
+
     bind: function() {
       ListView.bind.call(this);
 

@@ -159,7 +159,12 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
     packages: [],
     view: NullView,
 
-    load: function() {
+    /**
+     *
+     * @param {string} request_url [optional] request url
+     * @param {IPackage[]} packages_batch List of already loaded packages
+     */
+    load: function(request_url, packages_batch) {
       // Load the package list via ajax to the /packages/available endpoint
       var that = this;
 
@@ -175,8 +180,18 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
             pkg.selected = false;
           });
 
-          that.packages = packages;
-          that.view.refresh(that.packages);
+          if (packages_batch !== undefined) {
+            packages_batch = packages_batch.concat(data.packages);
+          } else {
+            packages_batch = data.packages;
+          }
+
+          if (data.$next !== undefined) {
+            that.load(data.$next, packages_batch);
+          } else {
+            that.packages = packages_batch;
+            that.view.refresh(that.packages);
+          }
         }
       }
 
@@ -191,6 +206,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       });
 
       var url =
+        request_url ||
         urls.api_url + utils.url_path_join("packages", "base", "available"); // TODO use current environment not base
       return utils.ajax(url, settings);
     },

@@ -236,6 +236,7 @@ class AvailablePackagesHandler(EnvBaseHandler):
             datetime.datetime.now() - AvailablePackagesHandler.timeout
         ).total_seconds() > TIMEOUT:
             self.env_manager.list_available.cache_clear()
+            AvailablePackagesHandler.timeout = datetime.datetime.now()
         data = yield self.env_manager.list_available()
 
         if "error" in data:

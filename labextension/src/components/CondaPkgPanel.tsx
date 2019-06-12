@@ -14,6 +14,7 @@ export interface IPkgPanelProps {
 
 export interface IPkgPanelState {
   isLoading: boolean;
+  needsReload: boolean;
   isApplyingChanges: boolean;
   packages: Package.IPackages;
   selected: { [key: string]: Package.PkgStatus };
@@ -32,6 +33,7 @@ export class CondaPkgPanel extends React.Component<
     super(props);
     this.state = {
       isLoading: false,
+      needsReload: false,
       isApplyingChanges: false,
       packages: {},
       selected: {},
@@ -63,14 +65,18 @@ export class CondaPkgPanel extends React.Component<
 
     if (!this.state.isLoading) {
       this.setState({
-        isLoading: true
+        isLoading: true,
+        needsReload: false
       });
       try {
         let environmentLoading = this._model.environment;
         // Get installed packages
         let packages = await this._model.refresh();
         // If current environment changes when waiting for the packages
-        if (this._model.environment !== environmentLoading) {
+        if (
+          this._model.environment !== environmentLoading ||
+          this.state.needsReload
+        ) {
           return cancel(this);
         }
         this.setState({
@@ -80,7 +86,10 @@ export class CondaPkgPanel extends React.Component<
         // Now get the updatable packages
         let data = await this._model.check_updates();
         // If current environment changes when waiting for the update status
-        if (this._model.environment !== environmentLoading) {
+        if (
+          this._model.environment !== environmentLoading ||
+          this.state.needsReload
+        ) {
           return cancel(this);
         }
         data.updates.forEach(element => {
@@ -95,7 +104,10 @@ export class CondaPkgPanel extends React.Component<
 
         let available = await this._model.refresh(Package.PkgStatus.Available);
         // If current environment changes when waiting for the available package
-        if (this._model.environment !== environmentLoading) {
+        if (
+          this._model.environment !== environmentLoading ||
+          this.state.needsReload
+        ) {
           return cancel(this);
         }
         data.updates.forEach(element => {
@@ -265,6 +277,7 @@ export class CondaPkgPanel extends React.Component<
       }
     } finally {
       this.setState({
+        needsReload: true, // For packages reload if loading is still in progress
         isApplyingChanges: false,
         selected: {},
         activeFilter: PkgFilters.All
