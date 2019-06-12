@@ -123,7 +123,7 @@ export namespace Environments {
     /**
      * Refresh available packages of the environment
      */
-    refresh(): Promise<Package.IPackages>;
+    refresh(status?: Package.PkgStatus): Promise<Package.IPackages>;
 
     /**
      * Install packages
@@ -433,7 +433,14 @@ export class CondaPackage implements Environments.IPackageService {
     this.packages = {};
   }
 
-  async refresh(): Promise<Package.IPackages> {
+  /**
+   * Refresh the package list. If status is not provided, only the
+   * installed packages will be returned.
+   *
+   * @param status Package status to look for
+   * @returns The package list
+   */
+  async refresh(status?: Package.PkgStatus): Promise<Package.IPackages> {
     if (this.environment === undefined) {
       this.packages = {};
       return Promise.resolve({});
@@ -443,15 +450,8 @@ export class CondaPackage implements Environments.IPackageService {
       let request: RequestInit = {
         method: "GET"
       };
-      // Get all available packages
-      let available_pkgs = await requestServer(
-        URLExt.join("conda", "packages", this.environment, "available"),
-        request
-      );
-      let all_data = (await available_pkgs.json()) as {
-        packages: Array<Package.IPackage>;
-      };
 
+      let filter_status = status ? status : Package.PkgStatus.Installed;
       // Get installed packages
       let response = await requestServer(
         URLExt.join("conda", "environments", this.environment),
@@ -460,20 +460,46 @@ export class CondaPackage implements Environments.IPackageService {
       let data = (await response.json()) as {
         packages: Array<Package.IRawPackage>;
       };
+      let installedPkgs = data.packages;
+
+      let all_packages: Array<Package.IPackage> = [];
+      if (filter_status === Package.PkgStatus.Available) {
+        // Get all available packages
+        let response = await requestServer(
+          URLExt.join("conda", "packages", this.environment, "available"),
+          request
+        );
+        let data = (await response.json()) as {
+          packages: Array<Package.IPackage>;
+        };
+        all_packages = data.packages;
+      }
 
       // Set installed package status
       //- packages are sorted by name, we take advantage of this.
-      let all_packages = all_data.packages;
       let final_list = {};
 
       let availableIdx = 0;
       let installedIdx = 0;
 
-      while (availableIdx < all_packages.length) {
-        let pkg = all_packages[availableIdx];
+      while (
+        installedIdx < installedPkgs.length ||
+        availableIdx < all_packages.length
+      ) {
+        let installed = installedPkgs[installedIdx];
+        let pkg = all_packages[availableIdx] || {
+          ...installed,
+          version: [installed.version],
+          build_number: [installed.build_number],
+          build_string: [installed.build_string],
+          summary: "",
+          home: "",
+          keywords: [],
+          tags: []
+        };
         pkg.status = Package.PkgStatus.Available;
-        if (installedIdx < data.packages.length) {
-          let installed = data.packages[installedIdx];
+
+        if (installed !== undefined) {
           if (pkg.name > installed.name) {
             // installed is not in available
             pkg = {
@@ -495,9 +521,15 @@ export class CondaPackage implements Environments.IPackageService {
           }
         }
 
+        // Simplify the package channel name
         let split_url = pkg.channel.split("/");
         if (split_url.length > 2) {
-          let firstNotEmpty = 1; // Skip the scheme http, https or file
+          let firstNotEmpty = 0;
+          if (
+            ["http:", "https:", "file:"].indexOf(split_url[firstNotEmpty]) >= 0
+          ) {
+            firstNotEmpty = 1; // Skip the scheme http, https or file
+          }
           while (split_url[firstNotEmpty].length === 0) {
             firstNotEmpty += 1;
           }
@@ -514,6 +546,7 @@ export class CondaPackage implements Environments.IPackageService {
           }
           pkg.channel += "/" + split_url[pos];
         }
+
         final_list[pkg.name] = pkg;
         availableIdx += 1;
       }

@@ -14,7 +14,6 @@ export interface IPkgPanelProps {
 
 export interface IPkgPanelState {
   isLoading: boolean;
-  isCheckingUpdate: boolean;
   isApplyingChanges: boolean;
   packages: Package.IPackages;
   selected: { [key: string]: Package.PkgStatus };
@@ -33,7 +32,6 @@ export class CondaPkgPanel extends React.Component<
     super(props);
     this.state = {
       isLoading: false,
-      isCheckingUpdate: false,
       isApplyingChanges: false,
       packages: {},
       selected: {},
@@ -54,59 +52,68 @@ export class CondaPkgPanel extends React.Component<
   }
 
   private async _updatePackages() {
+    function cancel(self: CondaPkgPanel) {
+      self.setState({
+        isLoading: false,
+        packages: {},
+        selected: {}
+      });
+      self._updatePackages();
+    }
+
     if (!this.state.isLoading) {
       this.setState({
-        isCheckingUpdate: false,
         isLoading: true
       });
       try {
         let environmentLoading = this._model.environment;
+        // Get installed packages
         let packages = await this._model.refresh();
         // If current environment changes when waiting for the packages
         if (this._model.environment !== environmentLoading) {
-          this.setState({
-            isLoading: false,
-            packages: {},
-            selected: {}
-          });
-          this._updatePackages();
-          return;
+          return cancel(this);
         }
         this.setState({
-          isLoading: false,
-          isCheckingUpdate: true,
           packages: packages
         });
+
         // Now get the updatable packages
         let data = await this._model.check_updates();
         // If current environment changes when waiting for the update status
         if (this._model.environment !== environmentLoading) {
-          this.setState({
-            isLoading: false,
-            isCheckingUpdate: false,
-            packages: {},
-            selected: {}
-          });
-          this._updatePackages();
-          return;
+          return cancel(this);
         }
-        if (this.state.isCheckingUpdate) {
-          data.updates.forEach(element => {
-            let pkg = this.state.packages[element.name];
-            if (pkg.status === Package.PkgStatus.Installed) {
-              this.state.packages[element.name].updatable = true;
-            }
-          });
-          this.setState({
-            isCheckingUpdate: false,
-            packages: this.state.packages
-          });
+        data.updates.forEach(element => {
+          let pkg = this.state.packages[element.name]; // Is undefined for new dependent package
+          if (pkg !== undefined && pkg.status === Package.PkgStatus.Installed) {
+            this.state.packages[element.name].updatable = true;
+          }
+        });
+        this.setState({
+          packages: this.state.packages
+        });
+
+        let available = await this._model.refresh(Package.PkgStatus.Available);
+        // If current environment changes when waiting for the available package
+        if (this._model.environment !== environmentLoading) {
+          return cancel(this);
         }
-      } catch (error) {
+        data.updates.forEach(element => {
+          let pkg = available[element.name]; // Is undefined for new dependent package
+          if (pkg !== undefined && pkg.status === Package.PkgStatus.Installed) {
+            available[element.name].updatable = true;
+          }
+        });
+
         this.setState({
           isLoading: false,
-          isCheckingUpdate: false
+          packages: available
         });
+      } catch (error) {
+        this.setState({
+          isLoading: false
+        });
+        console.error(error);
         INotification.error(error.message);
       }
     }
@@ -243,6 +250,7 @@ export class CondaPkgPanel extends React.Component<
         });
       }
     } catch (error) {
+      console.error(error);
       if (toastId) {
         // @ts-ignore
         INotification.update({
@@ -286,7 +294,7 @@ export class CondaPkgPanel extends React.Component<
     if (prevProps.environment !== this.props.environment) {
       this._model = new CondaPackage(this.props.environment);
       this.setState({
-        isCheckingUpdate: false,
+        isLoading: false,
         packages: {}
       });
       this._updatePackages();
@@ -349,7 +357,7 @@ export class CondaPkgPanel extends React.Component<
         />
         <CondaPkgList
           height={this.props.height - 29} // Remove height for top and bottom elements
-          isPending={this.state.isLoading || this.state.isCheckingUpdate}
+          isPending={this.state.isLoading}
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
           packages={searchPkgs}
