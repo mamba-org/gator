@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CondaPkgItem } from "./CondaPkgItem";
 import { Package } from "../services";
-import { style, classes } from "typestyle";
+import { style } from "typestyle";
 
 export interface ITitleItemProps {
   title: string;
@@ -15,9 +15,11 @@ export class TitleItem extends React.Component<ITitleItemProps> {
     return (
       <div
         className={
-          this.props.status === TitleItem.SortStatus.None
-            ? PkgListStyle.HeaderItem
-            : classes(PkgListStyle.HeaderItem, PkgListStyle.CurrentHeaderItem)
+          PkgListStyle.HeaderItem
+          // TODO Styling once sorting is available
+          // this.props.status === TitleItem.SortStatus.None
+          //   ? PkgListStyle.HeaderItem
+          //   : classes(PkgListStyle.HeaderItem, PkgListStyle.CurrentHeaderItem)
         }
         onClick={() =>
           this.props.updateSort(this.props.field, this.props.status)
