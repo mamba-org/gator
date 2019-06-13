@@ -4,3 +4,19 @@ include setup.py
 
 recursive-include jupyter-config *.json
 recursive-include jupyter_conda *
+
+include package.json
+graft labextension
+prune labextension/coverage
+prune labextension/lib
+prune labextension/build
+prune labextension/node_modules
+prune **/.ipynb_checkpoints
+
+# Patterns to exclude from any directory
+global-exclude *~
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.gif
+global-exclude .git
+global-exclude .ipynb_checkpoints

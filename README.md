@@ -93,6 +93,18 @@ jupyter labextension install .
 
 ## Changelog
 
+### 2.5.0
+
+- Export in YAML format the environment (import in the older format is still supported).
+- Improve responsiveness by loading first installed packages. Then request available one.
+- BUG error is prompt when an environment is deleted although everything went well
+- Cache some API requests (GET environments, GET channels and GET available packages).
+- Available packages are now truncated to 100.
+  - Use query argument `$skip` to skip N first packages
+  - If the list is longer than 100, a entry `$next` in the response is returned. This  
+    is the request url to use to get the next batch of packages.
+- Report full error message in web browser console to ease debugging.
+
 ### 2.4.2
 
 - BUG environment not shown

@@ -9,13 +9,18 @@ with open(os.path.join("jupyter_conda", "_version.py")) as version:
 
 static_folder = "jupyter_conda/static"
 
+long_description = ""
+with open("README.md") as rd:
+    long_description = rd.read()
+
 setuptools.setup(
     name="jupyter_conda",
     version=__version__,
     url="https://github.com/fcollonval/jupyter_conda",
     author="Continuum Analytics, Frederic Collonval",
     description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
-    long_description=open("README.md").read(),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     include_package_data=True,
     data_files=[
