@@ -5,6 +5,7 @@ import json
 from functools import lru_cache
 import os
 import re
+import ssl
 from tempfile import NamedTemporaryFile
 import typing as tp
 
@@ -400,7 +401,7 @@ class EnvManager(LoggingConfigurable):
                             headers={"Content-Type": "application/json"},
                         )
                     )
-                except (httpclient.HTTPClientError, ConnectionError) as e:
+                except (httpclient.HTTPClientError, ConnectionError, ssl.SSLError) as e:
                     self.log.info(
                         "[jupyter_conda] Error getting {}/channeldata.json: {}".format(
                             channel, str(e)
