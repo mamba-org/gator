@@ -93,6 +93,10 @@ jupyter labextension install .
 
 ## Changelog
 
+### 2.5.1
+
+- Catch SSLError when requesting `channeldata.json` file
+
 ### 2.5.0
 
 - Export in YAML format the environment (import in the older format is still supported).
