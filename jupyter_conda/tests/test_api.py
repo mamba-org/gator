@@ -19,29 +19,21 @@ class JupyterCondaAPI(APITester):
 
 
 class JupyterCondaAPITest(ServerTestBase):
+    # Force extension enabling - Disabled by parent class otherwise
     config = Config({"NotebookApp": {"nbserver_extensions": {"jupyter_conda": True}}})
-
-    @classmethod
-    def setUpClass(cls):
-        cls.setup_class()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.teardown_class()
 
     def setUp(self):
         super(JupyterCondaAPITest, self).setUp()
         self.conda_api = JupyterCondaAPI(self.request)
         self.env_name = "_DELETE_ME_"
         self.pkg_name = "alabaster"
-        # self.mk_env()
+        self.mk_env()
 
     def tearDown(self):
-        # self.rm_env()
-        # self.rm_env(self.env_name + "-copy")
+        self.rm_env()
+        self.rm_env(self.env_name + "-copy")
         super(JupyterCondaAPITest, self).tearDown()
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_root(self):
         envs = self.conda_api.envs()
         root = filter(lambda env: env["name"] == "root", envs["environments"])
@@ -63,30 +55,25 @@ class JupyterCondaAPITest(ServerTestBase):
             ["environments", name, "clone"], body={"name": new_name}
         )
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_env_create_and_destroy(self):
         self.assertEqual(self.mk_env().status_code, 400)
         self.assertEqual(self.rm_env().status_code, 200)
         self.assertEqual(self.mk_env().status_code, 201)
         self.assertEqual(self.rm_env().status_code, 200)
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_env_clone(self):
         self.assertEqual(self.cp_env().status_code, 201)
         self.assertEqual(self.rm_env(self.env_name + "-copy").status_code, 200)
         self.rm_env()
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_env_nonsense(self):
         r = self.conda_api.post(["environments", self.env_name, "nonsense"])
         self.assertEqual(r.status_code, 404)
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_env_export(self):
         r = self.conda_api.get(["environments", self.env_name, "export"])
         self.assertEqual(r.status_code, 200)
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_pkg_install_and_remove(self):
         r = self.conda_api.post(
             ["environments", self.env_name, "packages", "install"],
@@ -99,12 +86,10 @@ class JupyterCondaAPITest(ServerTestBase):
         )
         self.assertEqual(r.status_code, 200)
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_pkg_update(self):
         r = self.conda_api.post(["environments", self.env_name, "packages", "check"])
         self.assertEqual(r.status_code, 200)
 
-    # @unittest.skip("skipping for now because parent class disable extensions")
     def test_pkg_check(self):
         r = self.conda_api.post(["environments", self.env_name, "packages", "update"])
         self.assertEqual(r.status_code, 200)

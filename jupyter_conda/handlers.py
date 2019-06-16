@@ -132,7 +132,7 @@ class EnvActionHandler(EnvBaseHandler):
             env_type = self.get_argument("type", default=None)
             file_content = self.get_argument("file", default=None)
             file_name = self.get_argument("filename", default=None)
-        print("in post environment")
+
         if action == "delete":
             data = yield self.env_manager.delete_env(env)
         elif action == "clone":
