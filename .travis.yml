@@ -8,10 +8,11 @@ branches:
 
 env:
   # test both new (conda>=4.4) and old-style conda installs
-  - PYTHON_VERSION = 2.7
-  - PYTHON_VERSION = 3.5
-  - PYTHON_VERSION = 3.6
-  - PYTHON_VERSION = 3.6 CONDA_4_4_STYLE=true
+  - PYTHON_VERSION=2.7
+  - PYTHON_VERSION=3.5
+  - PYTHON_VERSION=3.6
+  - PYTHON_VERSION=3.6 CONDA_4_4_STYLE=true
+  - PYTHON_VERSION=3.7 CONDA_4_4_STYLE=true
 
 install:
   - sudo apt-get update
