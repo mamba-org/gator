@@ -53,7 +53,7 @@ setuptools.setup(
         "nb_conda_kernels>=2.0.0",
         "notebook>=4.3.1",
         "packaging",
-        "requests",
         "typing",
     ],
+    extras_require={"test": ["nose", "requests", "coverage", "flake8"]},
 )

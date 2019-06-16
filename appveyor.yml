@@ -60,6 +60,7 @@ install:
   - cmd: conda info
   - cmd: conda create -n jupyter_conda "%PY_CONDITION%"
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
+  - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
   - cmd: activate jupyter_conda
   - cmd: npm install
 

@@ -81,6 +81,7 @@ There are two ways to create an environment:
 ```shell
 conda create -y -n jupyter_conda python jupyterlab
 conda install -y -n jupyter_conda --file requirements.txt -c conda-forge
+conda install -y -n jupyter_conda --file requirements_dev.txt -c conda-forge
 source activate jupyter_conda
 python setup.py develop
 jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
