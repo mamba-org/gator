@@ -1,6 +1,6 @@
 import unittest
 from traitlets.config import Config
-from jupyter_conda.tests.utils import APITester, ServerTestBase, url_path_join
+from jupyter_conda.tests.utils import APITester, ServerTestBase, assert_http_error, url_path_join
 
 
 class JupyterCondaAPI(APITester):
@@ -36,10 +36,15 @@ class JupyterCondaAPITest(ServerTestBase):
 
     def test_root(self):
         envs = self.conda_api.envs()
-        root = filter(lambda env: env["name"] == "root", envs["environments"])
+        root = filter(lambda env: env["name"] == "base", envs["environments"])
         self.assertEqual(len(list(root)), 1)
 
     def mk_env(self, name=None):
+        envs = self.conda_api.envs()
+        env_names = map(lambda env: env['name'], envs["environments"])
+        if self.env_name in env_names:
+            self.rm_env()
+
         return self.conda_api.post(
             ["environments", name or self.env_name, "create"],
             params={"type": "python2"},
@@ -56,7 +61,8 @@ class JupyterCondaAPITest(ServerTestBase):
         )
 
     def test_env_create_and_destroy(self):
-        self.assertEqual(self.mk_env().status_code, 400)
+        # Creating an existing environment does not induce error
+        self.assertEqual(self.mk_env().status_code, 201)
         self.assertEqual(self.rm_env().status_code, 200)
         self.assertEqual(self.mk_env().status_code, 201)
         self.assertEqual(self.rm_env().status_code, 200)
@@ -67,8 +73,8 @@ class JupyterCondaAPITest(ServerTestBase):
         self.rm_env()
 
     def test_env_nonsense(self):
-        r = self.conda_api.post(["environments", self.env_name, "nonsense"])
-        self.assertEqual(r.status_code, 404)
+        with assert_http_error(404):
+            self.conda_api.post(["environments", self.env_name, "nonsense"])
 
     def test_env_export(self):
         r = self.conda_api.get(["environments", self.env_name, "export"])
