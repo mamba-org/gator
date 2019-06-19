@@ -4,17 +4,17 @@ import { PkgListStyle } from "./CondaPkgList";
 import { style, classes } from "typestyle";
 import { GlobalStyle } from "./globalStyles";
 
-export interface PkgItemProps extends Package.IPackage {
+export interface PkgItemProps extends Conda.IPackage {
   onClick: (name: string) => void;
 }
 
 export const CondaPkgItem = (props: PkgItemProps) => {
   let status = <i className={Style.StatusAvailable} />;
-  if (props.status === Package.PkgStatus.Installed) {
+  if (props.status === Conda.PkgStatus.Installed) {
     status = <i className={Style.StatusInstalled} />;
-  } else if (props.status === Package.PkgStatus.Update) {
+  } else if (props.status === Conda.PkgStatus.Update) {
     status = <i className={Style.StatusUpdate} />;
-  } else if (props.status === Package.PkgStatus.Remove) {
+  } else if (props.status === Conda.PkgStatus.Remove) {
     status = <i className={Style.StatusRemove} />;
   }
 

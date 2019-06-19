@@ -1,15 +1,15 @@
 import * as React from "react";
 import { style } from "typestyle";
 
-import { Environments } from "../services";
+import { Environment } from "../services";
 
 import { CondaEnvItem } from "./CondaEnvItem";
 import { CondaEnvToolBar } from "./CondaEnvToolBar";
 
-export interface IEnvListProps extends Environments.IEnvironments {
+export interface IEnvListProps extends Conda.IEnvironments {
   height: number;
   isPending: boolean;
-  environments: Array<Environments.IEnvironment>;
+  environments: Array<Conda.IEnvironment>;
   selected: string;
   onSelectedChange: (name: string) => void;
   onCreate();

@@ -49,8 +49,8 @@ export namespace TitleItem {
 export interface IPkgListProps {
   height: number;
   isPending: boolean;
-  packages: Package.IPackages;
-  selection: { [key: string]: Package.PkgStatus };
+  packages: Conda.IPackages;
+  selection: { [key: string]: Conda.PkgStatus };
   sortedBy: TitleItem.SortField;
   sortDirection: TitleItem.SortStatus;
   onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void;
