@@ -5,21 +5,45 @@ import * as ReactDOM from "react-dom";
 import { Title, Widget } from "@phosphor/widgets";
 
 import { NbConda } from "./components/NbConda";
-import { IEnvironmentService } from "./services";
+import { IEnvironmentManager } from "./services";
 import { Message } from "@phosphor/messaging";
 
 export const condaEnvId = "jupyterlab_conda:plugin";
 
+/**
+ * Phosphor Widget encapsulating the Conda Environments & Packages Manager
+ */
 export class CondaEnvWidget extends VDomRenderer<VDomModel> {
+  /**
+   * Widget height
+   */
   height: number;
+  /**
+   * Widget width
+   */
   width: number;
+  /**
+   * Widget id
+   */
   id: string;
+  /**
+   * Is the widget attached to a shell
+   */
   isAttached: boolean;
+  /**
+   * Widget title
+   */
   title: Title<Widget>;
+  /**
+   * Child React component
+   */
   reactComponent: React.ReactElement<any>;
-  envModel: IEnvironmentService;
+  /**
+   * Conda environment Manager
+   */
+  envModel: IEnvironmentManager;
 
-  constructor(height: number, width: number, envModel: IEnvironmentService) {
+  constructor(height: number, width: number, envModel: IEnvironmentManager) {
     super();
 
     this.height = height;

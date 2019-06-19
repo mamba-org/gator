@@ -16,8 +16,8 @@ export interface CondaPkgToolBarProps {
   searchTerm: string;
   onCategoryChanged: (event) => void;
   onSearch: (event) => void;
-  onApply();
-  onCancel();
+  onApply: () => void;
+  onCancel: () => void;
 }
 
 export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {

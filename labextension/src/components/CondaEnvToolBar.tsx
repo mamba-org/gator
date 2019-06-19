@@ -1,12 +1,33 @@
 import * as React from "react";
 
+/**
+ * Environment panel toolbar properties
+ */
 export interface CondaEnvToolBarProps {
+  /**
+   * Is the current environment the root one
+   */
   isBase: boolean;
-  onCreate();
-  onClone();
-  onImport();
-  onExport();
-  onRemove();
+  /**
+   * Create environment handler
+   */
+  onCreate(): void;
+  /**
+   * Clone environment handler
+   */
+  onClone(): void;
+  /**
+   * Import environment handler
+   */
+  onImport(): void;
+  /**
+   * Export environment handler
+   */
+  onExport(): void;
+  /**
+   * Remove environment handler
+   */
+  onRemove(): void;
 }
 
 export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {

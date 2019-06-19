@@ -2,12 +2,27 @@ import * as React from "react";
 import { style } from "typestyle";
 import { GlobalStyle } from "./globalStyles";
 
+/**
+ * Environment item properties
+ */
 export interface EnvItemProps {
+  /**
+   * Environment name
+   */
   name: string;
+  /**
+   * Is the environment selected?
+   */
   selected?: boolean;
-  onClick: (name: string) => void;
+  /**
+   * Environment item click handler
+   */
+  onClick(name: string): void;
 }
 
+/**
+ * Environment item component
+ */
 export class CondaEnvItem extends React.Component<EnvItemProps> {
   render() {
     return (
