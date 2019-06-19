@@ -1,13 +1,28 @@
 import * as React from "react";
-import { Package } from "../services";
+import { Conda } from "../services";
 import { PkgListStyle } from "./CondaPkgList";
 import { style, classes } from "typestyle";
 import { GlobalStyle } from "./globalStyles";
 
+/**
+ * Package item properties
+ */
 export interface PkgItemProps extends Conda.IPackage {
-  onClick: (name: string) => void;
+  /**
+   * Package item index
+   */
+  index: number;
+  /**
+   * Package item click handler
+   */
+  onClick: (index: number) => void;
 }
 
+/**
+ * Package item React component
+ *
+ * @param props Component properties
+ */
 export const CondaPkgItem = (props: PkgItemProps) => {
   let status = <i className={Style.StatusAvailable} />;
   if (props.status === Conda.PkgStatus.Installed) {
@@ -31,7 +46,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
   return (
     <tr
       className={classes(PkgListStyle.Row, Style.Item)}
-      onClick={() => props.onClick(props.name)}
+      onClick={() => props.onClick(props.index)}
     >
       <td className={PkgListStyle.CellStatus}>{status}</td>
       <td className={PkgListStyle.CellName}>{name}</td>

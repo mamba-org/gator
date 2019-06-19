@@ -14,20 +14,16 @@ import { classes, style } from "typestyle";
 import "../style/index.css";
 import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
-import { CondaEnvironments, IEnvironmentService } from "./services";
+import { CondaEnvironments, IEnvironmentManager } from "./services";
 
-export {
-  IEnvironmentService,
-  Environment as Environments,
-  Package
-} from "./services";
+export { IEnvironmentManager, Conda } from "./services";
 
 function activateCondaEnv(
   app: JupyterLab,
   palette: ICommandPalette,
   menu: IMainMenu,
   restorer: ILayoutRestorer
-): IEnvironmentService {
+): IEnvironmentManager {
   const { commands, shell } = app;
   const plugin_namespace = "conda-env";
   const model = new CondaEnvironments();
@@ -80,12 +76,12 @@ function activateCondaEnv(
 /**
  * Initialization data for the jupyterlab_conda extension.
  */
-const extension: JupyterLabPlugin<IEnvironmentService> = {
+const extension: JupyterLabPlugin<IEnvironmentManager> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,
   requires: [ICommandPalette, IMainMenu, ILayoutRestorer],
-  provides: IEnvironmentService
+  provides: IEnvironmentManager
 };
 
 export default extension;
