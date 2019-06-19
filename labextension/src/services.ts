@@ -1,15 +1,12 @@
-import { Token } from "@phosphor/coreutils";
-import { ServerConnection } from "@jupyterlab/services";
 import { URLExt } from "@jupyterlab/coreutils";
+import { ServerConnection } from "@jupyterlab/services";
+import { Token } from "@phosphor/coreutils";
 import { IDisposable } from "@phosphor/disposable";
+import { ISignal, Signal } from "@phosphor/signaling";
 
 export const IEnvironmentService = new Token<IEnvironmentService>(
   "jupyterlab_conda:IEnvironmentService"
 );
-
-/* TODO Whitelist of environment to show in the conda package manager. If the list contains
- * only one entry, the environment list won't be shown.
- */
 
 /**
  * Interface for the environment service
@@ -18,19 +15,19 @@ export interface IEnvironmentService extends IDisposable {
   /**
    * Get all available environments
    */
-  environments: Promise<Array<Environments.IEnvironment>>;
+  environments: Promise<Array<Conda.IEnvironment>>;
 
   /**
    * Refresh available environments list
    */
-  refresh(): Promise<Environments.IEnvironments>;
+  refresh(): Promise<Conda.IEnvironments>;
 
   /**
    * Get all packages channels avalaible in the requested environment
    *
    * @param name environment name
    */
-  getChannels(name: string): Promise<Environments.IChannels>;
+  getChannels(name: string): Promise<Conda.IChannels>;
 
   /**
    * Duplicate a given environment
@@ -46,7 +43,7 @@ export interface IEnvironmentService extends IDisposable {
    * @param name name of the new environment
    * @param type type of environment to create
    */
-  create(name: string, type?: Environments.IType): Promise<any>;
+  create(name: string, type?: Conda.IType): Promise<any>;
 
   /**
    * Export the packages list of an environment
@@ -64,6 +61,11 @@ export interface IEnvironmentService extends IDisposable {
   import(name: string, fileContent: string, fileName: string): Promise<any>;
 
   /**
+   * Signal emitted when a environment is changed.
+   */
+  environmentChanged(): ISignal<IEnvironmentService, Conda.IEnvironmentChange>;
+
+  /**
    * Remove a given environment
    *
    * @param name name of the environment to be removed
@@ -75,16 +77,25 @@ export interface IEnvironmentService extends IDisposable {
    *
    * @param name name of the environment to work with
    */
-  getPackageService(name: string): Environments.IPackageService;
+  getPackageService(name: string): Conda.IPackageService;
 }
 
-export namespace Environments {
+export namespace Conda {
   /**
    * Description of the REST API response for each environment
    */
   export interface IEnvironment {
+    /**
+     * Environment name
+     */
     name: string;
+    /**
+     * Environment path
+     */
     dir: string;
+    /**
+     * Is the environment the default one
+     */
     is_default: boolean;
   }
 
@@ -92,13 +103,38 @@ export namespace Environments {
    * Description of the REST API response when loading environments
    */
   export interface IEnvironments {
+    /**
+     * List of available environments.
+     */
     environments: Array<IEnvironment>;
+  }
+
+  export interface IEnvironmentChange {
+    /**
+     * Name of the created environment
+     */
+    name: string;
+    /**
+     * Method of environment creation
+     */
+    type: "create" | "remove";
+    /**
+     * Source used for the environment action
+     *   'create' -> Initial package list
+     *   'create' by import -> Package list imported
+     *   'create' by clone -> Name of the environment cloned
+     *   'remove' -> null
+     */
+    source: string | string[] | null;
   }
 
   /**
    * Description of the REST API response when requesting the channels
    */
   export interface IChannels {
+    /**
+     * Mapping channel name and associated URI
+     */
     [key: string]: Array<string>;
   }
 
@@ -114,7 +150,8 @@ export namespace Environments {
     /**
      * List of available packages
      */
-    packages: Package.IPackages;
+    packages: Conda.IPackages;
+
     /**
      * Environment in which packages are handled
      */
@@ -123,7 +160,7 @@ export namespace Environments {
     /**
      * Refresh packages of the environment
      */
-    refresh(status?: Package.PkgStatus): Promise<Package.IPackages>;
+    refresh(status?: Conda.PkgStatus): Promise<Conda.IPackages>;
 
     /**
      * Install packages
@@ -143,7 +180,7 @@ export namespace Environments {
      * Check for updates
      */
     check_updates(): Promise<{
-      updates: Array<Package.UpdateAPI>;
+      updates: Array<Conda.UpdateAPI>;
     }>;
 
     /**
@@ -159,10 +196,16 @@ export namespace Environments {
      * @param packages List of packages to be removed
      */
     remove(packages: Array<string>): Promise<any>;
-  }
-}
 
-export namespace Package {
+    /**
+     * Signal emitted when some package actions are executed.
+     */
+    packageChanged: ISignal<IPackageService, Conda.IPackageChange>;
+  }
+
+  /**
+   * Package status
+   */
   export enum PkgStatus {
     Installed = "INSTALLED",
     Update = "UPDATE",
@@ -170,6 +213,9 @@ export namespace Package {
     Available = "AVAILABLE"
   }
 
+  /**
+   * Available platforms subpackages
+   */
   export const PkgSubDirs = [
     "linux-64",
     "linux-32",
@@ -220,6 +266,21 @@ export namespace Package {
   export interface IPackages {
     [key: string]: IPackage;
   }
+
+  export interface IPackageChange {
+    /**
+     * Name of the environment changed
+     */
+    environment: string;
+    /**
+     * Package action
+     */
+    type: "install" | "update" | "remove";
+    /**
+     * Packages modified
+     */
+    packages: string[];
+  }
 }
 
 /** Helper functions to carry on python notebook server request
@@ -255,13 +316,13 @@ export async function requestServer(
 
 export class CondaEnvironments implements IEnvironmentService {
   constructor() {
-    this._environments = new Array<Environments.IEnvironment>();
+    this._environments = new Array<Conda.IEnvironment>();
     this._environmentsTimer = (setInterval as any)(() => {
       this.refresh();
     }, 61000);
   }
 
-  public get environments(): Promise<Array<Environments.IEnvironment>> {
+  public get environments(): Promise<Array<Conda.IEnvironment>> {
     if (this._environments.length === 0) {
       return this.refresh().then(envs => {
         this._environments = envs.environments;
@@ -272,7 +333,7 @@ export class CondaEnvironments implements IEnvironmentService {
     }
   }
 
-  getPackageService(name: string): Environments.IPackageService {
+  getPackageService(name: string): Conda.IPackageService {
     return new CondaPackage(name);
   }
 
@@ -283,7 +344,7 @@ export class CondaEnvironments implements IEnvironmentService {
     return this._isDisposed;
   }
 
-  async getChannels(name: string): Promise<Environments.IChannels> {
+  async getChannels(name: string): Promise<Conda.IChannels> {
     try {
       let request = {
         method: "GET"
@@ -294,7 +355,7 @@ export class CondaEnvironments implements IEnvironmentService {
       );
       if (response.ok) {
         let data = await response.json();
-        return data["channels"] as Environments.IChannels;
+        return data["channels"] as Conda.IChannels;
       } else {
         throw new Error(`Fail to get the channels for environment ${name}.`);
       }
@@ -321,7 +382,7 @@ export class CondaEnvironments implements IEnvironmentService {
     }
   }
 
-  async create(name: string, type?: Environments.IType): Promise<any> {
+  async create(name: string, type?: Conda.IType): Promise<any> {
     try {
       let request: RequestInit = {
         body: JSON.stringify({ type }),
@@ -378,7 +439,7 @@ export class CondaEnvironments implements IEnvironmentService {
     }
   }
 
-  async refresh(): Promise<Environments.IEnvironments> {
+  async refresh(): Promise<Conda.IEnvironments> {
     try {
       let request: RequestInit = {
         method: "GET"
@@ -387,7 +448,7 @@ export class CondaEnvironments implements IEnvironmentService {
         URLExt.join("conda", "environments"),
         request
       );
-      let data = (await response.json()) as Environments.IEnvironments;
+      let data = (await response.json()) as Conda.IEnvironments;
       this._environments = data.environments;
       return data;
     } catch (err) {
@@ -426,17 +487,21 @@ export class CondaEnvironments implements IEnvironmentService {
   }
 
   private _isDisposed = false;
-  private _environments: Array<Environments.IEnvironment>;
+  private _environments: Array<Conda.IEnvironment>;
   private _environmentsTimer = -1;
 }
 
-export class CondaPackage implements Environments.IPackageService {
-  packages: Package.IPackages;
+export class CondaPackage implements Conda.IPackageService {
+  packages: Conda.IPackages;
   environment?: string;
 
   constructor(environment?: string) {
     this.environment = environment;
     this.packages = {};
+  }
+
+  get packageChanged(): ISignal<Conda.IPackageService, Conda.IPackageChange> {
+    return this._packageChanged;
   }
 
   /**
@@ -446,7 +511,7 @@ export class CondaPackage implements Environments.IPackageService {
    * @param status Package status to look for
    * @returns The package list
    */
-  async refresh(status?: Package.PkgStatus): Promise<Package.IPackages> {
+  async refresh(status?: Conda.PkgStatus): Promise<Conda.IPackages> {
     if (this.environment === undefined) {
       this.packages = {};
       return Promise.resolve({});
@@ -457,33 +522,33 @@ export class CondaPackage implements Environments.IPackageService {
         method: "GET"
       };
 
-      let filter_status = status ? status : Package.PkgStatus.Installed;
+      let filter_status = status ? status : Conda.PkgStatus.Installed;
       // Get installed packages
       let response = await requestServer(
         URLExt.join("conda", "environments", this.environment),
         request
       );
       let data = (await response.json()) as {
-        packages: Array<Package.IRawPackage>;
+        packages: Array<Conda.IRawPackage>;
       };
       let installedPkgs = data.packages;
 
-      let all_packages: Array<Package.IPackage> = [];
-      if (filter_status === Package.PkgStatus.Available) {
+      let all_packages: Array<Conda.IPackage> = [];
+      if (filter_status === Conda.PkgStatus.Available) {
         // Get all available packages
         let response = await requestServer(
           URLExt.join("conda", "packages", this.environment, "available"),
           request
         );
         let data = (await response.json()) as {
-          packages: Array<Package.IPackage>;
+          packages: Array<Conda.IPackage>;
           $next?: string;
         };
         while (data.$next !== undefined) {
           all_packages.push(...data.packages);
           let response = await requestServer(data.$next, request, true);
           data = (await response.json()) as {
-            packages: Array<Package.IPackage>;
+            packages: Array<Conda.IPackage>;
             $next?: string;
           };
         }
@@ -512,7 +577,7 @@ export class CondaPackage implements Environments.IPackageService {
           keywords: [],
           tags: []
         };
-        pkg.status = Package.PkgStatus.Available;
+        pkg.status = Conda.PkgStatus.Available;
 
         if (installed !== undefined) {
           if (pkg.name > installed.name) {
@@ -531,7 +596,7 @@ export class CondaPackage implements Environments.IPackageService {
           }
           if (pkg.name === installed.name) {
             pkg.version_installed = installed.version;
-            pkg.status = Package.PkgStatus.Installed;
+            pkg.status = Conda.PkgStatus.Installed;
             installedIdx += 1;
           }
         }
@@ -551,7 +616,7 @@ export class CondaPackage implements Environments.IPackageService {
           pkg.channel = split_url[firstNotEmpty];
           let pos = split_url.length - 1;
           while (
-            Package.PkgSubDirs.indexOf(split_url[pos]) > -1 &&
+            Conda.PkgSubDirs.indexOf(split_url[pos]) > -1 &&
             pos > firstNotEmpty
           ) {
             pos -= 1;
@@ -634,7 +699,7 @@ export class CondaPackage implements Environments.IPackageService {
   }
 
   async check_updates(): Promise<{
-    updates: Array<Package.UpdateAPI>;
+    updates: Array<Conda.UpdateAPI>;
   }> {
     if (this.environment === undefined) {
       return Promise.resolve({ updates: [] });
@@ -718,4 +783,6 @@ export class CondaPackage implements Environments.IPackageService {
       throw new Error("An error occurred while removing packages.");
     }
   }
+
+  private _packageChanged = new Signal<this, Conda.IPackageChange>(this);
 }

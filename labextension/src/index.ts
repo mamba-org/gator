@@ -16,7 +16,11 @@ import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
 import { CondaEnvironments, IEnvironmentService } from "./services";
 
-export { IEnvironmentService, Environments, Package } from "./services";
+export {
+  IEnvironmentService,
+  Environment as Environments,
+  Package
+} from "./services";
 
 function activateCondaEnv(
   app: JupyterLab,

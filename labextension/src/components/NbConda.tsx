@@ -4,7 +4,7 @@ import { INotification } from "jupyterlab_toastify";
 
 import { CondaEnvList } from "./CondaEnvList";
 import { CondaPkgPanel } from "./CondaPkgPanel";
-import { IEnvironmentService, Environments } from "../services";
+import { IEnvironmentService, Environment } from "../services";
 import { showDialog, Dialog } from "@jupyterlab/apputils";
 import { Widget } from "@phosphor/widgets";
 
@@ -14,9 +14,9 @@ export interface ICondaEnvProps {
   model: IEnvironmentService;
 }
 
-export interface ICondaEnvState extends Environments.IEnvironments {
+export interface ICondaEnvState extends Conda.IEnvironments {
   currentEnvironment?: string;
-  channels?: Environments.IChannels;
+  channels?: Conda.IChannels;
   isLoading: boolean;
 }
 
