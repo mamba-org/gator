@@ -12,6 +12,7 @@ environment:
     # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
     # Not sure how to resolve this, but maybe we should be tracking the VS version in the build string anyway?
     - PYTHON: "C:\\Python34_64"
+      PYTHON_VERSION: "3.6"
       PY_CONDITION: "python>=3.6,<3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "36"
