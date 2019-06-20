@@ -12,7 +12,7 @@ environment:
     # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
     # Not sure how to resolve this, but maybe we should be tracking the VS version in the build string anyway?
     - PYTHON: "C:\\Python34_64"
-      PY_CONDITION: "python >=3.6,<3.7"
+      PY_CONDITION: "python>=3.6,<3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "36"
 
@@ -41,7 +41,7 @@ install:
   - cmd: conda update --quiet conda
   - cmd: set PYTHONUNBUFFERED=1
   - cmd: conda info -a
-  - cmd: conda create -n jupyter_conda -c conda-forge %PY_CONDITION%
+  - cmd: conda create -n jupyter_conda -c conda-forge "%PY_CONDITION%"
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
   - cmd: conda activate jupyter_conda
