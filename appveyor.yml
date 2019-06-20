@@ -37,12 +37,11 @@ install:
   - ps: .\.continous-integration\install-miniconda.ps1
   - cmd: SET PATH=%PYTHON%;%PYTHON%\Scripts;%PYTHON%\Library\bin;%PATH%
 
-  - cmd: conda config --set show_channel_urls true
-  - cmd: conda config --set always_yes yes --set changeps1 no
-  - cmd: conda update --yes --quiet conda
+  - cmd: conda config --set show_channel_urls true --set always_yes yes --set changeps1 no
+  - cmd: conda update --quiet conda
   - cmd: set PYTHONUNBUFFERED=1
   - cmd: conda info -a
-  - cmd: conda create -n jupyter_conda -c conda-forge python==%PY_CONDITION%
+  - cmd: conda create -n jupyter_conda -c conda-forge %PY_CONDITION%
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
   - cmd: conda activate jupyter_conda
