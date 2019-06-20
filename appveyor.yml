@@ -35,7 +35,8 @@ install:
 
   # this installs the appropriate Miniconda (Py2/Py3, 32/64 bit)
   - ps: .\.continous-integration\install-miniconda.ps1
-  - cmd: SET PATH=%PYTHON%;%PYTHON%\Scripts;%PYTHON%\Library\bin;%PATH%
+  - cmd: CALL "%PYTHON%\Scripts\activate.bat"
+  # - cmd: SET PATH=%PYTHON%;%PYTHON%\Scripts;%PYTHON%\Library\bin;%PATH%
 
   - cmd: conda config --set show_channel_urls true --set always_yes yes --set changeps1 no
   - cmd: conda update --quiet conda
@@ -53,4 +54,6 @@ install:
 build: off
 
 test_script:
+  - cmd: CALL "%PYTHON%\Scripts\activate.bat"
+  - cmd: conda activate jupyter_conda
   - cmd: npm run test
