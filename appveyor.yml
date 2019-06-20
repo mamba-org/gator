@@ -12,7 +12,7 @@ environment:
     # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
     # Not sure how to resolve this, but maybe we should be tracking the VS version in the build string anyway?
     - PYTHON: "C:\\Python34_64"
-      PYTHON_VERSION: "3.6"
+      PY_CONDITION: "python >=3.6,<3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "36"
 
@@ -42,10 +42,10 @@ install:
   - cmd: conda update --yes --quiet conda
   - cmd: set PYTHONUNBUFFERED=1
   - cmd: conda info -a
-  - cmd: conda create -n jupyter_conda python==%PYTHON_VERSION%
+  - cmd: conda create -n jupyter_conda -c conda-forge python==%PY_CONDITION%
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
   - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
-  - cmd: activate jupyter_conda
+  - cmd: conda activate jupyter_conda
   - cmd: npm install
   # The following will install and enable the extension
   - cmd: pip install .
