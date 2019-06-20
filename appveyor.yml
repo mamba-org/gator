@@ -57,4 +57,7 @@ build: off
 test_script:
   - cmd: CALL "%PYTHON%\Scripts\activate.bat"
   - cmd: conda activate jupyter_conda
+  - cmd: python --version
+  - cmd: echo %PATH%
+  - cmd: echo %PYTHONPATH%
   - cmd: npm run test
