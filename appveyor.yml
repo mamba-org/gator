@@ -58,7 +58,7 @@ install:
   - mkdir C:\Users\appveyor\.conda
   - call %MINICONDA%\Scripts\conda.exe install conda --yes
   - call %MINICONDA%\Scripts\activate.bat
-  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled
+  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled --set always_copy yes
   - conda install -v "%PY_CONDITION%"
   - conda install --file requirements.txt
   - conda install --file requirements_dev.txt
