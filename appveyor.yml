@@ -7,6 +7,11 @@ environment:
 
   # Workaround for https://github.com/conda/conda-build/issues/636
   PYTHONIOENCODING: "UTF-8"
+  
+  PYTHONUNBUFFERED: 1
+  PYTHONIOENCODING: utf-8
+  PYTHONLEGACYWINDOWSSTDIO: 1
+  MINICONDA: C:\\Miniconda3-x64
 
   matrix:
     # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
@@ -35,29 +40,38 @@ install:
       throw "There are newer queued builds for this pull request, failing early." }
 
   # this installs the appropriate Miniconda (Py2/Py3, 32/64 bit)
-  - ps: .\.continous-integration\install-miniconda.ps1
-  - cmd: CALL "%PYTHON%\Scripts\activate.bat"
+  # - ps: .\.continous-integration\install-miniconda.ps1
+  # - cmd: CALL "%PYTHON%\Scripts\activate.bat"
   # - cmd: SET PATH=%PYTHON%;%PYTHON%\Scripts;%PYTHON%\Library\bin;%PATH%
 
-  - cmd: conda config --set show_channel_urls true --set always_yes yes --set changeps1 no
-  - cmd: conda update --quiet conda
-  - cmd: set PYTHONUNBUFFERED=1
-  - cmd: conda info -a
-  - cmd: conda create -n jupyter_conda -c conda-forge "%PY_CONDITION%"
-  - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
-  - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
-  - cmd: activate jupyter_conda
-  - cmd: npm install
+  # - cmd: conda config --set show_channel_urls true --set always_yes yes --set changeps1 no
+  # - cmd: conda update --quiet conda
+  # - cmd: set PYTHONUNBUFFERED=1
+  # - cmd: conda info -a
+  # - cmd: conda create -n jupyter_conda -c conda-forge "%PY_CONDITION%"
+  # - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
+  # - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
+  # - cmd: activate jupyter_conda
+  # - cmd: npm install
   # The following will install and enable the extension
-  - cmd: pip install .
+  # - cmd: pip install .
+
+  - mkdir C:\Users\appveyor\.conda
+  - call %MINICONDA%\Scripts\conda.exe install conda --yes
+  - call %MINICONDA%\Scripts\activate.bat
+  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled
+  - conda install -v "%PY_CONDITION%"
+  - conda install --file requirements.txt
+  - conda install --file requirements_dev.txt
+  - npm install
+  # The following will install and enable the extension
+  - pip install .
 
 # Skip .NET project specific build phase.
 build: off
 
 test_script:
-  - cmd: CALL "%PYTHON%\Scripts\activate.bat"
-  - cmd: conda activate jupyter_conda
-  - cmd: python --version
-  - cmd: echo %PATH%
-  - cmd: echo %PYTHONPATH%
-  - cmd: npm run test
+  # - cmd: CALL "%PYTHON%\Scripts\activate.bat"
+  # - cmd: conda activate jupyter_conda
+  # - cmd: npm run test
+  - npm run test
