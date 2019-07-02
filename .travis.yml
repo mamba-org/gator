@@ -7,11 +7,10 @@ branches:
     - master
 
 env:
-  # test both new (conda>=4.4) and old-style conda installs
-  - PYTHON_VERSION = 2.7
-  - PYTHON_VERSION = 3.5
-  - PYTHON_VERSION = 3.6
-  - PYTHON_VERSION = 3.6 CONDA_4_4_STYLE=true
+  # - PYTHON_VERSION=2.7
+  # - PYTHON_VERSION=3.5
+  - PYTHON_VERSION=3.6
+  - PYTHON_VERSION=3.7
 
 install:
   - sudo apt-get update
@@ -22,31 +21,20 @@ install:
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
-  - if [ "$CONDA_4_4_STYLE" = "true" ]; then
-    . $HOME/miniconda/etc/profile.d/conda.sh;
-    else
-    export PATH="$HOME/miniconda/bin:$PATH";
-    fi
+  - . $HOME/miniconda/etc/profile.d/conda.sh;
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes --quiet conda
-  - conda install -n root conda conda-env anaconda-client
   - conda info -a
-  - conda create -n jupyter_conda python=$PYTHON_VERSION
-  - conda install -n jupyter_conda -c conda-forge --file requirements.txt
-  - if [ "$CONDA_4_4_STYLE" = true ]; then
-    conda activate jupyter_conda;
-    else
-    source activate jupyter_conda;
-    fi
+  - conda activate
+  - conda install python=$PYTHON_VERSION
+  - conda install -c defaults -c conda-forge --file requirements.txt
+  - conda install -c defaults -c conda-forge --file requirements_dev.txt
   - pip install python-coveralls
   - npm install
+  - pip install .
 
 script:
-  - pip install -e .
-  - jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
-  - jupyter nbextension enable jupyter_conda --py --sys-prefix
-  - jupyter serverextension enable jupyter_conda --py --sys-prefix
   - npm run test
 
 after_success:
