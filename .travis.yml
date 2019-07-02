@@ -24,20 +24,15 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes --quiet conda
-  - conda install -n root conda conda-env anaconda-client
   - conda info -a
-  - conda create -n jupyter_conda python=$PYTHON_VERSION
-  - conda install -n jupyter_conda -c conda-forge --file requirements.txt
-  - conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
-  - conda activate jupyter_conda
+  - conda install python=$PYTHON_VERSION
+  - conda install -c defaults -c conda-forge --file requirements.txt
+  - conda install -c defaults -c conda-forge --file requirements_dev.txt
   - pip install python-coveralls
   - npm install
+  - pip install .
 
 script:
-  - pip install -e .
-  - jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
-  - jupyter nbextension enable jupyter_conda --py --sys-prefix
-  - jupyter serverextension enable jupyter_conda --py --sys-prefix
   - npm run test
 
 after_success:
