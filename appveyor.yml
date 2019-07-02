@@ -41,9 +41,9 @@ install:
   - call %MINICONDA%\Scripts\conda.exe install conda --yes
   - call %MINICONDA%\Scripts\activate.bat
   - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled
-  - conda create -n jupyter_conda -c conda-forge "python=%PYTHON_VERSION%"
-  - conda install -n jupyter_conda -c conda-forge --file requirements.txt
-  - conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
+  - conda create -n jupyter_conda -c defaults -c conda-forge "python=%PYTHON_VERSION%"
+  - conda install -n jupyter_conda -c defaults -c conda-forge --file requirements.txt
+  - conda install -n jupyter_conda -c defaults -c conda-forge --file requirements_dev.txt
   - call %MINICONDA%\Scripts\activate.bat jupyter_conda
   - npm install
   # The following will install and enable the extension
