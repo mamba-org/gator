@@ -34,7 +34,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
   }
 
   let name = <span>{props.name}</span>;
-  if (props.home.length > 0) {
+  if (props.home && props.home.length > 0) {
     // TODO possible enhancement - open in a JupyterLab Panel
     name = (
       <a href={props.home} target="_blank">

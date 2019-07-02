@@ -1,15 +1,14 @@
 import {
   ILayoutRestorer,
-  JupyterLab,
-  JupyterLabPlugin
+  JupyterFrontEnd,
+  JupyterFrontEndPlugin
 } from "@jupyterlab/application";
 import {
   ICommandPalette,
-  InstanceTracker,
+  WidgetTracker,
   MainAreaWidget
 } from "@jupyterlab/apputils";
 import { IMainMenu } from "@jupyterlab/mainmenu";
-import { JSONExt } from "@phosphor/coreutils";
 import { classes, style } from "typestyle";
 import "../style/index.css";
 import { GlobalStyle } from "./components/globalStyles";
@@ -19,7 +18,7 @@ import { CondaEnvironments, IEnvironmentManager } from "./services";
 export { IEnvironmentManager, Conda } from "./services";
 
 function activateCondaEnv(
-  app: JupyterLab,
+  app: JupyterFrontEnd,
   palette: ICommandPalette,
   menu: IMainMenu,
   restorer: ILayoutRestorer
@@ -27,21 +26,9 @@ function activateCondaEnv(
   const { commands, shell } = app;
   const plugin_namespace = "conda-env";
   const model = new CondaEnvironments();
-  let condaWidget: CondaEnvWidget;
+  let widget: MainAreaWidget<CondaEnvWidget>;
 
   const command: string = "condaenv:open-ui";
-
-  // Track and restore the widget state
-  let tracker = new InstanceTracker<MainAreaWidget<CondaEnvWidget>>({
-    namespace: plugin_namespace
-  });
-
-  // Handle state restoration.
-  restorer.restore(tracker, {
-    command,
-    args: () => JSONExt.emptyObject,
-    name: () => plugin_namespace
-  });
 
   commands.addCommand(command, {
     label: "Conda Packages Manager",
@@ -51,21 +38,40 @@ function activateCondaEnv(
         return;
       }
 
-      condaWidget = new CondaEnvWidget(-1, -1, model);
-      condaWidget.addClass("jp-NbConda");
-      condaWidget.id = plugin_namespace;
-      condaWidget.title.label = "Packages";
-      condaWidget.title.caption = "Conda Packages Manager";
-      condaWidget.title.iconClass = Style.TabIcon;
+      if (!widget) {
+        const content = new CondaEnvWidget(-1, -1, model);
+        widget = new MainAreaWidget({ content });
+        widget.addClass("jp-NbConda");
+        widget.id = plugin_namespace;
+        widget.title.label = "Packages";
+        widget.title.caption = "Conda Packages Manager";
+        widget.title.iconClass = Style.TabIcon;
+        widget.title.closable = true;
+      }
 
-      let widget = new MainAreaWidget({ content: condaWidget });
-      tracker.add(widget);
-      shell.addToMainArea(widget);
+      if (!tracker.has(widget)) {
+        tracker.add(widget);
+      }
+      if (!widget.isAttached) {
+        shell.add(widget, "main");
+      }
+      shell.activateById(widget.id);
     }
   });
 
   // Add command to command palette
   palette.addItem({ command, category: "Settings" });
+
+  // Track and restore the widget state
+  let tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
+    namespace: plugin_namespace
+  });
+
+  // Handle state restoration.
+  restorer.restore(tracker, {
+    command,
+    name: () => plugin_namespace
+  });
 
   // Add command to settings menu
   menu.settingsMenu.addGroup([{ command: command }], 999);
@@ -76,7 +82,7 @@ function activateCondaEnv(
 /**
  * Initialization data for the jupyterlab_conda extension.
  */
-const extension: JupyterLabPlugin<IEnvironmentManager> = {
+const extension: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,

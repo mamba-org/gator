@@ -394,9 +394,9 @@ export class CondaPkgPanel extends React.Component<
     if (this.state.searchTerm === null) {
       searchPkgs = filteredPkgs;
     } else {
-      Object.keys(filteredPkgs).forEach(name => {
-        if (name.indexOf(this.state.searchTerm) > -1) {
-          searchPkgs[name] = filteredPkgs[name];
+      filteredPkgs.forEach(pkg => {
+        if (pkg.name.indexOf(this.state.searchTerm) > -1) {
+          searchPkgs.push(pkg);
         }
       });
     }
@@ -405,7 +405,7 @@ export class CondaPkgPanel extends React.Component<
       <div className={Style.Panel}>
         <CondaPkgToolBar
           category={this.state.activeFilter}
-          hasSelection={Object.keys(this.state.selected).length > 0}
+          hasSelection={this.state.selected.length > 0}
           searchTerm={this.state.searchTerm}
           onCategoryChanged={this.handleCategoryChanged}
           onSearch={this.handleSearch}
@@ -413,7 +413,7 @@ export class CondaPkgPanel extends React.Component<
           onCancel={this.handleCancel}
         />
         <CondaPkgList
-          height={this.props.height - 29} // Remove height for top and bottom elements
+          height={this.props.height - 40} // Remove height for top and bottom elements
           isPending={this.state.isLoading}
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
