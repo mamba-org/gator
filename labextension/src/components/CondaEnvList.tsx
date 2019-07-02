@@ -97,7 +97,7 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
               : "jp-NbConda-pending"
           }
         />
-        <div className={Style.ListEnvs(this.props.height - 29 - 32)}>
+        <div className={Style.ListEnvs(this.props.height - 40 - 32)}>
           {listItems}
         </div>
       </div>
@@ -120,7 +120,7 @@ namespace Style {
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: "29px" //Toolbar height to align with package toolbar
+    height: 40 //Toolbar height to align with package toolbar
   });
 
   export const NoGrow = style({

@@ -5,7 +5,7 @@
 
 .jp-NbConda-ToolbarPackages {
   align-items: center;
-  height: 29px;
+  height: 40px;
 }
 
 .jp-NbConda-ToolbarPackages > .jp-Toolbar-item > .jp-select-wrapper {
@@ -41,6 +41,20 @@
 
 .jp-NbConda-ToolbarPackages > .jp-Toolbar-item > button.jp-mod-reject:hover {
   background: var(--md-grey-400);
+}
+
+.jp-NbConda-search-wrapper input {
+  background: transparent;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color0);
+  line-height: var(--jp-private-commandpalette-search-height);
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+.jp-NbConda-search-wrapper input:focus {
+  box-shadow: inset 0 0 0 1px var(--jp-input-active-box-shadow-color),
+    inset 0 0 0 3px var(--jp-input-active-box-shadow-color);
 }
 
 button.jp-button-hide {
