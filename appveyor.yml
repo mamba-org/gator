@@ -10,16 +10,14 @@ environment:
   
   PYTHONUNBUFFERED: 1
   PYTHONLEGACYWINDOWSSTDIO: 1
-  MINICONDA: C:\\Miniconda3-x64
 
   matrix:
-    # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
-    # Not sure how to resolve this, but maybe we should be tracking the VS version in the build string anyway?
-    - PYTHON: "C:\\Python34_64"
-      PYTHON_VERSION: "3.6"
-      PY_CONDITION: "python>=3.6,<3.7"
+    - PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "64"
-      CONDA_PY: "36"
+    # - PYTHON_VERSION: "3.6"
+    #  PYTHON_ARCH: "64"
+    # - PYTHON_VERSION: "3.7"
+    #  PYTHON_ARCH: "64"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
@@ -37,31 +35,16 @@ install:
       https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
       Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
       throw "There are newer queued builds for this pull request, failing early." }
-
-  # this installs the appropriate Miniconda (Py2/Py3, 32/64 bit)
-  # - ps: .\.continous-integration\install-miniconda.ps1
-  # - cmd: CALL "%PYTHON%\Scripts\activate.bat"
-  # - cmd: SET PATH=%PYTHON%;%PYTHON%\Scripts;%PYTHON%\Library\bin;%PATH%
-
-  # - cmd: conda config --set show_channel_urls true --set always_yes yes --set changeps1 no
-  # - cmd: conda update --quiet conda
-  # - cmd: set PYTHONUNBUFFERED=1
-  # - cmd: conda info -a
-  # - cmd: conda create -n jupyter_conda -c conda-forge "%PY_CONDITION%"
-  # - cmd: conda install -n jupyter_conda -c conda-forge --file requirements.txt
-  # - cmd: conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
-  # - cmd: activate jupyter_conda
-  # - cmd: npm install
-  # The following will install and enable the extension
-  # - cmd: pip install .
-
+  # Use the pre-installed Miniconda for the desired arch
+  - if %TARGET_ARCH% EQ 86 (set MINICONDA=C:\Miniconda) ELSE (set MINICONDA=C:\Miniconda-x64)
   - mkdir C:\Users\appveyor\.conda
   - call %MINICONDA%\Scripts\conda.exe install conda --yes
   - call %MINICONDA%\Scripts\activate.bat
-  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled --set always_copy yes
-  - conda install -v "%PY_CONDITION%"
-  - conda install --file requirements.txt
-  - conda install --file requirements_dev.txt
+  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled
+  - conda create -n jupyter_conda -c conda-forge "python=%PYTHON_VERSION%"
+  - conda install -n jupyter_conda -c conda-forge --file requirements.txt
+  - conda install -n jupyter_conda -c conda-forge --file requirements_dev.txt
+  - call %MINICONDA%\Scripts\activate.bat jupyter_conda
   - npm install
   # The following will install and enable the extension
   - pip install .
@@ -70,7 +53,4 @@ install:
 build: off
 
 test_script:
-  # - cmd: CALL "%PYTHON%\Scripts\activate.bat"
-  # - cmd: conda activate jupyter_conda
-  # - cmd: npm run test
   - npm run test
