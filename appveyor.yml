@@ -36,7 +36,7 @@ install:
       Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
       throw "There are newer queued builds for this pull request, failing early." }
   # Use the pre-installed Miniconda for the desired arch
-  - if %TARGET_ARCH% EQ 86 (set MINICONDA=C:\Miniconda) ELSE (set MINICONDA=C:\Miniconda-x64)
+  - IF %PYTHON_ARCH% EQU 86 (set MINICONDA=C:\Miniconda) ELSE (set MINICONDA=C:\Miniconda-x64)
   - mkdir C:\Users\appveyor\.conda
   - call %MINICONDA%\Scripts\conda.exe install conda --yes
   - call %MINICONDA%\Scripts\activate.bat
