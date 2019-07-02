@@ -12,10 +12,10 @@ environment:
   PYTHONLEGACYWINDOWSSTDIO: 1
 
   matrix:
-    - PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "64"
-    # - PYTHON_VERSION: "3.6"
+    # - PYTHON_VERSION: "3.5"
     #  PYTHON_ARCH: "64"
+    - PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
     # - PYTHON_VERSION: "3.7"
     #  PYTHON_ARCH: "64"
 
@@ -40,8 +40,8 @@ install:
   - mkdir C:\Users\appveyor\.conda
   - call %MINICONDA%\Scripts\conda.exe install conda --yes
   - call %MINICONDA%\Scripts\activate.bat
-  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled
-  - conda install -c defaults -c conda-forge "python=%PYTHON_VERSION%"
+  - conda config --set always_yes yes --set changeps1 no --set safety_checks disabled --set shortcuts no
+  - conda install "python=%PYTHON_VERSION%"
   - conda install -c defaults -c conda-forge --file requirements.txt
   - conda install -c defaults -c conda-forge --file requirements_dev.txt
   - npm install
