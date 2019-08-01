@@ -1,15 +1,33 @@
 import * as React from "react";
 import { CondaPkgItem } from "./CondaPkgItem";
-import { Package } from "../services";
+import { Conda } from "../services";
 import { style } from "typestyle";
 
+/**
+ * Package list title component properties
+ */
 export interface ITitleItemProps {
+  /**
+   * Title
+   */
   title: string;
+  /**
+   * Associated sorted field
+   */
   field: TitleItem.SortField;
+  /**
+   * Sorted status
+   */
   status: TitleItem.SortStatus;
+  /**
+   * Update sorting column
+   */
   updateSort: (name: TitleItem.SortField, status: TitleItem.SortStatus) => void;
 }
 
+/**
+ * Package list title component
+ */
 export class TitleItem extends React.Component<ITitleItemProps> {
   render() {
     return (
@@ -46,38 +64,67 @@ export namespace TitleItem {
   }
 }
 
+/**
+ * Package list component properties
+ */
 export interface IPkgListProps {
+  /**
+   * Component height
+   */
   height: number;
+  /**
+   * Is the list loading?
+   */
   isPending: boolean;
-  packages: Package.IPackages;
-  selection: { [key: string]: Package.PkgStatus };
+  /**
+   * Conda package list
+   */
+  packages: Conda.IPackage[];
+  /**
+   * Selected conda package
+   */
+  selection: Array<{ index: number; status: Conda.PkgStatus }>;
+  /**
+   * Field used for sorting
+   */
   sortedBy: TitleItem.SortField;
+  /**
+   * Sort direction
+   */
   sortDirection: TitleItem.SortStatus;
+  /**
+   * Field sorting handler
+   */
   onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void;
-  onPkgClick: (name: string) => void;
+  /**
+   * Package item click handler
+   */
+  onPkgClick: (index: number) => void;
 }
 
-/** Top level React component for widget */
+/** React component for the package list */
 export class CondaPkgList extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
-    packages: {},
-    selection: {}
+    packages: [],
+    selection: []
   };
 
-  constructor(props) {
+  constructor(props: IPkgListProps) {
     super(props);
   }
 
   render() {
-    const listItems = Object.keys(this.props.packages).map(name => {
-      let pkg = this.props.packages[name];
-      let status =
-        name in this.props.selection ? this.props.selection[name] : pkg.status;
+    const listItems = this.props.packages.map((pkg, index) => {
+      let selection = this.props.selection.filter(
+        selected => selected.index === index
+      );
+      let status = selection[0] ? selection[0].status : pkg.status;
 
       return (
         <CondaPkgItem
           name={pkg.name}
-          key={pkg.name}
+          index={index}
+          key={index}
           version={pkg.version}
           build_number={pkg.build_number}
           build_string={pkg.build_string}

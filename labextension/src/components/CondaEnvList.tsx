@@ -1,22 +1,55 @@
 import * as React from "react";
 import { style } from "typestyle";
 
-import { Environments } from "../services";
+import { Conda } from "../services";
 
 import { CondaEnvItem } from "./CondaEnvItem";
 import { CondaEnvToolBar } from "./CondaEnvToolBar";
 
-export interface IEnvListProps extends Environments.IEnvironments {
+/**
+ * Environment list properties
+ */
+export interface IEnvListProps {
+  /**
+   * Component height
+   */
   height: number;
+  /**
+   * Is the environment list loading?
+   */
   isPending: boolean;
-  environments: Array<Environments.IEnvironment>;
+  /**
+   * Environment list
+   */
+  environments: Array<Conda.IEnvironment>;
+  /**
+   * Currently selected environment
+   */
   selected: string;
-  onSelectedChange: (name: string) => void;
-  onCreate();
-  onClone();
-  onImport();
-  onExport();
-  onRemove();
+  /**
+   * Environment selection handler
+   */
+  onSelectedChange(name: string): void;
+  /**
+   * Environment creation handler
+   */
+  onCreate(): void;
+  /**
+   * Environment clone handler
+   */
+  onClone(): void;
+  /**
+   * Environment import handler
+   */
+  onImport(): void;
+  /**
+   * Environment export handler
+   */
+  onExport(): void;
+  /**
+   * Environment remove handler
+   */
+  onRemove(): void;
 }
 
 /** React component for the environment list */
@@ -64,7 +97,7 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
               : "jp-NbConda-pending"
           }
         />
-        <div className={Style.ListEnvs(this.props.height - 29 - 32)}>
+        <div className={Style.ListEnvs(this.props.height - 40 - 32)}>
           {listItems}
         </div>
       </div>
@@ -87,7 +120,7 @@ namespace Style {
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: "29px" //Toolbar height to align with package toolbar
+    height: 40 //Toolbar height to align with package toolbar
   });
 
   export const NoGrow = style({

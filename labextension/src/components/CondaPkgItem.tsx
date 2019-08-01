@@ -1,25 +1,40 @@
 import * as React from "react";
-import { Package } from "../services";
+import { Conda } from "../services";
 import { PkgListStyle } from "./CondaPkgList";
 import { style, classes } from "typestyle";
 import { GlobalStyle } from "./globalStyles";
 
-export interface PkgItemProps extends Package.IPackage {
-  onClick: (name: string) => void;
+/**
+ * Package item properties
+ */
+export interface PkgItemProps extends Conda.IPackage {
+  /**
+   * Package item index
+   */
+  index: number;
+  /**
+   * Package item click handler
+   */
+  onClick: (index: number) => void;
 }
 
+/**
+ * Package item React component
+ *
+ * @param props Component properties
+ */
 export const CondaPkgItem = (props: PkgItemProps) => {
   let status = <i className={Style.StatusAvailable} />;
-  if (props.status === Package.PkgStatus.Installed) {
+  if (props.status === Conda.PkgStatus.Installed) {
     status = <i className={Style.StatusInstalled} />;
-  } else if (props.status === Package.PkgStatus.Update) {
+  } else if (props.status === Conda.PkgStatus.Update) {
     status = <i className={Style.StatusUpdate} />;
-  } else if (props.status === Package.PkgStatus.Remove) {
+  } else if (props.status === Conda.PkgStatus.Remove) {
     status = <i className={Style.StatusRemove} />;
   }
 
   let name = <span>{props.name}</span>;
-  if (props.home.length > 0) {
+  if (props.home && props.home.length > 0) {
     // TODO possible enhancement - open in a JupyterLab Panel
     name = (
       <a href={props.home} target="_blank">
@@ -31,7 +46,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
   return (
     <tr
       className={classes(PkgListStyle.Row, Style.Item)}
-      onClick={() => props.onClick(props.name)}
+      onClick={() => props.onClick(props.index)}
     >
       <td className={PkgListStyle.CellStatus}>{status}</td>
       <td className={PkgListStyle.CellName}>{name}</td>

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { InputGroup } from "@jupyterlab/ui-components";
 import { GlobalStyle } from "./globalStyles";
 import { classes, style } from "typestyle/lib";
 
@@ -16,8 +17,8 @@ export interface CondaPkgToolBarProps {
   searchTerm: string;
   onCategoryChanged: (event) => void;
   onSearch: (event) => void;
-  onApply();
-  onCancel();
+  onApply: () => void;
+  onCancel: () => void;
 }
 
 export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
@@ -39,13 +40,14 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
         </div>
       </div>
       <div className="p-Widget jp-Toolbar-item">
-        <div className={Style.Search}>
-          <input
+        <div className={classes("jp-NbConda-search-wrapper", Style.Search)}>
+          <InputGroup
             className={Style.SearchInput}
-            type="search"
-            onChange={props.onSearch}
+            type="text"
             placeholder="Search Packages"
+            onChange={props.onSearch}
             value={props.searchTerm}
+            rightIcon="search"
           />
         </div>
       </div>
@@ -81,48 +83,25 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
 namespace Style {
   export const Toolbar = style({
     alignItems: "center",
-    height: 29
+    height: 40
   });
 
   export const SearchInput = style({
-    background: "transparent",
-    width: "100%",
-    float: "left",
-    border: "1px solid var(--jp-border-color0)",
-    outline: "none",
-    fontSize: "var(--jp-ui-font-size1)",
-    color: "var(--jp-ui-font-color0)",
-    lineHeight: "20px",
-
-    $nest: {
-      "&:focus": {
-        border: "var(--jp-border-width) solid var(--jp-brand-color1)",
-        boxShadow: "inset 0 0 4px var(--jp-brand-color2)"
-      }
-    }
+    // background: "transparent",
+    // fontSize: "var(--jp-ui-font-size1)",
+    // color: "var(--jp-ui-font-color0)",
+    // // lineHeight: "var(--jp-private-commandpalette-search-height)",
+    // boxSizing: "border-box",
+    // borderRadius: 0,
+    // $nest: {
+    //   "&:focus": {
+    //     boxShadow: "inset 0 0 0 1px var(--jp-input-active-box-shadow-color), inset 0 0 0 3px var(--jp-input-active-box-shadow-color)"
+    //   }
+    // }
   });
 
   export const Search = style({
-    overflow: "overlay",
-    height: "100%",
-    backgroundColor: "var(--jp-input-active-background)",
-
-    $nest: {
-      "&::after": {
-        content: '" "',
-        color: "var(--jp-ui-inverse-font-color1)",
-        backgroundColor: "var(--jp-brand-color1)",
-        position: "absolute",
-        right: "0px",
-        height: "100%",
-        width: "12px",
-        padding: "0px 12px",
-        backgroundImage: "var(--jp-icon-search-white)",
-        backgroundSize: "20px",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center"
-      }
-    }
+    padding: "4px"
   });
 
   export const Button = classes(
