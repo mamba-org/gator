@@ -5,25 +5,92 @@
 """
 # pylint: disable=W0221
 
-# Tornado get and post handlers often have different args from their base class
-# methods.
-
+import collections
 import json
-import os
+import logging
 import re
-import datetime
-import urllib
-import typing as tp
+from typing import Any, Callable
 
-from notebook.utils import url_path_join as ujoin
-from notebook.base.handlers import APIHandler
-from tornado import gen, httputil, web
+import tornado
 
+from .server import APIHandler, url_path_join
 from .envmanager import EnvManager
 
+# logger = logging.getLogger(__name__)
+# logger.parent = logging.getLevelName("tornado")
+
 NS = r"conda"
-TIMEOUT = 900  # Time out in seconds to clear request caching
-MAXPAYLOAD = 100  # Maximal number of packages to return from a request
+
+
+class ActionsStack:
+    """Process queue of asynchronous task one at a time."""
+
+    __last_index = 0  # type: int
+    __queue = collections.deque()  # type: collections.deque
+    __results = {}  # type: Dict[int, Any]
+
+    def __init__(self):
+        tornado.ioloop.IOLoop.current().spawn_callback(ActionsStack.__worker)
+    
+    def put(self, task: Callable, *args) -> int:
+        """Add a asynchronous task into the queue.
+        
+        Args:
+            task (Callable): Asynchronous task
+            *args : arguments of the task
+
+        Returns:
+            int: Task id
+        """
+        ActionsStack.__last_index += 1
+        idx = ActionsStack.__last_index
+        ActionsStack.__queue.append((idx, task, args))
+        ActionsStack.__results[idx] = None  # Task is pending
+        return idx
+
+    def get(self, idx: int) -> Any:
+        """Get the task `idx` results or None.
+        
+        Args:
+            idx (int): Task index
+        
+        Returns:
+            Any: None if the task is pending else its result
+
+        Raises:
+            ValueError: If the task `idx` does not exists
+        """
+        if idx not in ActionsStack.__results:
+            raise ValueError("Task {} does not exists.".format(idx))
+        r = ActionsStack.__results[idx] 
+        if r is not None:  # Remove the result
+            ActionsStack.__results.pop(idx)
+        return r
+
+    @staticmethod
+    @tornado.gen.coroutine
+    def __worker():
+        while True:
+            try:
+                t = ActionsStack.__queue.popleft()
+                if t is None:
+                    return
+
+                idx, task, args = t
+                try:
+                    # logger.debug("Will execute task {}.".format(idx))
+                    result = yield task(*args)
+                except Exception as e:
+                    result = {"error": str(e)}
+                finally:
+                    # logger.debug("Has executed task {}.".format(idx))
+                    ActionsStack.__results[idx] = result
+            except IndexError:
+                yield tornado.gen.moment  # Queue is empty
+
+    def __del__(self):
+        # Stop the worker
+        ActionsStack.__queue.append(None)
 
 
 class EnvBaseHandler(APIHandler):
@@ -31,6 +98,11 @@ class EnvBaseHandler(APIHandler):
     Mixin for an env manager. Just maintains a reference to the
     'env_manager' which implements all of the conda functions.
     """
+
+    _stack = None  # type: ActionsStack
+
+    def initialize(self):
+        EnvBaseHandler._stack = ActionsStack()        
 
     @property
     def env_manager(self) -> EnvManager:
@@ -43,8 +115,8 @@ class MainEnvHandler(EnvBaseHandler):
     Handler for `GET /environments` which lists the environments.
     """
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def get(self):
         list_envs = yield self.env_manager.list_envs()
         if "error" in list_envs:
@@ -58,8 +130,8 @@ class EnvHandler(EnvBaseHandler):
     the packages in the specified environment.
     """
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def get(self, env: str):
         packages = yield self.env_manager.env_packages(env)
         if "error" in packages:
@@ -73,8 +145,8 @@ class ChannelsHandler(EnvBaseHandler):
     the channels in the specified environment.
     """
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def get(self, env: str):
         channels = yield self.env_manager.env_channels(env)
         if "error" in channels:
@@ -90,8 +162,8 @@ class EnvActionHandler(EnvBaseHandler):
     which performs the requested action on the environment.
     """
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def get(self, env: str, action: str):
         if action != "export":
             self.set_status(404)
@@ -115,10 +187,8 @@ class EnvActionHandler(EnvBaseHandler):
             self.set_status(500)
         self.finish(export_env)
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
     def post(self, env: str, action: str):
-        status = None
 
         content_type = self.request.headers.get("Content-Type", None)
         if content_type == "application/json":
@@ -134,28 +204,21 @@ class EnvActionHandler(EnvBaseHandler):
             file_name = self.get_argument("filename", default=None)
 
         if action == "delete":
-            data = yield self.env_manager.delete_env(env)
+            idx = self._stack.put(self.env_manager.delete_env, env)
         elif action == "clone":
             if not name:
                 name = "{}-copy".format(env)
-            data = yield self.env_manager.clone_env(env, name)
-            status = 201  # CREATED
+            idx = self._stack.put(self.env_manager.clone_env, env, name)
         elif action == "create":
-            data = yield self.env_manager.create_env(env, env_type)
-            status = 201  # CREATED
+            idx = self._stack.put(self.env_manager.create_env, env, env_type)
         elif action == "import":
             if file_name:
-                data = yield self.env_manager.import_env(env, file_content, file_name)
+                idx = self._stack.put(self.env_manager.import_env, env, file_content, file_name)
             else:
-                data = yield self.env_manager.import_env(env, file_content)
-            status = 201  # CREATED
+                idx = self._stack.put(self.env_manager.import_env, env, file_content)
 
-        # catch-all ok
-        if "error" in data:
-            status = 500
-
-        self.set_status(status or 200)
-        self.finish(json.dumps(data))
+        self.set_status(202)
+        self.set_header("Location", "/tasks/{}".format(idx))
 
 
 class EnvPkgActionHandler(EnvBaseHandler):
@@ -166,8 +229,8 @@ class EnvPkgActionHandler(EnvBaseHandler):
     environment.
     """
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def post(self, env: str, action: str):
         self.log.debug("req body: %s", self.request.body)
         content_type = self.request.headers.get("Content-Type", None)
@@ -227,33 +290,17 @@ class AvailablePackagesHandler(EnvBaseHandler):
     `$next` informing more packages are available.
     """
 
-    timeout = datetime.datetime(datetime.MINYEAR, 1, 1)
-
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def get(self, env: str):
-        if (
-            datetime.datetime.now() - AvailablePackagesHandler.timeout
-        ).total_seconds() > TIMEOUT:
-            self.env_manager.list_available.cache_clear()
-            AvailablePackagesHandler.timeout = datetime.datetime.now()
         data = yield self.env_manager.list_available()
 
         if "error" in data:
             self.set_status(500)
             self.finish(json.dumps(data))
             return
-
-        skip = int(self.get_query_argument("$skip", "0"))
-        subdata = data[skip : MAXPAYLOAD + skip]
-        payload = {"packages": subdata}
-        if len(data) > MAXPAYLOAD + skip:
-            url = urllib.parse.urlparse(self.request.full_url())
-            args = urllib.parse.parse_qs(url.query)
-            args["$skip"] = MAXPAYLOAD + skip
-            raw_url = url.geturl().split('?', maxsplit=1)[0]
-            payload["$next"] = httputil.url_concat(raw_url, args)
-        self.finish(json.dumps(payload))
+            
+        self.finish(json.dumps({"packages": data}))
 
 
 class SearchHandler(EnvBaseHandler):
@@ -263,8 +310,8 @@ class SearchHandler(EnvBaseHandler):
     and the jupyter_conda UI doesn't call it.
     """
 
-    @web.authenticated
-    @gen.coroutine
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
     def get(self, env: str):
         q = self.get_argument("q")
         answer = yield self.env_manager.package_search(q)
@@ -273,6 +320,21 @@ class SearchHandler(EnvBaseHandler):
 
         self.finish(json.dumps(answer))
 
+
+class TaskHandler(EnvBaseHandler):
+
+    @tornado.web.authenticated
+    def get(self, index: int):
+        try:
+            r = EnvBaseHandler._stack.get(int(index))
+        except ValueError as err:       
+            raise tornado.web.HTTPError(404, message=str(err))
+        else:
+            if r is None:
+                self.set_status(202)
+            else:
+                self.set_status(200)
+                self.finish(tornado.escape.json_encode(r))
 
 # -----------------------------------------------------------------------------
 # URL to handler mappings
@@ -301,6 +363,7 @@ default_handlers = [
     (r"/environments/%s" % _env_regex, EnvHandler),
     (r"/packages/%s/available" % _env_regex, AvailablePackagesHandler),
     (r"/packages/%s/search" % _env_regex, SearchHandler),
+    (r"/tasks/%s"  % r"(?P<index>\d+)", TaskHandler)
 ]
 
 
@@ -312,6 +375,6 @@ def load_jupyter_server_extension(nbapp):
     base_url = webapp.settings["base_url"]
     webapp.add_handlers(
         ".*$",
-        [(ujoin(base_url, NS, pat), handler) for pat, handler in default_handlers],
+        [(url_path_join(base_url, NS, pat), handler) for pat, handler in default_handlers],
     )
     nbapp.log.info("[jupyter_conda] enabled")

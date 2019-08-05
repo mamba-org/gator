@@ -1,38 +1,27 @@
 import unittest
-from traitlets.config import Config
-from jupyter_conda.tests.utils import APITester, ServerTestBase, assert_http_error, url_path_join
+
+from jupyter_conda.tests.utils import APITester, ServerTest, assert_http_error, url_path_join
 
 
-class JupyterCondaAPI(APITester):
-    """Wrapper for nbconvert API calls."""
-
-    url = "conda"
-
-    def get(self, path, body=None, params=None):
-        return self._req("GET", path, body, params)
-
-    def post(self, path, body=None, params=None):
-        return self._req("POST", path, body, params)
-
-    def envs(self):
-        return self.get(["environments"]).json()
-
-
-class JupyterCondaAPITest(ServerTestBase):
-    # Force extension enabling - Disabled by parent class otherwise
-    config = Config({"NotebookApp": {"nbserver_extensions": {"jupyter_conda": True}}})
+class JupyterCondaAPITest(ServerTest):
 
     def setUp(self):
         super(JupyterCondaAPITest, self).setUp()
-        self.conda_api = JupyterCondaAPI(self.request)
         self.env_name = "_DELETE_ME_"
         self.pkg_name = "alabaster"
-        self.mk_env()
+        self.wait_for_task(self.mk_env)
 
     def tearDown(self):
-        self.rm_env()
-        self.rm_env(self.env_name + "-copy")
+        self.wait_for_task(self.rm_env)
+        self.wait_for_task(self.rm_env, self.env_name + "-copy")
         super(JupyterCondaAPITest, self).tearDown()
+
+    def wait_for_task(self, call, *args):
+        r = call(*args)
+        location = r.headers["Location"]
+        self.assertEqual(r.status_code, 202)
+        self.assertRegex(location, r"tasks/\d+")
+        return self.wait_task(location)
 
     def test_root(self):
         envs = self.conda_api.envs()
@@ -62,15 +51,26 @@ class JupyterCondaAPITest(ServerTestBase):
 
     def test_env_create_and_destroy(self):
         # Creating an existing environment does not induce error
-        self.assertEqual(self.mk_env().status_code, 201)
-        self.assertEqual(self.rm_env().status_code, 200)
-        self.assertEqual(self.mk_env().status_code, 201)
-        self.assertEqual(self.rm_env().status_code, 200)
+        response = self.wait_for_task(self.mk_env)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.wait_for_task(self.rm_env)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.wait_for_task(self.mk_env)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.wait_for_task(self.rm_env)
+        self.assertEqual(response.status_code, 200)
 
     def test_env_clone(self):
-        self.assertEqual(self.cp_env().status_code, 201)
-        self.assertEqual(self.rm_env(self.env_name + "-copy").status_code, 200)
-        self.rm_env()
+        response = self.wait_for_task(self.cp_env)
+        self.assertEqual(response.status_code, 200)
+        
+        
+        response = self.wait_for_task(self.rm_env, self.env_name + "-copy")
+        self.assertEqual(response.status_code, 200)
+        self.wait_for_task(self.rm_env)
 
     def test_env_nonsense(self):
         with assert_http_error(404):
