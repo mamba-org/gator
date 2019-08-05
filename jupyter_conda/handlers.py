@@ -263,20 +263,18 @@ class EnvPkgActionHandler(EnvBaseHandler):
             return
 
         if action == "install":
-            resp = yield self.env_manager.install_packages(env, packages)
+            idx = self._stack.put(self.env_manager.install_packages, env, packages)
         elif action == "develop":
-            resp = yield self.env_manager.develop_packages(env, packages)
+            idx = self._stack.put(self.env_manager.develop_packages, env, packages)
         elif action == "update":
-            resp = yield self.env_manager.update_packages(env, packages)
+            idx = self._stack.put(self.env_manager.update_packages, env, packages)
         elif action == "check":
-            resp = yield self.env_manager.check_update(env, packages)
+            idx = self._stack.put(self.env_manager.check_update, env, packages)
         elif action == "remove":
-            resp = yield self.env_manager.remove_packages(env, packages)
+            idx = self._stack.put(self.env_manager.remove_packages, env, packages)
 
-        if "error" in resp:
-            self.set_status(500)
-
-        self.finish(json.dumps(resp))
+        self.set_status(202)
+        self.set_header("Location", "/tasks/{}".format(idx))
 
 
 class AvailablePackagesHandler(EnvBaseHandler):
@@ -293,14 +291,19 @@ class AvailablePackagesHandler(EnvBaseHandler):
     @tornado.web.authenticated
     @tornado.gen.coroutine
     def get(self, env: str):
-        data = yield self.env_manager.list_available()
 
-        if "error" in data:
-            self.set_status(500)
-            self.finish(json.dumps(data))
-            return
-            
-        self.finish(json.dumps({"packages": data}))
+        @tornado.gen.coroutine
+        def f():
+            data = yield self.env_manager.list_available()
+            if "error" in data:
+                return data
+            else:
+                {"packages": data}
+
+        idx = self._stack.put(f)
+
+        self.set_status(202)
+        self.set_header("Location", "/tasks/{}".format(idx))
 
 
 class SearchHandler(EnvBaseHandler):
@@ -314,11 +317,10 @@ class SearchHandler(EnvBaseHandler):
     @tornado.gen.coroutine
     def get(self, env: str):
         q = self.get_argument("q")
-        answer = yield self.env_manager.package_search(q)
-        if "error" in answer:
-            self.set_status(500)
+        idx = self._stack.put(self.env_manager.package_search, q)
 
-        self.finish(json.dumps(answer))
+        self.set_status(202)
+        self.set_header("Location", "/tasks/{}".format(idx))
 
 
 class TaskHandler(EnvBaseHandler):
@@ -333,7 +335,10 @@ class TaskHandler(EnvBaseHandler):
             if r is None:
                 self.set_status(202)
             else:
-                self.set_status(200)
+                if "error" in r:
+                    self.set_status(500)
+                else:
+                    self.set_status(200)
                 self.finish(tornado.escape.json_encode(r))
 
 # -----------------------------------------------------------------------------
