@@ -1,6 +1,6 @@
 {
   "name": "jupyter_conda",
-  "version": "2.5.1",
+  "version": "3.0.0",
   "description": "Development tools for jupyter_conda",
   "main": "index.js",
   "scripts": {

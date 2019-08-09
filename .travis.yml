@@ -7,29 +7,29 @@ branches:
     - master
 
 env:
-  # - PYTHON_VERSION=2.7
-  # - PYTHON_VERSION=3.5
-  - PYTHON_VERSION=3.6
-  - PYTHON_VERSION=3.7
+  global:
+    - NAME=test_jupyter_conda
+  matrix:
+    - PYTHON_VERSION=3.5 DEPS="typing"
+    - PYTHON_VERSION=3.6 DEPS="typing"
+    - PYTHON_VERSION=3.7 DEPS=""
 
-install:
+before_install:
+  - deactivate # Deactivate the default Travis virtualenv
   - sudo apt-get update
   - sudo apt-get install -y libfreetype6-dev libfontconfig1-dev
-  - if [ "$PYTHON_VERSION" == "2.7" ]; then
-    wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
-  - . $HOME/miniconda/etc/profile.d/conda.sh;
+  - . $HOME/miniconda/etc/profile.d/conda.sh
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda update --yes --quiet conda
-  - conda info -a
   - conda activate
-  - conda install python=$PYTHON_VERSION
-  - conda install -c defaults -c conda-forge --file requirements.txt
-  - conda install -c defaults -c conda-forge --file requirements_dev.txt
+
+install:
+  - conda create -n $NAME  -c defaults -c conda-forge python=$PYTHON_VERSION $DEPS
+  - conda activate $NAME
+  - conda info -a
+  - conda install -n $NAME -c defaults -c conda-forge --file requirements_dev.txt
   - pip install python-coveralls
   - npm install
   - pip install .

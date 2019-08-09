@@ -294,20 +294,20 @@ namespace RESTAPI {
   }
 }
 
+const POLLING_INTERVAL: number = 1000;
+
 /** Helper functions to carry on python notebook server request
  *
  * @param {string} url : request url
  * @param {RequestInit} request : initialization parameters for the request
- * @param {boolean} isfull : the request url is the complete
  * @returns {Promise<Response>} : reponse to the request
  */
 export async function requestServer(
   url: string,
-  request: RequestInit,
-  isfull: boolean = false
+  request: RequestInit
 ): Promise<Response> {
   let settings = ServerConnection.makeSettings();
-  let fullUrl = isfull ? url : URLExt.join(settings.baseUrl, url);
+  let fullUrl = URLExt.join(settings.baseUrl, url);
 
   try {
     let response = await ServerConnection.makeRequest(
@@ -318,6 +318,14 @@ export async function requestServer(
     if (!response.ok) {
       let body = await response.json();
       throw new ServerConnection.ResponseError(response, body.error);
+    } else if (response.status === 202) {
+      const redirectUrl = response.headers.get("Location") || url;
+      return new Promise((resolve, reject) => {
+        setTimeout(
+          () => resolve(requestServer(redirectUrl, { method: "GET" })),
+          POLLING_INTERVAL
+        );
+      });
     }
     return Promise.resolve(response);
   } catch (reason) {
@@ -363,7 +371,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         method: "GET"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", name, "channels"),
+        URLExt.join("conda", "channels"),
         request
       );
       if (response.ok) {
@@ -380,11 +388,11 @@ export class CondaEnvironments implements IEnvironmentManager {
   async clone(target: string, name: string): Promise<void> {
     try {
       let request: RequestInit = {
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, twin: target }),
         method: "POST"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", target, "clone"),
+        URLExt.join("conda", "environments"),
         request
       );
 
@@ -403,31 +411,31 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async create(name: string, type?: Conda.IType): Promise<void> {
     try {
+      let packages = [];
+
+      // This should be in the frontend and not in the backend
+      if (type === "python3") {
+        packages = ["python=3", "ipykernel"];
+      } else if (type === "python2") {
+        packages = ["python=2", "ipykernel"];
+      } else if (type === "r") {
+        packages = ["r-base", "r-essentials"];
+      } else if (typeof type === "string") {
+        packages = type.split(" ");
+      }
       let request: RequestInit = {
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({ name, packages }),
         method: "POST"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", name, "create"),
+        URLExt.join("conda", "environments"),
         request
       );
 
       if (response.ok) {
-        let source = [];
-        // This should be in the frontend and not in the backend
-        if (type === "python3") {
-          source = ["python=3", "ipykernel"];
-        } else if (type === "python2") {
-          source = ["python=2", "ipykernel"];
-        } else if (type === "r") {
-          source = ["r-base", "r-essentials"];
-        } else if (typeof type === "string") {
-          source = type.split(" ");
-        }
-
         this._environmentChanged.emit({
           name: name,
-          source,
+          source: packages,
           type: "create"
         });
       }
@@ -442,8 +450,9 @@ export class CondaEnvironments implements IEnvironmentManager {
       let request: RequestInit = {
         method: "GET"
       };
+      const args = URLExt.objectToQueryString({ download: 1 });
       return requestServer(
-        URLExt.join("conda", "environments", name, "export"),
+        URLExt.join("conda", "environments", name) + args,
         request
       );
     } catch (err) {
@@ -461,11 +470,11 @@ export class CondaEnvironments implements IEnvironmentManager {
   ): Promise<void> {
     try {
       let request: RequestInit = {
-        body: JSON.stringify({ file: fileContent, filename: fileName }),
+        body: JSON.stringify({ name, file: fileContent, filename: fileName }),
         method: "POST"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", name, "import"),
+        URLExt.join("conda", "environments"),
         request
       );
 
@@ -503,10 +512,10 @@ export class CondaEnvironments implements IEnvironmentManager {
   async remove(name: string): Promise<void> {
     try {
       let request: RequestInit = {
-        method: "POST"
+        method: "DELETE"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", name, "delete"),
+        URLExt.join("conda", "environments", name),
         request
       );
 
@@ -598,21 +607,12 @@ export class CondaPackage implements Conda.IPackageManager {
       if (filter_status === Conda.PkgStatus.Available) {
         // Get all available packages
         let response = await requestServer(
-          URLExt.join("conda", "packages", this.environment, "available"),
+          URLExt.join("conda", "packages"),
           request
         );
         let data = (await response.json()) as {
           packages: Array<Conda.IPackage>;
-          $next?: string;
         };
-        while (data.$next !== undefined) {
-          all_packages.push(...data.packages);
-          let response = await requestServer(data.$next, request, true);
-          data = (await response.json()) as {
-            packages: Array<Conda.IPackage>;
-            $next?: string;
-          };
-        }
         all_packages.push(...data.packages);
       }
 
@@ -712,13 +712,7 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "POST"
       };
       let response = await requestServer(
-        URLExt.join(
-          "conda",
-          "environments",
-          this.environment,
-          "packages",
-          "install"
-        ),
+        URLExt.join("conda", "environments", this.environment, "packages"),
         request
       );
       if (response.ok) {
@@ -745,13 +739,8 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "POST"
       };
       await requestServer(
-        URLExt.join(
-          "conda",
-          "environments",
-          this.environment,
-          "packages",
-          "develop"
-        ),
+        URLExt.join("conda", "environments", this.environment, "packages") +
+          URLExt.objectToQueryString({ develop: 1 }),
         request
       );
     } catch (error) {
@@ -769,17 +758,11 @@ export class CondaPackage implements Conda.IPackageManager {
 
     try {
       let request: RequestInit = {
-        body: JSON.stringify({ packages: [] }),
-        method: "POST"
+        method: "GET"
       };
       let response = await requestServer(
-        URLExt.join(
-          "conda",
-          "environments",
-          this.environment,
-          "packages",
-          "check"
-        ),
+        URLExt.join("conda", "environments", this.environment) +
+          URLExt.objectToQueryString({ status: "has_update" }),
         request
       );
       let data = (await response.json()) as {
@@ -800,16 +783,10 @@ export class CondaPackage implements Conda.IPackageManager {
     try {
       let request: RequestInit = {
         body: JSON.stringify({ packages }),
-        method: "POST"
+        method: "PATCH"
       };
       let response = await requestServer(
-        URLExt.join(
-          "conda",
-          "environments",
-          this.environment,
-          "packages",
-          "update"
-        ),
+        URLExt.join("conda", "environments", this.environment, "packages"),
         request
       );
 
@@ -834,16 +811,10 @@ export class CondaPackage implements Conda.IPackageManager {
     try {
       let request: RequestInit = {
         body: JSON.stringify({ packages }),
-        method: "POST"
+        method: "DELETE"
       };
       let response = await requestServer(
-        URLExt.join(
-          "conda",
-          "environments",
-          this.environment,
-          "packages",
-          "remove"
-        ),
+        URLExt.join("conda", "environments", this.environment, "packages"),
         request
       );
       if (response.ok) {

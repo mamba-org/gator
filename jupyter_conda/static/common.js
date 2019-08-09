@@ -86,6 +86,7 @@ define([
   function AjaxSettings(settings) {
     settings.cache = false;
     settings.dataType = "json";
+    settings.contentType = "application/json";
 
     if (!settings.type) {
       settings.type = "GET";
