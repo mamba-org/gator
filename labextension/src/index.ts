@@ -24,10 +24,15 @@ function activateCondaEnv(
 ): IEnvironmentManager {
   const { commands, shell } = app;
   const plugin_namespace = "conda-env";
-  const model = new CondaEnvironments();
-  let widget: MainAreaWidget<CondaEnvWidget>;
-
   const command: string = "condaenv:open-ui";
+
+  const model = new CondaEnvironments();
+
+  // Track and restore the widget state
+  let tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
+    namespace: plugin_namespace
+  });
+  let content: CondaEnvWidget;
 
   commands.addCommand(command, {
     label: "Conda Packages Manager",
@@ -37,34 +42,21 @@ function activateCondaEnv(
         return;
       }
 
-      if (!widget) {
-        const content = new CondaEnvWidget(-1, -1, model);
-        widget = new MainAreaWidget({ content });
-        widget.addClass("jp-NbConda");
-        widget.id = plugin_namespace;
-        widget.title.label = "Packages";
-        widget.title.caption = "Conda Packages Manager";
-        widget.title.iconClass = Style.TabIcon;
-        widget.title.closable = true;
-      }
+      content = new CondaEnvWidget(-1, -1, model);
+      content.addClass("jp-NbConda");
+      content.id = plugin_namespace;
+      content.title.label = "Packages";
+      content.title.caption = "Conda Packages Manager";
+      content.title.iconClass = Style.TabIcon;
+      const widget = new MainAreaWidget({ content });
 
-      if (!tracker.has(widget)) {
-        tracker.add(widget);
-      }
-      if (!widget.isAttached) {
-        shell.add(widget, "main");
-      }
-      shell.activateById(widget.id);
+      void tracker.add(widget);
+      shell.add(widget, "main");
     }
   });
 
   // Add command to command palette
   palette.addItem({ command, category: "Settings" });
-
-  // Track and restore the widget state
-  let tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
-    namespace: plugin_namespace
-  });
 
   // Handle state restoration.
   restorer.restore(tracker, {
