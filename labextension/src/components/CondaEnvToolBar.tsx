@@ -1,4 +1,6 @@
+import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 import * as React from "react";
+import { style } from "typestyle";
 
 /**
  * Environment panel toolbar properties
@@ -8,6 +10,10 @@ export interface CondaEnvToolBarProps {
    * Is the current environment the root one
    */
   isBase: boolean;
+  /**
+   * Is the environment list updating
+   */
+  isPending: boolean;
   /**
    * Create environment handler
    */
@@ -25,61 +31,82 @@ export interface CondaEnvToolBarProps {
    */
   onExport(): void;
   /**
+   * Refresh environment handler
+   */
+  onRefresh(): void;
+  /**
    * Remove environment handler
    */
   onRemove(): void;
 }
 
 export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
+  let refreshClasses = "fa fa-refresh";
+  if (props.isPending) {
+    refreshClasses = refreshClasses + " fa-spin";
+  }
   return (
-    <div className="p-Widget jp-Toolbar jp-NbConda-EnvToolbar">
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className="jp-ToolbarButtonComponent"
-          title="Create"
+    <div className={Style.NoGrow}>
+      <div className={Style.Title}>
+        <span className={Style.Grow}>Conda environments</span>
+        <ToolbarButtonComponent
+          iconClassName={refreshClasses}
+          tooltip="Refresh environments"
+          onClick={props.onRefresh}
+        />
+      </div>
+      <div className="p-Widget jp-Toolbar jp-NbConda-EnvToolbar">
+        <ToolbarButtonComponent
+          iconClassName="jp-AddIcon"
+          tooltip="Create"
           onClick={props.onCreate}
-        >
-          <span className="jp-AddIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
-        </button>
-      </div>
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className="jp-ToolbarButtonComponent"
-          title="Clone"
+        />
+        <ToolbarButtonComponent
+          iconClassName="fa fa-clone"
+          tooltip="Clone"
           onClick={props.onClone}
-          disabled={props.isBase}
-        >
-          <span className="fa fa-clone jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
-        </button>
-      </div>
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className="jp-ToolbarButtonComponent"
-          title="Import"
+          enabled={!props.isBase}
+        />
+        <ToolbarButtonComponent
+          iconClassName="jp-FileUploadIcon"
+          tooltip="Import"
           onClick={props.onImport}
-        >
-          <span className="jp-FileUploadIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
-        </button>
-      </div>
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className="jp-ToolbarButtonComponent"
-          title="Export"
+        />
+        <ToolbarButtonComponent
+          iconClassName="jp-DownloadIcon"
+          tooltip="Export"
           onClick={props.onExport}
-        >
-          <span className="jp-DownloadIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
-        </button>
-      </div>
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className="jp-ToolbarButtonComponent"
-          title="Remove"
+        />
+        <ToolbarButtonComponent
+          iconClassName="jp-CloseIcon"
+          tooltip="Remove"
           onClick={props.onRemove}
-          disabled={props.isBase}
-        >
-          <span className="jp-CloseIcon jp-Icon jp-Icon-16 jp-ToolbarButtonComponent-icon" />
-        </button>
+          enabled={!props.isBase}
+        />
       </div>
     </div>
   );
 };
+
+namespace Style {
+  export const Grow = style({
+    flexGrow: 1,
+    flexShrink: 1
+  });
+
+  export const NoGrow = style({
+    flexGrow: 0,
+    flexShrink: 0
+  });
+
+  export const Title = style({
+    color: "var(--jp-ui-font-color1)",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: "var(--jp-ui-font-size2)",
+    height: 40, //Toolbar height to align with package toolbar
+    display: "flex",
+    flex: "0 0 auto",
+    flexDirection: "row"
+  });
+}

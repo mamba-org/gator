@@ -1,12 +1,13 @@
+import { showDialog } from "@jupyterlab/apputils";
+import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
-// TODO to be more generic CondaPackage should not be used explicitly
-// but it should be obtained from getPackageService method of IEnvironmentsService
+import { style } from "typestyle";
 import { Conda, CondaPackage } from "../services";
 import { CondaPkgList, TitleItem } from "./CondaPkgList";
 import { CondaPkgToolBar, PkgFilters } from "./CondaPkgToolBar";
-import { showDialog } from "@jupyterlab/apputils";
-import { style } from "typestyle";
-import { INotification } from "jupyterlab_toastify";
+
+// Minimal panel width to show package description
+const PANEL_SMALL_WIDTH: number = 500;
 
 /**
  * Package panel property
@@ -16,6 +17,10 @@ export interface IPkgPanelProps {
    * Panel height
    */
   height: number;
+  /**
+   * Panel width
+   */
+  width: number;
   /**
    * Selected environment name
    */
@@ -38,6 +43,14 @@ export interface IPkgPanelState {
    * Is the package manager applying changes?
    */
   isApplyingChanges: boolean;
+  /**
+   * Does package list have description?
+   */
+  hasDescription: boolean;
+  /**
+   * Are there some packages updatable?
+   */
+  hasUpdate: boolean;
   /**
    * Packages list
    */
@@ -75,6 +88,8 @@ export class CondaPkgPanel extends React.Component<
       isLoading: false,
       needsReload: false,
       isApplyingChanges: false,
+      hasDescription: false,
+      hasUpdate: false,
       packages: [],
       selected: [],
       searchTerm: "",
@@ -87,9 +102,12 @@ export class CondaPkgPanel extends React.Component<
 
     this.handleCategoryChanged = this.handleCategoryChanged.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleVersionSelection = this.handleVersionSelection.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.handleUpdateAll = this.handleUpdateAll.bind(this);
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
+    this.handleRefreshPackages = this.handleRefreshPackages.bind(this);
     this.handleSort = this.handleSort.bind(this);
   }
 
@@ -97,6 +115,7 @@ export class CondaPkgPanel extends React.Component<
     function cancel(self: CondaPkgPanel) {
       self.setState({
         isLoading: false,
+        hasUpdate: false,
         packages: [],
         selected: []
       });
@@ -111,7 +130,7 @@ export class CondaPkgPanel extends React.Component<
       try {
         let environmentLoading = this._model.environment;
         // Get installed packages
-        let packages = await this._model.refresh();
+        let packages = await this._model.refresh(false);
         // If current environment changes when waiting for the packages
         if (
           this._model.environment !== environmentLoading ||
@@ -133,19 +152,22 @@ export class CondaPkgPanel extends React.Component<
           return cancel(this);
         }
 
+        let hasUpdate = false;
         this.state.packages.forEach((pkg: Conda.IPackage, index: number) => {
           if (
             data.indexOf(pkg.name) >= 0 &&
             pkg.status === Conda.PkgStatus.Installed
           ) {
             this.state.packages[index].updatable = true;
+            hasUpdate = true;
           }
         });
         this.setState({
-          packages: this.state.packages
+          packages: this.state.packages,
+          hasUpdate
         });
 
-        let available = await this._model.refresh(Conda.PkgStatus.Available);
+        let available = await this._model.refresh();
         // If current environment changes when waiting for the available package
         if (
           this._model.environment !== environmentLoading ||
@@ -165,6 +187,7 @@ export class CondaPkgPanel extends React.Component<
 
         this.setState({
           isLoading: false,
+          hasDescription: this._model.hasDescription(),
           packages: available
         });
       } catch (error) {
@@ -177,13 +200,13 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
-  handleCategoryChanged(event: any) {
+  handleCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>) {
     if (this.state.isApplyingChanges) {
       return;
     }
 
     this.setState({
-      activeFilter: event.target.value
+      activeFilter: event.target.value as PkgFilters
     });
   }
 
@@ -230,6 +253,19 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
+  handleVersionSelection(index: number, version: string) {
+    if (this.state.isApplyingChanges) {
+      return;
+    }
+
+    let clicked = this.state.packages[index];
+    if (clicked.version_installed === version) {
+      delete clicked.version_selected;
+    } else {
+      clicked.version_selected = version;
+    }
+  }
+
   handleSearch(event: any) {
     if (this.state.isApplyingChanges) {
       return;
@@ -238,6 +274,62 @@ export class CondaPkgPanel extends React.Component<
     this.setState({
       searchTerm: event.target.value
     });
+  }
+
+  async handleUpdateAll() {
+    if (this.state.isApplyingChanges) {
+      return;
+    }
+
+    let toastId = null;
+    try {
+      this.setState({
+        searchTerm: "",
+        activeFilter: PkgFilters.Updatable
+      });
+
+      let confirmation = await showDialog({
+        title: "Update all",
+        body: "Please confirm you want to update all packages?"
+      });
+
+      if (confirmation.button.accept) {
+        this.setState({
+          isApplyingChanges: true
+        });
+        toastId = INotification.inProgress("Updating packages");
+        await this._model.update(["--all"]);
+
+        INotification.update({
+          toastId: toastId,
+          message: "Package updated successfully.",
+          type: "success",
+          autoClose: 5000,
+          buttons: []
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      if (toastId) {
+        INotification.update({
+          toastId: toastId,
+          message: error.message,
+          type: "error",
+          autoClose: 0,
+          buttons: []
+        });
+      } else {
+        toastId = INotification.error(error.message);
+      }
+    } finally {
+      this.setState({
+        needsReload: true, // For packages reload if loading is still in progress
+        isApplyingChanges: false,
+        selected: [],
+        activeFilter: PkgFilters.All
+      });
+      this._updatePackages();
+    }
   }
 
   /**
@@ -344,6 +436,11 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
+  async handleRefreshPackages() {
+    await this._model.refreshAvailablePackages();
+    this._updatePackages();
+  }
+
   handleSort(field: TitleItem.SortField, status: TitleItem.SortStatus) {
     // TODO
     if (this.state.isApplyingChanges) {
@@ -404,22 +501,29 @@ export class CondaPkgPanel extends React.Component<
     return (
       <div className={Style.Panel}>
         <CondaPkgToolBar
+          isPending={this.state.isLoading}
           category={this.state.activeFilter}
           hasSelection={this.state.selected.length > 0}
+          hasUpdate={this.state.hasUpdate}
           searchTerm={this.state.searchTerm}
           onCategoryChanged={this.handleCategoryChanged}
           onSearch={this.handleSearch}
+          onUpdateAll={this.handleUpdateAll}
           onApply={this.handleApply}
           onCancel={this.handleCancel}
+          onRefreshPackages={this.handleRefreshPackages}
         />
         <CondaPkgList
-          height={this.props.height - 40} // Remove height for top and bottom elements
-          isPending={this.state.isLoading}
+          height={this.props.height - 40} // Remove height for toolbar
+          hasDescription={
+            this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
+          }
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
           packages={searchPkgs}
           selection={this.state.selected}
           onPkgClick={this.handleClick}
+          onPkgChange={this.handleVersionSelection}
           onSort={this.handleSort}
         />
       </div>

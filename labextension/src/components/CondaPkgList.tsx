@@ -1,7 +1,7 @@
 import * as React from "react";
-import { CondaPkgItem } from "./CondaPkgItem";
-import { Conda } from "../services";
 import { style } from "typestyle";
+import { Conda } from "../services";
+import { CondaPkgItem } from "./CondaPkgItem";
 
 /**
  * Package list title component properties
@@ -31,7 +31,7 @@ export interface ITitleItemProps {
 export class TitleItem extends React.Component<ITitleItemProps> {
   render() {
     return (
-      <div
+      <span
         className={
           PkgListStyle.HeaderItem
           // TODO Styling once sorting is available
@@ -44,7 +44,7 @@ export class TitleItem extends React.Component<ITitleItemProps> {
         }
       >
         {this.props.title}
-      </div>
+      </span>
     );
   }
 }
@@ -69,13 +69,13 @@ export namespace TitleItem {
  */
 export interface IPkgListProps {
   /**
+   * Are package description available?
+   */
+  hasDescription: boolean;
+  /**
    * Component height
    */
   height: number;
-  /**
-   * Is the list loading?
-   */
-  isPending: boolean;
   /**
    * Conda package list
    */
@@ -100,11 +100,16 @@ export interface IPkgListProps {
    * Package item click handler
    */
   onPkgClick: (index: number) => void;
+  /**
+   * Package item version selection handler
+   */
+  onPkgChange: (index: number, version: string) => void;
 }
 
 /** React component for the package list */
 export class CondaPkgList extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
+    hasDescription: false,
     packages: [],
     selection: []
   };
@@ -115,29 +120,22 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
   render() {
     const listItems = this.props.packages.map((pkg, index) => {
-      let selection = this.props.selection.filter(
+      const selection = this.props.selection.filter(
         selected => selected.index === index
       );
-      let status = selection[0] ? selection[0].status : pkg.status;
+      const isSelected = selection[0] !== undefined;
+      const status = isSelected ? selection[0].status : pkg.status;
 
       return (
         <CondaPkgItem
-          name={pkg.name}
+          hasDescription={this.props.hasDescription}
           index={index}
           key={index}
-          version={pkg.version}
-          build_number={pkg.build_number}
-          build_string={pkg.build_string}
-          channel={pkg.channel}
-          platform={pkg.platform}
-          summary={pkg.summary}
-          home={pkg.home}
-          keywords={pkg.keywords}
-          tags={pkg.tags}
-          version_installed={pkg.version_installed || pkg.version.slice(-1)[0]}
+          package={pkg}
+          isSelected={isSelected}
           status={status}
-          updatable={pkg.updatable}
           onClick={this.props.onPkgClick}
+          onChange={this.props.onPkgChange}
         />
       );
     });
@@ -171,9 +169,11 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   }
                 />
               </th>
-              <th className={PkgListStyle.CellSummary}>
-                <div className={PkgListStyle.HeaderItem}>Description</div>
-              </th>
+              {this.props.hasDescription && (
+                <th className={PkgListStyle.CellSummary}>
+                  <div className={PkgListStyle.HeaderItem}>Description</div>
+                </th>
+              )}
               <th className={PkgListStyle.Cell}>
                 <TitleItem
                   title="Version"
@@ -185,6 +185,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                       : TitleItem.SortStatus.None
                   }
                 />
+              </th>
+              <th className={PkgListStyle.Cell}>
+                <span className={PkgListStyle.HeaderItem}>Available</span>
               </th>
               <th className={PkgListStyle.CellChannel}>
                 <TitleItem
@@ -198,16 +201,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   }
                 />
               </th>
-            </tr>
-            <tr>
-              <th
-                colSpan={5}
-                className={
-                  this.props.isPending
-                    ? "jp-NbConda-pending jp-mod-hasPending"
-                    : "jp-NbConda-pending"
-                }
-              />
             </tr>
           </thead>
           <tbody>{listItems}</tbody>
@@ -247,7 +240,12 @@ export namespace PkgListStyle {
   });
 
   export const Row = style({
-    width: "100%"
+    width: "100%",
+    $nest: {
+      "&:nth-child(even)": {
+        background: "var(--jp-layout-color2)"
+      }
+    }
   });
 
   export const CellStatus = style({

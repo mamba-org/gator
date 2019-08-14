@@ -1,6 +1,6 @@
+import { ToolbarButtonComponent } from "@jupyterlab/apputils";
+import { HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
 import * as React from "react";
-import { InputGroup } from "@jupyterlab/ui-components";
-import { GlobalStyle } from "./globalStyles";
 import { classes, style } from "typestyle/lib";
 
 export enum PkgFilters {
@@ -12,33 +12,75 @@ export enum PkgFilters {
 }
 
 export interface CondaPkgToolBarProps {
+  /**
+   * Is the list loading?
+   */
+  isPending: boolean;
+  /**
+   * Selected package filter
+   */
   category: PkgFilters;
+  /**
+   * Are there some package modifications?
+   */
   hasSelection: boolean;
+  /**
+   * Are there some packages updatable?
+   */
+  hasUpdate: boolean;
+  /**
+   * Search term in search box
+   */
   searchTerm: string;
-  onCategoryChanged: (event) => void;
-  onSearch: (event) => void;
+  /**
+   * Filter category change handler
+   */
+  onCategoryChanged: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  /**
+   * Search box handler
+   */
+  onSearch: (event: React.FormEvent) => void;
+  /**
+   * Update all packages handler
+   */
+  onUpdateAll: () => void;
+  /**
+   * Apply package modifications
+   */
   onApply: () => void;
+  /**
+   * Cancel package modifications
+   */
   onCancel: () => void;
+  /**
+   * Refresh available packages handler
+   */
+  onRefreshPackages: () => void;
 }
 
 export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
+  let refreshClasses = "fa fa-refresh";
+  if (props.isPending) {
+    refreshClasses = refreshClasses + " fa-spin";
+  }
+
   return (
     <div className="p-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
-      <div className="p-Widget jp-Toolbar-item">
-        <div className="jp-select-wrapper">
-          <select
-            className="jp-mod-styled"
-            value={props.category}
-            onChange={props.onCategoryChanged}
-          >
-            <option value={PkgFilters.All}>All</option>
-            <option value={PkgFilters.Installed}>Installed</option>
-            <option value={PkgFilters.Available}>Not installed</option>
-            <option value={PkgFilters.Updatable}>Updatable</option>
-            <option value={PkgFilters.Selected}>Selected</option>
-          </select>
-        </div>
-      </div>
+      <HTMLSelect
+        value={props.category}
+        onChange={props.onCategoryChanged}
+        iconProps={{
+          icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
+        }}
+        aria-label="Package filter"
+        minimal
+      >
+        <option value={PkgFilters.All}>All</option>
+        <option value={PkgFilters.Installed}>Installed</option>
+        <option value={PkgFilters.Available}>Not installed</option>
+        <option value={PkgFilters.Updatable}>Updatable</option>
+        <option value={PkgFilters.Selected}>Selected</option>
+      </HTMLSelect>
       <div className="p-Widget jp-Toolbar-item">
         <div className={classes("jp-NbConda-search-wrapper", Style.Search)}>
           <InputGroup
@@ -52,30 +94,38 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
         </div>
       </div>
       <div className="p-Widget jp-Toolbar-spacer jp-Toolbar-item" />
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className={
-            props.hasSelection
-              ? "jp-ToolbarButtonComponent jp-mod-accept"
-              : "jp-ToolbarButtonComponent jp-button-hide"
-          }
-          onClick={props.onApply}
-        >
-          <span>Apply</span>
-        </button>
-      </div>
-      <div className="p-Widget jp-ToolbarButton jp-Toolbar-item">
-        <button
-          className={
-            props.hasSelection
-              ? "jp-ToolbarButtonComponent jp-mod-reject"
-              : "jp-ToolbarButtonComponent jp-button-hide"
-          }
-          onClick={props.onCancel}
-        >
-          <span>Clear</span>
-        </button>
-      </div>
+      <ToolbarButtonComponent
+        iconClassName={classes(
+          "fa",
+          "fa-external-link-square",
+          props.hasUpdate && Style.UpdateButton
+        )}
+        onClick={props.onUpdateAll}
+        tooltip="Update all packages"
+        enabled={props.hasUpdate}
+      />
+      <ToolbarButtonComponent
+        iconClassName={classes(
+          "fa",
+          "fa-cart-arrow-down",
+          props.hasSelection && Style.ApplyButton
+        )}
+        enabled={props.hasSelection}
+        onClick={props.onApply}
+        tooltip="Apply package modifications"
+      />
+      <ToolbarButtonComponent
+        iconClassName="fa fa-undo"
+        enabled={props.hasSelection}
+        onClick={props.onCancel}
+        tooltip="Clear package modifications"
+      />
+      <ToolbarButtonComponent
+        iconClassName={refreshClasses}
+        onClick={props.onRefreshPackages}
+        tooltip="Refresh available packages"
+        enabled={!props.isPending}
+      />
     </div>
   );
 };
@@ -87,27 +137,18 @@ namespace Style {
   });
 
   export const SearchInput = style({
-    // background: "transparent",
-    // fontSize: "var(--jp-ui-font-size1)",
-    // color: "var(--jp-ui-font-color0)",
-    // // lineHeight: "var(--jp-private-commandpalette-search-height)",
-    // boxSizing: "border-box",
-    // borderRadius: 0,
-    // $nest: {
-    //   "&:focus": {
-    //     boxShadow: "inset 0 0 0 1px var(--jp-input-active-box-shadow-color), inset 0 0 0 3px var(--jp-input-active-box-shadow-color)"
-    //   }
-    // }
+    lineHeight: "normal"
   });
 
   export const Search = style({
     padding: "4px"
   });
 
-  export const Button = classes(
-    style({
-      margin: "0px 2px"
-    }),
-    GlobalStyle.Button
-  );
+  export const ApplyButton = style({
+    color: "var(--jp-brand-color0)"
+  });
+
+  export const UpdateButton = style({
+    color: "var(--jp-accent-color0)"
+  });
 }

@@ -36,7 +36,7 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "name": s.get("name"),
         "platform": s.get("platform"),
         "version": s.get("version"),
-        "summary": s.get("summary", ""),
+        "summary": s.get("summary", ""), 
         "home": s.get("home", ""),
         "keywords": s.get("keywords", []),
         "tags": s.get("tags", []),
@@ -372,7 +372,10 @@ class EnvManager(LoggingConfigurable):
         """List all available packages
         
         Returns:
-            {"packages": List[package]}
+            {
+                "packages": List[package],
+                "with_description": bool  # Wheter we succed in get some channeldata.json files
+            }
         """
         ans = yield self._execute(CONDA_EXE, "search", "--json")
         _, output = ans
@@ -448,6 +451,7 @@ class EnvManager(LoggingConfigurable):
 
         # Get channel short names
         configuration = yield self.conda_config()
+        print(configuration)
         channels = yield self.env_channels(configuration)
         channels = channels["channels"]
         tr_channels = {}
@@ -545,7 +549,10 @@ class EnvManager(LoggingConfigurable):
             if channel in tr_channels:
                 package["channel"] = tr_channels[channel]
 
-        return {"packages": sorted(packages, key=lambda entry: entry.get("name"))}
+        return {
+            "packages": sorted(packages, key=lambda entry: entry.get("name")),
+            "with_description": len(pkg_info) > 0
+        }
 
     @tornado.gen.coroutine
     def package_search(self, q: str) -> Dict[str, List]:
@@ -555,7 +562,10 @@ class EnvManager(LoggingConfigurable):
             q (str): Search query
 
         Returns:
-            {"packages": List[package]}
+            {
+                "packages": List[package],
+                "with_description": bool  # Wheter we succed in get some channeldata.json files
+            }
         """
         ans = yield self._execute(CONDA_EXE, "search", "--json", q)
         _, output = ans
@@ -581,7 +591,10 @@ class EnvManager(LoggingConfigurable):
 
             packages.append(max_version_entry)
 
-        return {"packages": sorted(packages, key=lambda entry: entry.get("name"))}
+        return {
+            "packages": sorted(packages, key=lambda entry: entry.get("name")),
+            "with_description": False
+        }
 
     @tornado.gen.coroutine
     def check_update(

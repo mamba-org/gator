@@ -143,11 +143,21 @@ export namespace Conda {
     environment?: string;
 
     /**
-     * Refresh packages of the environment
+     * Refresh packages list of the environment
+     *
+     * @param includeAvailable Include available package list
      */
-    refresh(
-      status?: Conda.PkgStatus.Available | Conda.PkgStatus.Installed
-    ): Promise<Array<Conda.IPackage>>;
+    refresh(includeAvailable?: boolean): Promise<Array<Conda.IPackage>>;
+
+    /**
+     * Refresh available package list
+     */
+    refreshAvailablePackages(): void;
+
+    /**
+     * Does the packages have description?
+     */
+    hasDescription(): boolean;
 
     /**
      * Install packages
@@ -232,6 +242,7 @@ export namespace Conda {
     keywords: Array<string>;
     tags: Array<string>;
     version_installed?: string;
+    version_selected?: string;
     status?: PkgStatus;
     updatable?: boolean;
   }
@@ -294,6 +305,9 @@ namespace RESTAPI {
   }
 }
 
+/**
+ * Polling interval for accepted tasks
+ */
 const POLLING_INTERVAL: number = 1000;
 
 /** Helper functions to carry on python notebook server request
@@ -310,22 +324,24 @@ export async function requestServer(
   let fullUrl = URLExt.join(settings.baseUrl, url);
 
   try {
-    let response = await ServerConnection.makeRequest(
+    const response = await ServerConnection.makeRequest(
       fullUrl,
       request,
       settings
     );
     if (!response.ok) {
-      let body = await response.json();
+      const body = await response.json();
       throw new ServerConnection.ResponseError(response, body.error);
     } else if (response.status === 202) {
       const redirectUrl = response.headers.get("Location") || url;
-      return new Promise((resolve, reject) => {
+      // @ts-ignore
+      return new Promise(resolve =>
         setTimeout(
-          () => resolve(requestServer(redirectUrl, { method: "GET" })),
-          POLLING_INTERVAL
-        );
-      });
+          resolve,
+          POLLING_INTERVAL,
+          requestServer(redirectUrl, { method: "GET" })
+        )
+      );
     }
     return Promise.resolve(response);
   } catch (reason) {
@@ -411,9 +427,9 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async create(name: string, type?: Conda.IType): Promise<void> {
     try {
-      let packages = [];
+      let packages: Array<string> = [];
 
-      // This should be in the frontend and not in the backend
+      // TODO This should be in the frontend and not in the backend
       if (type === "python3") {
         packages = ["python=3", "ipykernel"];
       } else if (type === "python2") {
@@ -573,14 +589,14 @@ export class CondaPackage implements Conda.IPackageManager {
   }
 
   /**
-   * Refresh the package list. If status is not provided, only the
-   * installed packages will be returned.
+   * Refresh the package list.
    *
-   * @param status Package status to look for
+   * @param includeAvailable Include available package list
+   *
    * @returns The package list
    */
   async refresh(
-    status?: Conda.PkgStatus.Available | Conda.PkgStatus.Installed
+    includeAvailable: boolean = true
   ): Promise<Array<Conda.IPackage>> {
     if (this.environment === undefined) {
       this.packages = [];
@@ -588,32 +604,24 @@ export class CondaPackage implements Conda.IPackageManager {
     }
 
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         method: "GET"
       };
 
-      let filter_status = status ? status : Conda.PkgStatus.Installed;
       // Get installed packages
-      let response = await requestServer(
+      const response = await requestServer(
         URLExt.join("conda", "environments", this.environment),
         request
       );
-      let data = (await response.json()) as {
+      const data = (await response.json()) as {
         packages: Array<RESTAPI.IRawPackage>;
       };
-      let installedPkgs = data.packages;
+      const installedPkgs = data.packages;
 
       let all_packages: Array<Conda.IPackage> = [];
-      if (filter_status === Conda.PkgStatus.Available) {
+      if (includeAvailable) {
         // Get all available packages
-        let response = await requestServer(
-          URLExt.join("conda", "packages"),
-          request
-        );
-        let data = (await response.json()) as {
-          packages: Array<Conda.IPackage>;
-        };
-        all_packages.push(...data.packages);
+        all_packages.push(...(await CondaPackage._getAvailablePackages()));
       }
 
       // Set installed package status
@@ -830,5 +838,50 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  private _packageChanged = new Signal<this, Conda.IPackageChange>(this);
+  async refreshAvailablePackages(): Promise<void> {
+    CondaPackage._getAvailablePackages(true);
+  }
+
+  /**
+   * Does the available packages have description?
+   *
+   * @returns description presence
+   */
+  hasDescription(): boolean {
+    return CondaPackage._hasDescription;
+  }
+
+  /**
+   * Get the available packages list.
+   *
+   * @param force Force refreshing the available package list
+   */
+  private static async _getAvailablePackages(
+    force: boolean = false
+  ): Promise<Array<Conda.IPackage>> {
+    if (CondaPackage._availablePackages === null || force) {
+      const request: RequestInit = {
+        method: "GET"
+      };
+
+      const response = await requestServer(
+        URLExt.join("conda", "packages"),
+        request
+      );
+      const data = (await response.json()) as {
+        packages: Array<Conda.IPackage>;
+        with_description: boolean;
+      };
+      CondaPackage._availablePackages = data.packages;
+      CondaPackage._hasDescription = data.with_description || false;
+    }
+    return Promise.resolve(CondaPackage._availablePackages);
+  }
+
+  private _packageChanged: Signal<
+    CondaPackage,
+    Conda.IPackageChange
+  > = new Signal<this, Conda.IPackageChange>(this);
+  private static _availablePackages: Array<Conda.IPackage> = null;
+  private static _hasDescription: boolean = false;
 }

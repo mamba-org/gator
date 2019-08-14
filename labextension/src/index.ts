@@ -5,17 +5,16 @@ import {
 } from "@jupyterlab/application";
 import {
   ICommandPalette,
-  WidgetTracker,
-  MainAreaWidget
+  MainAreaWidget,
+  WidgetTracker
 } from "@jupyterlab/apputils";
 import { IMainMenu } from "@jupyterlab/mainmenu";
 import { classes, style } from "typestyle";
-import "../style/index.css";
 import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
 import { CondaEnvironments, IEnvironmentManager } from "./services";
 
-export { IEnvironmentManager, Conda } from "./services";
+export { Conda, IEnvironmentManager } from "./services";
 
 function activateCondaEnv(
   app: JupyterFrontEnd,
