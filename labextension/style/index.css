@@ -60,3 +60,56 @@
 button.jp-button-hide {
   display: none;
 }
+
+/* Table theme */
+
+.jp-NbConda .ReactVirtualized__Table__headerRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.jp-NbConda .ReactVirtualized__Table__row {
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color0);
+  line-height: normal;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.jp-NbConda .ReactVirtualized__Table__headerTruncatedText {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.jp-NbConda .ReactVirtualized__Table__headerColumn,
+.jp-NbConda .ReactVirtualized__Table__rowColumn {
+  margin-right: 10px;
+  min-width: 0px;
+}
+.jp-NbConda .ReactVirtualized__Table__rowColumn {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jp-NbConda .ReactVirtualized__Table__headerColumn:first-of-type,
+.jp-NbConda .ReactVirtualized__Table__rowColumn:first-of-type {
+  margin-left: 10px;
+}
+.jp-NbConda .ReactVirtualized__Table__sortableHeaderColumn {
+  cursor: pointer;
+}
+
+.jp-NbConda .ReactVirtualized__Table__sortableHeaderIconContainer {
+  display: flex;
+  align-items: center;
+}
+.jp-NbConda .ReactVirtualized__Table__sortableHeaderIcon {
+  flex: 0 0 24px;
+  height: 1em;
+  width: 1em;
+  fill: currentColor;
+}

@@ -3,7 +3,7 @@ import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import { style } from "typestyle";
 import { Conda, CondaPackage } from "../services";
-import { CondaPkgList, TitleItem } from "./CondaPkgList";
+import { CondaPkgList } from "./CondaPkgList";
 import { CondaPkgToolBar, PkgFilters } from "./CondaPkgToolBar";
 
 // Minimal panel width to show package description
@@ -67,14 +67,6 @@ export interface IPkgPanelState {
    * Current search term
    */
   searchTerm: string;
-  /**
-   * Field used for sorting the list
-   */
-  sortedField: TitleItem.SortField;
-  /**
-   * Sort direction
-   */
-  sortDirection: TitleItem.SortStatus;
 }
 
 /** Top level React component for widget */
@@ -93,9 +85,7 @@ export class CondaPkgPanel extends React.Component<
       packages: [],
       selected: [],
       searchTerm: "",
-      activeFilter: PkgFilters.All,
-      sortedField: TitleItem.SortField.Name,
-      sortDirection: TitleItem.SortStatus.Down
+      activeFilter: PkgFilters.All
     };
 
     this._model = new CondaPackage(this.props.environment);
@@ -108,7 +98,6 @@ export class CondaPkgPanel extends React.Component<
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleRefreshPackages = this.handleRefreshPackages.bind(this);
-    this.handleSort = this.handleSort.bind(this);
   }
 
   private async _updatePackages() {
@@ -463,19 +452,13 @@ export class CondaPkgPanel extends React.Component<
     this._updatePackages();
   }
 
-  handleSort(field: TitleItem.SortField, status: TitleItem.SortStatus) {
-    // TODO
-    if (this.state.isApplyingChanges) {
-      return;
-    }
-  }
-
   componentDidUpdate(prevProps: IPkgPanelProps) {
     if (prevProps.environment !== this.props.environment) {
       this._model = new CondaPackage(this.props.environment);
       this.setState({
         isLoading: false,
-        packages: []
+        packages: [],
+        selected: []
       });
       this._updatePackages();
     }
@@ -542,12 +525,9 @@ export class CondaPkgPanel extends React.Component<
           hasDescription={
             this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
           }
-          sortedBy={this.state.sortedField}
-          sortDirection={this.state.sortDirection}
           packages={searchPkgs}
           onPkgClick={this.handleClick}
           onPkgChange={this.handleVersionSelection}
-          onSort={this.handleSort}
         />
       </div>
     );

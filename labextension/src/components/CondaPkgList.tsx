@@ -1,68 +1,10 @@
+import { HTMLSelect } from "@jupyterlab/ui-components";
 import * as React from "react";
-import { style } from "typestyle";
+import { style, classes } from "typestyle";
+import { AutoSizer, Column, Table } from "react-virtualized";
+
 import { Conda } from "../services";
-import { CondaPkgItem } from "./CondaPkgItem";
-
-/**
- * Package list title component properties
- */
-export interface ITitleItemProps {
-  /**
-   * Title
-   */
-  title: string;
-  /**
-   * Associated sorted field
-   */
-  field: TitleItem.SortField;
-  /**
-   * Sorted status
-   */
-  status: TitleItem.SortStatus;
-  /**
-   * Update sorting column
-   */
-  updateSort: (name: TitleItem.SortField, status: TitleItem.SortStatus) => void;
-}
-
-/**
- * Package list title component
- */
-export class TitleItem extends React.Component<ITitleItemProps> {
-  render() {
-    return (
-      <span
-        className={
-          PkgListStyle.HeaderItem
-          // TODO Styling once sorting is available
-          // this.props.status === TitleItem.SortStatus.None
-          //   ? PkgListStyle.HeaderItem
-          //   : classes(PkgListStyle.HeaderItem, PkgListStyle.CurrentHeaderItem)
-        }
-        onClick={() =>
-          this.props.updateSort(this.props.field, this.props.status)
-        }
-      >
-        {this.props.title}
-      </span>
-    );
-  }
-}
-
-export namespace TitleItem {
-  export enum SortStatus {
-    Down = -1,
-    None,
-    Up
-  }
-
-  export enum SortField {
-    Name = "NAME",
-    Channel = "CHANNEL",
-    Status = "STATUS",
-    Version = "VERSION"
-  }
-}
+import { GlobalStyle } from "./globalStyles";
 
 /**
  * Package list component properties
@@ -81,18 +23,6 @@ export interface IPkgListProps {
    */
   packages: Conda.IPackage[];
   /**
-   * Field used for sorting
-   */
-  sortedBy: TitleItem.SortField;
-  /**
-   * Sort direction
-   */
-  sortDirection: TitleItem.SortStatus;
-  /**
-   * Field sorting handler
-   */
-  onSort: (field: TitleItem.SortField, status: TitleItem.SortStatus) => void;
-  /**
    * Package item click handler
    */
   onPkgClick: (pkg: Conda.IPackage) => void;
@@ -100,6 +30,21 @@ export interface IPkgListProps {
    * Package item version selection handler
    */
   onPkgChange: (pkg: Conda.IPackage, version: string) => void;
+}
+
+/**
+ * react-virtualized interfaces
+ */
+interface ICellRender {
+  cellData?: any;
+  columnData?: any;
+  dataKey: string;
+  rowData: any;
+  rowIndex: number;
+}
+
+interface IIndex {
+  index: number;
 }
 
 /** React component for the package list */
@@ -114,151 +59,192 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   }
 
   render() {
-    const listItems = this.props.packages.map(pkg => (
-      <CondaPkgItem
-        key={pkg.name}
-        package={pkg}
-        hasDescription={this.props.hasDescription}
-        onClick={this.props.onPkgClick}
-        onChange={this.props.onPkgChange}
-      />
-    ));
+    const rowGetter = ({ index }: IIndex) => this.props.packages[index];
+
+    const iconRender = ({ rowData }: ICellRender) => {
+      if (rowData.version_installed) {
+        if (rowData.version_selected === "none") {
+          return <i className={Style.StatusRemove} />;
+        } else if (rowData.version_selected !== rowData.version_installed) {
+          return <i className={Style.StatusUpdate} />;
+        }
+        return <i className={Style.StatusInstalled} />;
+      } else if (rowData.version_selected !== "none") {
+        return <i className={Style.StatusInstalled} />;
+      }
+
+      return <i className={Style.StatusAvailable} />;
+    };
+
+    const isSelected = (index: number): boolean => {
+      const rowData = this.props.packages[index];
+
+      if (rowData.version_installed) {
+        if (rowData.version_selected === "none") {
+          return true;
+        } else if (rowData.version_selected !== rowData.version_installed) {
+          return true;
+        }
+      } else if (rowData.version_selected !== "none") {
+        return true;
+      }
+      return false;
+    };
+
+    const nameRender = ({ rowData }: ICellRender) => {
+      if (rowData.home && rowData.home.length > 0) {
+        // TODO possible enhancement - open in a JupyterLab Panel
+        return (
+          <a
+            className={Style.Link}
+            href={rowData.home}
+            onClick={evt => evt.stopPropagation()}
+            target="_blank"
+          >
+            {rowData.name} <i className="fa fa-external-link" />
+          </a>
+        );
+      }
+      return <span>{rowData.name}</span>;
+    };
+
+    const changeRender = ({ rowData }: ICellRender) => (
+      <HTMLSelect
+        className={Style.VersionSelection}
+        value={rowData.version_selected}
+        onClick={(evt: React.MouseEvent) => {
+          evt.stopPropagation();
+        }}
+        onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
+          this.props.onPkgChange(rowData, evt.target.value)
+        }
+        iconProps={{
+          icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
+        }}
+        aria-label="Package versions"
+        minimal
+      >
+        <option key="-3" value={"none"}>
+          Remove
+        </option>
+        {!rowData.version_installed && (
+          <option key="-2" value={""}>
+            Install
+          </option>
+        )}
+        {rowData.updatable && (
+          <option key="-1" value={""}>
+            Update
+          </option>
+        )}
+        {rowData.version.map((v: string) => (
+          <option key={v} value={v}>
+            {v}
+          </option>
+        ))}
+      </HTMLSelect>
+    );
 
     return (
-      <div className={PkgListStyle.TableContainer(this.props.height)}>
-        <table className={PkgListStyle.Table}>
-          <thead>
-            <tr className={PkgListStyle.Header}>
-              <th className={PkgListStyle.CellStatus}>
-                <TitleItem
-                  title=""
-                  field={TitleItem.SortField.Status}
-                  updateSort={() => {}}
-                  status={
-                    this.props.sortedBy === TitleItem.SortField.Status
-                      ? this.props.sortDirection
-                      : TitleItem.SortStatus.None
-                  }
-                />
-              </th>
-              <th className={PkgListStyle.CellName}>
-                <TitleItem
-                  title="Name"
-                  field={TitleItem.SortField.Name}
-                  updateSort={this.props.onSort}
-                  status={
-                    this.props.sortedBy === TitleItem.SortField.Name
-                      ? this.props.sortDirection
-                      : TitleItem.SortStatus.None
-                  }
-                />
-              </th>
+      <div className={Style.TableContainer}>
+        <AutoSizer disableHeight>
+          {({ width }) => (
+            <Table
+              className={Style.Table}
+              headerClassName={Style.Header}
+              headerHeight={29}
+              height={this.props.height}
+              onRowClick={({ rowData }) => this.props.onPkgClick(rowData)}
+              rowClassName={({ index }) => {
+                if (index >= 0) {
+                  return index % 2 === 0
+                    ? Style.RowEven(isSelected(index))
+                    : Style.RowOdd(isSelected(index));
+                }
+              }}
+              rowCount={this.props.packages.length}
+              rowGetter={rowGetter}
+              rowHeight={40}
+              width={width}
+            >
+              <Column
+                className={Style.CellStatus}
+                dataKey="status"
+                cellRenderer={iconRender}
+                disableSort
+                label=""
+                width={20}
+              />
+              <Column
+                className={Style.CellName}
+                dataKey="name"
+                cellRenderer={nameRender}
+                disableSort
+                label="Name"
+                width={200}
+                flexGrow={2}
+              />
               {this.props.hasDescription && (
-                <th className={PkgListStyle.CellSummary}>
-                  <div className={PkgListStyle.HeaderItem}>Description</div>
-                </th>
+                <Column
+                  className={Style.CellSummary}
+                  dataKey="summary"
+                  disableSort
+                  label="Description"
+                  width={250}
+                  flexGrow={5}
+                />
               )}
-              <th className={PkgListStyle.Cell}>
-                <TitleItem
-                  title="Version"
-                  field={TitleItem.SortField.Version}
-                  updateSort={this.props.onSort}
-                  status={
-                    this.props.sortedBy === TitleItem.SortField.Version
-                      ? this.props.sortDirection
-                      : TitleItem.SortStatus.None
-                  }
-                />
-              </th>
-              <th className={PkgListStyle.Cell}>
-                <span className={PkgListStyle.HeaderItem}>Change to</span>
-              </th>
-              <th className={PkgListStyle.Cell}>
-                <TitleItem
-                  title="Channel"
-                  field={TitleItem.SortField.Channel}
-                  updateSort={this.props.onSort}
-                  status={
-                    this.props.sortedBy === TitleItem.SortField.Channel
-                      ? this.props.sortDirection
-                      : TitleItem.SortStatus.None
-                  }
-                />
-              </th>
-            </tr>
-          </thead>
-          <tbody>{listItems}</tbody>
-        </table>
+              <Column
+                cellRenderer={({ rowData }: ICellRender) => (
+                  <span
+                    className={
+                      rowData.updatable
+                        ? classes(Style.Updatable, Style.Cell)
+                        : Style.Cell
+                    }
+                  >
+                    {rowData.version_installed}
+                  </span>
+                )}
+                dataKey="version_installed"
+                disableSort
+                label="Version"
+                width={90}
+              />
+              <Column
+                className={Style.Cell}
+                dataKey="version_selected"
+                cellRenderer={changeRender}
+                disableSort
+                label="Change to"
+                width={120}
+              />
+              <Column
+                className={Style.Cell}
+                dataKey="channel"
+                disableSort
+                flexGrow={1}
+                label="Channel"
+                width={120}
+              />
+            </Table>
+          )}
+        </AutoSizer>
       </div>
     );
   }
 }
 
-export namespace PkgListStyle {
-  export const TableContainer = (height: number) => {
-    return style({
-      height: height,
-      width: "100%",
-      overflowX: "auto",
-      overflowY: "auto",
+namespace Style {
+  export const TableContainer = style({});
 
-      $nest: {
-        table: {
-          borderCollapse: "collapse"
-        }
-      }
-    });
-  };
-
-  export const Table = style({
-    width: "100%"
-  });
+  export const Table = style({});
 
   export const Header = style({
     color: "var(--jp-ui-font-color1)",
-    width: "100%",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: 29,
     textAlign: "left"
-  });
-
-  export const Row = style({
-    width: "100%",
-    $nest: {
-      "&:hover": {
-        backgroundColor: "var(--jp-layout-color3)",
-        border: "1px solid var(--jp-border-color3)"
-      },
-      "&:nth-child(even)": {
-        background: "var(--jp-layout-color2)",
-        $nest: {
-          "&:hover": {
-            backgroundColor: "var(--jp-layout-color3)",
-            border: "1px solid var(--jp-border-color3)"
-          }
-        }
-      }
-    }
-  });
-
-  export const CellStatus = style({
-    padding: "0px 2px"
-  });
-
-  export const CellName = style({});
-
-  export const CellSummary = style({
-    whiteSpace: "normal",
-    maxWidth: "50%"
-  });
-
-  export const Cell = style({
-    minWidth: 90
-  });
-
-  export const HeaderItem = style({
-    padding: "0px 5px"
 
     // $nest: {
     //   '&:hover div': {
@@ -275,18 +261,39 @@ export namespace PkgListStyle {
     // }
   });
 
-  export const CurrentHeaderItem = style({
-    $nest: {
-      "&::after": {
-        content: `'\\F0DD'`, // up \\F0DE
-        fontFamily: "FontAwesome",
-        display: "inline-block",
-        textAlign: "right",
-        flex: "1 1 auto",
-        padding: "0 5px"
+  export const RowEven = (selected: boolean) =>
+    style({
+      background: selected ? "var(--jp-brand-color3)" : "unset",
+      $nest: {
+        "&:hover": {
+          backgroundColor: "var(--jp-layout-color3)"
+        }
       }
-    }
+    });
+
+  export const RowOdd = (selected: boolean) =>
+    style({
+      background: selected
+        ? "var(--jp-brand-color3)"
+        : "var(--jp-layout-color2)",
+      $nest: {
+        "&:hover": {
+          backgroundColor: "var(--jp-layout-color3)"
+        }
+      }
+    });
+
+  export const CellStatus = style({
+    padding: "0px 2px"
   });
+
+  export const CellName = style({});
+
+  export const CellSummary = style({
+    whiteSpace: "normal"
+  });
+
+  export const Cell = style({});
 
   export const SortButton = style({
     transform: "rotate(180deg)",
@@ -295,5 +302,67 @@ export namespace PkgListStyle {
     border: "none",
     backgroundColor: "var(--jp-layout-color0)",
     fontSize: "var(--jp-ui-font-size1)"
+  });
+
+  export const Link = style({
+    $nest: {
+      "&:hover": {
+        textDecoration: "underline"
+      }
+    }
+  });
+
+  export const StatusAvailable = classes(
+    "fa",
+    "fa-square-o",
+    "fa-fw",
+    style(GlobalStyle.FaIcon, {
+      verticalAlign: "middle"
+    })
+  );
+
+  export const StatusInstalled = classes(
+    "fa",
+    "fa-check-square",
+    "fa-fw",
+    style(GlobalStyle.FaIcon, {
+      verticalAlign: "middle",
+      color: "var(--jp-brand-color1)"
+    })
+  );
+
+  export const StatusUpdate = classes(
+    "fa",
+    "fa-external-link-square",
+    "fa-fw",
+    style(GlobalStyle.FaIcon, {
+      verticalAlign: "middle",
+      color: "var(--jp-accent-color1)"
+    })
+  );
+
+  export const StatusRemove = classes(
+    "fa",
+    "fa-minus-square",
+    "fa-fw",
+    style(GlobalStyle.FaIcon, {
+      verticalAlign: "middle",
+      color: "var(--jp-error-color1)"
+    })
+  );
+
+  export const Updatable = style({
+    color: "var(--jp-brand-color0)",
+
+    $nest: {
+      "&::before": {
+        content: `'↗️'`,
+        paddingRight: 2
+      }
+    }
+  });
+
+  export const VersionSelection = style({
+    width: "100%"
   });
 }
