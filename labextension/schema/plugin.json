@@ -1,0 +1,29 @@
+{
+  "jupyter.lab.setting-icon-label": "Conda Manager",
+  "title": "Conda",
+  "description": "Environments and packages manager settings.",
+  "properties": {
+    "types": {
+      "type": "object",
+      "title": "Environment types",
+      "description": "Type of environment available when creating it from scratch.",
+      "default": {
+        "Python 2": ["python=2", "ipykernel"],
+        "Python 3": ["python=3", "ipykernel"],
+        "R": ["r-base", "r-essentials"]
+      },
+      "properties": {
+        "^\\w[\\w\\s]*$": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

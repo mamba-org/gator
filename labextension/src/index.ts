@@ -13,20 +13,23 @@ import { classes, style } from "typestyle";
 import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
 import { CondaEnvironments, IEnvironmentManager } from "./services";
+import { ISettingRegistry } from "@jupyterlab/coreutils";
 
 export { Conda, IEnvironmentManager } from "./services";
 
-function activateCondaEnv(
+async function activateCondaEnv(
   app: JupyterFrontEnd,
   palette: ICommandPalette,
   menu: IMainMenu,
-  restorer: ILayoutRestorer
-): IEnvironmentManager {
+  restorer: ILayoutRestorer,
+  settingsRegistry: ISettingRegistry
+): Promise<IEnvironmentManager> {
   const { commands, shell } = app;
   const plugin_namespace = "conda-env";
   const command: string = "condaenv:open-ui";
 
-  const model = new CondaEnvironments();
+  const settings = await settingsRegistry.load(condaEnvId);
+  const model = new CondaEnvironments(settings);
 
   // Track and restore the widget state
   let tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
@@ -77,7 +80,7 @@ const extension: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,
-  requires: [ICommandPalette, IMainMenu, ILayoutRestorer],
+  requires: [ICommandPalette, IMainMenu, ILayoutRestorer, ISettingRegistry],
   provides: IEnvironmentManager
 };
 

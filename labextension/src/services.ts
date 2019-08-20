@@ -1,4 +1,4 @@
-import { URLExt } from "@jupyterlab/coreutils";
+import { URLExt, ISettingRegistry } from "@jupyterlab/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { Token } from "@phosphor/coreutils";
 import { IDisposable } from "@phosphor/disposable";
@@ -16,6 +16,11 @@ export interface IEnvironmentManager extends IDisposable {
    * Get all available environments
    */
   environments: Promise<Array<Conda.IEnvironment>>;
+
+  /**
+   * Get the list of user-defined environment types
+   */
+  environmentTypes: string[];
 
   /**
    * Get all packages channels avalaible in the requested environment
@@ -45,7 +50,7 @@ export interface IEnvironmentManager extends IDisposable {
    * @param name name of the new environment
    * @param type type of environment to create
    */
-  create(name: string, type?: Conda.IType): Promise<void>;
+  create(name: string, type?: string): Promise<void>;
 
   /**
    * Signal emitted when a environment is changed.
@@ -122,11 +127,6 @@ export namespace Conda {
      */
     [key: string]: Array<string>;
   }
-
-  /**
-   * Type of environment that can be created.
-   */
-  export type IType = "python2" | "python3" | "r" | string;
 
   /**
    * Interface of the packages service
@@ -252,6 +252,13 @@ export namespace Conda {
   }
 }
 
+/**
+ * Type of environment that can be created.
+ */
+interface IType {
+  [key: string]: string[];
+}
+
 namespace RESTAPI {
   /**
    * Description of the REST API response when loading environments
@@ -344,8 +351,16 @@ export async function requestServer(
  * Conda Environment Manager
  */
 export class CondaEnvironments implements IEnvironmentManager {
-  constructor() {
+  constructor(settings?: ISettingRegistry.ISettings) {
     this._environments = new Array<Conda.IEnvironment>();
+
+    if (settings) {
+      this._updateEnvironmentTypes(settings);
+      settings.changed.connect(
+        this._updateEnvironmentTypes,
+        this
+      );
+    }
   }
 
   public get environments(): Promise<Array<Conda.IEnvironment>> {
@@ -370,6 +385,37 @@ export class CondaEnvironments implements IEnvironmentManager {
    */
   get isDisposed(): boolean {
     return this._isDisposed;
+  }
+
+  /**
+   * Get the list of packages to install for a given environment type.
+   *
+   * The returned package list is the input type split with " ".
+   *
+   * @param type Environment type
+   * @returns List of packages to create the environment
+   */
+  getEnvironmentFromType(type: string): string[] {
+    if (type in this._environmentTypes) {
+      return this._environmentTypes[type];
+    }
+    return type.split(" ");
+  }
+
+  /**
+   * Get the list of user-defined environment types
+   */
+  get environmentTypes(): string[] {
+    return Object.keys(this._environmentTypes);
+  }
+
+  /**
+   * Load user settings
+   *
+   * @param settings User settings
+   */
+  private _updateEnvironmentTypes(settings: ISettingRegistry.ISettings) {
+    this._environmentTypes = settings.get("types").composite as IType;
   }
 
   async getChannels(name: string): Promise<Conda.IChannels> {
@@ -416,20 +462,10 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  async create(name: string, type?: Conda.IType): Promise<void> {
+  async create(name: string, type?: string): Promise<void> {
     try {
-      let packages: Array<string> = [];
+      const packages: Array<string> = this.getEnvironmentFromType(type || "");
 
-      // TODO This should be in the frontend and not in the backend
-      if (type === "python3") {
-        packages = ["python=3", "ipykernel"];
-      } else if (type === "python2") {
-        packages = ["python=2", "ipykernel"];
-      } else if (type === "r") {
-        packages = ["r-base", "r-essentials"];
-      } else if (typeof type === "string") {
-        packages = type.split(" ");
-      }
       let request: RequestInit = {
         body: JSON.stringify({ name, packages }),
         method: "POST"
@@ -558,6 +594,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
+  private _environmentTypes: { [key: string]: string[] };
 }
 
 export class CondaPackage implements Conda.IPackageManager {
