@@ -20,11 +20,11 @@ export interface PkgItemProps {
   /**
    * Package item click handler
    */
-  onClick: (name: string) => void;
+  onClick: (pkg: Conda.IPackage) => void;
   /**
    * Package version selection handler
    */
-  onChange: (name: string, version: string) => void;
+  onChange: (pkg: Conda.IPackage, version: string) => void;
 }
 
 /**
@@ -83,7 +83,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
         PkgListStyle.Row,
         isSelected ? Style.SelectedItem : Style.Item
       )}
-      onClick={() => props.onClick(name)}
+      onClick={() => props.onClick(props.package)}
     >
       <td className={PkgListStyle.CellStatus}>{statusIcon}</td>
       <td className={PkgListStyle.CellName}>{nameElement}</td>
@@ -107,7 +107,7 @@ export const CondaPkgItem = (props: PkgItemProps) => {
             evt.stopPropagation();
           }}
           onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
-            props.onChange(name, evt.target.value)
+            props.onChange(props.package, evt.target.value)
           }
           iconProps={{
             icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />

@@ -58,7 +58,7 @@ export interface IPkgPanelState {
   /**
    * Selected packages
    */
-  selected: Array<string>;
+  selected: Conda.IPackage[];
   /**
    * Active filter
    */
@@ -204,47 +204,40 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleClick(name: string) {
+  handleClick(pkg: Conda.IPackage) {
     if (this.state.isApplyingChanges) {
       return;
     }
 
-    let clicked: Conda.IPackage = null;
-    for (const pkg of this.state.packages) {
-      if (pkg.name === name) {
-        clicked = pkg;
-        break;
-      }
-    }
-
+    const name = pkg.name;
     const selectIdx = this.state.selected.indexOf(name);
     let selection = this.state.selected;
     if (selectIdx >= 0) {
       this.state.selected.splice(selectIdx, 1);
     }
 
-    if (clicked.version_installed) {
-      if (clicked.version_installed === clicked.version_selected) {
-        if (clicked.updatable) {
-          clicked.version_selected = ""; // Set for update
+    if (pkg.version_installed) {
+      if (pkg.version_installed === pkg.version_selected) {
+        if (pkg.updatable) {
+          pkg.version_selected = ""; // Set for update
           selection.push(name);
         } else {
-          clicked.version_selected = "none"; // Set for removal
+          pkg.version_selected = "none"; // Set for removal
           selection.push(name);
         }
       } else {
-        if (clicked.version_selected === "none") {
-          clicked.version_selected = clicked.version_installed;
+        if (pkg.version_selected === "none") {
+          pkg.version_selected = pkg.version_installed;
         } else {
-          clicked.version_selected = "none"; // Set for removal
+          pkg.version_selected = "none"; // Set for removal
           selection.push(name);
         }
       }
     } else {
-      if (clicked.version_selected !== "none") {
-        clicked.version_selected = "none"; // Unselect
+      if (pkg.version_selected !== "none") {
+        pkg.version_selected = "none"; // Unselect
       } else {
-        clicked.version_selected = ""; // Select 'Any'
+        pkg.version_selected = ""; // Select 'Any'
         selection.push(name);
       }
     }
@@ -255,27 +248,20 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleVersionSelection(name: string, version: string) {
+  handleVersionSelection(pkg: Conda.IPackage, version: string) {
     if (this.state.isApplyingChanges) {
       return;
     }
 
-    let clicked: Conda.IPackage = null;
-    for (const pkg of this.state.packages) {
-      if (pkg.name === name) {
-        clicked = pkg;
-        break;
-      }
-    }
-
+    const name = pkg.name;
     const selectIdx = this.state.selected.indexOf(name);
     let selection = this.state.selected;
     if (selectIdx >= 0) {
       this.state.selected.splice(selectIdx, 1);
     }
 
-    if (clicked.version_installed) {
-      if (clicked.version_installed !== version) {
+    if (pkg.version_installed) {
+      if (pkg.version_installed !== version) {
         selection.push(name);
       }
     } else {
@@ -284,7 +270,7 @@ export class CondaPkgPanel extends React.Component<
       }
     }
 
-    clicked.version_selected = version;
+    pkg.version_selected = version;
 
     this.setState({
       packages: this.state.packages,

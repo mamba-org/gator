@@ -95,11 +95,11 @@ export interface IPkgListProps {
   /**
    * Package item click handler
    */
-  onPkgClick: (name: string) => void;
+  onPkgClick: (pkg: Conda.IPackage) => void;
   /**
    * Package item version selection handler
    */
-  onPkgChange: (name: string, version: string) => void;
+  onPkgChange: (pkg: Conda.IPackage, version: string) => void;
 }
 
 /** React component for the package list */
