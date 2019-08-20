@@ -27,10 +27,6 @@ class JupyterCondaAPITest(ServerTest):
         self.pkg_name = "alabaster"     
 
     def tearDown(self):
-        # Remove available package cache
-        cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
-        if os.path.exists(cache_file):
-            os.unlink(cache_file)
         # Remove created environment
         for n in self.env_names:
             self.wait_for_task(self.rm_env, n)
@@ -541,6 +537,22 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
 
 
 class TestPackagesHandler(JupyterCondaAPITest):
+
+    def setUp(self):
+        super(TestPackagesHandler, self).setUp()
+        # Remove available package cache
+        cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
+        if os.path.exists(cache_file):
+            os.unlink(cache_file)
+
+    def tearDown(self):
+        # Remove available package cache
+        cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
+        if os.path.exists(cache_file):
+            os.unlink(cache_file)
+        super(TestPackagesHandler, self).setUp()
+
+
     def test_package_search(self):
         r = self.wait_for_task(
             self.conda_api.get, ["packages"], params={"query": self.pkg_name}
