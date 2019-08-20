@@ -6,7 +6,7 @@ import os
 import re
 import ssl
 import sys
-from tempfile import NamedTemporaryFile
+import tempfile
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from packaging.version import parse
@@ -18,6 +18,13 @@ from traitlets.config.configurable import LoggingConfigurable
 from .server import url_path_join
 
 ROOT_ENV_NAME = "base"
+
+MAX_LOG_OUTPUT = 6000  # type: int
+
+CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
+
+# try to match lines of json
+JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
 
 
 def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
@@ -36,19 +43,11 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "name": s.get("name"),
         "platform": s.get("platform"),
         "version": s.get("version"),
-        "summary": s.get("summary", ""),
+        "summary": s.get("summary", ""), 
         "home": s.get("home", ""),
         "keywords": s.get("keywords", []),
         "tags": s.get("tags", []),
     }
-
-
-MAX_LOG_OUTPUT = 6000  # type: int
-
-CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
-
-# try to match lines of json
-JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
 
 
 class EnvManager(LoggingConfigurable):
@@ -263,7 +262,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Create command output
         """
-        with NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
             name = f.name
             f.write(file_content)
             
@@ -372,7 +371,10 @@ class EnvManager(LoggingConfigurable):
         """List all available packages
         
         Returns:
-            {"packages": List[package]}
+            {
+                "packages": List[package],
+                "with_description": bool  # Wheter we succed in get some channeldata.json files
+            }
         """
         ans = yield self._execute(CONDA_EXE, "search", "--json")
         _, output = ans
@@ -492,11 +494,7 @@ class EnvManager(LoggingConfigurable):
                             validate_cert=configuration.get("ssl_verify", True),
                         )
                     )
-                except (
-                    tornado.httpclient.HTTPClientError,
-                    ConnectionError,
-                    ssl.SSLError,
-                ) as e:
+                except Exception as e:
                     self.log.info(
                         "[jupyter_conda] Error getting {}/channeldata.json: {}".format(
                             channel, str(e)
@@ -545,7 +543,10 @@ class EnvManager(LoggingConfigurable):
             if channel in tr_channels:
                 package["channel"] = tr_channels[channel]
 
-        return {"packages": sorted(packages, key=lambda entry: entry.get("name"))}
+        return {
+            "packages": sorted(packages, key=lambda entry: entry.get("name")),
+            "with_description": len(pkg_info) > 0
+        }
 
     @tornado.gen.coroutine
     def package_search(self, q: str) -> Dict[str, List]:
@@ -555,7 +556,10 @@ class EnvManager(LoggingConfigurable):
             q (str): Search query
 
         Returns:
-            {"packages": List[package]}
+            {
+                "packages": List[package],
+                "with_description": bool  # Wheter we succed in get some channeldata.json files
+            }
         """
         ans = yield self._execute(CONDA_EXE, "search", "--json", q)
         _, output = ans
@@ -581,7 +585,10 @@ class EnvManager(LoggingConfigurable):
 
             packages.append(max_version_entry)
 
-        return {"packages": sorted(packages, key=lambda entry: entry.get("name"))}
+        return {
+            "packages": sorted(packages, key=lambda entry: entry.get("name")),
+            "with_description": False
+        }
 
     @tornado.gen.coroutine
     def check_update(

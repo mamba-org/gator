@@ -47,12 +47,18 @@ export interface IEnvListProps {
    */
   onExport(): void;
   /**
+   * Refresh environment handler
+   */
+  onRefresh(): void;
+  /**
    * Environment remove handler
    */
   onRemove(): void;
 }
 
-/** React component for the environment list */
+/**
+ * React component for the environment list
+ */
 export class CondaEnvList extends React.Component<IEnvListProps> {
   render() {
     let isDefault = false;
@@ -66,7 +72,7 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
       return (
         <CondaEnvItem
           name={env.name}
-          key={"env-" + idx}
+          key={env.name}
           selected={
             this.props.selected ? env.name === this.props.selected : false
           }
@@ -77,25 +83,15 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
 
     return (
       <div className={Style.Panel}>
-        <div className={Style.Title}>
-          <span>Conda environments</span>
-        </div>
-        <div className={Style.NoGrow}>
-          <CondaEnvToolBar
-            isBase={isDefault}
-            onCreate={this.props.onCreate}
-            onClone={this.props.onClone}
-            onImport={this.props.onImport}
-            onExport={this.props.onExport}
-            onRemove={this.props.onRemove}
-          />
-        </div>
-        <div
-          className={
-            this.props.isPending
-              ? "jp-NbConda-pending jp-mod-hasPending"
-              : "jp-NbConda-pending"
-          }
+        <CondaEnvToolBar
+          isBase={isDefault}
+          isPending={this.props.isPending}
+          onCreate={this.props.onCreate}
+          onClone={this.props.onClone}
+          onImport={this.props.onImport}
+          onExport={this.props.onExport}
+          onRefresh={this.props.onRefresh}
+          onRemove={this.props.onRemove}
         />
         <div className={Style.ListEnvs(this.props.height - 40 - 32)}>
           {listItems}
@@ -113,19 +109,6 @@ namespace Style {
     flexDirection: "column",
     overflow: "hidden",
     width: 250
-  });
-
-  export const Title = style({
-    color: "var(--jp-ui-font-color1)",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: "var(--jp-ui-font-size2)",
-    height: 40 //Toolbar height to align with package toolbar
-  });
-
-  export const NoGrow = style({
-    flexGrow: 0,
-    flexShrink: 0
   });
 
   export const ListEnvs = (height: number) =>

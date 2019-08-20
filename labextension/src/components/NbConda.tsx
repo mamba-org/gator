@@ -1,12 +1,11 @@
+import { Dialog, showDialog } from "@jupyterlab/apputils";
+import { Widget } from "@phosphor/widgets";
+import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import { style } from "typestyle";
-import { INotification } from "jupyterlab_toastify";
-
+import { Conda, IEnvironmentManager } from "../services";
 import { CondaEnvList } from "./CondaEnvList";
 import { CondaPkgPanel } from "./CondaPkgPanel";
-import { IEnvironmentManager, Conda } from "../services";
-import { showDialog, Dialog } from "@jupyterlab/apputils";
-import { Widget } from "@phosphor/widgets";
 
 /**
  * Jupyter Conda Component properties
@@ -64,6 +63,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleCloneEnvironment = this.handleCloneEnvironment.bind(this);
     this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
     this.handleExportEnvironment = this.handleExportEnvironment.bind(this);
+    this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
     this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
   }
 
@@ -293,6 +293,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
+  async handleRefreshEnvironment() {
+    await this.loadEnvironments();
+  }
+
   async handleRemoveEnvironment() {
     let toastId = null;
     try {
@@ -386,10 +390,12 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           onClone={this.handleCloneEnvironment}
           onImport={this.handleImportEnvironment}
           onExport={this.handleExportEnvironment}
+          onRefresh={this.handleRefreshEnvironment}
           onRemove={this.handleRemoveEnvironment}
         />
         <CondaPkgPanel
           height={this.props.height}
+          width={this.props.width - 250} // Remove environment panel width
           environment={this.state.currentEnvironment}
         />
       </div>

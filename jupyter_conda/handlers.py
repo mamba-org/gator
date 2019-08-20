@@ -8,8 +8,10 @@
 import collections
 import json
 import logging
+import os
 import re
 import sys
+import tempfile
 import traceback
 from typing import Any, Callable
 
@@ -18,7 +20,11 @@ import tornado
 from .server import APIHandler, url_path_join
 from .envmanager import EnvManager
 
+logger = logging.getLogger(__name__)
+
 NS = r"conda"
+# Filename for the available conda packages list cache in temp folder
+AVAILABLE_CACHE = "jupyter_conda_packages"
 
 
 class ActionsStack:
@@ -83,9 +89,16 @@ class ActionsStack:
                     )
                     result = yield task(*args)
                 except Exception as e:
-                    _, _, tb = sys.exc_info()
-                    result = {"error": str(e), "message": repr(e), "traceback": traceback.format_tb(tb)}
-                    ActionsStack.logger.error("[jupyter_conda] Error for task {}.".format(result))
+                    exception_type, _, tb = sys.exc_info()
+                    result = {
+                        "type": exception_type.__qualname__,
+                        "error": str(e),
+                        "message": repr(e),
+                        "traceback": traceback.format_tb(tb),
+                    }
+                    ActionsStack.logger.error(
+                        "[jupyter_conda] Error for task {}.".format(result)
+                    )
                 finally:
                     ActionsStack.logger.debug(
                         "[jupyter_conda] Has executed task {}.".format(idx)
@@ -108,7 +121,7 @@ class EnvBaseHandler(APIHandler):
     _stack = None  # type: Optional[ActionsStack]
 
     def initialize(self):
-        # ActionsStack must be created here to ensure IOLoop is available 
+        # ActionsStack must be created here to ensure IOLoop is available
         # to start the worker
         self._stack = ActionsStack()
 
@@ -308,6 +321,8 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
 class PackagesHandler(EnvBaseHandler):
     """Handles packages search"""
 
+    __is_listing_available = False
+
     @tornado.web.authenticated
     @tornado.gen.coroutine
     def get(self):
@@ -318,12 +333,55 @@ class PackagesHandler(EnvBaseHandler):
         """
         query = self.get_query_argument("query", "")
 
-        if query:
+        idx = None
+        if query:  # Specific search
             idx = self._stack.put(self.env_manager.package_search, query)
-        else:
-            idx = self._stack.put(self.env_manager.list_available)
 
-        self.redirect_to_task(idx)
+        else:  # List all available
+            cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
+
+            @tornado.gen.coroutine
+            def update_available(env_manager):
+                answer = yield env_manager.list_available()
+                try:
+                    with open(cache_file, "w+") as cache:
+                        json.dump(answer, cache)
+                except (ValueError, OSError) as e:
+                    logger.warning(
+                        "[jupyter_conda] Fail to cache available packages {!s}.".format(
+                            e
+                        )
+                    )
+                PackagesHandler.__is_listing_available = False
+
+                return answer
+
+            cache_data = ""
+            try:
+                with open(cache_file) as cache:
+                    cache_data = cache.read()
+            except OSError as e:
+                logger.warning(
+                    "[jupyter_conda] Fail to load available packages from cache {!s}.".format(
+                        e
+                    )
+                )
+
+            if len(cache_data) > 0:
+                logger.debug("[jupyter_conda] Loading available packages from cache.")
+                # Request cache update
+                if not PackagesHandler.__is_listing_available:
+                    PackagesHandler.__is_listing_available = True
+                    self._stack.put(update_available, self.env_manager)
+                # Return current cache
+                self.set_status(200)
+                self.finish(cache_data)
+            else:
+                # Request cache update and return once updated
+                idx = self._stack.put(update_available, self.env_manager)
+
+        if idx is not None:
+            self.redirect_to_task(idx)
 
 
 class TaskHandler(EnvBaseHandler):
@@ -356,7 +414,7 @@ class TaskHandler(EnvBaseHandler):
             else:
                 if "error" in r:
                     self.set_status(500)
-                    self.log.debug("[jupyter_conda] {}".format(r))
+                    logger.debug("[jupyter_conda] {}".format(r))
                 else:
                     self.set_status(200)
                 self.finish(json.dumps(r))
