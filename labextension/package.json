@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_conda",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "Manage your conda environments from JupyterLab",
   "keywords": [
     "jupyter",
@@ -16,7 +16,8 @@
   "author": "Jupyter Development Team",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
+    "schema/*.json"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -59,6 +60,7 @@
   },
   "jupyterlab": {
     "extension": true,
+    "schemaDir": "schema",
     "discovery": {
       "server": {
         "base": {

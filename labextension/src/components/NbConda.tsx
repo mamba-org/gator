@@ -87,19 +87,12 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       let typeLabel = document.createElement("label");
       typeLabel.textContent = "Type : ";
       let typeInput = document.createElement("select");
-      let opt = document.createElement("option");
-      opt.setAttribute("value", "python2");
-      opt.innerText = "Python 2";
-      typeInput.appendChild(opt);
-      opt = document.createElement("option");
-      opt.setAttribute("value", "python3");
-      opt.selected = true;
-      opt.innerText = "Python 3";
-      typeInput.appendChild(opt);
-      opt = document.createElement("option");
-      opt.setAttribute("value", "r");
-      opt.innerText = "R";
-      typeInput.appendChild(opt);
+      for (const type of this.props.model.environmentTypes) {
+        const option = document.createElement("option");
+        option.setAttribute("value", type);
+        option.innerText = type;
+        typeInput.appendChild(option);
+      }
       body.appendChild(typeLabel);
       body.appendChild(typeInput);
 
