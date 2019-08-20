@@ -209,8 +209,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    const name = pkg.name;
-    const selectIdx = this.state.selected.indexOf(name);
+    const selectIdx = this.state.selected.indexOf(pkg);
     let selection = this.state.selected;
     if (selectIdx >= 0) {
       this.state.selected.splice(selectIdx, 1);
@@ -220,17 +219,17 @@ export class CondaPkgPanel extends React.Component<
       if (pkg.version_installed === pkg.version_selected) {
         if (pkg.updatable) {
           pkg.version_selected = ""; // Set for update
-          selection.push(name);
+          selection.push(pkg);
         } else {
           pkg.version_selected = "none"; // Set for removal
-          selection.push(name);
+          selection.push(pkg);
         }
       } else {
         if (pkg.version_selected === "none") {
           pkg.version_selected = pkg.version_installed;
         } else {
           pkg.version_selected = "none"; // Set for removal
-          selection.push(name);
+          selection.push(pkg);
         }
       }
     } else {
@@ -238,7 +237,7 @@ export class CondaPkgPanel extends React.Component<
         pkg.version_selected = "none"; // Unselect
       } else {
         pkg.version_selected = ""; // Select 'Any'
-        selection.push(name);
+        selection.push(pkg);
       }
     }
 
@@ -253,8 +252,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    const name = pkg.name;
-    const selectIdx = this.state.selected.indexOf(name);
+    const selectIdx = this.state.selected.indexOf(pkg);
     let selection = this.state.selected;
     if (selectIdx >= 0) {
       this.state.selected.splice(selectIdx, 1);
@@ -262,11 +260,11 @@ export class CondaPkgPanel extends React.Component<
 
     if (pkg.version_installed) {
       if (pkg.version_installed !== version) {
-        selection.push(name);
+        selection.push(pkg);
       }
     } else {
       if (version !== "none") {
-        selection.push(name);
+        selection.push(pkg);
       }
     }
 
@@ -377,21 +375,19 @@ export class CondaPkgPanel extends React.Component<
         const to_remove: Array<string> = [];
         const to_update: Array<string> = [];
         const to_install: Array<string> = [];
-        this.state.packages
-          .filter(pkg => this.state.selected.indexOf(pkg.name) >= 0)
-          .forEach(pkg => {
-            if (pkg.version_installed && pkg.version_selected === "none") {
-              to_remove.push(pkg.name);
-            } else if (pkg.updatable && pkg.version_selected === "") {
-              to_update.push(pkg.name);
-            } else {
-              to_install.push(
-                pkg.version_selected
-                  ? pkg.name + "=" + pkg.version_selected
-                  : pkg.name
-              );
-            }
-          });
+        this.state.selected.forEach(pkg => {
+          if (pkg.version_installed && pkg.version_selected === "none") {
+            to_remove.push(pkg.name);
+          } else if (pkg.updatable && pkg.version_selected === "") {
+            to_update.push(pkg.name);
+          } else {
+            to_install.push(
+              pkg.version_selected
+                ? pkg.name + "=" + pkg.version_selected
+                : pkg.name
+            );
+          }
+        });
 
         if (to_remove.length > 0) {
           INotification.update({
@@ -509,7 +505,7 @@ export class CondaPkgPanel extends React.Component<
       });
     } else if (this.state.activeFilter === PkgFilters.Selected) {
       this.state.packages.forEach(pkg => {
-        if (this.state.selected.indexOf(pkg.name) >= 0) {
+        if (this.state.selected.indexOf(pkg) >= 0) {
           filteredPkgs.push(pkg);
         }
       });
