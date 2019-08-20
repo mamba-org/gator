@@ -58,7 +58,7 @@ export interface IPkgPanelState {
   /**
    * Selected packages
    */
-  selected: Array<{ index: number; status: Conda.PkgStatus }>;
+  selected: Array<string>;
   /**
    * Active filter
    */
@@ -210,42 +210,52 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleClick(index: number) {
+  handleClick(name: string) {
     if (this.state.isApplyingChanges) {
       return;
     }
 
-    let clicked = this.state.packages[index];
-    let selection = this.state.selected;
-    let found = false;
-    for (let selectIdx = 0; selectIdx < selection.length; ++selectIdx) {
-      if (selection[selectIdx].index === index) {
-        found = true;
-        if (clicked.status === Conda.PkgStatus.Installed) {
-          if (selection[selectIdx].status === Conda.PkgStatus.Update) {
-            selection[selectIdx].status = Conda.PkgStatus.Remove;
-          } else {
-            selection = selection.splice(selectIdx, 1);
-          }
-        } else if (clicked.status === Conda.PkgStatus.Available) {
-          selection = selection.splice(selectIdx, 1);
-        }
-
+    let clicked: Conda.IPackage = null;
+    for (const pkg of this.state.packages) {
+      if (pkg.name === name) {
+        clicked = pkg;
         break;
       }
     }
 
-    if (!found) {
-      if (clicked.status === Conda.PkgStatus.Installed) {
+    const selectIdx = this.state.selected.indexOf(name);
+    let selection = this.state.selected;
+    if (selectIdx >= 0) {
+      this.state.selected.splice(selectIdx, 1);
+    }
+
+    if (clicked.version_installed) {
+      if (clicked.version_installed === clicked.version_selected) {
         if (clicked.updatable) {
-          selection.push({ index, status: Conda.PkgStatus.Update });
+          clicked.version_selected = ""; // Set for update
+          selection.push(name);
         } else {
-          selection.push({ index, status: Conda.PkgStatus.Remove });
+          clicked.version_selected = "none"; // Set for removal
+          selection.push(name);
         }
-      } else if (clicked.status === Conda.PkgStatus.Available) {
-        selection.push({ index, status: Conda.PkgStatus.Installed });
+      } else {
+        if (clicked.version_selected === "none") {
+          clicked.version_selected = clicked.version_installed;
+        } else {
+          clicked.version_selected = "none"; // Set for removal
+          selection.push(name);
+        }
+      }
+    } else {
+      if (clicked.version_selected !== "none") {
+        clicked.version_selected = "none"; // Unselect
+      } else {
+        clicked.version_selected = ""; // Select 'Any'
+        selection.push(name);
       }
     }
+
+    console.log(selection);
 
     this.setState({
       packages: this.state.packages,
@@ -253,17 +263,42 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleVersionSelection(index: number, version: string) {
+  handleVersionSelection(name: string, version: string) {
     if (this.state.isApplyingChanges) {
       return;
     }
 
-    let clicked = this.state.packages[index];
-    if (clicked.version_installed === version) {
-      delete clicked.version_selected;
-    } else {
-      clicked.version_selected = version;
+    let clicked: Conda.IPackage = null;
+    for (const pkg of this.state.packages) {
+      if (pkg.name === name) {
+        clicked = pkg;
+        break;
+      }
     }
+
+    const selectIdx = this.state.selected.indexOf(name);
+    let selection = this.state.selected;
+    if (selectIdx >= 0) {
+      this.state.selected.splice(selectIdx, 1);
+    }
+
+    if (clicked.version_installed) {
+      if (clicked.version_installed !== version) {
+        selection.push(name);
+      }
+    } else {
+      if (version !== "none") {
+        selection.push(name);
+      }
+    }
+
+    clicked.version_selected = version;
+
+    console.log(version, selection);
+    this.setState({
+      packages: this.state.packages,
+      selected: selection
+    });
   }
 
   handleSearch(event: any) {
@@ -360,38 +395,55 @@ export class CondaPkgPanel extends React.Component<
           isApplyingChanges: true
         });
         toastId = INotification.inProgress("Starting packages actions");
-        let pkgs = this.state.selected
-          .filter(selection => selection.status === Conda.PkgStatus.Remove)
-          .map(selection => this.state.packages[selection.index].name);
-        if (pkgs.length > 0) {
+
+        // Get modified pkgs
+        const to_remove: Array<string> = [];
+        const to_update: Array<string> = [];
+        const to_install: Array<string> = [];
+        this.state.packages
+          .filter(pkg => this.state.selected.indexOf(pkg.name) >= 0)
+          .forEach(pkg => {
+            if (pkg.version_installed && pkg.version_selected === "none") {
+              to_remove.push(pkg.name);
+            } else if (pkg.updatable && pkg.version_selected === "") {
+              to_update.push(pkg.name);
+            } else {
+              to_install.push(
+                pkg.version_selected
+                  ? pkg.name + "=" + pkg.version_selected
+                  : pkg.name
+              );
+            }
+          });
+
+        console.info(`Remove packages ${to_remove}`);
+        if (to_remove.length > 0) {
           INotification.update({
             toastId: toastId,
             message: "Removing selected packages",
             buttons: []
           });
-          await this._model.remove(pkgs);
+          await this._model.remove(to_remove);
         }
-        pkgs = this.state.selected
-          .filter(selection => selection.status === Conda.PkgStatus.Update)
-          .map(selection => this.state.packages[selection.index].name);
-        if (pkgs.length > 0) {
+
+        console.info(`Update packages ${to_update}`);
+        if (to_update.length > 0) {
           INotification.update({
             toastId: toastId,
             message: "Updating selected packages",
             buttons: []
           });
-          await this._model.update(pkgs);
+          await this._model.update(to_update);
         }
-        pkgs = this.state.selected
-          .filter(selection => selection.status === Conda.PkgStatus.Installed)
-          .map(selection => this.state.packages[selection.index].name);
-        if (pkgs.length > 0) {
+
+        console.info(`Install packages ${to_install}`);
+        if (to_install.length > 0) {
           INotification.update({
             toastId: toastId,
             message: "Installing new packages",
             buttons: []
           });
-          await this._model.install(pkgs);
+          await this._model.install(to_install);
         }
 
         INotification.update({
@@ -482,8 +534,10 @@ export class CondaPkgPanel extends React.Component<
         }
       });
     } else if (this.state.activeFilter === PkgFilters.Selected) {
-      this.state.selected.forEach(selection => {
-        filteredPkgs.push(this.state.packages[selection.index]);
+      this.state.packages.forEach(pkg => {
+        if (this.state.selected.indexOf(pkg.name) >= 0) {
+          filteredPkgs.push(pkg);
+        }
       });
     }
 
@@ -521,7 +575,6 @@ export class CondaPkgPanel extends React.Component<
           sortedBy={this.state.sortedField}
           sortDirection={this.state.sortDirection}
           packages={searchPkgs}
-          selection={this.state.selected}
           onPkgClick={this.handleClick}
           onPkgChange={this.handleVersionSelection}
           onSort={this.handleSort}

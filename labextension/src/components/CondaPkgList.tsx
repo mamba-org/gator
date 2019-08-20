@@ -81,10 +81,6 @@ export interface IPkgListProps {
    */
   packages: Conda.IPackage[];
   /**
-   * Selected conda package
-   */
-  selection: Array<{ index: number; status: Conda.PkgStatus }>;
-  /**
    * Field used for sorting
    */
   sortedBy: TitleItem.SortField;
@@ -99,19 +95,18 @@ export interface IPkgListProps {
   /**
    * Package item click handler
    */
-  onPkgClick: (index: number) => void;
+  onPkgClick: (name: string) => void;
   /**
    * Package item version selection handler
    */
-  onPkgChange: (index: number, version: string) => void;
+  onPkgChange: (name: string, version: string) => void;
 }
 
 /** React component for the package list */
 export class CondaPkgList extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
     hasDescription: false,
-    packages: [],
-    selection: []
+    packages: []
   };
 
   constructor(props: IPkgListProps) {
@@ -119,26 +114,15 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   }
 
   render() {
-    const listItems = this.props.packages.map((pkg, index) => {
-      const selection = this.props.selection.filter(
-        selected => selected.index === index
-      );
-      const isSelected = selection[0] !== undefined;
-      const status = isSelected ? selection[0].status : pkg.status;
-
-      return (
-        <CondaPkgItem
-          hasDescription={this.props.hasDescription}
-          index={index}
-          key={index}
-          package={pkg}
-          isSelected={isSelected}
-          status={status}
-          onClick={this.props.onPkgClick}
-          onChange={this.props.onPkgChange}
-        />
-      );
-    });
+    const listItems = this.props.packages.map(pkg => (
+      <CondaPkgItem
+        key={pkg.name}
+        package={pkg}
+        hasDescription={this.props.hasDescription}
+        onClick={this.props.onPkgClick}
+        onChange={this.props.onPkgChange}
+      />
+    ));
 
     return (
       <div className={PkgListStyle.TableContainer(this.props.height)}>
@@ -187,9 +171,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 />
               </th>
               <th className={PkgListStyle.Cell}>
-                <span className={PkgListStyle.HeaderItem}>Available</span>
+                <span className={PkgListStyle.HeaderItem}>Change to</span>
               </th>
-              <th className={PkgListStyle.CellChannel}>
+              <th className={PkgListStyle.Cell}>
                 <TitleItem
                   title="Channel"
                   field={TitleItem.SortField.Channel}
@@ -242,8 +226,18 @@ export namespace PkgListStyle {
   export const Row = style({
     width: "100%",
     $nest: {
+      "&:hover": {
+        backgroundColor: "var(--jp-layout-color3)",
+        border: "1px solid var(--jp-border-color3)"
+      },
       "&:nth-child(even)": {
-        background: "var(--jp-layout-color2)"
+        background: "var(--jp-layout-color2)",
+        $nest: {
+          "&:hover": {
+            backgroundColor: "var(--jp-layout-color3)",
+            border: "1px solid var(--jp-border-color3)"
+          }
+        }
       }
     }
   });
@@ -256,12 +250,12 @@ export namespace PkgListStyle {
 
   export const CellSummary = style({
     whiteSpace: "normal",
-    maxWidth: "60%"
+    maxWidth: "50%"
   });
 
-  export const CellChannel = style({});
-
-  export const Cell = style({});
+  export const Cell = style({
+    minWidth: 90
+  });
 
   export const HeaderItem = style({
     padding: "0px 5px"

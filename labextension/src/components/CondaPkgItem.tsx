@@ -10,33 +10,21 @@ import { GlobalStyle } from "./globalStyles";
  */
 export interface PkgItemProps {
   /**
-   * Are package description available?
-   */
-  hasDescription?: boolean;
-  /**
-   * Package item index
-   */
-  index: number;
-  /**
-   * Is change requested?
-   */
-  isSelected?: boolean;
-  /**
    * Package object
    */
   package: Conda.IPackage;
   /**
-   * Current package status
+   * Are package description available?
    */
-  status: Conda.PkgStatus;
+  hasDescription?: boolean;
   /**
    * Package item click handler
    */
-  onClick: (index: number) => void;
+  onClick: (name: string) => void;
   /**
    * Package version selection handler
    */
-  onChange: (index: number, version: string) => void;
+  onChange: (name: string, version: string) => void;
 }
 
 /**
@@ -57,12 +45,21 @@ export const CondaPkgItem = (props: PkgItemProps) => {
   } = props.package;
 
   let statusIcon = <i className={Style.StatusAvailable} />;
-  if (props.status === Conda.PkgStatus.Installed) {
+  let isSelected = false;
+
+  if (version_installed) {
     statusIcon = <i className={Style.StatusInstalled} />;
-  } else if (props.status === Conda.PkgStatus.Update) {
-    statusIcon = <i className={Style.StatusUpdate} />;
-  } else if (props.status === Conda.PkgStatus.Remove) {
-    statusIcon = <i className={Style.StatusRemove} />;
+
+    if (version_selected === "none") {
+      statusIcon = <i className={Style.StatusRemove} />;
+      isSelected = true;
+    } else if (version_selected !== version_installed) {
+      statusIcon = <i className={Style.StatusUpdate} />;
+      isSelected = true;
+    }
+  } else if (version_selected !== "none") {
+    statusIcon = <i className={Style.StatusInstalled} />;
+    isSelected = true;
   }
 
   let nameElement = <span>{name}</span>;
@@ -84,9 +81,9 @@ export const CondaPkgItem = (props: PkgItemProps) => {
     <tr
       className={classes(
         PkgListStyle.Row,
-        props.isSelected ? Style.SelectedItem : Style.Item
+        isSelected ? Style.SelectedItem : Style.Item
       )}
-      onClick={() => props.onClick(props.index)}
+      onClick={() => props.onClick(name)}
     >
       <td className={PkgListStyle.CellStatus}>{statusIcon}</td>
       <td className={PkgListStyle.CellName}>{nameElement}</td>
@@ -102,15 +99,15 @@ export const CondaPkgItem = (props: PkgItemProps) => {
       >
         {version_installed || ""}
       </td>
-      <td>
+      <td className={PkgListStyle.Cell}>
         <HTMLSelect
           className={Style.VersionSelection}
-          value={version_selected || version_installed}
+          value={version_selected}
           onClick={(evt: React.MouseEvent) => {
             evt.stopPropagation();
           }}
           onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
-            props.onChange(props.index, evt.target.value)
+            props.onChange(name, evt.target.value)
           }
           iconProps={{
             icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
@@ -118,9 +115,19 @@ export const CondaPkgItem = (props: PkgItemProps) => {
           aria-label="Package versions"
           minimal
         >
-          <option key="-1" value={null}>
-            Not installed
+          <option key="-3" value={"none"}>
+            Remove
           </option>
+          {!version_installed && (
+            <option key="-2" value={""}>
+              Install
+            </option>
+          )}
+          {updatable && (
+            <option key="-1" value={""}>
+              Update
+            </option>
+          )}
           {version.map(v => (
             <option key={v} value={v}>
               {v}
@@ -128,20 +135,23 @@ export const CondaPkgItem = (props: PkgItemProps) => {
           ))}
         </HTMLSelect>
       </td>
-      <td className={PkgListStyle.CellChannel}>{channel}</td>
+      <td className={PkgListStyle.Cell}>{channel}</td>
     </tr>
   );
 };
 
 namespace Style {
-  export const Item = style(GlobalStyle.ListItem, {
-    $nest: {
-      "&:hover": {
-        backgroundColor: "var(--jp-layout-color3)",
-        border: "1px solid var(--jp-border-color3)"
-      }
-    }
-  });
+  export const Item = style(
+    GlobalStyle.ListItem
+    // {
+    // $nest: {
+    //   "&:hover": {
+    //     backgroundColor: "var(--jp-layout-color3)",
+    //     border: "1px solid var(--jp-border-color3)"
+    //   }
+    // }
+    // }
+  );
 
   export const Link = style({
     $nest: {

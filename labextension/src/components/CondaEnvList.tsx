@@ -56,7 +56,9 @@ export interface IEnvListProps {
   onRemove(): void;
 }
 
-/** React component for the environment list */
+/**
+ * React component for the environment list
+ */
 export class CondaEnvList extends React.Component<IEnvListProps> {
   render() {
     let isDefault = false;
@@ -70,7 +72,7 @@ export class CondaEnvList extends React.Component<IEnvListProps> {
       return (
         <CondaEnvItem
           name={env.name}
-          key={"env-" + idx}
+          key={env.name}
           selected={
             this.props.selected ? env.name === this.props.selected : false
           }

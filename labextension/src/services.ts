@@ -337,9 +337,11 @@ export async function requestServer(
       // @ts-ignore
       return new Promise(resolve =>
         setTimeout(
-          resolve,
+          (url: string, settings: RequestInit) =>
+            resolve(requestServer(url, settings)),
           POLLING_INTERVAL,
-          requestServer(redirectUrl, { method: "GET" })
+          redirectUrl,
+          { method: "GET" }
         )
       );
     }
@@ -646,6 +648,9 @@ export class CondaPackage implements Conda.IPackageManager {
           keywords: [],
           tags: []
         };
+        pkg.version_installed = "";
+        pkg.version_selected = "none";
+        pkg.updatable = false;
         pkg.status = Conda.PkgStatus.Available;
 
         if (installed !== undefined) {
@@ -665,6 +670,10 @@ export class CondaPackage implements Conda.IPackageManager {
           }
           if (pkg.name === installed.name) {
             pkg.version_installed = installed.version;
+            pkg.version_selected = installed.version;
+            if (pkg.version.indexOf(installed.version) < 0) {
+              pkg.version.push(installed.version);
+            }
             pkg.status = Conda.PkgStatus.Installed;
             installedIdx += 1;
           }

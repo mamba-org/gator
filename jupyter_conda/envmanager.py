@@ -6,7 +6,7 @@ import os
 import re
 import ssl
 import sys
-from tempfile import NamedTemporaryFile
+import tempfile
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from packaging.version import parse
@@ -18,6 +18,13 @@ from traitlets.config.configurable import LoggingConfigurable
 from .server import url_path_join
 
 ROOT_ENV_NAME = "base"
+
+MAX_LOG_OUTPUT = 6000  # type: int
+
+CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
+
+# try to match lines of json
+JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
 
 
 def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
@@ -41,14 +48,6 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "keywords": s.get("keywords", []),
         "tags": s.get("tags", []),
     }
-
-
-MAX_LOG_OUTPUT = 6000  # type: int
-
-CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
-
-# try to match lines of json
-JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
 
 
 class EnvManager(LoggingConfigurable):
@@ -263,7 +262,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Create command output
         """
-        with NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
             name = f.name
             f.write(file_content)
             
@@ -451,7 +450,6 @@ class EnvManager(LoggingConfigurable):
 
         # Get channel short names
         configuration = yield self.conda_config()
-        print(configuration)
         channels = yield self.env_channels(configuration)
         channels = channels["channels"]
         tr_channels = {}
@@ -496,11 +494,7 @@ class EnvManager(LoggingConfigurable):
                             validate_cert=configuration.get("ssl_verify", True),
                         )
                     )
-                except (
-                    tornado.httpclient.HTTPClientError,
-                    ConnectionError,
-                    ssl.SSLError,
-                ) as e:
+                except Exception as e:
                     self.log.info(
                         "[jupyter_conda] Error getting {}/channeldata.json: {}".format(
                             channel, str(e)
