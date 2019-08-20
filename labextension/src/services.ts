@@ -201,16 +201,6 @@ export namespace Conda {
   }
 
   /**
-   * Package status
-   */
-  export enum PkgStatus {
-    Installed = "INSTALLED",
-    Update = "UPDATE",
-    Remove = "REMOVE",
-    Available = "AVAILABLE"
-  }
-
-  /**
    * Available platforms subpackages
    */
   export const PkgSubDirs = [
@@ -243,7 +233,6 @@ export namespace Conda {
     tags: Array<string>;
     version_installed?: string;
     version_selected?: string;
-    status?: PkgStatus;
     updatable?: boolean;
   }
 
@@ -651,7 +640,6 @@ export class CondaPackage implements Conda.IPackageManager {
         pkg.version_installed = "";
         pkg.version_selected = "none";
         pkg.updatable = false;
-        pkg.status = Conda.PkgStatus.Available;
 
         if (installed !== undefined) {
           if (pkg.name > installed.name) {
@@ -674,7 +662,6 @@ export class CondaPackage implements Conda.IPackageManager {
             if (pkg.version.indexOf(installed.version) < 0) {
               pkg.version.push(installed.version);
             }
-            pkg.status = Conda.PkgStatus.Installed;
             installedIdx += 1;
           }
         }

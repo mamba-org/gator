@@ -154,10 +154,7 @@ export class CondaPkgPanel extends React.Component<
 
         let hasUpdate = false;
         this.state.packages.forEach((pkg: Conda.IPackage, index: number) => {
-          if (
-            data.indexOf(pkg.name) >= 0 &&
-            pkg.status === Conda.PkgStatus.Installed
-          ) {
+          if (data.indexOf(pkg.name) >= 0 && pkg.version_installed) {
             this.state.packages[index].updatable = true;
             hasUpdate = true;
           }
@@ -177,10 +174,7 @@ export class CondaPkgPanel extends React.Component<
         }
 
         available.forEach((pkg: Conda.IPackage, index: number) => {
-          if (
-            data.indexOf(pkg.name) >= 0 &&
-            pkg.status === Conda.PkgStatus.Installed
-          ) {
+          if (data.indexOf(pkg.name) >= 0 && pkg.version_installed) {
             available[index].updatable = true;
           }
         });
@@ -255,8 +249,6 @@ export class CondaPkgPanel extends React.Component<
       }
     }
 
-    console.log(selection);
-
     this.setState({
       packages: this.state.packages,
       selected: selection
@@ -294,7 +286,6 @@ export class CondaPkgPanel extends React.Component<
 
     clicked.version_selected = version;
 
-    console.log(version, selection);
     this.setState({
       packages: this.state.packages,
       selected: selection
@@ -416,7 +407,6 @@ export class CondaPkgPanel extends React.Component<
             }
           });
 
-        console.info(`Remove packages ${to_remove}`);
         if (to_remove.length > 0) {
           INotification.update({
             toastId: toastId,
@@ -426,7 +416,6 @@ export class CondaPkgPanel extends React.Component<
           await this._model.remove(to_remove);
         }
 
-        console.info(`Update packages ${to_update}`);
         if (to_update.length > 0) {
           INotification.update({
             toastId: toastId,
@@ -436,7 +425,6 @@ export class CondaPkgPanel extends React.Component<
           await this._model.update(to_update);
         }
 
-        console.info(`Install packages ${to_install}`);
         if (to_install.length > 0) {
           INotification.update({
             toastId: toastId,
@@ -517,13 +505,13 @@ export class CondaPkgPanel extends React.Component<
       filteredPkgs = this.state.packages;
     } else if (this.state.activeFilter === PkgFilters.Installed) {
       this.state.packages.forEach(pkg => {
-        if (pkg.status === Conda.PkgStatus.Installed) {
+        if (pkg.version_installed) {
           filteredPkgs.push(pkg);
         }
       });
     } else if (this.state.activeFilter === PkgFilters.Available) {
       this.state.packages.forEach(pkg => {
-        if (pkg.status === Conda.PkgStatus.Available) {
+        if (!pkg.version_installed) {
           filteredPkgs.push(pkg);
         }
       });
