@@ -674,9 +674,10 @@ export class CondaPackage implements Conda.IPackageManager {
           keywords: "",
           tags: ""
         };
+        pkg.summary = pkg.summary || "";
         // Stringify keywords and tags
-        pkg.keywords = pkg.keywords.toString().toLowerCase();
-        pkg.tags = pkg.tags.toString().toLowerCase();
+        pkg.keywords = (pkg.keywords || "").toString().toLowerCase();
+        pkg.tags = (pkg.tags || "").toString().toLowerCase();
         pkg.version_installed = "";
         pkg.version_selected = "none";
         pkg.updatable = false;
