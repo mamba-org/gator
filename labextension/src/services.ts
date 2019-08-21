@@ -229,8 +229,8 @@ export namespace Conda {
     platform: string;
     summary: string;
     home: string;
-    keywords: Array<string>;
-    tags: Array<string>;
+    keywords: string;
+    tags: string;
     version_installed?: string;
     version_selected?: string;
     updatable?: boolean;
@@ -671,9 +671,13 @@ export class CondaPackage implements Conda.IPackageManager {
           build_string: [installed.build_string],
           summary: "",
           home: "",
-          keywords: [],
-          tags: []
+          keywords: "",
+          tags: ""
         };
+        pkg.summary = pkg.summary || "";
+        // Stringify keywords and tags
+        pkg.keywords = (pkg.keywords || "").toString().toLowerCase();
+        pkg.tags = (pkg.tags || "").toString().toLowerCase();
         pkg.version_installed = "";
         pkg.version_selected = "none";
         pkg.updatable = false;
@@ -688,8 +692,8 @@ export class CondaPackage implements Conda.IPackageManager {
               build_string: [installed.build_string],
               summary: "",
               home: "",
-              keywords: [],
-              tags: []
+              keywords: "",
+              tags: ""
             };
             availableIdx -= 1;
           }

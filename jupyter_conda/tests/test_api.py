@@ -1,4 +1,3 @@
-
 import json
 import random
 import os
@@ -10,7 +9,7 @@ import tempfile
 
 import tornado
 
-from jupyter_conda.handlers import AVAILABLE_CACHE
+from jupyter_conda.handlers import AVAILABLE_CACHE, PackagesHandler
 from jupyter_conda.tests.utils import ServerTest, assert_http_error
 
 
@@ -20,17 +19,12 @@ def generate_name() -> str:
 
 
 class JupyterCondaAPITest(ServerTest):
-
     def setUp(self):
         super(JupyterCondaAPITest, self).setUp()
         self.env_names = []
-        self.pkg_name = "alabaster"     
+        self.pkg_name = "alabaster"
 
     def tearDown(self):
-        # Remove available package cache
-        cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
-        if os.path.exists(cache_file):
-            os.unlink(cache_file)
         # Remove created environment
         for n in self.env_names:
             self.wait_for_task(self.rm_env, n)
@@ -248,10 +242,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
     def test_environment_yaml_import(self):
         n = generate_name()
         self.env_names.append(n)
-        build = {
-            "linux": "h0371630_0",
-            "win32": "h8c8aaf0_1"
-        }
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1"}
         build_str = build[sys.platform]
         content = """name: test_conda
 channels:
@@ -264,7 +255,9 @@ dependencies:
 - pip:
     - cycler==0.10.0
 prefix: /home/user/.conda/envs/lab_conda
-        """.format(build_str)
+        """.format(
+            build_str
+        )
 
         expected = [
             ("astroid", "2.2.5", "py37_0"),
@@ -296,10 +289,7 @@ prefix: /home/user/.conda/envs/lab_conda
     def test_environment_text_import(self):
         n = generate_name()
         self.env_names.append(n)
-        build = {
-            "linux": "h0371630_0",
-            "win32": "h8c8aaf0_1"
-        }
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1"}
         build_str = build[sys.platform]
         # pip package are not supported by text export file
         content = """# This file may be used to create an environment using:
@@ -308,7 +298,9 @@ prefix: /home/user/.conda/envs/lab_conda
 astroid=2.2.5=py37_0
 ipykernel=5.1.1=py37h39e3cac_0
 python=3.7.3={}
-        """.format(build_str)
+        """.format(
+            build_str
+        )
 
         expected = [
             ("astroid", "2.2.5", "py37_0"),
@@ -556,383 +548,175 @@ class TestPackagesHandler(JupyterCondaAPITest):
         self.assertIsNotNone(v)
 
     def test_package_list_available(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
-            dummy = {
-                "numpy_sugar": [
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "380115a180acf251faaf754ff37cab8f",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                        "size": 46560,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "version": "1.0.6",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                        "size": 46738,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "version": "1.0.8",
-                    },
-                ],
-                "numpydoc": [
-                    {
-                        "arch": None,
-                        "build": "py36_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                        "constrains": [],
-                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "f96891e9071727dfca3ea480408396f6",
-                        "name": "numpydoc",
-                        "platform": None,
-                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                        "size": 43791,
-                        "subdir": "win-64",
-                        "timestamp": 1522687759543,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_1",
-                        "build_number": 1,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                        "size": 21577,
-                        "subdir": "noarch",
-                        "timestamp": 1531243883293,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "081b5590105257246eada8a8bc5dd0aa",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                        "size": 32151,
-                        "subdir": "noarch",
-                        "timestamp": 1555950366084,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                        "version": "0.9.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "de8a98b573872ba539fe7e68e106178a",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                        "size": 29774,
-                        "subdir": "noarch",
-                        "timestamp": 1556022967544,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                        "version": "0.9.1",
-                    },
-                ],
-            }
-            channels = {
-                "channel_alias": {
-                    "auth": None,
-                    "location": "conda.anaconda.org",
-                    "name": None,
-                    "package_filename": None,
-                    "platform": None,
-                    "scheme": "https",
-                    "token": None,
-                },
-                "channels": ["defaults"],
-                "custom_multichannels": {
-                    "defaults": [
+        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
+            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+                dummy = {
+                    "numpy_sugar": [
                         {
-                            "auth": None,
-                            "location": "repo.anaconda.com",
-                            "name": "pkgs/main",
-                            "package_filename": None,
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "380115a180acf251faaf754ff37cab8f",
+                            "name": "numpy_sugar",
                             "platform": None,
-                            "scheme": "https",
-                            "token": None,
-                        }
-                    ]
-                },
-                "ssl_verify": False,
-            }
-
-            # Use side_effect to have a different return value for each call
-            f.side_effect = [
-                tornado.gen.maybe_future((0, json.dumps(dummy))),
-                tornado.gen.maybe_future((0, json.dumps(channels))),
-            ]
-
-            r = self.wait_for_task(self.conda_api.get, ["packages"])
-            self.assertEqual(r.status_code, 200)
-            body = r.json()
-
-            expected = {
-                "packages": [
-                    {
-                        "build_number": [0, 0],
-                        "build_string": ["py35_vc14_0", "py35_vc14_0"],
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "version": ["1.0.6", "1.0.8"],
-                        "summary": "",
-                        "home": "",
-                        "keywords": [],
-                        "tags": [],
-                    },
-                    {
-                        "build_number": [1, 0, 0],
-                        "build_string": ["py_1", "py_0", "py_0"],
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                        "name": "numpydoc",
-                        "platform": None,
-                        "version": ["0.8.0", "0.9.0", "0.9.1"],
-                        "summary": "Numpy's Sphinx extensions",
-                        "home": "https://github.com/numpy/numpydoc",
-                        "keywords": [],
-                        "tags": [],
-                    },
-                ],
-                "with_description": True
-            }
-            self.assertEqual(body, expected)
-
-    def test_package_list_available_local_channel(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
-            dummy = {
-                "numpy_sugar": [
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "380115a180acf251faaf754ff37cab8f",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                        "size": 46560,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "version": "1.0.6",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                        "size": 46738,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "version": "1.0.8",
-                    },
-                ],
-                "numpydoc": [
-                    {
-                        "arch": None,
-                        "build": "py36_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                        "constrains": [],
-                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "f96891e9071727dfca3ea480408396f6",
-                        "name": "numpydoc",
-                        "platform": None,
-                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                        "size": 43791,
-                        "subdir": "win-64",
-                        "timestamp": 1522687759543,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_1",
-                        "build_number": 1,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                        "size": 21577,
-                        "subdir": "noarch",
-                        "timestamp": 1531243883293,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "081b5590105257246eada8a8bc5dd0aa",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                        "size": 32151,
-                        "subdir": "noarch",
-                        "timestamp": 1555950366084,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                        "version": "0.9.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "de8a98b573872ba539fe7e68e106178a",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                        "size": 29774,
-                        "subdir": "noarch",
-                        "timestamp": 1556022967544,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                        "version": "0.9.1",
-                    },
-                ],
-            }
-
-            with tempfile.TemporaryDirectory() as local_channel:
-                with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
-                    d.write(
-                        '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Numpy\'s Sphinx extensions", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
-                    )
-                local_name = local_channel.strip("/")
+                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                            "size": 46560,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "version": "1.0.6",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                            "size": 46738,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "version": "1.0.8",
+                        },
+                    ],
+                    "numpydoc": [
+                        {
+                            "arch": None,
+                            "build": "py36_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                            "constrains": [],
+                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "f96891e9071727dfca3ea480408396f6",
+                            "name": "numpydoc",
+                            "platform": None,
+                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                            "size": 43791,
+                            "subdir": "win-64",
+                            "timestamp": 1522687759543,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_1",
+                            "build_number": 1,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                            "size": 21577,
+                            "subdir": "noarch",
+                            "timestamp": 1531243883293,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "081b5590105257246eada8a8bc5dd0aa",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                            "size": 32151,
+                            "subdir": "noarch",
+                            "timestamp": 1555950366084,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                            "version": "0.9.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "de8a98b573872ba539fe7e68e106178a",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                            "size": 29774,
+                            "subdir": "noarch",
+                            "timestamp": 1556022967544,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                            "version": "0.9.1",
+                        },
+                    ],
+                }
                 channels = {
-                    "channel_alias": {},
-                    "channels": [local_channel],
-                    "custom_multichannels": {},
-                    "custom_channels": {
-                        local_name: {
-                            "auth": None,
-                            "location": "",
-                            "name": local_name,
-                            "package_filename": None,
-                            "platform": None,
-                            "scheme": "file",
-                            "token": None,
-                        }
+                    "channel_alias": {
+                        "auth": None,
+                        "location": "conda.anaconda.org",
+                        "name": None,
+                        "package_filename": None,
+                        "platform": None,
+                        "scheme": "https",
+                        "token": None,
                     },
+                    "channels": ["defaults"],
+                    "custom_multichannels": {
+                        "defaults": [
+                            {
+                                "auth": None,
+                                "location": "repo.anaconda.com",
+                                "name": "pkgs/main",
+                                "package_filename": None,
+                                "platform": None,
+                                "scheme": "https",
+                                "token": None,
+                            }
+                        ]
+                    },
+                    "ssl_verify": False,
                 }
 
                 # Use side_effect to have a different return value for each call
@@ -972,172 +756,597 @@ class TestPackagesHandler(JupyterCondaAPITest):
                             "tags": [],
                         },
                     ],
-                    "with_description": True
+                    "with_description": True,
                 }
                 self.assertEqual(body, expected)
 
-    def test_package_list_available_no_description(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
-            dummy = {
-                "numpy_sugar": [
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "380115a180acf251faaf754ff37cab8f",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                        "size": 46560,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "version": "1.0.6",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                        "size": 46738,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "version": "1.0.8",
-                    },
-                ],
-                "numpydoc": [
-                    {
-                        "arch": None,
-                        "build": "py36_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                        "constrains": [],
-                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "f96891e9071727dfca3ea480408396f6",
-                        "name": "numpydoc",
-                        "platform": None,
-                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                        "size": 43791,
-                        "subdir": "win-64",
-                        "timestamp": 1522687759543,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_1",
-                        "build_number": 1,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                        "size": 21577,
-                        "subdir": "noarch",
-                        "timestamp": 1531243883293,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "081b5590105257246eada8a8bc5dd0aa",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                        "size": 32151,
-                        "subdir": "noarch",
-                        "timestamp": 1555950366084,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                        "version": "0.9.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "de8a98b573872ba539fe7e68e106178a",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                        "size": 29774,
-                        "subdir": "noarch",
-                        "timestamp": 1556022967544,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                        "version": "0.9.1",
-                    },
-                ],
-            }
-
-            with tempfile.TemporaryDirectory() as local_channel:
-                local_name = local_channel.strip("/")
-                channels = {
-                    "channel_alias": {},
-                    "channels": [local_channel],
-                    "custom_multichannels": {},
-                    "custom_channels": {
-                        local_name: {
-                            "auth": None,
-                            "location": "",
-                            "name": local_name,
-                            "package_filename": None,
+    def test_package_list_available_local_channel(self):
+        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
+            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+                dummy = {
+                    "numpy_sugar": [
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "380115a180acf251faaf754ff37cab8f",
+                            "name": "numpy_sugar",
                             "platform": None,
-                            "scheme": "file",
-                            "token": None,
-                        }
+                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                            "size": 46560,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "version": "1.0.6",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                            "size": 46738,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "version": "1.0.8",
+                        },
+                    ],
+                    "numpydoc": [
+                        {
+                            "arch": None,
+                            "build": "py36_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                            "constrains": [],
+                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "f96891e9071727dfca3ea480408396f6",
+                            "name": "numpydoc",
+                            "platform": None,
+                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                            "size": 43791,
+                            "subdir": "win-64",
+                            "timestamp": 1522687759543,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_1",
+                            "build_number": 1,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                            "size": 21577,
+                            "subdir": "noarch",
+                            "timestamp": 1531243883293,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "081b5590105257246eada8a8bc5dd0aa",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                            "size": 32151,
+                            "subdir": "noarch",
+                            "timestamp": 1555950366084,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                            "version": "0.9.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "de8a98b573872ba539fe7e68e106178a",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                            "size": 29774,
+                            "subdir": "noarch",
+                            "timestamp": 1556022967544,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                            "version": "0.9.1",
+                        },
+                    ],
+                }
+
+                with tempfile.TemporaryDirectory() as local_channel:
+                    with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
+                        d.write(
+                            '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Numpy\'s Sphinx extensions", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
+                        )
+                    local_name = local_channel.strip("/")
+                    channels = {
+                        "channel_alias": {},
+                        "channels": [local_channel],
+                        "custom_multichannels": {},
+                        "custom_channels": {
+                            local_name: {
+                                "auth": None,
+                                "location": "",
+                                "name": local_name,
+                                "package_filename": None,
+                                "platform": None,
+                                "scheme": "file",
+                                "token": None,
+                            }
+                        },
+                    }
+
+                    # Use side_effect to have a different return value for each call
+                    f.side_effect = [
+                        tornado.gen.maybe_future((0, json.dumps(dummy))),
+                        tornado.gen.maybe_future((0, json.dumps(channels))),
+                    ]
+
+                    r = self.wait_for_task(self.conda_api.get, ["packages"])
+                    self.assertEqual(r.status_code, 200)
+                    body = r.json()
+
+                    expected = {
+                        "packages": [
+                            {
+                                "build_number": [0, 0],
+                                "build_string": ["py35_vc14_0", "py35_vc14_0"],
+                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                                "name": "numpy_sugar",
+                                "platform": None,
+                                "version": ["1.0.6", "1.0.8"],
+                                "summary": "",
+                                "home": "",
+                                "keywords": [],
+                                "tags": [],
+                            },
+                            {
+                                "build_number": [1, 0, 0],
+                                "build_string": ["py_1", "py_0", "py_0"],
+                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                                "name": "numpydoc",
+                                "platform": None,
+                                "version": ["0.8.0", "0.9.0", "0.9.1"],
+                                "summary": "Numpy's Sphinx extensions",
+                                "home": "https://github.com/numpy/numpydoc",
+                                "keywords": [],
+                                "tags": [],
+                            },
+                        ],
+                        "with_description": True,
+                    }
+                    self.assertEqual(body, expected)
+
+    def test_package_list_available_no_description(self):
+        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
+            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+                dummy = {
+                    "numpy_sugar": [
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "380115a180acf251faaf754ff37cab8f",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                            "size": 46560,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "version": "1.0.6",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                            "size": 46738,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "version": "1.0.8",
+                        },
+                    ],
+                    "numpydoc": [
+                        {
+                            "arch": None,
+                            "build": "py36_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                            "constrains": [],
+                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "f96891e9071727dfca3ea480408396f6",
+                            "name": "numpydoc",
+                            "platform": None,
+                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                            "size": 43791,
+                            "subdir": "win-64",
+                            "timestamp": 1522687759543,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_1",
+                            "build_number": 1,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                            "size": 21577,
+                            "subdir": "noarch",
+                            "timestamp": 1531243883293,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "081b5590105257246eada8a8bc5dd0aa",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                            "size": 32151,
+                            "subdir": "noarch",
+                            "timestamp": 1555950366084,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                            "version": "0.9.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "de8a98b573872ba539fe7e68e106178a",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                            "size": 29774,
+                            "subdir": "noarch",
+                            "timestamp": 1556022967544,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                            "version": "0.9.1",
+                        },
+                    ],
+                }
+
+                with tempfile.TemporaryDirectory() as local_channel:
+                    local_name = local_channel.strip("/")
+                    channels = {
+                        "channel_alias": {},
+                        "channels": [local_channel],
+                        "custom_multichannels": {},
+                        "custom_channels": {
+                            local_name: {
+                                "auth": None,
+                                "location": "",
+                                "name": local_name,
+                                "package_filename": None,
+                                "platform": None,
+                                "scheme": "file",
+                                "token": None,
+                            }
+                        },
+                    }
+
+                    # Use side_effect to have a different return value for each call
+                    f.side_effect = [
+                        tornado.gen.maybe_future((0, json.dumps(dummy))),
+                        tornado.gen.maybe_future((0, json.dumps(channels))),
+                    ]
+
+                    r = self.wait_for_task(self.conda_api.get, ["packages"])
+                    self.assertEqual(r.status_code, 200)
+                    body = r.json()
+
+                    expected = {
+                        "packages": [
+                            {
+                                "build_number": [0, 0],
+                                "build_string": ["py35_vc14_0", "py35_vc14_0"],
+                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                                "name": "numpy_sugar",
+                                "platform": None,
+                                "version": ["1.0.6", "1.0.8"],
+                                "summary": "",
+                                "home": "",
+                                "keywords": [],
+                                "tags": [],
+                            },
+                            {
+                                "build_number": [1, 0, 0],
+                                "build_string": ["py_1", "py_0", "py_0"],
+                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                                "name": "numpydoc",
+                                "platform": None,
+                                "version": ["0.8.0", "0.9.0", "0.9.1"],
+                                "summary": "",
+                                "home": "",
+                                "keywords": [],
+                                "tags": [],
+                            },
+                        ],
+                        "with_description": False,
+                    }
+                    self.assertEqual(body, expected)
+
+    def test_package_list_available_caching(self):
+        cache_name = generate_name()
+        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", cache_name):
+            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+                dummy = {
+                    "numpy_sugar": [
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "380115a180acf251faaf754ff37cab8f",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                            "size": 46560,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                            "version": "1.0.6",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py35_vc14_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "constrains": [],
+                            "depends": [
+                                "cffi",
+                                "ncephes",
+                                "numba",
+                                "numpy",
+                                "python 3.5*",
+                                "scipy",
+                                "vc 14.*",
+                            ],
+                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "license": "MIT",
+                            "license_family": "MIT",
+                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                            "size": 46738,
+                            "subdir": "win-64",
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                            "version": "1.0.8",
+                        },
+                    ],
+                    "numpydoc": [
+                        {
+                            "arch": None,
+                            "build": "py36_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                            "constrains": [],
+                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "f96891e9071727dfca3ea480408396f6",
+                            "name": "numpydoc",
+                            "platform": None,
+                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                            "size": 43791,
+                            "subdir": "win-64",
+                            "timestamp": 1522687759543,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_1",
+                            "build_number": 1,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                            "size": 21577,
+                            "subdir": "noarch",
+                            "timestamp": 1531243883293,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                            "version": "0.8.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "081b5590105257246eada8a8bc5dd0aa",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                            "size": 32151,
+                            "subdir": "noarch",
+                            "timestamp": 1555950366084,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                            "version": "0.9.0",
+                        },
+                        {
+                            "arch": None,
+                            "build": "py_0",
+                            "build_number": 0,
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                            "constrains": [],
+                            "depends": ["python", "sphinx"],
+                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                            "license": "BSD 3-Clause",
+                            "md5": "de8a98b573872ba539fe7e68e106178a",
+                            "name": "numpydoc",
+                            "noarch": "python",
+                            "package_type": "noarch_python",
+                            "platform": None,
+                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                            "size": 29774,
+                            "subdir": "noarch",
+                            "timestamp": 1556022967544,
+                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                            "version": "0.9.1",
+                        },
+                    ],
+                }
+                channels = {
+                    "channel_alias": {
+                        "auth": None,
+                        "location": "conda.anaconda.org",
+                        "name": None,
+                        "package_filename": None,
+                        "platform": None,
+                        "scheme": "https",
+                        "token": None,
                     },
+                    "channels": ["defaults"],
+                    "custom_multichannels": {
+                        "defaults": [
+                            {
+                                "auth": None,
+                                "location": "repo.anaconda.com",
+                                "name": "pkgs/main",
+                                "package_filename": None,
+                                "platform": None,
+                                "scheme": "https",
+                                "token": None,
+                            }
+                        ]
+                    },
+                    "ssl_verify": False,
                 }
 
                 # Use side_effect to have a different return value for each call
@@ -1146,9 +1355,9 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     tornado.gen.maybe_future((0, json.dumps(channels))),
                 ]
 
+                # First retrival no cache available
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
                 self.assertEqual(r.status_code, 200)
-                body = r.json()
 
                 expected = {
                     "packages": [
@@ -1171,238 +1380,26 @@ class TestPackagesHandler(JupyterCondaAPITest):
                             "name": "numpydoc",
                             "platform": None,
                             "version": ["0.8.0", "0.9.0", "0.9.1"],
-                            "summary": "",
-                            "home": "",
+                            "summary": "Numpy's Sphinx extensions",
+                            "home": "https://github.com/numpy/numpydoc",
                             "keywords": [],
                             "tags": [],
                         },
                     ],
-                    "with_description": False
+                    "with_description": True,
                 }
+
+                cache_file = os.path.join(tempfile.gettempdir(), cache_name + ".json")
+                self.assertTrue(os.path.exists(cache_file))
+
+                with open(cache_file) as cache:
+                    self.assertEqual(json.load(cache), expected)
+
+                # Retrieve using cache
+                r = self.conda_api.get(["packages"])
+                self.assertEqual(r.status_code, 200)
+                body = r.json()
                 self.assertEqual(body, expected)
-
-    def test_package_list_available_caching(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
-            dummy = {
-                "numpy_sugar": [
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "380115a180acf251faaf754ff37cab8f",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                        "size": 46560,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                        "version": "1.0.6",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py35_vc14_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "constrains": [],
-                        "depends": [
-                            "cffi",
-                            "ncephes",
-                            "numba",
-                            "numpy",
-                            "python 3.5*",
-                            "scipy",
-                            "vc 14.*",
-                        ],
-                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "license": "MIT",
-                        "license_family": "MIT",
-                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                        "size": 46738,
-                        "subdir": "win-64",
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                        "version": "1.0.8",
-                    },
-                ],
-                "numpydoc": [
-                    {
-                        "arch": None,
-                        "build": "py36_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                        "constrains": [],
-                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "f96891e9071727dfca3ea480408396f6",
-                        "name": "numpydoc",
-                        "platform": None,
-                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                        "size": 43791,
-                        "subdir": "win-64",
-                        "timestamp": 1522687759543,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_1",
-                        "build_number": 1,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                        "size": 21577,
-                        "subdir": "noarch",
-                        "timestamp": 1531243883293,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                        "version": "0.8.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "081b5590105257246eada8a8bc5dd0aa",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                        "size": 32151,
-                        "subdir": "noarch",
-                        "timestamp": 1555950366084,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                        "version": "0.9.0",
-                    },
-                    {
-                        "arch": None,
-                        "build": "py_0",
-                        "build_number": 0,
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                        "constrains": [],
-                        "depends": ["python", "sphinx"],
-                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                        "license": "BSD 3-Clause",
-                        "md5": "de8a98b573872ba539fe7e68e106178a",
-                        "name": "numpydoc",
-                        "noarch": "python",
-                        "package_type": "noarch_python",
-                        "platform": None,
-                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                        "size": 29774,
-                        "subdir": "noarch",
-                        "timestamp": 1556022967544,
-                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                        "version": "0.9.1",
-                    },
-                ],
-            }
-            channels = {
-                "channel_alias": {
-                    "auth": None,
-                    "location": "conda.anaconda.org",
-                    "name": None,
-                    "package_filename": None,
-                    "platform": None,
-                    "scheme": "https",
-                    "token": None,
-                },
-                "channels": ["defaults"],
-                "custom_multichannels": {
-                    "defaults": [
-                        {
-                            "auth": None,
-                            "location": "repo.anaconda.com",
-                            "name": "pkgs/main",
-                            "package_filename": None,
-                            "platform": None,
-                            "scheme": "https",
-                            "token": None,
-                        }
-                    ]
-                },
-                "ssl_verify": False,
-            }
-
-            # Use side_effect to have a different return value for each call
-            f.side_effect = [
-                tornado.gen.maybe_future((0, json.dumps(dummy))),
-                tornado.gen.maybe_future((0, json.dumps(channels))),
-            ]
-
-            # First retrival no cache available
-            r = self.wait_for_task(self.conda_api.get, ["packages"])
-            self.assertEqual(r.status_code, 200)
-
-            expected = {
-                "packages": [
-                    {
-                        "build_number": [0, 0],
-                        "build_string": ["py35_vc14_0", "py35_vc14_0"],
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                        "name": "numpy_sugar",
-                        "platform": None,
-                        "version": ["1.0.6", "1.0.8"],
-                        "summary": "",
-                        "home": "",
-                        "keywords": [],
-                        "tags": [],
-                    },
-                    {
-                        "build_number": [1, 0, 0],
-                        "build_string": ["py_1", "py_0", "py_0"],
-                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                        "name": "numpydoc",
-                        "platform": None,
-                        "version": ["0.8.0", "0.9.0", "0.9.1"],
-                        "summary": "Numpy's Sphinx extensions",
-                        "home": "https://github.com/numpy/numpydoc",
-                        "keywords": [],
-                        "tags": [],
-                    },
-                ],
-                "with_description": True
-            }
-
-            cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
-            self.assertTrue(os.path.exists(cache_file))
-
-            with open(cache_file) as cache:
-                self.assertEqual(json.load(cache), expected)
-
-            # Retrieve using cache
-            r = self.conda_api.get(["packages"])
-            self.assertEqual(r.status_code, 200)
-            body = r.json()
-            self.assertEqual(body, expected)
 
 
 class TestTasksHandler(JupyterCondaAPITest):

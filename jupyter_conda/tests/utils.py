@@ -41,7 +41,7 @@ except ImportError:
 
 
 
-TIMEOUT = 120
+TIMEOUT = 150
 SLEEP = 1
 
 

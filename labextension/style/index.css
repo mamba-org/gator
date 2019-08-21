@@ -92,7 +92,6 @@ button.jp-button-hide {
 }
 .jp-NbConda .ReactVirtualized__Table__rowColumn {
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .jp-NbConda .ReactVirtualized__Table__headerColumn:first-of-type,

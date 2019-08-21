@@ -173,6 +173,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 cellRenderer={iconRender}
                 disableSort
                 label=""
+                flexShrink={0}
                 width={20}
               />
               <Column
@@ -183,6 +184,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 label="Name"
                 width={200}
                 flexGrow={2}
+                flexShrink={2}
               />
               {this.props.hasDescription && (
                 <Column
@@ -192,6 +194,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   label="Description"
                   width={250}
                   flexGrow={5}
+                  flexShrink={5}
                 />
               )}
               <Column
@@ -209,6 +212,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 dataKey="version_installed"
                 disableSort
                 label="Version"
+                flexShrink={0}
                 width={90}
               />
               <Column
@@ -217,6 +221,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 cellRenderer={changeRender}
                 disableSort
                 label="Change to"
+                flexShrink={0}
                 width={120}
               />
               <Column
@@ -225,6 +230,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 disableSort
                 flexGrow={1}
                 label="Channel"
+                flexShrink={0}
                 width={120}
               />
             </Table>
@@ -287,13 +293,16 @@ namespace Style {
     padding: "0px 2px"
   });
 
-  export const CellName = style({});
+  export const CellName = style({ whiteSpace: "nowrap" });
 
   export const CellSummary = style({
+    alignSelf: "flex-start",
     whiteSpace: "normal"
   });
 
-  export const Cell = style({});
+  export const Cell = style({
+    whiteSpace: "nowrap"
+  });
 
   export const SortButton = style({
     transform: "rotate(180deg)",

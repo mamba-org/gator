@@ -478,6 +478,7 @@ class EnvManager(LoggingConfigurable):
                 else:
                     path = url.path
                 path = os.path.join(path, "channeldata.json")
+                self.log.debug("[jupyter_conda] Reading {}".format(path))
                 try:  # Skip if file is not accessible
                     with open(path) as f:
                         channeldata = json.load(f)

@@ -469,39 +469,30 @@ export class CondaPkgPanel extends React.Component<
     if (this.state.activeFilter === PkgFilters.All) {
       filteredPkgs = this.state.packages;
     } else if (this.state.activeFilter === PkgFilters.Installed) {
-      this.state.packages.forEach(pkg => {
-        if (pkg.version_installed) {
-          filteredPkgs.push(pkg);
-        }
-      });
+      filteredPkgs = this.state.packages.filter(pkg => pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Available) {
-      this.state.packages.forEach(pkg => {
-        if (!pkg.version_installed) {
-          filteredPkgs.push(pkg);
-        }
-      });
+      filteredPkgs = this.state.packages.filter(pkg => !pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Updatable) {
-      this.state.packages.forEach(pkg => {
-        if (pkg.updatable) {
-          filteredPkgs.push(pkg);
-        }
-      });
+      filteredPkgs = this.state.packages.filter(pkg => pkg.updatable);
     } else if (this.state.activeFilter === PkgFilters.Selected) {
-      this.state.packages.forEach(pkg => {
-        if (this.state.selected.indexOf(pkg) >= 0) {
-          filteredPkgs.push(pkg);
-        }
-      });
+      filteredPkgs = this.state.packages.filter(
+        pkg => this.state.selected.indexOf(pkg) >= 0
+      );
     }
 
     let searchPkgs: Conda.IPackage[] = [];
     if (this.state.searchTerm === null) {
       searchPkgs = filteredPkgs;
     } else {
-      filteredPkgs.forEach(pkg => {
-        if (pkg.name.indexOf(this.state.searchTerm) > -1) {
-          searchPkgs.push(pkg);
-        }
+      searchPkgs = filteredPkgs.filter(pkg => {
+        const lowerSearch = this.state.searchTerm.toLowerCase();
+        return (
+          pkg.name.indexOf(this.state.searchTerm) >= 0 ||
+          (this.state.hasDescription &&
+            (pkg.summary.indexOf(this.state.searchTerm) >= 0 ||
+              pkg.keywords.indexOf(lowerSearch) >= 0 ||
+              pkg.tags.indexOf(lowerSearch) >= 0))
+        );
       });
     }
 

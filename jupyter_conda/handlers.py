@@ -13,7 +13,7 @@ import re
 import sys
 import tempfile
 import traceback
-from typing import Any, Callable
+from typing import Any, Dict, Callable
 
 import tornado
 
@@ -339,9 +339,19 @@ class PackagesHandler(EnvBaseHandler):
 
         else:  # List all available
             cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
+            cache_data = ""
+            try:
+                with open(cache_file) as cache:
+                    cache_data = cache.read()
+            except OSError as e:
+                logger.warning(
+                    "[jupyter_conda] Fail to load available packages from cache {!s}.".format(
+                        e
+                    )
+                )
 
             @tornado.gen.coroutine
-            def update_available(env_manager):
+            def update_available(env_manager: EnvManager, cache_file: str, return_packages: bool = True) -> Dict:
                 answer = yield env_manager.list_available()
                 try:
                     with open(cache_file, "w+") as cache:
@@ -354,31 +364,24 @@ class PackagesHandler(EnvBaseHandler):
                     )
                 PackagesHandler.__is_listing_available = False
 
-                return answer
-
-            cache_data = ""
-            try:
-                with open(cache_file) as cache:
-                    cache_data = cache.read()
-            except OSError as e:
-                logger.warning(
-                    "[jupyter_conda] Fail to load available packages from cache {!s}.".format(
-                        e
-                    )
-                )
+                if return_packages:
+                    return answer
+                else:
+                    return {}
 
             if len(cache_data) > 0:
                 logger.debug("[jupyter_conda] Loading available packages from cache.")
-                # Request cache update
+                # Request cache update in background
                 if not PackagesHandler.__is_listing_available:
                     PackagesHandler.__is_listing_available = True
-                    self._stack.put(update_available, self.env_manager)
+                    self._stack.put(update_available, self.env_manager, cache_file, False)
                 # Return current cache
                 self.set_status(200)
                 self.finish(cache_data)
             else:
                 # Request cache update and return once updated
-                idx = self._stack.put(update_available, self.env_manager)
+                PackagesHandler.__is_listing_available = True
+                idx = self._stack.put(update_available, self.env_manager, cache_file)
 
         if idx is not None:
             self.redirect_to_task(idx)
