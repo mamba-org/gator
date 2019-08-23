@@ -5,6 +5,7 @@ module.exports = {
   },
   preset: "ts-jest/presets/js-with-babel",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  setupFiles: ["./setupJest.js"],
   testPathIgnorePatterns: ["/lib/", "/node_modules/"],
   testRegex: "src/.*/.*.spec.ts[x]?$",
   transformIgnorePatterns: ["/node_modules/(?!(@jupyterlab/.*)/)"],

@@ -594,7 +594,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
-  private _environmentTypes: { [key: string]: string[] };
+  private _environmentTypes: { [key: string]: string[] } = {};
 }
 
 export class CondaPackage implements Conda.IPackageManager {

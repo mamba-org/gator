@@ -51,11 +51,13 @@
   "devDependencies": {
     "@babel/core": "^7",
     "@babel/preset-env": "^7",
+    "@jupyterlab/testutils": "^1.0.5",
     "@types/jest": "^24",
     "@types/react": "~16.8.0",
     "@types/react-virtualized": "^9.21.4",
     "husky": "^0.14.0",
     "jest": "^24",
+    "jest-fetch-mock": "^2.1.2",
     "jupyterlab_toastify": "^2.3.0",
     "prettier": "~1.14.2",
     "pretty-quick": "~1.6.0",
