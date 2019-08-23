@@ -10,7 +10,6 @@ env:
   global:
     - NAME=test_jupyter_conda
   matrix:
-    - PYTHON_VERSION=3.5 DEPS="typing"
     - PYTHON_VERSION=3.6 DEPS="typing"
     - PYTHON_VERSION=3.7 DEPS=""
 
@@ -38,6 +37,7 @@ install:
   - cd labextension
   - conda install -n $NAME -c conda-forge -c defaults jupyterlab
   - jlpm install
+  - jupyter labextension install jupyterlab_toastify --no-build
   - jupyter labextension install .
   - cd ..
 
