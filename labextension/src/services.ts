@@ -244,7 +244,7 @@ export namespace Conda {
     /**
      * Package action
      */
-    type: "install" | "update" | "remove";
+    type: "develop" | "install" | "update" | "remove";
     /**
      * Packages modified
      */
@@ -783,11 +783,18 @@ export class CondaPackage implements Conda.IPackageManager {
         body: JSON.stringify({ packages: [path] }),
         method: "POST"
       };
-      await requestServer(
+      const response = await requestServer(
         URLExt.join("conda", "environments", this.environment, "packages") +
           URLExt.objectToQueryString({ develop: 1 }),
         request
       );
+      if (response.ok) {
+        this._packageChanged.emit({
+          environment: this.environment,
+          type: "develop",
+          packages: [path]
+        });
+      }
     } catch (error) {
       console.error(error);
       throw new Error(

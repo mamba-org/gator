@@ -274,4 +274,207 @@ describe("jupyterlab_conda/services", () => {
       });
     });
   });
+
+  describe("CondaPackage", () => {
+    describe("check_updates()", () => {
+      it("should return the list of updatable packages", async () => {
+        const env = "dummy";
+        const pkgs = ["alpha", "beta", "gamma"];
+        const lst_pkgs = pkgs.map(pkg => {
+          return {
+            name: pkg
+          };
+        });
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response(
+            JSON.stringify({
+              updates: lst_pkgs
+            }),
+            { status: 200 }
+          )
+        );
+
+        const pkgManager = new CondaPackage(env);
+
+        const updates = await pkgManager.check_updates();
+        const queryArgs = URLExt.objectToQueryString({ status: "has_update" });
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(settings.baseUrl, "conda", "environments", env) +
+            queryArgs,
+          {
+            method: "GET"
+          },
+          settings
+        );
+        expect(updates).toEqual(pkgs);
+      });
+    });
+
+    describe("develop()", () => {
+      it("should request an installation in development mode", async () => {
+        const env = "dummy";
+        const path = "/dummy/path/to/package";
+
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response("", { status: 200 })
+        );
+
+        const pkgManager = new CondaPackage(env);
+
+        const testSignal = testEmission(pkgManager.packageChanged, {
+          test: (manager, changes) => {
+            expect(changes).toStrictEqual({
+              environment: env,
+              packages: [path],
+              type: "develop"
+            });
+          }
+        });
+
+        await pkgManager.develop(path);
+        await testSignal;
+        const queryArgs = URLExt.objectToQueryString({ develop: 1 });
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(
+            settings.baseUrl,
+            "conda",
+            "environments",
+            env,
+            "packages"
+          ) + queryArgs,
+          {
+            body: JSON.stringify({ packages: [path] }),
+            method: "POST"
+          },
+          settings
+        );
+      });
+    });
+
+    describe("install()", () => {
+      it("should request the installation of some packages", async () => {
+        const env = "dummy";
+        const pkgs = ["alpha", "beta", "gamma"];
+
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response("", { status: 200 })
+        );
+
+        const pkgManager = new CondaPackage(env);
+
+        const testSignal = testEmission(pkgManager.packageChanged, {
+          test: (manager, changes) => {
+            expect(changes).toStrictEqual({
+              environment: env,
+              packages: pkgs,
+              type: "install"
+            });
+          }
+        });
+
+        await pkgManager.install(pkgs);
+        await testSignal;
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(
+            settings.baseUrl,
+            "conda",
+            "environments",
+            env,
+            "packages"
+          ),
+          {
+            body: JSON.stringify({ packages: pkgs }),
+            method: "POST"
+          },
+          settings
+        );
+      });
+    });
+
+    // TODO describe("refresh()", () => {});
+
+    describe("remove()", () => {
+      it("should request the removal of some packages", async () => {
+        const env = "dummy";
+        const pkgs = ["alpha", "beta", "gamma"];
+
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response("", { status: 200 })
+        );
+
+        const pkgManager = new CondaPackage(env);
+
+        const testSignal = testEmission(pkgManager.packageChanged, {
+          test: (manager, changes) => {
+            expect(changes).toStrictEqual({
+              environment: env,
+              packages: pkgs,
+              type: "remove"
+            });
+          }
+        });
+
+        await pkgManager.remove(pkgs);
+        await testSignal;
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(
+            settings.baseUrl,
+            "conda",
+            "environments",
+            env,
+            "packages"
+          ),
+          {
+            body: JSON.stringify({ packages: pkgs }),
+            method: "DELETE"
+          },
+          settings
+        );
+      });
+    });
+
+    describe("update()", () => {
+      it("should request the update for some packages", async () => {
+        const env = "dummy";
+        const pkgs = ["alpha", "beta", "gamma"];
+
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response("", { status: 200 })
+        );
+
+        const pkgManager = new CondaPackage(env);
+
+        const testSignal = testEmission(pkgManager.packageChanged, {
+          test: (manager, changes) => {
+            expect(changes).toStrictEqual({
+              environment: env,
+              packages: pkgs,
+              type: "update"
+            });
+          }
+        });
+
+        await pkgManager.update(pkgs);
+        await testSignal;
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(
+            settings.baseUrl,
+            "conda",
+            "environments",
+            env,
+            "packages"
+          ),
+          {
+            body: JSON.stringify({ packages: pkgs }),
+            method: "PATCH"
+          },
+          settings
+        );
+      });
+    });
+
+    // TOD describe("refreshAvailablePackages()", () => {})
+
+    // TODO descibe("hasDescription()", () => {})
+  });
 });
