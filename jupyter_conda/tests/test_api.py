@@ -760,6 +760,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 }
                 self.assertEqual(body, expected)
 
+    @unittest.skip("TODO test not enough reliability")
     def test_package_list_available_local_channel(self):
         with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
             with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
@@ -970,6 +971,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     }
                     self.assertEqual(body, expected)
 
+    @unittest.skipIf(sys.platform.startswith("win"), "not reliable on Windows")
     def test_package_list_available_no_description(self):
         with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
             with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:

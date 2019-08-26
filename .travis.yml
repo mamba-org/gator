@@ -15,8 +15,6 @@ env:
 
 before_install:
   - deactivate # Deactivate the default Travis virtualenv
-  - sudo apt-get update
-  - sudo apt-get install -y libfreetype6-dev libfontconfig1-dev
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - . $HOME/miniconda/etc/profile.d/conda.sh
