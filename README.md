@@ -15,7 +15,7 @@ _Requirements_
 
 - conda >= 4.5
 - notebook >= 4.3
-- JupyterLab 0.35 (for the jupyterlab extension only)
+- JupyterLab 1.0 (for the jupyterlab extension only)
 
 To install in the classical notebook:
 
@@ -26,7 +26,7 @@ conda install -c conda-forge jupyter_conda
 To install in the JupyterLab:
 
 ```shell
-conda install -c conda-forge jupyter_conda
+conda install -c conda-forge jupyterlab jupyter_conda
 jupyter labextension install jupyterlab_toastify jupyterlab_conda
 ```
 
@@ -64,7 +64,7 @@ This extension add a new entry _Conda Packages Manager_ in the _Settings_ menu.
 
 ## Creating New Environments
 
-There are two ways to create an environment:
+There are three ways to create an environment:
 
 - Create a new environment
   Use the New Environment button at the top of the page, and select `Python 2`, `Python 3`, or `R` to create a
@@ -75,6 +75,8 @@ There are two ways to create an environment:
 - Clone an existing environment
   Click the clone button next to an environment in the list, and enter the desired name of the
   new environment.
+
+- Import an exported environment from a YAML file
 
 ## Development
 
@@ -93,6 +95,18 @@ jupyter labextension install .
 ```
 
 ## Changelog
+
+### 3.0.0
+
+- Rework the server/client API to be more REST
+- Cache available packages list in temp directory
+- Improve greatly the coverage for the server extension
+- JupyterLab extension only:
+  - Allow the user to change the proposed environment when creating one from scratch
+  - Add signals to handle environnements and packages changes (see `labextension\src\__tests__\services.spec.ts`)
+  - Improve the UI reactivity by using `react-virtualized` for the packages list
+  - Improve the look and feel
+- Available packages truncation has been removed.
 
 ### 2.5.1
 

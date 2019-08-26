@@ -442,6 +442,13 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
+    this.state.selected.forEach(
+      pkg =>
+        (pkg.version_selected = pkg.version_installed
+          ? pkg.version_installed
+          : "none")
+    );
+
     this.setState({
       selected: []
     });
