@@ -8,12 +8,17 @@ import {
   MainAreaWidget,
   WidgetTracker
 } from "@jupyterlab/apputils";
+import { ISettingRegistry } from "@jupyterlab/coreutils";
 import { IMainMenu } from "@jupyterlab/mainmenu";
 import { classes, style } from "typestyle";
 import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
 import { CondaEnvironments, IEnvironmentManager } from "./services";
-import { ISettingRegistry } from "@jupyterlab/coreutils";
+import {
+  companionID,
+  CompanionValidator,
+  ICompanionValidator
+} from "./validator";
 
 export { Conda, IEnvironmentManager } from "./services";
 
@@ -26,7 +31,7 @@ async function activateCondaEnv(
 ): Promise<IEnvironmentManager> {
   const { commands, shell } = app;
   const plugin_namespace = "conda-env";
-  const command: string = "condaenv:open-ui";
+  const command: string = "jupyter_conda:open-ui";
 
   const settings = await settingsRegistry.load(condaEnvId);
   const model = new CondaEnvironments(settings);
@@ -73,10 +78,39 @@ async function activateCondaEnv(
   return model;
 }
 
+async function activateCompanions(
+  app: JupyterFrontEnd,
+  palette: ICommandPalette,
+  envManager: IEnvironmentManager,
+  settingsRegistry: ISettingRegistry
+): Promise<ICompanionValidator> {
+  const { commands, serviceManager } = app;
+  const command: string = "jupyter_conda:companions";
+  const settings = await settingsRegistry.load(condaEnvId);
+
+  const validator = new CompanionValidator(
+    serviceManager,
+    envManager,
+    settings
+  );
+
+  commands.addCommand(command, {
+    label: "Validate kernels compatibility",
+    execute: () => {
+      validator.validate(serviceManager.specs);
+    }
+  });
+
+  // Add command to command palette
+  palette.addItem({ command, category: "Troubleshooting" });
+
+  return validator;
+}
+
 /**
  * Initialization data for the jupyterlab_conda extension.
  */
-const extension: JupyterFrontEndPlugin<IEnvironmentManager> = {
+const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,
@@ -84,7 +118,20 @@ const extension: JupyterFrontEndPlugin<IEnvironmentManager> = {
   provides: IEnvironmentManager
 };
 
-export default extension;
+/**
+ * Initialization data for the jupyterlab_kernel_companions extension.
+ */
+const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
+  id: companionID,
+  autoStart: true,
+  activate: activateCompanions,
+  requires: [ICommandPalette, IEnvironmentManager, ISettingRegistry],
+  provides: ICompanionValidator
+};
+
+const extensions = [condaManager, companions];
+
+export default extensions;
 
 namespace Style {
   export const TabIcon = classes(

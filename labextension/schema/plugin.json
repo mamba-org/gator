@@ -3,6 +3,12 @@
   "title": "Conda",
   "description": "Environments and packages manager settings.",
   "properties": {
+    "whitelist": {
+      "type": "boolean",
+      "title": "Only kernel whitelist",
+      "description": "Show only environment corresponding to whitelisted kernels",
+      "default": true
+    },
     "types": {
       "type": "object",
       "title": "Environment types",
@@ -20,6 +26,17 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "companions": {
+      "type": "object",
+      "title": "Kernel companions",
+      "description": "{'package name': 'semver specification'} - pre and post releases not supported",
+      "default": {},
+      "properties": {
+        "^\\w[\\w\\-]*$": {
+          "type": "string"
         }
       }
     }

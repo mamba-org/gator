@@ -133,11 +133,6 @@ export namespace Conda {
    */
   export interface IPackageManager {
     /**
-     * List of available packages
-     */
-    packages: Array<Conda.IPackage>;
-
-    /**
      * Environment in which packages are handled
      */
     environment?: string;
@@ -355,11 +350,21 @@ export class CondaEnvironments implements IEnvironmentManager {
     this._environments = new Array<Conda.IEnvironment>();
 
     if (settings) {
-      this._updateEnvironmentTypes(settings);
+      this._updateSettings(settings);
       settings.changed.connect(
-        this._updateEnvironmentTypes,
+        this._updateSettings,
         this
       );
+
+      const clean = new Promise<void>(
+        ((resolve: () => void) => {
+          this._clean = resolve;
+        }).bind(this)
+      );
+
+      clean.then(() => {
+        settings.changed.disconnect(this._updateSettings, this);
+      });
     }
   }
 
@@ -414,8 +419,9 @@ export class CondaEnvironments implements IEnvironmentManager {
    *
    * @param settings User settings
    */
-  private _updateEnvironmentTypes(settings: ISettingRegistry.ISettings) {
+  private _updateSettings(settings: ISettingRegistry.ISettings) {
     this._environmentTypes = settings.get("types").composite as IType;
+    this._whitelist = settings.get("whitelist").composite as boolean;
   }
 
   async getChannels(name: string): Promise<Conda.IChannels> {
@@ -539,8 +545,12 @@ export class CondaEnvironments implements IEnvironmentManager {
       let request: RequestInit = {
         method: "GET"
       };
+      let queryArgs = {
+        whitelist: this._whitelist ? 1 : 0
+      };
       let response = await requestServer(
-        URLExt.join("conda", "environments"),
+        URLExt.join("conda", "environments") +
+          URLExt.objectToQueryString(queryArgs),
         request
       );
       let data = (await response.json()) as RESTAPI.IEnvironments;
@@ -584,8 +594,14 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
     this._isDisposed = true;
     clearInterval(this._environmentsTimer);
+    this._clean();
     this._environments.length = 0;
   }
+
+  /**
+   * Resolve promise to disconnect signals at disposal
+   */
+  private _clean(): void {}
 
   private _isDisposed = false;
   private _environments: Array<Conda.IEnvironment>;
@@ -594,14 +610,11 @@ export class CondaEnvironments implements IEnvironmentManager {
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
-  private _environmentTypes: { [key: string]: string[] } = {};
+  private _whitelist: boolean = true;
+  private _environmentTypes: IType = {};
 }
 
 export class CondaPackage implements Conda.IPackageManager {
-  /**
-   * List of packages
-   */
-  packages: Array<Conda.IPackage>;
   /**
    * Conda environment of interest
    */
@@ -609,7 +622,6 @@ export class CondaPackage implements Conda.IPackageManager {
 
   constructor(environment?: string) {
     this.environment = environment;
-    this.packages = [];
   }
 
   get packageChanged(): ISignal<Conda.IPackageManager, Conda.IPackageChange> {
@@ -627,7 +639,6 @@ export class CondaPackage implements Conda.IPackageManager {
     includeAvailable: boolean = true
   ): Promise<Array<Conda.IPackage>> {
     if (this.environment === undefined) {
-      this.packages = [];
       return Promise.resolve([]);
     }
 
@@ -736,8 +747,6 @@ export class CondaPackage implements Conda.IPackageManager {
         final_list.push(pkg);
         availableIdx += 1;
       }
-
-      this.packages = final_list;
 
       return final_list;
     } catch (err) {
