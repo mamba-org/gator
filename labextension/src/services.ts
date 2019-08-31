@@ -610,7 +610,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
-  private _whitelist: boolean = true;
+  private _whitelist: boolean = false;
   private _environmentTypes: IType = {};
 }
 

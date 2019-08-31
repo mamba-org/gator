@@ -327,6 +327,34 @@ python=3.7.3={}
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
+class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
+
+    # Force extension enabling - Disabled by parent class otherwise
+    config = Config({
+        "NotebookApp": {"nbserver_extensions": {"jupyter_conda": True}},
+        "KernelSpecManager": {"whitelist": {"conda-env-banana-py", }}
+    })
+
+    def test_get(self):
+        n = "banana"
+        self.wait_for_task(self.mk_env, n)
+        envs = self.conda_api.envs()
+        env = None
+        for e in envs["environments"]:
+            if n == e["name"]:
+                env = e
+                break
+        self.assertIsNotNone(env)
+        self.assertEqual(env["name"], n)
+        self.assertTrue(os.path.isdir(env["dir"]))
+        self.assertFalse(env["is_default"])
+        found_env = len(envs["environments"])
+
+        n = generate_name()
+        self.wait_for_task(self.mk_env, n)
+        envs = self.conda_api.envs()
+        self.assertEqual(len(envs["environments"]), len(found_env))
+
 
 class TestEnvironmentHandler(JupyterCondaAPITest):
     def test_delete(self):

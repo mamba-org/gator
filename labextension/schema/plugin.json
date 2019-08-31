@@ -7,7 +7,7 @@
       "type": "boolean",
       "title": "Only kernel whitelist",
       "description": "Show only environment corresponding to whitelisted kernels",
-      "default": true
+      "default": false
     },
     "types": {
       "type": "object",

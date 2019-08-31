@@ -158,10 +158,14 @@ class EnvironmentsHandler(EnvBaseHandler):
     def get(self):
         """`GET /environments` which lists the environments.
 
+        Query arguments:
+            whitelist (int): optional flag 0 or 1 to respect KernelSpecManager.whitelist
+
         Raises:
             500 if an error occurs
         """
-        list_envs = yield self.env_manager.list_envs()
+        whitelist = self.get_query_argument("whitelist", 0)
+        list_envs = yield self.env_manager.list_envs(int(whitelist) == 1)
         if "error" in list_envs:
             self.set_status(500)
         self.finish(tornado.escape.json_encode(list_envs))
@@ -351,7 +355,9 @@ class PackagesHandler(EnvBaseHandler):
                 )
 
             @tornado.gen.coroutine
-            def update_available(env_manager: EnvManager, cache_file: str, return_packages: bool = True) -> Dict:
+            def update_available(
+                env_manager: EnvManager, cache_file: str, return_packages: bool = True
+            ) -> Dict:
                 answer = yield env_manager.list_available()
                 try:
                     with open(cache_file, "w+") as cache:
@@ -374,7 +380,9 @@ class PackagesHandler(EnvBaseHandler):
                 # Request cache update in background
                 if not PackagesHandler.__is_listing_available:
                     PackagesHandler.__is_listing_available = True
-                    self._stack.put(update_available, self.env_manager, cache_file, False)
+                    self._stack.put(
+                        update_available, self.env_manager, cache_file, False
+                    )
                 # Return current cache
                 self.set_status(200)
                 self.finish(cache_data)
