@@ -8,6 +8,7 @@ import uuid
 import tempfile
 
 import tornado
+from traitlets.config import Config
 
 from jupyter_conda.handlers import AVAILABLE_CACHE, PackagesHandler
 from jupyter_conda.tests.utils import ServerTest, assert_http_error
@@ -332,7 +333,7 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
     # Force extension enabling - Disabled by parent class otherwise
     config = Config({
         "NotebookApp": {"nbserver_extensions": {"jupyter_conda": True}},
-        "KernelSpecManager": {"whitelist": {"conda-env-banana-py", }}
+        "KernelSpecManager": {"whitelist": ["conda-env-banana-py", ]}
     })
 
     def test_get(self):
@@ -349,11 +350,13 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
         self.assertTrue(os.path.isdir(env["dir"]))
         self.assertFalse(env["is_default"])
         found_env = len(envs["environments"])
+        print(envs["environments"])
+        self.assertEqual(found_env, 3)
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
         envs = self.conda_api.envs()
-        self.assertEqual(len(envs["environments"]), len(found_env))
+        self.assertEqual(len(envs["environments"]), found_env)
 
 
 class TestEnvironmentHandler(JupyterCondaAPITest):
