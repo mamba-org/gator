@@ -7,6 +7,7 @@ import unittest.mock as mock
 import uuid
 import tempfile
 
+from nb_conda_kernels import CondaKernelSpecManager
 import tornado
 from traitlets.config import Config
 
@@ -38,7 +39,7 @@ class JupyterCondaAPITest(ServerTest):
         self.assertRegex(location, r"^/conda/tasks/\d+$")
         return self.wait_task(location)
 
-    def mk_env(self, name=None):
+    def mk_env(self, name=None, packages=None):
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])
         new_name = name or generate_name()
@@ -47,7 +48,7 @@ class JupyterCondaAPITest(ServerTest):
         self.env_names.append(new_name)
 
         return self.conda_api.post(
-            ["environments"], body={"name": new_name, "packages": ["python"]}
+            ["environments"], body={"name": new_name, "packages": packages or ["python"]}
         )
 
     def rm_env(self, name):
@@ -330,16 +331,17 @@ python=3.7.3={}
 
 class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
 
-    # Force extension enabling - Disabled by parent class otherwise
-    config = Config({
-        "NotebookApp": {"nbserver_extensions": {"jupyter_conda": True}},
-        "KernelSpecManager": {"whitelist": ["conda-env-banana-py", ]}
-    })
-
-    def test_get(self):
+    @mock.patch("nb_conda_kernels.manager.CACHE_TIMEOUT", 0)
+    def test_get_whitelist(self):
         n = "banana"
-        self.wait_for_task(self.mk_env, n)
-        envs = self.conda_api.envs()
+        self.wait_for_task(self.mk_env, n, packages=["ipykernel", ])
+        manager = CondaKernelSpecManager()
+        manager.whitelist = set(["conda-env-banana-py", ])
+        TestEnvironmentsHandlerWhiteList.notebook.kernel_spec_manager = manager
+        
+        r = self.conda_api.get(["environments", ], params={"whitelist": 1})
+        self.assertEqual(r.status_code, 200)
+        envs = r.json()
         env = None
         for e in envs["environments"]:
             if n == e["name"]:
@@ -350,12 +352,13 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
         self.assertTrue(os.path.isdir(env["dir"]))
         self.assertFalse(env["is_default"])
         found_env = len(envs["environments"])
-        print(envs["environments"])
-        self.assertEqual(found_env, 3)
+        self.assertEqual(found_env, 2)
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
-        envs = self.conda_api.envs()
+        r = self.conda_api.get(["environments", ], params={"whitelist": 1})
+        self.assertEqual(r.status_code, 200)
+        envs = r.json()
         self.assertEqual(len(envs["environments"]), found_env)
 
 
