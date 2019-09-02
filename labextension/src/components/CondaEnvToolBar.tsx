@@ -2,6 +2,9 @@ import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 import * as React from "react";
 import { style } from "typestyle";
 
+//Toolbar height to align with package toolbar
+export const ENVIRONMENTTOOLBARHEIGHT = 40;
+
 /**
  * Environment panel toolbar properties
  */
@@ -104,7 +107,7 @@ namespace Style {
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: 40, //Toolbar height to align with package toolbar
+    height: ENVIRONMENTTOOLBARHEIGHT,
     display: "flex",
     flex: "0 0 auto",
     flexDirection: "row"

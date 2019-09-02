@@ -4,7 +4,7 @@ import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import { style } from "typestyle";
 import { Conda, IEnvironmentManager } from "../services";
-import { CondaEnvList } from "./CondaEnvList";
+import { CondaEnvList, ENVIRONMENTPANELWIDTH } from "./CondaEnvList";
 import { CondaPkgPanel } from "./CondaPkgPanel";
 
 /**
@@ -388,8 +388,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         />
         <CondaPkgPanel
           height={this.props.height}
-          width={this.props.width - 250} // Remove environment panel width
-          environment={this.state.currentEnvironment}
+          width={this.props.width - ENVIRONMENTPANELWIDTH}
+          packageManager={this.props.model.getPackageManager(
+            this.state.currentEnvironment
+          )}
         />
       </div>
     );

@@ -2,9 +2,13 @@ import { showDialog } from "@jupyterlab/apputils";
 import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import { style } from "typestyle";
-import { Conda, CondaPackage } from "../services";
+import { Conda } from "../services";
 import { CondaPkgList } from "./CondaPkgList";
-import { CondaPkgToolBar, PkgFilters } from "./CondaPkgToolBar";
+import {
+  CondaPkgToolBar,
+  PkgFilters,
+  PACKAGETOOLBARHEIGHT
+} from "./CondaPkgToolBar";
 
 // Minimal panel width to show package description
 const PANEL_SMALL_WIDTH: number = 500;
@@ -22,9 +26,9 @@ export interface IPkgPanelProps {
    */
   width: number;
   /**
-   * Selected environment name
+   * Package manager for the selected environment
    */
-  environment: string;
+  packageManager: Conda.IPackageManager;
 }
 
 /**
@@ -88,7 +92,7 @@ export class CondaPkgPanel extends React.Component<
       activeFilter: PkgFilters.All
     };
 
-    this._model = new CondaPackage(this.props.environment);
+    this._model = this.props.packageManager;
 
     this.handleCategoryChanged = this.handleCategoryChanged.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -117,9 +121,10 @@ export class CondaPkgPanel extends React.Component<
         needsReload: false
       });
       try {
-        let environmentLoading = this._model.environment;
+        let environmentLoading =
+          this._currentEnvironment || this._model.environment;
         // Get installed packages
-        let packages = await this._model.refresh(false);
+        let packages = await this._model.refresh(false, environmentLoading);
         // If current environment changes when waiting for the packages
         if (
           this._model.environment !== environmentLoading ||
@@ -132,7 +137,7 @@ export class CondaPkgPanel extends React.Component<
         });
 
         // Now get the updatable packages
-        let data = await this._model.check_updates();
+        let data = await this._model.check_updates(environmentLoading);
         // If current environment changes when waiting for the update status
         if (
           this._model.environment !== environmentLoading ||
@@ -153,7 +158,7 @@ export class CondaPkgPanel extends React.Component<
           hasUpdate
         });
 
-        let available = await this._model.refresh();
+        let available = await this._model.refresh(true, environmentLoading);
         // If current environment changes when waiting for the available package
         if (
           this._model.environment !== environmentLoading ||
@@ -297,7 +302,7 @@ export class CondaPkgPanel extends React.Component<
           isApplyingChanges: true
         });
         toastId = INotification.inProgress("Updating packages");
-        await this._model.update(["--all"]);
+        await this._model.update(["--all"], this._currentEnvironment);
 
         INotification.update({
           toastId: toastId,
@@ -384,7 +389,7 @@ export class CondaPkgPanel extends React.Component<
             message: "Removing selected packages",
             buttons: []
           });
-          await this._model.remove(to_remove);
+          await this._model.remove(to_remove, this._currentEnvironment);
         }
 
         if (to_update.length > 0) {
@@ -393,7 +398,7 @@ export class CondaPkgPanel extends React.Component<
             message: "Updating selected packages",
             buttons: []
           });
-          await this._model.update(to_update);
+          await this._model.update(to_update, this._currentEnvironment);
         }
 
         if (to_install.length > 0) {
@@ -402,7 +407,7 @@ export class CondaPkgPanel extends React.Component<
             message: "Installing new packages",
             buttons: []
           });
-          await this._model.install(to_install);
+          await this._model.install(to_install, this._currentEnvironment);
         }
 
         INotification.update({
@@ -460,8 +465,8 @@ export class CondaPkgPanel extends React.Component<
   }
 
   componentDidUpdate(prevProps: IPkgPanelProps) {
-    if (prevProps.environment !== this.props.environment) {
-      this._model = new CondaPackage(this.props.environment);
+    if (this._currentEnvironment !== this.props.packageManager.environment) {
+      this._currentEnvironment = this.props.packageManager.environment;
       this.setState({
         isLoading: false,
         packages: [],
@@ -519,7 +524,7 @@ export class CondaPkgPanel extends React.Component<
           onRefreshPackages={this.handleRefreshPackages}
         />
         <CondaPkgList
-          height={this.props.height - 40} // Remove height for toolbar
+          height={this.props.height - PACKAGETOOLBARHEIGHT}
           hasDescription={
             this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
           }
@@ -532,6 +537,7 @@ export class CondaPkgPanel extends React.Component<
   }
 
   private _model: Conda.IPackageManager;
+  private _currentEnvironment: string = "";
 }
 
 namespace Style {

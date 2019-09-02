@@ -3,6 +3,8 @@ import { HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { classes, style } from "typestyle/lib";
 
+export const PACKAGETOOLBARHEIGHT = 40;
+
 export enum PkgFilters {
   All = "ALL",
   Installed = "INSTALLED",
@@ -133,7 +135,7 @@ export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
 namespace Style {
   export const Toolbar = style({
     alignItems: "center",
-    height: 40
+    height: PACKAGETOOLBARHEIGHT
   });
 
   export const SearchInput = style({

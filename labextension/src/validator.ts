@@ -175,13 +175,53 @@ export class CompanionValidator implements ICompanionValidator {
       normalizedNames[normalized] = env.name;
     });
 
+    function requestCorrection(
+      updates: string[],
+      manager: IEnvironmentManager,
+      name: string
+    ) {
+      INotification.warning(`Environment "${name}" has some inconsistencies.`, {
+        buttons: [
+          {
+            label: "Correct",
+            caption: "Correct installed packages",
+            callback: () => {
+              const toastId = INotification.inProgress(
+                "Correct the environment."
+              );
+              manager
+                .getPackageManager()
+                .install(updates, name)
+                .then(() => {
+                  INotification.update({
+                    toastId,
+                    message: "Environment corrected",
+                    type: "success",
+                    autoClose: 5000
+                  });
+                })
+                .catch(reason => {
+                  console.error(reason);
+                  INotification.update({
+                    toastId,
+                    message: "Fail to correct the environment.",
+                    type: "error"
+                  });
+                });
+            }
+          }
+        ]
+      });
+    }
+
     // Loop on the kernelSpecs
     for (const spec of Object.keys(specs.kernelspecs)) {
       const name = CompanionValidator.kernelNameToEnvironment(spec);
       const environment = normalizedNames[name];
       if (environment) {
-        const pkgManager = this._envManager.getPackageManager(environment);
-        const packages = await pkgManager.refresh(false);
+        const packages = await this._envManager
+          .getPackageManager()
+          .refresh(false, environment);
         const companions = Object.keys(this._companions);
         const updates: string[] = [];
         packages.forEach(pkg => {
@@ -203,40 +243,7 @@ export class CompanionValidator implements ICompanionValidator {
         });
 
         if (updates.length > 0) {
-          INotification.warning(
-            `Environment "${environment}" has some inconsistencies.`,
-            {
-              buttons: [
-                {
-                  label: "Correct",
-                  caption: "Correct installed packages",
-                  callback: () => {
-                    const toastId = INotification.inProgress(
-                      "Correct the environment."
-                    );
-                    pkgManager
-                      .install(updates)
-                      .then(() => {
-                        INotification.update({
-                          toastId,
-                          message: "Environment corrected",
-                          type: "success",
-                          autoClose: 5000
-                        });
-                      })
-                      .catch(reason => {
-                        console.error(reason);
-                        INotification.update({
-                          toastId,
-                          message: "",
-                          type: "error"
-                        });
-                      });
-                  }
-                }
-              ]
-            }
-          );
+          requestCorrection(updates, this._envManager, environment);
         }
       }
     }
