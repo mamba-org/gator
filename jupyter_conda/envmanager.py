@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from packaging.version import parse
 from subprocess import Popen, PIPE
 
+from nb_conda_kernels.manager import RUNNER_COMMAND
 import tornado
 from traitlets.config.configurable import LoggingConfigurable
 
@@ -43,7 +44,7 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "name": s.get("name"),
         "platform": s.get("platform"),
         "version": s.get("version"),
-        "summary": s.get("summary", ""), 
+        "summary": s.get("summary", ""),
         "home": s.get("home", ""),
         "keywords": s.get("keywords", []),
         "tags": s.get("tags", []),
@@ -101,8 +102,14 @@ class EnvManager(LoggingConfigurable):
         return returncode, output
 
     @tornado.gen.coroutine
-    def list_envs(self) -> Dict[str, List[Dict[str, Union[str, bool]]]]:
+    def list_envs(
+        self, whitelist: bool = False
+    ) -> Dict[str, List[Dict[str, Union[str, bool]]]]:
         """List all environments that conda knows about.
+
+        Args:
+            whitelist (bool): optional, filter the environment list to respect 
+                KernelSpecManager.whitelist (default: False)
         
         An environment is described by a dictionary:
         {
@@ -128,6 +135,17 @@ class EnvManager(LoggingConfigurable):
             "is_default": info["root_prefix"] == default_env,
         }
 
+        whitelist_env = set()
+        if whitelist:
+            # Build env path list - simplest way to compare kernel and environment
+            for entry in self.parent.kernel_spec_manager.get_all_specs().values():
+                spec = entry["spec"]
+                argv = spec.get("argv", [])
+                if 'conda_env_path' in spec["metadata"]:
+                    whitelist_env.add(spec["metadata"]["conda_env_path"])
+                elif argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
+                    whitelist_env.add(argv[4])
+        
         def get_info(env):
             base_dir = os.path.dirname(env)
             if base_dir not in info["envs_dirs"]:
@@ -142,7 +160,9 @@ class EnvManager(LoggingConfigurable):
         envs_list = [root_env]
         for env in info["envs"]:
             env_info = get_info(env)
-            if env_info is not None:
+            if env_info is not None and (
+                len(whitelist_env) == 0 or env_info["dir"] in whitelist_env
+            ):
                 envs_list.append(env_info)
 
         return {"environments": envs_list}
@@ -265,7 +285,7 @@ class EnvManager(LoggingConfigurable):
         with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
             name = f.name
             f.write(file_content)
-            
+
         ans = yield self._execute(
             CONDA_EXE, "env", "create", "-q", "--json", "-n", env, "--file", name
         )
@@ -455,7 +475,7 @@ class EnvManager(LoggingConfigurable):
         tr_channels = {}
         for short_name, channel in channels.items():
             tr_channels.update({uri: short_name for uri in channel})
-            
+
         # # Get top channel URI to request channeldata.json
         # top_channels = set()
         # for uri in tr_channels:
@@ -546,7 +566,7 @@ class EnvManager(LoggingConfigurable):
 
         return {
             "packages": sorted(packages, key=lambda entry: entry.get("name")),
-            "with_description": len(pkg_info) > 0
+            "with_description": len(pkg_info) > 0,
         }
 
     @tornado.gen.coroutine
@@ -588,7 +608,7 @@ class EnvManager(LoggingConfigurable):
 
         return {
             "packages": sorted(packages, key=lambda entry: entry.get("name")),
-            "with_description": False
+            "with_description": False,
         }
 
     @tornado.gen.coroutine

@@ -183,8 +183,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 disableSort
                 label="Name"
                 width={200}
-                flexGrow={2}
-                flexShrink={2}
+                flexGrow={1}
+                flexShrink={1}
               />
               {this.props.hasDescription && (
                 <Column
@@ -230,7 +230,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 disableSort
                 flexGrow={1}
                 label="Channel"
-                flexShrink={0}
+                flexShrink={1}
                 width={120}
               />
             </Table>

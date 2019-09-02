@@ -34,7 +34,7 @@ export interface IEnvironmentManager extends IDisposable {
    *
    * @param name name of the environment to work with
    */
-  getPackageManager(name: string): Conda.IPackageManager;
+  getPackageManager(name?: string): Conda.IPackageManager;
 
   /**
    * Duplicate a given environment
@@ -133,21 +133,22 @@ export namespace Conda {
    */
   export interface IPackageManager {
     /**
-     * List of available packages
-     */
-    packages: Array<Conda.IPackage>;
-
-    /**
      * Environment in which packages are handled
+     *
+     * TODO remove => better use mandatory environment in args
      */
     environment?: string;
 
     /**
      * Refresh packages list of the environment
      *
-     * @param includeAvailable Include available package list
+     * @param includeAvailable Include available package list (default true)
+     * @param environment Environment name
      */
-    refresh(includeAvailable?: boolean): Promise<Array<Conda.IPackage>>;
+    refresh(
+      includeAvailable?: boolean,
+      environment?: string
+    ): Promise<Array<Conda.IPackage>>;
 
     /**
      * Refresh available package list
@@ -163,36 +164,41 @@ export namespace Conda {
      * Install packages
      *
      * @param packages List of packages to be installed
+     * @param environment Environment name
      */
-    install(packages: Array<string>): Promise<void>;
+    install(packages: Array<string>, environment?: string): Promise<void>;
 
     /**
      * Install a package in development mode
      *
      * @param path Path to the package to install in development mode
+     * @param environment Environment name
      */
-    develop(path: string): Promise<void>;
+    develop(path: string, environment?: string): Promise<void>;
 
     /**
      * Check for updates
      *
      * @returns List of updatable packages
+     * @param environment Environment name
      */
-    check_updates(): Promise<Array<string>>;
+    check_updates(environment?: string): Promise<Array<string>>;
 
     /**
      * Update packages
      *
      * @param packages List of packages to be updated
+     * @param environment Environment name
      */
-    update(packages: Array<string>): Promise<void>;
+    update(packages: Array<string>, environment?: string): Promise<void>;
 
     /**
      * Remove packages
      *
      * @param packages List of packages to be removed
+     * @param environment Environment name
      */
-    remove(packages: Array<string>): Promise<void>;
+    remove(packages: Array<string>, environment?: string): Promise<void>;
 
     /**
      * Signal emitted when some package actions are executed.
@@ -355,11 +361,21 @@ export class CondaEnvironments implements IEnvironmentManager {
     this._environments = new Array<Conda.IEnvironment>();
 
     if (settings) {
-      this._updateEnvironmentTypes(settings);
+      this._updateSettings(settings);
       settings.changed.connect(
-        this._updateEnvironmentTypes,
+        this._updateSettings,
         this
       );
+
+      const clean = new Promise<void>(
+        ((resolve: () => void) => {
+          this._clean = resolve;
+        }).bind(this)
+      );
+
+      clean.then(() => {
+        settings.changed.disconnect(this._updateSettings, this);
+      });
     }
   }
 
@@ -376,8 +392,9 @@ export class CondaEnvironments implements IEnvironmentManager {
     return this._environmentChanged;
   }
 
-  getPackageManager(name: string): Conda.IPackageManager {
-    return new CondaPackage(name);
+  getPackageManager(name?: string): Conda.IPackageManager {
+    this._packageManager.environment = name;
+    return this._packageManager;
   }
 
   /**
@@ -414,8 +431,9 @@ export class CondaEnvironments implements IEnvironmentManager {
    *
    * @param settings User settings
    */
-  private _updateEnvironmentTypes(settings: ISettingRegistry.ISettings) {
+  private _updateSettings(settings: ISettingRegistry.ISettings) {
     this._environmentTypes = settings.get("types").composite as IType;
+    this._whitelist = settings.get("whitelist").composite as boolean;
   }
 
   async getChannels(name: string): Promise<Conda.IChannels> {
@@ -539,8 +557,12 @@ export class CondaEnvironments implements IEnvironmentManager {
       let request: RequestInit = {
         method: "GET"
       };
+      let queryArgs = {
+        whitelist: this._whitelist ? 1 : 0
+      };
       let response = await requestServer(
-        URLExt.join("conda", "environments"),
+        URLExt.join("conda", "environments") +
+          URLExt.objectToQueryString(queryArgs),
         request
       );
       let data = (await response.json()) as RESTAPI.IEnvironments;
@@ -584,9 +606,16 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
     this._isDisposed = true;
     clearInterval(this._environmentsTimer);
+    this._clean();
     this._environments.length = 0;
   }
 
+  /**
+   * Resolve promise to disconnect signals at disposal
+   */
+  private _clean(): void {}
+
+  private _packageManager = new CondaPackage();
   private _isDisposed = false;
   private _environments: Array<Conda.IEnvironment>;
   private _environmentsTimer = -1;
@@ -594,14 +623,11 @@ export class CondaEnvironments implements IEnvironmentManager {
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
-  private _environmentTypes: { [key: string]: string[] } = {};
+  private _whitelist: boolean = false;
+  private _environmentTypes: IType = {};
 }
 
 export class CondaPackage implements Conda.IPackageManager {
-  /**
-   * List of packages
-   */
-  packages: Array<Conda.IPackage>;
   /**
    * Conda environment of interest
    */
@@ -609,7 +635,6 @@ export class CondaPackage implements Conda.IPackageManager {
 
   constructor(environment?: string) {
     this.environment = environment;
-    this.packages = [];
   }
 
   get packageChanged(): ISignal<Conda.IPackageManager, Conda.IPackageChange> {
@@ -620,14 +645,16 @@ export class CondaPackage implements Conda.IPackageManager {
    * Refresh the package list.
    *
    * @param includeAvailable Include available package list
+   * @param environment Environment name
    *
    * @returns The package list
    */
   async refresh(
-    includeAvailable: boolean = true
+    includeAvailable: boolean = true,
+    environment?: string
   ): Promise<Array<Conda.IPackage>> {
-    if (this.environment === undefined) {
-      this.packages = [];
+    const theEnvironment = environment || this.environment;
+    if (theEnvironment === undefined) {
       return Promise.resolve([]);
     }
 
@@ -638,7 +665,7 @@ export class CondaPackage implements Conda.IPackageManager {
 
       // Get installed packages
       const response = await requestServer(
-        URLExt.join("conda", "environments", this.environment),
+        URLExt.join("conda", "environments", theEnvironment),
         request
       );
       const data = (await response.json()) as {
@@ -737,8 +764,6 @@ export class CondaPackage implements Conda.IPackageManager {
         availableIdx += 1;
       }
 
-      this.packages = final_list;
-
       return final_list;
     } catch (err) {
       console.error(err);
@@ -746,8 +771,9 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  async install(packages: Array<string>): Promise<void> {
-    if (this.environment === undefined || packages.length === 0) {
+  async install(packages: Array<string>, environment?: string): Promise<void> {
+    const theEnvironment = environment || this.environment;
+    if (theEnvironment === undefined || packages.length === 0) {
       return Promise.resolve();
     }
 
@@ -757,12 +783,12 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "POST"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", this.environment, "packages"),
+        URLExt.join("conda", "environments", theEnvironment, "packages"),
         request
       );
       if (response.ok) {
         this._packageChanged.emit({
-          environment: this.environment,
+          environment: theEnvironment,
           type: "install",
           packages
         });
@@ -773,8 +799,9 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  async develop(path: string): Promise<void> {
-    if (this.environment === undefined || path.length === 0) {
+  async develop(path: string, environment?: string): Promise<void> {
+    const theEnvironment = environment || this.environment;
+    if (theEnvironment === undefined || path.length === 0) {
       return Promise.resolve();
     }
 
@@ -784,13 +811,13 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "POST"
       };
       const response = await requestServer(
-        URLExt.join("conda", "environments", this.environment, "packages") +
+        URLExt.join("conda", "environments", theEnvironment, "packages") +
           URLExt.objectToQueryString({ develop: 1 }),
         request
       );
       if (response.ok) {
         this._packageChanged.emit({
-          environment: this.environment,
+          environment: theEnvironment,
           type: "develop",
           packages: [path]
         });
@@ -803,8 +830,9 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  async check_updates(): Promise<Array<string>> {
-    if (this.environment === undefined) {
+  async check_updates(environment?: string): Promise<Array<string>> {
+    const theEnvironment = environment || this.environment;
+    if (theEnvironment === undefined) {
       return Promise.resolve([]);
     }
 
@@ -813,7 +841,7 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "GET"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", this.environment) +
+        URLExt.join("conda", "environments", theEnvironment) +
           URLExt.objectToQueryString({ status: "has_update" }),
         request
       );
@@ -827,8 +855,9 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  async update(packages: Array<string>): Promise<void> {
-    if (this.environment === undefined) {
+  async update(packages: Array<string>, environment?: string): Promise<void> {
+    const theEnvironment = environment || this.environment;
+    if (theEnvironment === undefined) {
       return Promise.resolve();
     }
 
@@ -838,13 +867,13 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "PATCH"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", this.environment, "packages"),
+        URLExt.join("conda", "environments", theEnvironment, "packages"),
         request
       );
 
       if (response.ok) {
         this._packageChanged.emit({
-          environment: this.environment,
+          environment: theEnvironment,
           type: "update",
           packages
         });
@@ -855,8 +884,9 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  async remove(packages: Array<string>): Promise<void> {
-    if (this.environment === undefined) {
+  async remove(packages: Array<string>, environment?: string): Promise<void> {
+    const theEnvironment = environment || this.environment;
+    if (theEnvironment === undefined) {
       return Promise.resolve();
     }
 
@@ -866,12 +896,12 @@ export class CondaPackage implements Conda.IPackageManager {
         method: "DELETE"
       };
       let response = await requestServer(
-        URLExt.join("conda", "environments", this.environment, "packages"),
+        URLExt.join("conda", "environments", theEnvironment, "packages"),
         request
       );
       if (response.ok) {
         this._packageChanged.emit({
-          environment: this.environment,
+          environment: theEnvironment,
           type: "remove",
           packages
         });
