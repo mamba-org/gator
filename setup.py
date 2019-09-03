@@ -50,7 +50,7 @@ setuptools.setup(
     zip_safe=False,
     install_requires=[
         # "conda>=4.5",  # Required conda not available through PyPi anymore
-        "nb_conda_kernels>=2.0.0",
+        "nb_conda_kernels>=2.2.0",
         "notebook>=4.3.1",
         "packaging",
         "typing;python_version<'3.7'",
