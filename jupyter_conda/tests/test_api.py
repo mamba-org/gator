@@ -558,6 +558,38 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             self.assertEqual(v["channel"], "<develop>")
             self.assertEqual(v["platform"], "pypi")
 
+    def test_package_install_development_mode_url_path(self):
+        n = generate_name()
+        self.wait_for_task(self.mk_env, n)
+
+        pkg_name = generate_name()[1:]   
+        folder = os.path.join(self.notebook.contents_manager.root_dir, pkg_name)
+        os.mkdir(folder)
+        os.mkdir(os.path.join(folder, pkg_name))
+        with open(os.path.join(folder, pkg_name, "__init__.py"), "w+") as f:
+            f.write("")
+        with open(os.path.join(folder, "setup.py"), "w+") as f:
+            f.write("from setuptools import setup\n")
+            f.write("setup(name='{}')\n".format(pkg_name))
+
+        self.wait_for_task(
+            self.conda_api.post,
+            ["environments", n, "packages"],
+            body={"packages": [pkg_name]},
+            params={"develop": 1},
+        )
+
+        r = self.conda_api.get(["environments", n])
+        body = r.json()
+
+        v = None
+        for p in body["packages"]:
+            if p["name"] == pkg_name:
+                v = p
+                break
+        self.assertEqual(v["channel"], "<develop>")
+        self.assertEqual(v["platform"], "pypi")
+
     def test_pkg_update(self):
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
