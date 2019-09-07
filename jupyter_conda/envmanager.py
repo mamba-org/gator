@@ -718,8 +718,6 @@ class EnvManager(LoggingConfigurable):
                             self.parent.contents_manager.root_dir, url2path(path)
                         )
                     )
-                    
-                    print(realpath, self.parent.contents_manager.root_dir)
                     if not os.path.exists(realpath):
                         return {"error": "Unable to find path {}.".format(path)}
 
