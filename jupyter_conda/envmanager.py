@@ -16,7 +16,7 @@ from nb_conda_kernels.manager import RUNNER_COMMAND
 import tornado
 from traitlets.config.configurable import LoggingConfigurable
 
-from .server import url_path_join
+from .server import url_path_join, url2path
 
 ROOT_ENV_NAME = "base"
 
@@ -141,11 +141,11 @@ class EnvManager(LoggingConfigurable):
             for entry in self.parent.kernel_spec_manager.get_all_specs().values():
                 spec = entry["spec"]
                 argv = spec.get("argv", [])
-                if 'conda_env_path' in spec["metadata"]:
+                if "conda_env_path" in spec["metadata"]:
                     whitelist_env.add(spec["metadata"]["conda_env_path"])
                 elif argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
                     whitelist_env.add(argv[4])
-        
+
         def get_info(env):
             base_dir = os.path.dirname(env)
             if base_dir not in info["envs_dirs"]:
@@ -711,6 +711,16 @@ class EnvManager(LoggingConfigurable):
 
             for path in packages:
                 realpath = os.path.realpath(os.path.expanduser(path))
+                if not os.path.exists(realpath):
+                    # Convert jupyterlab path to local path if the path does not exists
+                    realpath = os.path.realpath(
+                        os.path.join(
+                            self.parent.contents_manager.root_dir, url2path(path)
+                        )
+                    )
+                    if not os.path.exists(realpath):
+                        return {"error": "Unable to find path {}.".format(path)}
+
                 ans = yield self._execute(
                     python_cmd,
                     "-m",
