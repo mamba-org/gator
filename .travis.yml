@@ -29,14 +29,13 @@ matrix:
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
         - choco install miniconda3
-        - DIR C:\tools\miniconda3
-        - conda activate
-        - CALL C:\tools\miniconda3\condabin\conda.bat activate
+        - DIR C:\\tools\\miniconda3
+        - CALL C:\\tools\\miniconda3\\condabin\\conda.bat activate
     - name: "macOS Python 3.7"
       os: osx
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
-        - brew install miniconda
+        - brew cask install miniconda
         - conda init sh        
 
 install:
