@@ -1,6 +1,4 @@
-language: python
-
-sudo: true
+language: shell
 
 branches:
   only:
@@ -14,7 +12,6 @@ env:
     - PYTHON_VERSION=3.7 DEPS=""
 
 before_install:
-  - deactivate # Deactivate the default Travis virtualenv
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - . $HOME/miniconda/etc/profile.d/conda.sh
