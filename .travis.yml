@@ -36,7 +36,9 @@ matrix:
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
         - brew cask install miniconda
-        - conda init "$(basename "${SHELL}")"       
+        - conda init "$(basename "${SHELL}")"
+        - . $HOME/.bash_profile
+        - conda activate
 
 install:
   - conda config --set always_yes yes --set changeps1 no
