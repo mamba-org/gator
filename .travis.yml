@@ -16,21 +16,31 @@ matrix:
         - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
         - bash miniconda.sh -b -p $HOME/miniconda
         - . $HOME/miniconda/etc/profile.d/conda.sh
-        - conda activate
     - name: "Xenial Linux Python 3.7"
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
         - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
         - bash miniconda.sh -b -p $HOME/miniconda
         - . $HOME/miniconda/etc/profile.d/conda.sh
-        - conda activate        
+    - name: "Windows Python 3.6"
+      os: windows
+      env: PYTHON_VERSION=3.6 DEPS="typing"
+      before_install:
+        - choco install miniconda3
+        - . /c/tools/miniconda3/etc/profile.d/conda.sh
     - name: "Windows Python 3.7"
       os: windows
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
         - choco install miniconda3
         - . /c/tools/miniconda3/etc/profile.d/conda.sh
-        - conda activate
+    - name: "macOS Python 3.6"
+      os: osx
+      env: PYTHON_VERSION=3.6 DEPS="typing"
+      before_install:
+        - brew cask install miniconda
+        - conda init "$(basename "${SHELL}")"
+        - . $HOME/.bash_profile
     - name: "macOS Python 3.7"
       os: osx
       env: PYTHON_VERSION=3.7 DEPS=""
@@ -38,9 +48,9 @@ matrix:
         - brew cask install miniconda
         - conda init "$(basename "${SHELL}")"
         - . $HOME/.bash_profile
-        - conda activate
 
 install:
+  - conda activate
   - conda config --set always_yes yes --set changeps1 no
   - conda update conda
   - conda create -n $NAME -c conda-forge -c defaults python=$PYTHON_VERSION $DEPS
