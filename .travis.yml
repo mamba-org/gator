@@ -28,18 +28,14 @@ matrix:
       os: windows
       env: PYTHON_VERSION=3.6 DEPS="typing"
       before_install:
-        - curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o miniconda.exe
-        - miniconda.exe /S /D=$HOME/miniconda
-        - export PATH="$HOME/miniconda/bin:$PATH"
-        - source $HOME/miniconda/bin/activate
+        - choco install miniconda3
+        - . /c/tools/miniconda3/etc/profile.d/conda.sh
     - name: "Windows Python 3.7"
       os: windows
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
-        - curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o miniconda.exe
-        - miniconda.exe /S /D=$HOME/miniconda
-        - export PATH="$HOME/miniconda/bin:$PATH"
-        - source $HOME/miniconda/bin/activate
+        - choco install miniconda3
+        - . /c/tools/miniconda3/etc/profile.d/conda.sh
     - name: "macOS Python 3.6"
       os: osx
       env: PYTHON_VERSION=3.6 DEPS="typing"
