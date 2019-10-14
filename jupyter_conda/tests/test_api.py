@@ -244,7 +244,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
     def test_environment_yaml_import(self):
         n = generate_name()
         self.env_names.append(n)
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1"}
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
         build_str = build[sys.platform]
         content = """name: test_conda
 channels:
@@ -291,7 +291,7 @@ prefix: /home/user/.conda/envs/lab_conda
     def test_environment_text_import(self):
         n = generate_name()
         self.env_names.append(n)
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1"}
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
         build_str = build[sys.platform]
         # pip package are not supported by text export file
         content = """# This file may be used to create an environment using:
