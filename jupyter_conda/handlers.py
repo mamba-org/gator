@@ -348,8 +348,8 @@ class PackagesHandler(EnvBaseHandler):
                 with open(cache_file) as cache:
                     cache_data = cache.read()
             except OSError as e:
-                logger.warning(
-                    "[jupyter_conda] Fail to load available packages from cache {!s}.".format(
+                logger.info(
+                    "[jupyter_conda] No available packages list in cache {!s}.".format(
                         e
                     )
                 )
@@ -363,11 +363,14 @@ class PackagesHandler(EnvBaseHandler):
                     with open(cache_file, "w+") as cache:
                         json.dump(answer, cache)
                 except (ValueError, OSError) as e:
-                    logger.warning(
+                    logger.info(
                         "[jupyter_conda] Fail to cache available packages {!s}.".format(
                             e
                         )
                     )
+                else:
+                    # Change rights to ensure every body can update the cache
+                    os.chmod(cache_file, stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH)
                 PackagesHandler.__is_listing_available = False
 
                 if return_packages:
