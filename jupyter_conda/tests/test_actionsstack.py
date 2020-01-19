@@ -1,3 +1,4 @@
+import asyncio
 from unittest import TestCase
 import time
 
@@ -12,8 +13,8 @@ class TestActionsStack(AsyncTestCase):
     def test_put_get(self):
         a = ActionsStack()
 
-        @tornado.gen.coroutine
-        def dummy_action():
+        async def dummy_action():
+            await asyncio.sleep(0.1)
             return True
 
         i = a.put(dummy_action)
@@ -28,9 +29,8 @@ class TestActionsStack(AsyncTestCase):
     def test_put_result(self):
         a = ActionsStack()
 
-        @tornado.gen.coroutine
-        def f(i):
-            yield tornado.gen.moment
+        async def f(i):
+            await asyncio.sleep(0.1)
             return i
 
         to_be_tested = [10, 20, 30]
