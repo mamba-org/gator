@@ -2,11 +2,7 @@ import os
 import glob
 import subprocess
 
-try:
-    from unittest.mock import patch
-except ImportError:
-    # py2
-    from mock import patch
+from unittest.mock import patch
 
 from notebook import jstest
 

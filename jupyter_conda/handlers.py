@@ -5,7 +5,7 @@
 """
 # pylint: disable=W0221
 
-import collections
+import asyncio
 import json
 import logging
 import os
@@ -32,12 +32,9 @@ class ActionsStack:
     """Process queue of asynchronous task one at a time."""
 
     __last_index = 0  # type: int
-    __queue = collections.deque()  # type: collections.deque
+    __queue = asyncio.Queue()  # type: asyncio.Queue
     __results = {}  # type: Dict[int, Any]
     logger = logging.getLogger("ActionsStack")  # type: logging.Logger
-
-    def __init__(self):
-        tornado.ioloop.IOLoop.current().spawn_callback(ActionsStack.__worker)
 
     def put(self, task: Callable, *args) -> int:
         """Add a asynchronous task into the queue.
@@ -51,7 +48,7 @@ class ActionsStack:
         """
         ActionsStack.__last_index += 1
         idx = ActionsStack.__last_index
-        ActionsStack.__queue.append((idx, task, args))
+        ActionsStack.__queue.put_nowait((idx, task, args))
         ActionsStack.__results[idx] = None  # Task is pending
         return idx
 
@@ -75,41 +72,54 @@ class ActionsStack:
         return r
 
     @staticmethod
+    def start_worker():
+        # Clean the queue before starting the worker
+        while not ActionsStack.__queue.empty():
+            t = ActionsStack.__queue.get_nowait()
+            ActionsStack.logger.debug("Skipped task {}.".format(t))
+            ActionsStack.__queue.task_done()
+        tornado.ioloop.IOLoop.current().spawn_callback(ActionsStack.__worker)
+
+    @staticmethod
     async def __worker():
         while True:
-            try:
-                t = ActionsStack.__queue.popleft()
-                if t is None:
-                    return
+            t = await ActionsStack.__queue.get()
+            if t is None:
+                ActionsStack.__queue.task_done()
+                break
 
-                idx, task, args = t
-                try:
-                    ActionsStack.logger.debug(
-                        "[jupyter_conda] Will execute task {}.".format(idx)
-                    )
-                    result = await task(*args)
-                except Exception as e:
-                    exception_type, _, tb = sys.exc_info()
-                    result = {
-                        "type": exception_type.__qualname__,
-                        "error": str(e),
-                        "message": repr(e),
-                        "traceback": traceback.format_tb(tb),
-                    }
-                    ActionsStack.logger.error(
-                        "[jupyter_conda] Error for task {}.".format(result)
-                    )
-                finally:
-                    ActionsStack.logger.debug(
-                        "[jupyter_conda] Has executed task {}.".format(idx)
-                    )
-                    ActionsStack.__results[idx] = result
-            except IndexError:
-                await tornado.gen.moment  # Queue is empty
+            idx, task, args = t
+            try:
+                ActionsStack.logger.debug(
+                    "[jupyter_conda] Will execute task {}.".format(idx)
+                )
+                result = await task(*args)
+            except Exception as e:
+                exception_type, _, tb = sys.exc_info()
+                result = {
+                    "type": exception_type.__qualname__,
+                    "error": str(e),
+                    "message": repr(e),
+                    "traceback": traceback.format_tb(tb),
+                }
+                ActionsStack.logger.error(
+                    "[jupyter_conda] Error for task {}.".format(result)
+                )
+            finally:
+                ActionsStack.__queue.task_done()
+                ActionsStack.logger.debug(
+                    "[jupyter_conda] Has executed task {}.".format(idx)
+                )
+                ActionsStack.__results[idx] = result
+        # Clean up the queue
+        while not ActionsStack.__queue.empty():
+            t = ActionsStack.__queue.get_nowait()
+            ActionsStack.logger.debug("Skipped task {}.".format(t))
+            ActionsStack.__queue.task_done()
 
     def __del__(self):
         # Stop the worker
-        ActionsStack.__queue.append(None)
+        ActionsStack.__queue.put_nowait(None)
 
 
 class EnvBaseHandler(APIHandler):
@@ -118,12 +128,11 @@ class EnvBaseHandler(APIHandler):
     'env_manager' which implements all of the conda functions.
     """
 
-    _stack = None  # type: Optional[ActionsStack]
+    _stack = ActionsStack()  # type: Optional[ActionsStack]
 
     def initialize(self):
-        # ActionsStack must be created here to ensure IOLoop is available
-        # to start the worker
-        self._stack = ActionsStack()
+        # ActionsStack worker must be started here to ensure IOLoop is available
+        ActionsStack.start_worker()
 
     @property
     def env_manager(self) -> EnvManager:
