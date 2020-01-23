@@ -8,6 +8,18 @@ from jupyter_conda.handlers import ActionsStack
 
 
 @pytest.mark.asyncio
+async def test_ActionsStack_put_not_started():
+    a = ActionsStack()
+
+    async def dummy_action():
+        await asyncio.sleep(0.01)
+        return True
+
+    with pytest.raises(RuntimeError):
+        a.put(dummy_action)
+
+
+@pytest.mark.asyncio
 async def test_ActionsStack_put_get():
     a = ActionsStack()
     ActionsStack.start_worker()

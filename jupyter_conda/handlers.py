@@ -14,12 +14,13 @@ import stat
 import sys
 import tempfile
 import traceback
-from typing import Any, Dict, Callable
+from typing import Any, Callable, ClassVar, Dict, Optional
 
 import tornado
+from tornado.queues import Queue
 
-from .server import APIHandler, url_path_join
 from .envmanager import EnvManager
+from .server import APIHandler, url_path_join
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +32,11 @@ AVAILABLE_CACHE = "jupyter_conda_packages"
 class ActionsStack:
     """Process queue of asynchronous task one at a time."""
 
-    __last_index = 0  # type: int
-    __queue = asyncio.Queue()  # type: asyncio.Queue
-    __results = {}  # type: Dict[int, Any]
-    logger = logging.getLogger("ActionsStack")  # type: logging.Logger
+    __last_index: ClassVar[int] = 0
+    __queue: ClassVar[Optional[tornado.queues.Queue]] = None
+    __results: ClassVar[Dict[int, Any]] = {}
+    __n_workers: ClassVar[int] = 0
+    logger: ClassVar[logging.Logger] = logging.getLogger("ActionsStack")
 
     def put(self, task: Callable, *args) -> int:
         """Add a asynchronous task into the queue.
@@ -46,6 +48,8 @@ class ActionsStack:
         Returns:
             int: Task id
         """
+        if ActionsStack.__queue is None:
+            raise RuntimeError("A worker must be started before stacking job.")
         ActionsStack.__last_index += 1
         idx = ActionsStack.__last_index
         ActionsStack.__queue.put_nowait((idx, task, args))
@@ -73,15 +77,25 @@ class ActionsStack:
 
     @staticmethod
     def start_worker():
+        """Start a worker on the tasks queue."""
         # Clean the queue before starting the worker
-        while not ActionsStack.__queue.empty():
-            t = ActionsStack.__queue.get_nowait()
-            ActionsStack.logger.debug("Skipped task {}.".format(t))
-            ActionsStack.__queue.task_done()
+        ActionsStack.__clean_queue()
+        if ActionsStack.__queue is None:
+            ActionsStack.__queue = Queue()
         tornado.ioloop.IOLoop.current().spawn_callback(ActionsStack.__worker)
 
     @staticmethod
+    def __clean_queue():
+        if ActionsStack.__n_workers == 0 and ActionsStack.__queue is not None:
+            # Clean up the queue
+            while not ActionsStack.__queue.empty():
+                t = ActionsStack.__queue.get_nowait()
+                ActionsStack.logger.debug("Skipped task {}.".format(t))
+                ActionsStack.__queue.task_done()
+
+    @staticmethod
     async def __worker():
+        ActionsStack.__n_workers += 1
         while True:
             t = await ActionsStack.__queue.get()
             if t is None:
@@ -111,15 +125,15 @@ class ActionsStack:
                     "[jupyter_conda] Has executed task {}.".format(idx)
                 )
                 ActionsStack.__results[idx] = result
-        # Clean up the queue
-        while not ActionsStack.__queue.empty():
-            t = ActionsStack.__queue.get_nowait()
-            ActionsStack.logger.debug("Skipped task {}.".format(t))
-            ActionsStack.__queue.task_done()
+        ActionsStack.__n_workers -= 1
+        if ActionsStack.__n_workers < 0:
+            raise RuntimeError("More workers stopped than instantiated.")
+        ActionsStack.__clean_queue()
 
     def __del__(self):
         # Stop the worker
-        ActionsStack.__queue.put_nowait(None)
+        if ActionsStack.__queue is not None:
+            ActionsStack.__queue.put_nowait(None)
 
 
 class EnvBaseHandler(APIHandler):
