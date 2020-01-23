@@ -24,26 +24,19 @@ matrix:
         - bash miniconda.sh -b -p $HOME/miniconda
         - export PATH="$HOME/miniconda/bin:$PATH"
         - source $HOME/miniconda/bin/activate
-    - name: "Windows Python 3.6"
-      os: windows
-      env: PYTHON_VERSION=3.6 DEPS="typing"
+    - name: "Xenial Linux Python 3.8"
+      env: PYTHON_VERSION=3.8 DEPS=""
       before_install:
-        - choco install miniconda3
-        - . /c/tools/miniconda3/etc/profile.d/conda.sh
+        - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+        - bash miniconda.sh -b -p $HOME/miniconda
+        - export PATH="$HOME/miniconda/bin:$PATH"
+        - source $HOME/miniconda/bin/activate
     - name: "Windows Python 3.7"
       os: windows
       env: PYTHON_VERSION=3.7 DEPS=""
       before_install:
         - choco install miniconda3
         - . /c/tools/miniconda3/etc/profile.d/conda.sh
-    - name: "macOS Python 3.6"
-      os: osx
-      env: PYTHON_VERSION=3.6 DEPS="typing"
-      before_install:
-        - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
-        - bash ~/miniconda.sh -b -p $HOME/miniconda
-        - export PATH="$HOME/miniconda/bin:$PATH"
-        - source $HOME/miniconda/bin/activate
     - name: "macOS Python 3.7"
       os: osx
       env: PYTHON_VERSION=3.7 DEPS=""
