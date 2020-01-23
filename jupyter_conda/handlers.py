@@ -371,7 +371,9 @@ class PackagesHandler(EnvBaseHandler):
                     )
                 else:
                     # Change rights to ensure every body can update the cache
-                    os.chmod(cache_file, stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH)
+                    os.chmod(
+                        cache_file, 
+                        stat.S_IMODE(os.stat(cache_file).st_mode) | (stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH))
                 PackagesHandler.__is_listing_available = False
 
                 if return_packages:
