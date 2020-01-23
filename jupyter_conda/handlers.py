@@ -260,6 +260,27 @@ class EnvironmentHandler(EnvBaseHandler):
                     self.set_status(500)
                 self.finish(tornado.escape.json_encode(packages))
 
+    @tornado.web.authenticated
+    @tornado.gen.coroutine
+    def patch(self, env: str):
+        """`PATCH /environments/<env>` update an environment.
+
+        Request json body:
+        {
+            file (str): optional, environment file (TXT or YAML format)
+            filename (str): optional, environment filename of the `file` content
+        }
+        """
+        data = self.get_json_body()
+        file_content = data["file"]
+        file_name = data.get("filename", "environment.yml")
+
+        idx = self._stack.put(
+            self.env_manager.update_env, env, file_content, file_name
+        )
+
+        self.redirect_to_task(idx)
+
 
 class PackagesEnvironmentHandler(EnvBaseHandler):
     """Handle actions on environment packages."""
@@ -447,13 +468,11 @@ _env_regex = r"(?P<env>[^/&+$?@<>%*-][^/&+$?@<>%*]*)"  # type: str
 
 
 default_handlers = [
-    (r"/channels", ChannelsHandler),  # GET
+    (r"/channels", ChannelsHandler),
     (r"/environments", EnvironmentsHandler),  # GET / POST
-    (r"/environments/%s" % _env_regex, EnvironmentHandler),  # GET / DELETE
-    (
-        r"/environments/%s/packages" % _env_regex,
-        PackagesEnvironmentHandler,
-    ),  # PATCH / POST / DELETE
+    (r"/environments/%s" % _env_regex, EnvironmentHandler),  # GET / PATCH / DELETE
+    # PATCH / POST / DELETE
+    (r"/environments/%s/packages" % _env_regex, PackagesEnvironmentHandler),
     (r"/packages", PackagesHandler),  # GET
     (r"/tasks/%s" % r"(?P<index>\d+)", TaskHandler),  # GET
 ]

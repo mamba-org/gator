@@ -48,7 +48,8 @@ class JupyterCondaAPITest(ServerTest):
         self.env_names.append(new_name)
 
         return self.conda_api.post(
-            ["environments"], body={"name": new_name, "packages": packages or ["python"]}
+            ["environments"],
+            body={"name": new_name, "packages": packages or ["python"]},
         )
 
     def rm_env(self, name):
@@ -329,17 +330,135 @@ python=3.7.3={}
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
-class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
+    def test_update_env_yaml(self):
+        n = generate_name()
+        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
+        self.assertEqual(response.status_code, 200)
 
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
+        build_str = build[sys.platform]
+        content = """name: test_conda
+channels:
+- conda-forge
+- defaults
+dependencies:
+- astroid=2.2.5=py37_0
+- pip:
+    - cycler==0.10.0
+prefix: /home/user/.conda/envs/lab_conda
+        """
+
+        expected = [
+            ("astroid", "2.2.5", "py37_0"),
+            ("cycler", "0.10.0", "pypi_0"),
+        ]
+
+        def g():
+            return self.conda_api.patch(
+                ["environments", n], body={"file": content, "filename": "testenv.yml"},
+            )
+
+        response = self.wait_for_task(g)
+        self.assertEqual(response.status_code, 200)
+        envs = self.conda_api.envs()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        self.assertIn(n, env_names)
+
+        r = self.conda_api.get(["environments", n])
+        pkgs = r.json().get("packages", [])
+        packages = list(
+            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
+        )
+        for p in expected:
+            self.assertIn(p, packages, "{} not found.".format(p))
+
+    def test_update_env_no_filename(self):
+        n = generate_name()
+        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
+        self.assertEqual(response.status_code, 200)
+
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
+        build_str = build[sys.platform]
+        content = """name: test_conda
+channels:
+- conda-forge
+- defaults
+dependencies:
+- astroid=2.2.5=py37_0
+- pip:
+    - cycler==0.10.0
+prefix: /home/user/.conda/envs/lab_conda
+        """
+
+        expected = [
+            ("astroid", "2.2.5", "py37_0"),
+            ("cycler", "0.10.0", "pypi_0"),
+        ]
+
+        def g():
+            return self.conda_api.patch(["environments", n], body={"file": content},)
+
+        response = self.wait_for_task(g)
+        self.assertEqual(response.status_code, 200)
+        envs = self.conda_api.envs()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        self.assertIn(n, env_names)
+
+        r = self.conda_api.get(["environments", n])
+        pkgs = r.json().get("packages", [])
+        packages = list(
+            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
+        )
+        for p in expected:
+            self.assertIn(p, packages, "{} not found.".format(p))
+
+    def test_update_env_txt(self):
+        n = generate_name()
+        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
+        self.assertEqual(response.status_code, 200)
+
+        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
+        build_str = build[sys.platform]
+        content = """# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+astroid=2.2.5=py37_0
+        """
+
+        expected = [
+            ("astroid", "2.2.5", "py37_0"),
+        ]
+
+        def g():
+            return self.conda_api.patch(
+                ["environments", n], body={"file": content, "filename": "testenv.txt"},
+            )
+
+        response = self.wait_for_task(g)
+        self.assertEqual(response.status_code, 200)
+        envs = self.conda_api.envs()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        self.assertIn(n, env_names)
+
+        r = self.conda_api.get(["environments", n])
+        pkgs = r.json().get("packages", [])
+        packages = list(
+            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
+        )
+        for p in expected:
+            self.assertIn(p, packages, "{} not found.".format(p))
+
+
+class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
     @mock.patch("nb_conda_kernels.manager.CACHE_TIMEOUT", 0)
     def test_get_whitelist(self):
         n = "banana"
-        self.wait_for_task(self.mk_env, n, packages=["ipykernel", ])
+        self.wait_for_task(self.mk_env, n, packages=["ipykernel",])
         manager = CondaKernelSpecManager()
-        manager.whitelist = set(["conda-env-banana-py", ])
+        manager.whitelist = set(["conda-env-banana-py",])
         TestEnvironmentsHandlerWhiteList.notebook.kernel_spec_manager = manager
-        
-        r = self.conda_api.get(["environments", ], params={"whitelist": 1})
+
+        r = self.conda_api.get(["environments",], params={"whitelist": 1})
         self.assertEqual(r.status_code, 200)
         envs = r.json()
         env = None
@@ -356,7 +475,7 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(["environments", ], params={"whitelist": 1})
+        r = self.conda_api.get(["environments",], params={"whitelist": 1})
         self.assertEqual(r.status_code, 200)
         envs = r.json()
         self.assertEqual(len(envs["environments"]), found_env)
@@ -562,7 +681,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
 
-        pkg_name = generate_name()[1:]   
+        pkg_name = generate_name()[1:]
         folder = os.path.join(self.notebook.contents_manager.root_dir, pkg_name)
         os.mkdir(folder)
         os.mkdir(os.path.join(folder, pkg_name))
@@ -974,7 +1093,9 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 }
 
                 with tempfile.TemporaryDirectory() as local_channel:
-                    with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
+                    with open(
+                        os.path.join(local_channel, "channeldata.json"), "w+"
+                    ) as d:
                         d.write(
                             '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Numpy\'s Sphinx extensions", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
                         )
