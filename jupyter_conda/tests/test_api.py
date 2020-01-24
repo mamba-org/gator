@@ -480,7 +480,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + "==0.7.11"]},
+            body={"packages": [test_pkg + "==0.7.12"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -490,7 +490,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = p
                 break
-        self.assertEqual(v["version"], "0.7.11")
+        self.assertEqual(v["version"], "0.7.12")
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
@@ -514,7 +514,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=0.7.10,<0.7.12"]},
+            body={"packages": [test_pkg + ">=0.7.10,<0.7.13"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -525,7 +525,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
                 v = tuple(map(int, p["version"].split(".")))
                 break
         self.assertGreaterEqual(v, (0, 7, 10))
-        self.assertLess(v, (0, 7, 12))
+        self.assertLess(v, (0, 7, 13))
 
     def test_package_install_development_mode(self):
         n = generate_name()
