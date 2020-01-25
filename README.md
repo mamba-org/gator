@@ -99,19 +99,20 @@ jupyter labextension install .
 
 ### 3.1.0
 
-- Add ability to specify kernel companions; i.e. check that if some packages are installed in a
-  kernel, they must respect a certain version range. Companions can be specified through user
-  settings.
-- `IEnvironmentManager.getPackageManager()` returns always the same `Conda.IPackageManager`
-  otherwise signaling package operations would have been meaningless.
-- Request environment list access now `whitelist`=0 or 1 query arguments. If 1, the environment
+- Request environment list accept now `whitelist`=0 or 1 query arguments. If 1, the environment
   list is filtered to respect `KernelSpecManager.whitelist`. Default is 0, but it could be modified
   in user settings.
-- Small UI tweaks
+- JupyterLab extension
+  - `IEnvironmentManager.getPackageManager()` returns always the same `Conda.IPackageManager`
+  otherwise signaling package operations would have been meaningless.
+  - Add ability to specify kernel companions; i.e. check that if some packages are installed in a
+  kernel, they must respect a certain version range. Companions can be specified through user
+  settings.
+  - Small UI tweaks
 
 ### 3.0.0
 
-- Rework the server/client API to be more REST and returns 202 status for long operations
+- Rework the server/client API to be more RESTful and returns 202 status for long operations
 - Cache available packages list in temp directory
 - Improve greatly the coverage for the server extension
 - JupyterLab extension only:
