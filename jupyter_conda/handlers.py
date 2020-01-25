@@ -6,6 +6,7 @@
 # pylint: disable=W0221
 
 import asyncio
+import collections
 import json
 import logging
 import os
@@ -32,7 +33,7 @@ class ActionsStack:
     """Process queue of asynchronous task one at a time."""
 
     __last_index = 0  # type: int
-    __queue = asyncio.Queue()  # type: asyncio.Queue
+    __queue = collections.deque()  # type: collections.deque
     __results = {}  # type: Dict[int, Any]
     logger = logging.getLogger("ActionsStack")  # type: logging.Logger
 
@@ -48,7 +49,7 @@ class ActionsStack:
         """
         ActionsStack.__last_index += 1
         idx = ActionsStack.__last_index
-        ActionsStack.__queue.put_nowait((idx, task, args))
+        ActionsStack.__queue.append((idx, task, args))
         ActionsStack.__results[idx] = None  # Task is pending
         return idx
 
@@ -74,52 +75,47 @@ class ActionsStack:
     @staticmethod
     def start_worker():
         # Clean the queue before starting the worker
-        while not ActionsStack.__queue.empty():
-            t = ActionsStack.__queue.get_nowait()
+        while len(ActionsStack.__queue) > 0:
+            t = ActionsStack.__queue.popleft()
             ActionsStack.logger.debug("Skipped task {}.".format(t))
-            ActionsStack.__queue.task_done()
         tornado.ioloop.IOLoop.current().spawn_callback(ActionsStack.__worker)
 
     @staticmethod
     async def __worker():
         while True:
-            t = await ActionsStack.__queue.get()
-            if t is None:
-                ActionsStack.__queue.task_done()
-                break
-
-            idx, task, args = t
             try:
-                ActionsStack.logger.debug(
-                    "[jupyter_conda] Will execute task {}.".format(idx)
-                )
-                result = await task(*args)
-            except Exception as e:
-                exception_type, _, tb = sys.exc_info()
-                result = {
-                    "type": exception_type.__qualname__,
-                    "error": str(e),
-                    "message": repr(e),
-                    "traceback": traceback.format_tb(tb),
-                }
-                ActionsStack.logger.error(
-                    "[jupyter_conda] Error for task {}.".format(result)
-                )
-            finally:
-                ActionsStack.__queue.task_done()
-                ActionsStack.logger.debug(
-                    "[jupyter_conda] Has executed task {}.".format(idx)
-                )
-                ActionsStack.__results[idx] = result
-        # Clean up the queue
-        while not ActionsStack.__queue.empty():
-            t = ActionsStack.__queue.get_nowait()
-            ActionsStack.logger.debug("Skipped task {}.".format(t))
-            ActionsStack.__queue.task_done()
+                t = ActionsStack.__queue.popleft()
+                if t is None:
+                    return
+
+                idx, task, args = t
+                try:
+                    ActionsStack.logger.debug(
+                        "[jupyter_conda] Will execute task {}.".format(idx)
+                    )
+                    result = await task(*args)
+                except Exception as e:
+                    exception_type, _, tb = sys.exc_info()
+                    result = {
+                        "type": exception_type.__qualname__,
+                        "error": str(e),
+                        "message": repr(e),
+                        "traceback": traceback.format_tb(tb),
+                    }
+                    ActionsStack.logger.error(
+                        "[jupyter_conda] Error for task {}.".format(result)
+                    )
+                finally:
+                    ActionsStack.logger.debug(
+                        "[jupyter_conda] Has executed task {}.".format(idx)
+                    )
+                    ActionsStack.__results[idx] = result
+            except IndexError:
+                await tornado.gen.moment  # Queue is empty
 
     def __del__(self):
         # Stop the worker
-        ActionsStack.__queue.put_nowait(None)
+        ActionsStack.__queue.append(None)
 
 
 class EnvBaseHandler(APIHandler):
