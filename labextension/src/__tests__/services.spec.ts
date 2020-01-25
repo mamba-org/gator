@@ -296,6 +296,42 @@ describe("jupyterlab_conda/services", () => {
       });
     });
 
+    describe("update()", () => {
+      it("should update an environment from a file", async () => {
+        const name = "updatedFromX";
+        const source = "theFileContent";
+        const filename = "environment.yml";
+
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response("", { status: 200 })
+        );
+
+        const envManager = new CondaEnvironments();
+
+        const testSignal = testEmission(envManager.environmentChanged, {
+          test: (manager, changes) => {
+            expect(changes).toStrictEqual({
+              name,
+              source,
+              type: "update"
+            });
+          }
+        });
+
+        await envManager.update(name, source, filename);
+        await testSignal;
+
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(settings.baseUrl, "conda", "environments", name),
+          {
+            body: JSON.stringify({ file: source, filename }),
+            method: "PATCH"
+          },
+          settings
+        );
+      });
+    });
+
     describe("environments", () => {
       it("should request a refresh and return the environments", async () => {
         const dummyEnvs = ["a", "b"];

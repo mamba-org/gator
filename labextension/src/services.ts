@@ -107,13 +107,14 @@ export namespace Conda {
     /**
      * Method of environment creation
      */
-    type: "clone" | "create" | "import" | "remove";
+    type: "clone" | "create" | "import" | "remove" | "update";
     /**
      * Source used for the environment action
      *   'create' -> Initial package list
      *   'import' -> Package list imported
      *   'clone' -> Name of the environment cloned
      *   'remove' -> null
+     *   'update' -> Update file content
      */
     source: string | string[] | null;
   }
@@ -379,7 +380,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  public get environments(): Promise<Array<Conda.IEnvironment>> {
+  get environments(): Promise<Array<Conda.IEnvironment>> {
     return this.refresh().then(() => {
       return Promise.resolve(this._environments);
     });
@@ -434,6 +435,19 @@ export class CondaEnvironments implements IEnvironmentManager {
   private _updateSettings(settings: ISettingRegistry.ISettings) {
     this._environmentTypes = settings.get("types").composite as IType;
     this._whitelist = settings.get("whitelist").composite as boolean;
+  }
+
+  /**
+   * Dispose of the resources used by the manager.
+   */
+  dispose(): void {
+    if (this.isDisposed) {
+      return;
+    }
+    this._isDisposed = true;
+    clearInterval(this._environmentsTimer);
+    this._clean();
+    this._environments.length = 0;
   }
 
   async getChannels(name: string): Promise<Conda.IChannels> {
@@ -597,17 +611,32 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  /**
-   * Dispose of the resources used by the manager.
-   */
-  dispose(): void {
-    if (this.isDisposed) {
-      return;
+  async update(
+    name: string,
+    fileContent: string,
+    fileName: string
+  ): Promise<void> {
+    try {
+      let request: RequestInit = {
+        body: JSON.stringify({ file: fileContent, filename: fileName }),
+        method: "PATCH"
+      };
+      let response = await requestServer(
+        URLExt.join("conda", "environments", name),
+        request
+      );
+
+      if (response.ok) {
+        this._environmentChanged.emit({
+          name: name,
+          source: fileContent,
+          type: "update"
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      throw new Error('An error occurred while creating "' + name + '".');
     }
-    this._isDisposed = true;
-    clearInterval(this._environmentsTimer);
-    this._clean();
-    this._environments.length = 0;
   }
 
   /**

@@ -54,6 +54,32 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
 class EnvManager(LoggingConfigurable):
     """Handles environment and package actions."""
 
+    def _clean_conda_json(self, output: str) -> Dict[str, Any]:
+        """Clean a command output to fit json format.
+        
+        Args:
+            output (str): output to clean
+
+        Returns:
+            Dict[str, Any]: Cleaned output
+        """
+        lines = output.splitlines()
+
+        try:
+            return json.loads("\n".join(lines))
+        except (ValueError, json.JSONDecodeError) as err:
+            self.log.warn("[jupyter_conda] JSON parse fail:\n{!s}".format(err))
+
+        # try to remove bad lines
+        lines = [line for line in lines if re.match(JSONISH_RE, line)]
+
+        try:
+            return json.loads("\n".join(lines))
+        except (ValueError, json.JSONDecodeError) as err:
+            self.log.error("[jupyter_conda] JSON clean/parse fail:\n{!s}".format(err))
+
+        return {"error": True}
+
     def _call_subprocess(self, cmdline: List[str]) -> Tuple[int, bytes, bytes]:
         """Execute a command using subprocess.Popen.
         
@@ -100,6 +126,165 @@ class EnvManager(LoggingConfigurable):
             self.log.debug("[jupyter_conda] ...")
 
         return returncode, output
+
+    @tornado.gen.coroutine
+    def env_channels(
+        self, configuration: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Dict[str, List[str]]]:
+        """List available channels.
+        
+        Args:
+            configuration (Dict[str, Any] or None): Conda configuration
+
+        Returns:
+            {"channels": {<channel>: <uri>}}        
+        """
+        if configuration is None:
+            info = yield self.conda_config()
+        else:
+            info = configuration
+
+        if "error" in info:
+            return info
+
+        deployed_channels = {}
+
+        def get_uri(spec):
+            location = "/".join((spec["location"], spec["name"]))
+            return spec["scheme"] + "://" + location
+
+        for channel in info["channels"]:
+            strip_channel = channel.strip("/")
+            if channel in info["custom_multichannels"]:
+                deployed_channels[channel] = [
+                    get_uri(entry) for entry in info["custom_multichannels"][channel]
+                ]
+            elif strip_channel in info["custom_channels"]:
+                deployed_channels[strip_channel] = [
+                    get_uri(info["custom_channels"][strip_channel])
+                ]
+            else:
+                spec = info["channel_alias"]
+                spec["name"] = channel
+                deployed_channels[channel] = [get_uri(spec)]
+
+        self.log.debug("[jupyter_conda] channels: {}".format(deployed_channels))
+        return {"channels": deployed_channels}
+
+    @tornado.gen.coroutine
+    def conda_config(self) -> Dict[str, Any]:
+        """Get conda configuration.
+        
+        Returns:
+            Dict[str, Any]: Conda configuration      
+        """
+        ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
+        _, output = ans
+        return self._clean_conda_json(output)
+
+    @tornado.gen.coroutine
+    def clone_env(self, env: str, name: str) -> Dict[str, str]:
+        """Clone an environment.
+        
+        Args:
+            env (str): To-be-cloned environment name
+            name (str): New environment name
+        
+        Returns:
+            Dict[str, str]: Clone command output.
+        """
+        ans = yield self._execute(
+            CONDA_EXE, "create", "-y", "-q", "--json", "-n", name, "--clone", env
+        )
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
+
+    @tornado.gen.coroutine
+    def create_env(self, env: str, *args) -> Dict[str, str]:
+        """Create a environment from a list of packages.
+        
+        Args:
+            env (str): Name of the environment
+            *args (List[str]): optional, packages to install
+
+        Returns:
+            Dict[str, str]: Create command output
+        """
+        ans = yield self._execute(
+            CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, *args
+        )
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
+
+    @tornado.gen.coroutine
+    def delete_env(self, env: str) -> Dict[str, str]:
+        """Delete an environment.
+        
+        Args:
+            env (str): Environment name
+        
+        Returns:
+            Dict[str, str]: Deletion command output
+        """
+        ans = yield self._execute(
+            CONDA_EXE, "env", "remove", "-y", "-q", "--json", "-n", env
+        )
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
+
+    @tornado.gen.coroutine
+    def export_env(self, env: str) -> Union[str, Dict[str, str]]:
+        """Export an environment as YAML file.
+        
+        Args:
+            env (str): Environment name
+
+        Returns:
+            str: YAML file content
+        """
+        ans = yield self._execute(CONDA_EXE, "env", "export", "-n", env)
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
+
+    @tornado.gen.coroutine
+    def import_env(
+        self, env: str, file_content: str, file_name: str = "environment.txt"
+    ) -> Dict[str, str]:
+        """Create an environment from a file.
+        
+        Args:
+            env (str): Environment name
+            file_content (str): File content
+            file_name (str): optional, Original filename
+
+        Returns:
+            Dict[str, str]: Create command output
+        """
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
+            name = f.name
+            f.write(file_content)
+
+        ans = yield self._execute(
+            CONDA_EXE, "env", "create", "-q", "--json", "-n", env, "--file", name
+        )
+        # Remove temporary file
+        os.unlink(name)
+
+        rcode, output = ans
+        if rcode > 0:
+            return {"error": output}
+        return output
 
     @tornado.gen.coroutine
     def list_envs(
@@ -168,114 +353,11 @@ class EnvManager(LoggingConfigurable):
         return {"environments": envs_list}
 
     @tornado.gen.coroutine
-    def delete_env(self, env: str) -> Dict[str, str]:
-        """Delete an environment.
-        
-        Args:
-            env (str): Environment name
-        
-        Returns:
-            Dict[str, str]: Deletion command output
-        """
-        ans = yield self._execute(
-            CONDA_EXE, "env", "remove", "-y", "-q", "--json", "-n", env
-        )
-
-        rcode, output = ans
-        if rcode > 0:
-            return {"error": output}
-        return output
-
-    def _clean_conda_json(self, output: str) -> Dict[str, Any]:
-        """Clean a command output to fit json format.
-        
-        Args:
-            output (str): output to clean
-
-        Returns:
-            Dict[str, Any]: Cleaned output
-        """
-        lines = output.splitlines()
-
-        try:
-            return json.loads("\n".join(lines))
-        except (ValueError, json.JSONDecodeError) as err:
-            self.log.warn("[jupyter_conda] JSON parse fail:\n{!s}".format(err))
-
-        # try to remove bad lines
-        lines = [line for line in lines if re.match(JSONISH_RE, line)]
-
-        try:
-            return json.loads("\n".join(lines))
-        except (ValueError, json.JSONDecodeError) as err:
-            self.log.error("[jupyter_conda] JSON clean/parse fail:\n{!s}".format(err))
-
-        return {"error": True}
-
-    @tornado.gen.coroutine
-    def export_env(self, env: str) -> Union[str, Dict[str, str]]:
-        """Export an environment as YAML file.
-        
-        Args:
-            env (str): Environment name
-
-        Returns:
-            str: YAML file content
-        """
-        ans = yield self._execute(CONDA_EXE, "env", "export", "-n", env)
-        rcode, output = ans
-        if rcode > 0:
-            return {"error": output}
-        return output
-
-    @tornado.gen.coroutine
-    def clone_env(self, env: str, name: str) -> Dict[str, str]:
-        """Clone an environment.
-        
-        Args:
-            env (str): To-be-cloned environment name
-            name (str): New environment name
-        
-        Returns:
-            Dict[str, str]: Clone command output.
-        """
-        ans = yield self._execute(
-            CONDA_EXE, "create", "-y", "-q", "--json", "-n", name, "--clone", env
-        )
-
-        rcode, output = ans
-        if rcode > 0:
-            return {"error": output}
-        return output
-
-    @tornado.gen.coroutine
-    def create_env(self, env: str, *args) -> Dict[str, str]:
-        """Create a environment from a list of packages.
+    def update_env(self, env: str, file_content: str, file_name: str = "environment.yml") -> Dict[str, str]:
+        """Update a environment from a file.
         
         Args:
             env (str): Name of the environment
-            *args (List[str]): optional, packages to install
-
-        Returns:
-            Dict[str, str]: Create command output
-        """
-        ans = yield self._execute(
-            CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, *args
-        )
-
-        rcode, output = ans
-        if rcode > 0:
-            return {"error": output}
-        return output
-
-    @tornado.gen.coroutine
-    def import_env(
-        self, env: str, file_content: str, file_name: str = "environment.txt"
-    ) -> Dict[str, str]:
-        """Create an environment from a file.
-        
-        Args:
-            env (str): Environment name
             file_content (str): File content
             file_name (str): optional, Original filename
 
@@ -287,70 +369,13 @@ class EnvManager(LoggingConfigurable):
             f.write(file_content)
 
         ans = yield self._execute(
-            CONDA_EXE, "env", "create", "-q", "--json", "-n", env, "--file", name
+            CONDA_EXE, "env", "update", "-q", "--json", "-n", env, "-f", name
         )
-        # Remove temporary file
-        os.unlink(name)
 
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
         return output
-
-    @tornado.gen.coroutine
-    def env_channels(
-        self, configuration: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Dict[str, List[str]]]:
-        """List available channels.
-        
-        Args:
-            configuration (Dict[str, Any] or None): Conda configuration
-
-        Returns:
-            {"channels": {<channel>: <uri>}}        
-        """
-        if configuration is None:
-            info = yield self.conda_config()
-        else:
-            info = configuration
-
-        if "error" in info:
-            return info
-
-        deployed_channels = {}
-
-        def get_uri(spec):
-            location = "/".join((spec["location"], spec["name"]))
-            return spec["scheme"] + "://" + location
-
-        for channel in info["channels"]:
-            strip_channel = channel.strip("/")
-            if channel in info["custom_multichannels"]:
-                deployed_channels[channel] = [
-                    get_uri(entry) for entry in info["custom_multichannels"][channel]
-                ]
-            elif strip_channel in info["custom_channels"]:
-                deployed_channels[strip_channel] = [
-                    get_uri(info["custom_channels"][strip_channel])
-                ]
-            else:
-                spec = info["channel_alias"]
-                spec["name"] = channel
-                deployed_channels[channel] = [get_uri(spec)]
-
-        self.log.debug("[jupyter_conda] channels: {}".format(deployed_channels))
-        return {"channels": deployed_channels}
-
-    @tornado.gen.coroutine
-    def conda_config(self) -> Dict[str, Any]:
-        """Get conda configuration.
-        
-        Returns:
-            Dict[str, Any]: Conda configuration      
-        """
-        ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
-        _, output = ans
-        return self._clean_conda_json(output)
 
     @tornado.gen.coroutine
     def env_packages(self, env: str) -> Dict[str, List[str]]:
