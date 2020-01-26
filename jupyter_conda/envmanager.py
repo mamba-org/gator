@@ -406,7 +406,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {
                 "packages": List[package],
-                "with_description": bool  # Wheter we succed in get some channeldata.json files
+                "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
         ans = await self._execute(CONDA_EXE, "search", "--json")
@@ -591,7 +591,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {
                 "packages": List[package],
-                "with_description": bool  # Wheter we succed in get some channeldata.json files
+                "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
         ans = await self._execute(CONDA_EXE, "search", "--json", q)

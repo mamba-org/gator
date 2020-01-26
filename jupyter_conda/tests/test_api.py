@@ -1,3 +1,4 @@
+import asyncio
 import json
 import random
 import os
@@ -136,7 +137,9 @@ class TestChannelsHandler(JupyterCondaAPITest):
                     ],
                 },
             }
-            f.return_value = tornado.gen.maybe_future((0, json.dumps(data)))
+            future = asyncio.Future()
+            future.set_result((0, json.dumps(data)))
+            f.return_value = future
 
             response = self.conda_api.get(["channels"])
             self.assertEqual(response.status_code, 200)

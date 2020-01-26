@@ -10,10 +10,10 @@ from jupyter_conda.handlers import ActionsStack
 @pytest.mark.asyncio
 async def test_ActionsStack_put_get():
     a = ActionsStack()
-    ActionsStack.start_worker()
+    dt = 0.01
 
     async def dummy_action():
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(dt)
         return True
 
     i = a.put(dummy_action)
@@ -21,8 +21,10 @@ async def test_ActionsStack_put_get():
     r = a.get(i)
     assert r is None
 
-    while r is None:
-        await asyncio.sleep(0.02)  # Wait for task completion
+    elapsed = 0.
+    while r is None and elapsed < 50 * dt:
+        elapsed += dt
+        await asyncio.sleep(2 * dt)  # Wait for task completion
         r = a.get(i)
     assert r
 
@@ -30,7 +32,6 @@ async def test_ActionsStack_put_get():
 @pytest.mark.asyncio
 async def test_ActionsStack_put_result():
     a = ActionsStack()
-    ActionsStack.start_worker()
 
     async def f(i):
         await asyncio.sleep(0.01)
