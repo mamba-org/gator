@@ -1,0 +1,2 @@
+pip install .
+jupyter labextension install jupyterlab_toastify jupyterlab_conda
