@@ -1,8 +1,8 @@
+coverage
 flake8
 nodejs
 pytest
 pytest-asyncio
-pytest-cov
 requests
 nb_conda_kernels >=2.2.0
 notebook >=4.3.1
