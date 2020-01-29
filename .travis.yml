@@ -54,7 +54,7 @@ install:
   - conda activate $NAME
   - conda info -a
   - conda install -n $NAME -c conda-forge -c defaults --file requirements_dev.txt
-  - pip install python-coveralls
+  - conda install -n $NAME -c conda-forge -c defaults coveralls
   - npm install
   # Install the server and notebook extensions
   - pip install .
