@@ -5,6 +5,7 @@
 """
 # pylint: disable=W0221
 
+import asyncio
 import collections
 import json
 import logging
@@ -14,7 +15,7 @@ import stat
 import sys
 import tempfile
 import traceback
-from typing import Any, Dict, Callable
+from typing import Any, ClassVar, Dict, Callable
 
 import tornado
 
@@ -31,13 +32,12 @@ AVAILABLE_CACHE = "jupyter_conda_packages"
 class ActionsStack:
     """Process queue of asynchronous task one at a time."""
 
-    __last_index = 0  # type: int
-    __queue = collections.deque()  # type: collections.deque
-    __results = {}  # type: Dict[int, Any]
-    logger = logging.getLogger("ActionsStack")  # type: logging.Logger
+    __last_index: ClassVar[int] = 0
+    logger: ClassVar[logging.Logger] = logging.getLogger("ActionsStack")
 
     def __init__(self):
-        tornado.ioloop.IOLoop.current().spawn_callback(ActionsStack.__worker)
+        self.__tasks: Dict[int, asyncio.Task] = dict()
+        self.__results: Dict[int, Any] = dict()
 
     def put(self, task: Callable, *args) -> int:
         """Add a asynchronous task into the queue.
@@ -51,8 +51,35 @@ class ActionsStack:
         """
         ActionsStack.__last_index += 1
         idx = ActionsStack.__last_index
-        ActionsStack.__queue.append((idx, task, args))
-        ActionsStack.__results[idx] = None  # Task is pending
+        self.__results[idx] = None  # Task is pending
+
+        async def execute_task(idx, f, *args):
+            try:
+                ActionsStack.logger.debug(
+                    "[jupyter_conda] Will execute task {}.".format(idx)
+                )
+                result = await f(*args)
+
+            except Exception as e:
+                exception_type, _, tb = sys.exc_info()
+                result = {
+                    "type": exception_type.__qualname__,
+                    "error": str(e),
+                    "message": repr(e),
+                    "traceback": traceback.format_tb(tb),
+                }
+                ActionsStack.logger.error(
+                    "[jupyter_conda] Error for task {}.".format(result)
+                )
+
+            finally:
+                ActionsStack.logger.debug(
+                    "[jupyter_conda] Has executed task {}.".format(idx)
+                )
+                self.__tasks.pop(idx)
+                self.__results[idx] = result
+        
+        self.__tasks[idx] = asyncio.ensure_future(execute_task(idx, task, *args))
         return idx
 
     def get(self, idx: int) -> Any:
@@ -67,50 +94,16 @@ class ActionsStack:
         Raises:
             ValueError: If the task `idx` does not exists
         """
-        if idx not in ActionsStack.__results:
+        if idx not in self.__results:
             raise ValueError("Task {} does not exists.".format(idx))
-        r = ActionsStack.__results[idx]
+        r = self.__results[idx]
         if r is not None:  # Remove the result
-            ActionsStack.__results.pop(idx)
+            self.__results.pop(idx)
         return r
 
-    @staticmethod
-    @tornado.gen.coroutine
-    def __worker():
-        while True:
-            try:
-                t = ActionsStack.__queue.popleft()
-                if t is None:
-                    return
-
-                idx, task, args = t
-                try:
-                    ActionsStack.logger.debug(
-                        "[jupyter_conda] Will execute task {}.".format(idx)
-                    )
-                    result = yield task(*args)
-                except Exception as e:
-                    exception_type, _, tb = sys.exc_info()
-                    result = {
-                        "type": exception_type.__qualname__,
-                        "error": str(e),
-                        "message": repr(e),
-                        "traceback": traceback.format_tb(tb),
-                    }
-                    ActionsStack.logger.error(
-                        "[jupyter_conda] Error for task {}.".format(result)
-                    )
-                finally:
-                    ActionsStack.logger.debug(
-                        "[jupyter_conda] Has executed task {}.".format(idx)
-                    )
-                    ActionsStack.__results[idx] = result
-            except IndexError:
-                yield tornado.gen.moment  # Queue is empty
-
     def __del__(self):
-        # Stop the worker
-        ActionsStack.__queue.append(None)
+        for task in self.__tasks.values():
+            task.cancel()
 
 
 class EnvBaseHandler(APIHandler):
@@ -119,12 +112,7 @@ class EnvBaseHandler(APIHandler):
     'env_manager' which implements all of the conda functions.
     """
 
-    _stack = None  # type: Optional[ActionsStack]
-
-    def initialize(self):
-        # ActionsStack must be created here to ensure IOLoop is available
-        # to start the worker
-        self._stack = ActionsStack()
+    _stack: ClassVar[ActionsStack] = ActionsStack()
 
     @property
     def env_manager(self) -> EnvManager:
@@ -142,10 +130,9 @@ class ChannelsHandler(EnvBaseHandler):
     """Handle channels actions."""
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def get(self):
+    async def get(self):
         """`GET /channels` list the channels."""
-        channels = yield self.env_manager.env_channels()
+        channels = await self.env_manager.env_channels()
         if "error" in channels:
             self.set_status(500)
         self.finish(tornado.escape.json_encode(channels))
@@ -155,8 +142,7 @@ class EnvironmentsHandler(EnvBaseHandler):
     """Environments handler."""
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def get(self):
+    async def get(self):
         """`GET /environments` which lists the environments.
 
         Query arguments:
@@ -166,14 +152,13 @@ class EnvironmentsHandler(EnvBaseHandler):
             500 if an error occurs
         """
         whitelist = self.get_query_argument("whitelist", 0)
-        list_envs = yield self.env_manager.list_envs(int(whitelist) == 1)
+        list_envs = await self.env_manager.list_envs(int(whitelist) == 1)
         if "error" in list_envs:
             self.set_status(500)
         self.finish(tornado.escape.json_encode(list_envs))
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def post(self):
+    async def post(self):
         """`POST /environments` creates an environment.
 
         Method of creation depends on the request data (first find is used):
@@ -216,16 +201,14 @@ class EnvironmentHandler(EnvBaseHandler):
     """Environment handler."""
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def delete(self, env: str):
+    async def delete(self, env: str):
         """`DELETE /environments/<env>` deletes an environment."""
         idx = self._stack.put(self.env_manager.delete_env, env)
 
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def get(self, env: str):
+    async def get(self, env: str):
         """`GET /environments/<env>` List or export the environment packages.
         
         Query arguments:
@@ -240,7 +223,7 @@ class EnvironmentHandler(EnvBaseHandler):
             self.set_header(
                 "Content-Disposition", 'attachment; filename="%s"' % (env + ".yml")
             )
-            answer = yield self.env_manager.export_env(env)
+            answer = await self.env_manager.export_env(env)
             if "error" in answer:
                 self.set_status(500)
                 self.finish(tornado.escape.json_encode(answer))
@@ -254,7 +237,7 @@ class EnvironmentHandler(EnvBaseHandler):
                 self.redirect_to_task(idx)
 
             else:
-                packages = yield self.env_manager.env_packages(env)
+                packages = await self.env_manager.env_packages(env)
 
                 if "error" in packages:
                     self.set_status(500)
@@ -286,8 +269,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
     """Handle actions on environment packages."""
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def delete(self, env: str):
+    async def delete(self, env: str):
         """`DELETE /environments/<env>/packages` delete some packages.
         
         Request json body:
@@ -301,8 +283,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def patch(self, env: str):
+    async def patch(self, env: str):
         """`PATCH /environments/<env>/packages` update some packages.
         
         If no packages are provided, update all possible packages.
@@ -318,8 +299,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def post(self, env: str):
+    async def post(self, env: str):
         """`POST /environments/<env>/packages` install some packages.
         
         Packages can be installed in development mode. In that case,
@@ -350,8 +330,7 @@ class PackagesHandler(EnvBaseHandler):
     __is_listing_available = False
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
-    def get(self):
+    async def get(self):
         """`GET /packages` Search for packages.
         
         Query arguments:
@@ -376,11 +355,10 @@ class PackagesHandler(EnvBaseHandler):
                     )
                 )
 
-            @tornado.gen.coroutine
-            def update_available(
+            async def update_available(
                 env_manager: EnvManager, cache_file: str, return_packages: bool = True
             ) -> Dict:
-                answer = yield env_manager.list_available()
+                answer = await env_manager.list_available()
                 try:
                     with open(cache_file, "w+") as cache:
                         json.dump(answer, cache)

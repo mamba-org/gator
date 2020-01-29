@@ -93,8 +93,7 @@ class EnvManager(LoggingConfigurable):
         output, error = process.communicate()
         return (process.returncode, output, error)
 
-    @tornado.gen.coroutine
-    def _execute(self, cmd: str, *args) -> Tuple[int, str]:
+    async def _execute(self, cmd: str, *args) -> Tuple[int, str]:
         """Asynchronously execute a command.
         
         Args:
@@ -110,7 +109,7 @@ class EnvManager(LoggingConfigurable):
         self.log.debug("[jupyter_conda] command: {!s}".format(" ".join(cmdline)))
 
         current_loop = tornado.ioloop.IOLoop.current()
-        returncode, output, error = yield current_loop.run_in_executor(
+        returncode, output, error = await current_loop.run_in_executor(
             None, self._call_subprocess, cmdline
         )
 
@@ -127,8 +126,7 @@ class EnvManager(LoggingConfigurable):
 
         return returncode, output
 
-    @tornado.gen.coroutine
-    def env_channels(
+    async def env_channels(
         self, configuration: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Dict[str, List[str]]]:
         """List available channels.
@@ -140,7 +138,7 @@ class EnvManager(LoggingConfigurable):
             {"channels": {<channel>: <uri>}}        
         """
         if configuration is None:
-            info = yield self.conda_config()
+            info = await self.conda_config()
         else:
             info = configuration
 
@@ -171,19 +169,17 @@ class EnvManager(LoggingConfigurable):
         self.log.debug("[jupyter_conda] channels: {}".format(deployed_channels))
         return {"channels": deployed_channels}
 
-    @tornado.gen.coroutine
-    def conda_config(self) -> Dict[str, Any]:
+    async def conda_config(self) -> Dict[str, Any]:
         """Get conda configuration.
         
         Returns:
             Dict[str, Any]: Conda configuration      
         """
-        ans = yield self._execute(CONDA_EXE, "config", "--show", "--json")
+        ans = await self._execute(CONDA_EXE, "config", "--show", "--json")
         _, output = ans
         return self._clean_conda_json(output)
 
-    @tornado.gen.coroutine
-    def clone_env(self, env: str, name: str) -> Dict[str, str]:
+    async def clone_env(self, env: str, name: str) -> Dict[str, str]:
         """Clone an environment.
         
         Args:
@@ -193,7 +189,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Clone command output.
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "create", "-y", "-q", "--json", "-n", name, "--clone", env
         )
 
@@ -202,8 +198,7 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
-    @tornado.gen.coroutine
-    def create_env(self, env: str, *args) -> Dict[str, str]:
+    async def create_env(self, env: str, *args) -> Dict[str, str]:
         """Create a environment from a list of packages.
         
         Args:
@@ -213,7 +208,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Create command output
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, *args
         )
 
@@ -222,8 +217,7 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
-    @tornado.gen.coroutine
-    def delete_env(self, env: str) -> Dict[str, str]:
+    async def delete_env(self, env: str) -> Dict[str, str]:
         """Delete an environment.
         
         Args:
@@ -232,7 +226,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Deletion command output
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "env", "remove", "-y", "-q", "--json", "-n", env
         )
 
@@ -241,8 +235,7 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
-    @tornado.gen.coroutine
-    def export_env(self, env: str) -> Union[str, Dict[str, str]]:
+    async def export_env(self, env: str) -> Union[str, Dict[str, str]]:
         """Export an environment as YAML file.
         
         Args:
@@ -251,14 +244,13 @@ class EnvManager(LoggingConfigurable):
         Returns:
             str: YAML file content
         """
-        ans = yield self._execute(CONDA_EXE, "env", "export", "-n", env)
+        ans = await self._execute(CONDA_EXE, "env", "export", "-n", env)
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
         return output
 
-    @tornado.gen.coroutine
-    def import_env(
+    async def import_env(
         self, env: str, file_content: str, file_name: str = "environment.txt"
     ) -> Dict[str, str]:
         """Create an environment from a file.
@@ -275,7 +267,7 @@ class EnvManager(LoggingConfigurable):
             name = f.name
             f.write(file_content)
 
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "env", "create", "-q", "--json", "-n", env, "--file", name
         )
         # Remove temporary file
@@ -286,8 +278,7 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
-    @tornado.gen.coroutine
-    def list_envs(
+    async def list_envs(
         self, whitelist: bool = False
     ) -> Dict[str, List[Dict[str, Union[str, bool]]]]:
         """List all environments that conda knows about.
@@ -306,7 +297,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
          {"environments": List[env]}: The environments
         """
-        ans = yield self._execute(CONDA_EXE, "info", "--json")
+        ans = await self._execute(CONDA_EXE, "info", "--json")
         rcode, output = ans
         info = self._clean_conda_json(output)
         if rcode > 0:
@@ -352,8 +343,7 @@ class EnvManager(LoggingConfigurable):
 
         return {"environments": envs_list}
 
-    @tornado.gen.coroutine
-    def update_env(self, env: str, file_content: str, file_name: str = "environment.yml") -> Dict[str, str]:
+    async def update_env(self, env: str, file_content: str, file_name: str = "environment.yml") -> Dict[str, str]:
         """Update a environment from a file.
         
         Args:
@@ -368,7 +358,7 @@ class EnvManager(LoggingConfigurable):
             name = f.name
             f.write(file_content)
 
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "env", "update", "-q", "--json", "-n", env, "-f", name
         )
 
@@ -377,8 +367,7 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
-    @tornado.gen.coroutine
-    def env_packages(self, env: str) -> Dict[str, List[str]]:
+    async def env_packages(self, env: str) -> Dict[str, List[str]]:
         """List environment package.
         
         Args:
@@ -387,7 +376,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {"packages": List[package]}
         """
-        ans = yield self._execute(CONDA_EXE, "list", "--no-pip", "--json", "-n", env)
+        ans = await self._execute(CONDA_EXE, "list", "--no-pip", "--json", "-n", env)
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -411,17 +400,16 @@ class EnvManager(LoggingConfigurable):
 
         return {"packages": [normalize_pkg_info(package) for package in data]}
 
-    @tornado.gen.coroutine
-    def list_available(self) -> Dict[str, List[Dict[str, str]]]:
+    async def list_available(self) -> Dict[str, List[Dict[str, str]]]:
         """List all available packages
         
         Returns:
             {
                 "packages": List[package],
-                "with_description": bool  # Wheter we succed in get some channeldata.json files
+                "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        ans = yield self._execute(CONDA_EXE, "search", "--json")
+        ans = await self._execute(CONDA_EXE, "search", "--json")
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -494,8 +482,8 @@ class EnvManager(LoggingConfigurable):
             packages.append(pkg_entry)
 
         # Get channel short names
-        configuration = yield self.conda_config()
-        channels = yield self.env_channels(configuration)
+        configuration = await self.conda_config()
+        channels = await self.env_channels(configuration)
         channels = channels["channels"]
         tr_channels = {}
         for short_name, channel in channels.items():
@@ -533,7 +521,7 @@ class EnvManager(LoggingConfigurable):
                     pkg_info.update(channeldata["packages"])
             else:
                 try:  # Skip if file is not accessible
-                    response = yield client.fetch(
+                    response = await client.fetch(
                         tornado.httpclient.HTTPRequest(
                             url_path_join(channel, "channeldata.json"),
                             headers={"Content-Type": "application/json"},
@@ -594,8 +582,7 @@ class EnvManager(LoggingConfigurable):
             "with_description": len(pkg_info) > 0,
         }
 
-    @tornado.gen.coroutine
-    def package_search(self, q: str) -> Dict[str, List]:
+    async def package_search(self, q: str) -> Dict[str, List]:
         """Search packages.
         
         Args:
@@ -604,10 +591,10 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {
                 "packages": List[package],
-                "with_description": bool  # Wheter we succed in get some channeldata.json files
+                "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        ans = yield self._execute(CONDA_EXE, "search", "--json", q)
+        ans = await self._execute(CONDA_EXE, "search", "--json", q)
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -636,8 +623,7 @@ class EnvManager(LoggingConfigurable):
             "with_description": False,
         }
 
-    @tornado.gen.coroutine
-    def check_update(
+    async def check_update(
         self, env: str, packages: List[str]
     ) -> Dict[str, List[Dict[str, str]]]:
         """Check for packages update in an environment.
@@ -652,7 +638,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {"updates": List[package]}
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "update", "--dry-run", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
@@ -687,8 +673,7 @@ class EnvManager(LoggingConfigurable):
             # no action plan returned means everything is already up to date
             return {"updates": []}
 
-    @tornado.gen.coroutine
-    def install_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
+    async def install_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
         """Install packages in an environment.
         
         Args:
@@ -698,14 +683,13 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Install command output.
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "install", "-y", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
         return self._clean_conda_json(output)
 
-    @tornado.gen.coroutine
-    def develop_packages(
+    async def develop_packages(
         self, env: str, packages: List[str]
     ) -> Dict[str, List[Dict[str, str]]]:
         """Install packages in pip editable mode in an environment.
@@ -717,7 +701,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Install command output.
         """
-        envs = yield self.list_envs()
+        envs = await self.list_envs()
         if "error" in envs:
             return envs
 
@@ -746,7 +730,7 @@ class EnvManager(LoggingConfigurable):
                     if not os.path.exists(realpath):
                         return {"error": "Unable to find path {}.".format(path)}
 
-                ans = yield self._execute(
+                ans = await self._execute(
                     python_cmd,
                     "-m",
                     "pip",
@@ -763,8 +747,7 @@ class EnvManager(LoggingConfigurable):
                 result.append(feedback)
         return {"packages": result}
 
-    @tornado.gen.coroutine
-    def update_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
+    async def update_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
         """Update packages in an environment.
         
         Args:
@@ -774,14 +757,13 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Update command output.
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "update", "-y", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
         return self._clean_conda_json(output)
 
-    @tornado.gen.coroutine
-    def remove_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
+    async def remove_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
         """Delete packages in an environment.
         
         Args:
@@ -791,7 +773,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             Dict[str, str]: Delete command output.
         """
-        ans = yield self._execute(
+        ans = await self._execute(
             CONDA_EXE, "remove", "-y", "-q", "--json", "-n", env, *packages
         )
         _, output = ans

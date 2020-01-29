@@ -1,57 +1,59 @@
-from unittest import TestCase
+import asyncio
 import time
+from unittest import TestCase
 
+import pytest
 import tornado
-from tornado.testing import AsyncTestCase, gen_test
-
 from jupyter_conda.handlers import ActionsStack
 
 
-class TestActionsStack(AsyncTestCase):
+@pytest.mark.asyncio
+async def test_ActionsStack_put_get():
+    a = ActionsStack()
+    dt = 0.01
 
-    @gen_test
-    def test_put_get(self):
-        a = ActionsStack()
+    async def dummy_action():
+        await asyncio.sleep(dt)
+        return True
 
-        @tornado.gen.coroutine
-        def dummy_action():
-            return True
-        
-        i = a.put(dummy_action)
-        self.assertIsInstance(i, int)
-        self.assertIsNone(a.get(i))
+    i = a.put(dummy_action)
+    assert isinstance(i, int)
+    r = a.get(i)
+    assert r is None
 
-        yield tornado.gen.moment  # Wait for task completion
+    elapsed = 0.
+    while r is None and elapsed < 50 * dt:
+        elapsed += dt
+        await asyncio.sleep(2 * dt)  # Wait for task completion
         r = a.get(i)
-        self.assertTrue(r)
+    assert r
 
-    @gen_test
-    def test_put_result(self):
-        a = ActionsStack()
-        
-        @tornado.gen.coroutine
-        def f(i):
-            yield tornado.gen.moment
-            return i
 
-        to_be_tested = [10, 20 ,30]
-        idxs = []
+@pytest.mark.asyncio
+async def test_ActionsStack_put_result():
+    a = ActionsStack()
 
-        for b in to_be_tested:
-            idxs.append(a.put(f, b))
-            
-        self.assertEqual(len(idxs), len(to_be_tested))
-        for l in idxs:
-            self.assertIsInstance(l, int)
-            self.assertIsNone(a.get(l))
-        
-        for i, v in enumerate(to_be_tested):
-            r = None
-            while r is None:
-                yield tornado.gen.moment
-                r = a.get(idxs[i])
-            for l in idxs[i+1:]:
-                self.assertIsNone(a.get(l))
-            self.assertEqual(r, v)
+    async def f(i):
+        await asyncio.sleep(0.01)
+        return i
 
-        
+    to_be_tested = [10, 20, 30]
+    idxs = []
+
+    for b in to_be_tested:
+        idxs.append(a.put(f, b))
+
+    len(idxs) == len(to_be_tested)
+    for l in idxs:
+        assert isinstance(l, int)
+        assert a.get(l) is None
+
+    for i, v in enumerate(to_be_tested):
+        r = None
+        elapsed = 0.
+        dt = 0.02
+        while r is None and elapsed < 50 * dt:
+            elapsed += dt
+            await asyncio.sleep(dt)
+            r = a.get(idxs[i])
+        assert r == v

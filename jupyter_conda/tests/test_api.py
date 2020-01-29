@@ -1,9 +1,14 @@
+import asyncio
 import json
 import random
 import os
 import sys
 import unittest
 import unittest.mock as mock
+try:
+    from unittest.mock import AsyncMock
+except ImportError:
+    AsyncMock = None
 import uuid
 import tempfile
 
@@ -68,7 +73,8 @@ class TestChannelsHandler(JupyterCondaAPITest):
         with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
             error_msg = "Fail to get channels"
             r = {"error": True, "message": error_msg}
-            f.return_value = tornado.gen.maybe_future((1, json.dumps(r)))
+            rvalue = (1, json.dumps(r))
+            f.return_value = tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
             with assert_http_error(500, msg=error_msg):
                 self.conda_api.get(["channels"])
 
@@ -136,7 +142,8 @@ class TestChannelsHandler(JupyterCondaAPITest):
                     ],
                 },
             }
-            f.return_value = tornado.gen.maybe_future((0, json.dumps(data)))
+            rvalue = (0, json.dumps(data))
+            f.return_value = tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
 
             response = self.conda_api.get(["channels"])
             self.assertEqual(response.status_code, 200)
@@ -174,7 +181,8 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
         with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
             msg = "Fail to get environments"
             err = {"error": True, "message": msg}
-            f.return_value = tornado.gen.maybe_future((1, json.dumps(err)))
+            rvalue = (1, json.dumps(err))
+            f.return_value = tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
             with assert_http_error(500, msg=msg):
                 self.conda_api.get(["environments"])
 
@@ -335,8 +343,6 @@ python=3.7.3={}
         response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
         self.assertEqual(response.status_code, 200)
 
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
-        build_str = build[sys.platform]
         content = """name: test_conda
 channels:
 - conda-forge
@@ -377,8 +383,6 @@ prefix: /home/user/.conda/envs/lab_conda
         response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
         self.assertEqual(response.status_code, 200)
 
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
-        build_str = build[sys.platform]
         content = """name: test_conda
 channels:
 - conda-forge
@@ -417,8 +421,6 @@ prefix: /home/user/.conda/envs/lab_conda
         response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
         self.assertEqual(response.status_code, 200)
 
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
-        build_str = build[sys.platform]
         content = """# This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
@@ -904,11 +906,12 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     "ssl_verify": False,
                 }
 
-                # Use side_effect to have a different return value for each call
-                f.side_effect = [
-                    tornado.gen.maybe_future((0, json.dumps(dummy))),
-                    tornado.gen.maybe_future((0, json.dumps(channels))),
+                rvalue = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
                 ]
+                # Use side_effect to have a different return value for each call
+                f.side_effect = map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
 
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
                 self.assertEqual(r.status_code, 200)
@@ -1117,11 +1120,12 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         },
                     }
 
-                    # Use side_effect to have a different return value for each call
-                    f.side_effect = [
-                        tornado.gen.maybe_future((0, json.dumps(dummy))),
-                        tornado.gen.maybe_future((0, json.dumps(channels))),
+                    rvalue = [
+                        (0, json.dumps(dummy)),
+                        (0, json.dumps(channels)),
                     ]
+                    # Use side_effect to have a different return value for each call
+                    f.side_effect = map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
                     self.assertEqual(r.status_code, 200)
@@ -1324,11 +1328,12 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         },
                     }
 
-                    # Use side_effect to have a different return value for each call
-                    f.side_effect = [
-                        tornado.gen.maybe_future((0, json.dumps(dummy))),
-                        tornado.gen.maybe_future((0, json.dumps(channels))),
+                    rvalue =  [
+                        (0, json.dumps(dummy)),
+                        (0, json.dumps(channels)),
                     ]
+                    # Use side_effect to have a different return value for each call
+                    f.side_effect = map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
                     self.assertEqual(r.status_code, 200)
@@ -1538,11 +1543,12 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     "ssl_verify": False,
                 }
 
-                # Use side_effect to have a different return value for each call
-                f.side_effect = [
-                    tornado.gen.maybe_future((0, json.dumps(dummy))),
-                    tornado.gen.maybe_future((0, json.dumps(channels))),
+                rvalue = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
                 ]
+                # Use side_effect to have a different return value for each call
+                f.side_effect = map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
 
                 # First retrival no cache available
                 r = self.wait_for_task(self.conda_api.get, ["packages"])

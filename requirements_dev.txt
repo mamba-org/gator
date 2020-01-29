@@ -1,8 +1,8 @@
 coverage
 flake8
-mock
 nodejs
-nose
+pytest
+pytest-asyncio
 requests
 nb_conda_kernels >=2.2.0
 notebook >=4.3.1
