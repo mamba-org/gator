@@ -4,7 +4,7 @@
   "description": "Development tools for jupyter_conda",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && coverage run -m pytest jupyter_conda && cd labextension && npm run test",
+    "test": "npm run lint && coverage run -m pytest jupyter_conda && coverage report && cd labextension && npm run test",
     "lint": "flake8 setup.py jupyter_conda"
   },
   "repository": {
