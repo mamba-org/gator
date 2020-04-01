@@ -9,14 +9,14 @@ Welcome! Before creating a new issue:
 * Check that you have updated both the jupyterlab extension and the python package:
   
   ```
-  conda update -c conda-forge jupyter_coda
+  conda update -c conda-forge jupyter_conda
   jupyter labextension update jupyterlab_toastify jupyterlab_conda
   ```
 -->
 
 ## Description
 
-<!--Describe the bug clearly and concisely. Include screenshots if possible-->
+<!--Describe the bug clearly and concisely (specify if you are using the classical notebook or JupyterLab). Include screenshots if possible-->
 
 ## Reproduce
 
