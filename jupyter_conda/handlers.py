@@ -1,6 +1,6 @@
 """
 # Copyright (c) 2015-2016 Continuum Analytics.
-# Copyright (c) 2016-2019 Jupyter Development Team.
+# Copyright (c) 2016-2020 Jupyter Development Team.
 # See LICENSE.txt for the license.
 """
 # pylint: disable=W0221
@@ -15,7 +15,7 @@ import stat
 import sys
 import tempfile
 import traceback
-from typing import Any, ClassVar, Dict, Callable
+from typing import Any, Callable, ClassVar, Dict, NoReturn
 
 import tornado
 
@@ -30,14 +30,49 @@ AVAILABLE_CACHE = "jupyter_conda_packages"
 
 
 class ActionsStack:
-    """Process queue of asynchronous task one at a time."""
+    """Process long asynchronous task.
+
+    The task result can only be queried once.
+    
+    Note: The task start immediately => may bring trouble if the user is not careful,
+    this assumes 'conda' handle lockers when appropriate.
+    """
 
     __last_index: ClassVar[int] = 0
     logger: ClassVar[logging.Logger] = logging.getLogger("ActionsStack")
 
     def __init__(self):
         self.__tasks: Dict[int, asyncio.Task] = dict()
-        self.__results: Dict[int, Any] = dict()
+
+    def cancel(self, idx: int) -> NoReturn:
+        """Cancel the task `idx`.
+        
+        Args:
+            idx (int): Task index
+        """
+        self.__tasks[idx].cancel()
+
+    def get(self, idx: int) -> Any:
+        """Get the task `idx` results or None.
+        
+        Args:
+            idx (int): Task index
+        
+        Returns:
+            Any: None if the task is pending else its result
+
+        Raises:
+            ValueError: If the task `idx` does not exists.
+            asyncio.CancelledError: If the task `idx` was cancelled.
+        """
+        if idx not in self.__tasks:
+            raise ValueError("Task {} does not exists.".format(idx))
+
+        if self.__tasks[idx].done():
+            task = self.__tasks.pop(idx)
+            return task.result()
+        else:
+            return None
 
     def put(self, task: Callable, *args) -> int:
         """Add a asynchronous task into the queue.
@@ -51,15 +86,13 @@ class ActionsStack:
         """
         ActionsStack.__last_index += 1
         idx = ActionsStack.__last_index
-        self.__results[idx] = None  # Task is pending
 
-        async def execute_task(idx, f, *args):
+        async def execute_task(idx, f, *args) -> Any:
             try:
                 ActionsStack.logger.debug(
                     "[jupyter_conda] Will execute task {}.".format(idx)
                 )
                 result = await f(*args)
-
             except Exception as e:
                 exception_type, _, tb = sys.exc_info()
                 result = {
@@ -71,38 +104,18 @@ class ActionsStack:
                 ActionsStack.logger.error(
                     "[jupyter_conda] Error for task {}.".format(result)
                 )
-
-            finally:
+            else:
                 ActionsStack.logger.debug(
                     "[jupyter_conda] Has executed task {}.".format(idx)
                 )
-                self.__tasks.pop(idx)
-                self.__results[idx] = result
+            
+            return result
         
         self.__tasks[idx] = asyncio.ensure_future(execute_task(idx, task, *args))
         return idx
 
-    def get(self, idx: int) -> Any:
-        """Get the task `idx` results or None.
-        
-        Args:
-            idx (int): Task index
-        
-        Returns:
-            Any: None if the task is pending else its result
-
-        Raises:
-            ValueError: If the task `idx` does not exists
-        """
-        if idx not in self.__results:
-            raise ValueError("Task {} does not exists.".format(idx))
-        r = self.__results[idx]
-        if r is not None:  # Remove the result
-            self.__results.pop(idx)
-        return r
-
     def __del__(self):
-        for task in self.__tasks.values():
+        for task in filter(lambda t: not t.cancelled(), self.__tasks.values()):
             task.cancel()
 
 
