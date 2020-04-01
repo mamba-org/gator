@@ -50,6 +50,10 @@ class ActionsStack:
         Args:
             idx (int): Task index
         """
+        ActionsStack.logger.debug("[jupyter_conda] Cancel task {}.".format(idx))
+        if idx not in self.__tasks:
+            raise ValueError("Task {} does not exists.".format(idx))
+
         self.__tasks[idx].cancel()
 
     def get(self, idx: int) -> Any:
@@ -108,9 +112,9 @@ class ActionsStack:
                 ActionsStack.logger.debug(
                     "[jupyter_conda] Has executed task {}.".format(idx)
                 )
-            
+
             return result
-        
+
         self.__tasks[idx] = asyncio.ensure_future(execute_task(idx, task, *args))
         return idx
 
@@ -271,9 +275,7 @@ class EnvironmentHandler(EnvBaseHandler):
         file_content = data["file"]
         file_name = data.get("filename", "environment.yml")
 
-        idx = self._stack.put(
-            self.env_manager.update_env, env, file_content, file_name
-        )
+        idx = self._stack.put(self.env_manager.update_env, env, file_content, file_name)
 
         self.redirect_to_task(idx)
 
@@ -384,8 +386,10 @@ class PackagesHandler(EnvBaseHandler):
                 else:
                     # Change rights to ensure every body can update the cache
                     os.chmod(
-                        cache_file, 
-                        stat.S_IMODE(os.stat(cache_file).st_mode) | (stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH))
+                        cache_file,
+                        stat.S_IMODE(os.stat(cache_file).st_mode)
+                        | (stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH),
+                    )
                 PackagesHandler.__is_listing_available = False
 
                 if return_packages:
@@ -447,6 +451,27 @@ class TaskHandler(EnvBaseHandler):
                 else:
                     self.set_status(200)
                 self.finish(json.dumps(r))
+
+    @tornado.web.authenticated
+    def delete(self, index: int):
+        """`DELETE /tasks/<id>` cancels the task `index`.
+
+        Status are:
+        * 204: Task cancelled
+
+        Args:
+            index (int): Task index
+
+        Raises:
+            404 if task `index` does not exist       
+        """
+        try:
+            self._stack.cancel(int(index))
+        except ValueError as err:
+            raise tornado.web.HTTPError(404, reason=str(err))
+        else:
+            self.set_status(204)
+            self.finish()
 
 
 # -----------------------------------------------------------------------------

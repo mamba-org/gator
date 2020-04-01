@@ -1598,6 +1598,17 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
 
 class TestTasksHandler(JupyterCondaAPITest):
-    def test_invalid_task(self):
+    def test_get_invalid_task(self):
         with assert_http_error(404):
             self.conda_api.get(["tasks", str(random.randint(1, 1200))])
+
+    def test_delete_invalid_task(self):
+        with assert_http_error(404):
+            self.conda_api.get(["tasks", str(random.randint(1, 1200))])
+
+    def test_delete_task(self):
+        r = self.mk_env()
+        location = r.headers["Location"]
+        _, index = location.rsplit("/", maxsplit=1)
+        r = self.conda_api.delete(["tasks", index])
+        self.assertEqual(r.status_code, 204)
