@@ -17,7 +17,7 @@ _Requirements_
 
 - conda >= 4.5
 - notebook >= 4.3
-- JupyterLab 1.0 (for the jupyterlab extension only)
+- JupyterLab 1.x (for the jupyterlab extension only)
 
 To install in the classical notebook:
 
@@ -28,7 +28,7 @@ conda install -c conda-forge jupyter_conda
 To install in the JupyterLab:
 
 ```shell
-conda install -c conda-forge jupyterlab jupyter_conda
+conda install -c conda-forge jupyterlab=1 jupyter_conda
 jupyter labextension install jupyterlab_toastify jupyterlab_conda
 ```
 
