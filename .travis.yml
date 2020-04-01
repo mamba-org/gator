@@ -50,17 +50,17 @@ install:
   - conda activate
   - conda config --set always_yes yes --set changeps1 no
   - conda update conda
-  - conda create -n $NAME -c conda-forge -c defaults python=$PYTHON_VERSION $DEPS
+  - conda create -n $NAME -c conda-forge -c anaconda python=$PYTHON_VERSION $DEPS
   - conda activate $NAME
   - conda info -a
-  - conda install -n $NAME -c conda-forge -c defaults --file requirements_dev.txt
-  - conda install -n $NAME -c conda-forge -c defaults coveralls
+  - conda install -n $NAME -c conda-forge -c anaconda --file requirements_dev.txt
+  - conda install -n $NAME -c conda-forge -c anaconda coveralls
   - npm install
   # Install the server and notebook extensions
   - pip install .
   # Install the jupyterlab extension
   - cd labextension
-  - conda install -n $NAME -c conda-forge -c defaults jupyterlab~=1.2
+  - conda install -n $NAME -c conda-forge -c anaconda jupyterlab~=1.2
   - jlpm install
   - jupyter labextension install jupyterlab_toastify --no-build
   - jupyter labextension install .
