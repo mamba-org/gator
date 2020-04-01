@@ -30,9 +30,13 @@ async def test_ActionsStack_cancel():
 
     await asyncio.sleep(dt)
     a.cancel(i)
-    await asyncio.sleep(dt)
+
+    r = None
+    elapsed = 0.0
     with pytest.raises(asyncio.CancelledError):
-        a.get(i)
+        while r is None and elapsed < 50 * dt:
+            r = a.get(i)
+            await asyncio.sleep(dt)  # Wait for task cancellation completion
 
 
 @pytest.mark.asyncio
@@ -41,7 +45,7 @@ async def test_ActionsStack_cancel_subprocess():
     dt = 0.01
 
     async def dummy_action():
-        loop = asyncio.get_running_loop()
+        loop = asyncio.get_event_loop()
         code = f"import time; time.sleep(100.0 * {dt})"
         proc = await loop.run_in_executor(
             None,
@@ -65,9 +69,13 @@ async def test_ActionsStack_cancel_subprocess():
     i = a.put(dummy_action)
     await asyncio.sleep(3.0 * dt)  # Give time to the processus to start
     a.cancel(i)
-    await asyncio.sleep(dt)
+    
+    r = None
+    elapsed = 0.0
     with pytest.raises(asyncio.CancelledError):
-        a.get(i)
+        while r is None and elapsed < 50 * dt:
+            r = a.get(i)
+            await asyncio.sleep(dt)  # Wait for task cancellation completion
 
 
 @pytest.mark.asyncio

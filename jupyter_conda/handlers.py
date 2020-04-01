@@ -97,6 +97,8 @@ class ActionsStack:
                     "[jupyter_conda] Will execute task {}.".format(idx)
                 )
                 result = await f(*args)
+            except asyncio.CancelledError:
+                raise
             except Exception as e:
                 exception_type, _, tb = sys.exc_info()
                 result = {

@@ -5,7 +5,17 @@ import { URLExt } from "@jupyterlab/coreutils";
 import { Settings } from "@jupyterlab/coreutils/lib/settingregistry";
 import { testEmission } from "@jupyterlab/testutils";
 
-jest.mock("@jupyterlab/services");
+jest.mock("@jupyterlab/services", () => {
+  return {
+    __esModule: true,
+    ServerConnection: {
+      makeRequest: jest.fn(),
+      makeSettings: jest.fn().mockReturnValue({
+        baseUrl: "foo/"
+      })
+    }
+  };
+});
 jest.mock("@jupyterlab/coreutils/lib/settingregistry");
 
 describe("jupyterlab_conda/services", () => {
