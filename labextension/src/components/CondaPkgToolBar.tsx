@@ -61,29 +61,27 @@ export interface ICondaPkgToolBarProps {
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
-  let refreshClasses = "fa fa-refresh";
+  let refreshClasses = classes("fa", "fa-refresh", Style.StandardButton);
   if (props.isPending) {
     refreshClasses = refreshClasses + " fa-spin";
   }
 
   return (
-    <div className="p-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
-      <HTMLSelect
-        value={props.category}
-        onChange={props.onCategoryChanged}
-        iconProps={{
-          icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
-        }}
-        aria-label="Package filter"
-        minimal
-      >
-        <option value={PkgFilters.All}>All</option>
-        <option value={PkgFilters.Installed}>Installed</option>
-        <option value={PkgFilters.Available}>Not installed</option>
-        <option value={PkgFilters.Updatable}>Updatable</option>
-        <option value={PkgFilters.Selected}>Selected</option>
-      </HTMLSelect>
-      <div className="p-Widget jp-Toolbar-item">
+    <div className="lm-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
+      <div className="lm-Widget jp-Toolbar-item">
+        <HTMLSelect
+          value={props.category}
+          onChange={props.onCategoryChanged}
+          aria-label="Package filter"
+        >
+          <option value={PkgFilters.All}>All</option>
+          <option value={PkgFilters.Installed}>Installed</option>
+          <option value={PkgFilters.Available}>Not installed</option>
+          <option value={PkgFilters.Updatable}>Updatable</option>
+          <option value={PkgFilters.Selected}>Selected</option>
+        </HTMLSelect>
+      </div>
+      <div className="lm-Widget jp-Toolbar-item">
         <div className={classes("jp-NbConda-search-wrapper", Style.Search)}>
           <InputGroup
             className={Style.SearchInput}
@@ -95,35 +93,35 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           />
         </div>
       </div>
-      <div className="p-Widget jp-Toolbar-spacer jp-Toolbar-item" />
+      <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
       <ToolbarButtonComponent
-        iconClassName={classes(
+        iconClass={classes(
           "fa",
           "fa-external-link-square",
-          props.hasUpdate && Style.UpdateButton
+          props.hasUpdate ? Style.UpdateButton : Style.StandardButton
         )}
         onClick={props.onUpdateAll}
         tooltip="Update all packages"
         enabled={props.hasUpdate}
       />
       <ToolbarButtonComponent
-        iconClassName={classes(
+        iconClass={classes(
           "fa",
           "fa-cart-arrow-down",
-          props.hasSelection && Style.ApplyButton
+          props.hasSelection ? Style.ApplyButton : Style.StandardButton
         )}
         enabled={props.hasSelection}
         onClick={props.onApply}
         tooltip="Apply package modifications"
       />
       <ToolbarButtonComponent
-        iconClassName="fa fa-undo"
+        iconClass={classes("fa", "fa-undo", Style.StandardButton)}
         enabled={props.hasSelection}
         onClick={props.onCancel}
         tooltip="Clear package modifications"
       />
       <ToolbarButtonComponent
-        iconClassName={refreshClasses}
+        iconClass={refreshClasses}
         onClick={props.onRefreshPackages}
         tooltip="Refresh available packages"
         enabled={!props.isPending}
@@ -144,6 +142,10 @@ namespace Style {
 
   export const Search = style({
     padding: "4px"
+  });
+
+  export const StandardButton = style({
+    color: "var(--jp-inverse-layout-color3)"
   });
 
   export const ApplyButton = style({

@@ -17,7 +17,7 @@ _Requirements_
 
 - conda >= 4.5
 - notebook >= 4.3
-- JupyterLab 1.x (for the jupyterlab extension only)
+- JupyterLab 1.x or 2.x (for the jupyterlab extension only)
 
 To install in the classical notebook:
 
@@ -28,7 +28,7 @@ conda install -c conda-forge jupyter_conda
 To install in the JupyterLab:
 
 ```shell
-conda install -c conda-forge jupyterlab=1 jupyter_conda
+conda install -c conda-forge jupyterlab jupyter_conda
 jupyter labextension install jupyterlab_toastify jupyterlab_conda
 ```
 
@@ -61,6 +61,9 @@ against the current environment.
 ## JupyterLab
 
 This extension add a new entry _Conda Packages Manager_ in the _Settings_ menu.
+
+> The first time, it can take quite some time to build the available packages list. But once it is obtained,
+> it will be cached and updated to the background to have a smoother user experience.
 
 ![jupyterlab_conda_extension](labextension/jupyterlab_conda.gif)
 
@@ -97,6 +100,16 @@ jupyter labextension install .
 ```
 
 ## Changelog
+
+### 3.2.0
+
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. #25
+- Add update environment from file through REST endpoint PATCH /environments/ #26
+- Switch to newer Python syntax async-await
+- To improve UI reactivity in Jupyterlab:
+
+  - Long running task can now be cancelled #32
+  - The available packages list is used to find updatable package. conda update --dry-run --all is not used any longer. But it is still used if the user request updating all possible packages.
 
 ### 3.1.0
 

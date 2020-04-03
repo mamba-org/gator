@@ -1,6 +1,12 @@
 import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 import * as React from "react";
-import { style } from "typestyle";
+import { style, classes } from "typestyle";
+import {
+  addIcon,
+  fileUploadIcon,
+  downloadIcon,
+  closeIcon
+} from "@jupyterlab/ui-components";
 
 //Toolbar height to align with package toolbar
 export const ENVIRONMENTTOOLBARHEIGHT = 40;
@@ -44,7 +50,7 @@ export interface ICondaEnvToolBarProps {
 }
 
 export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
-  let refreshClasses = "fa fa-refresh";
+  let refreshClasses = classes("fa", "fa-refresh", Style.StandardButton);
   if (props.isPending) {
     refreshClasses = refreshClasses + " fa-spin";
   }
@@ -53,35 +59,35 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
       <div className={Style.Title}>
         <span className={Style.Grow}>Conda environments</span>
         <ToolbarButtonComponent
-          iconClassName={refreshClasses}
+          iconClass={refreshClasses}
           tooltip="Refresh environments"
           onClick={props.onRefresh}
         />
       </div>
-      <div className="p-Widget jp-Toolbar jp-NbConda-EnvToolbar">
+      <div className="lm-Widget jp-Toolbar jp-NbConda-EnvToolbar">
         <ToolbarButtonComponent
-          iconClassName="jp-AddIcon"
+          icon={addIcon}
           tooltip="Create"
           onClick={props.onCreate}
         />
         <ToolbarButtonComponent
-          iconClassName="fa fa-clone"
+          iconClass={classes("fa", "fa-clone", Style.StandardButton)}
           tooltip="Clone"
           onClick={props.onClone}
           enabled={!props.isBase}
         />
         <ToolbarButtonComponent
-          iconClassName="jp-FileUploadIcon"
+          icon={fileUploadIcon}
           tooltip="Import"
           onClick={props.onImport}
         />
         <ToolbarButtonComponent
-          iconClassName="jp-DownloadIcon"
+          icon={downloadIcon}
           tooltip="Export"
           onClick={props.onExport}
         />
         <ToolbarButtonComponent
-          iconClassName="jp-CloseIcon"
+          icon={closeIcon}
           tooltip="Remove"
           onClick={props.onRemove}
           enabled={!props.isBase}
@@ -100,6 +106,10 @@ namespace Style {
   export const NoGrow = style({
     flexGrow: 0,
     flexShrink: 0
+  });
+
+  export const StandardButton = style({
+    color: "var(--jp-inverse-layout-color3)"
   });
 
   export const Title = style({

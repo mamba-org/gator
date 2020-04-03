@@ -8,11 +8,10 @@ import {
   MainAreaWidget,
   WidgetTracker
 } from "@jupyterlab/apputils";
-import { ISettingRegistry } from "@jupyterlab/coreutils";
 import { IMainMenu } from "@jupyterlab/mainmenu";
-import { classes, style } from "typestyle";
-import { GlobalStyle } from "./components/globalStyles";
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
+import { condaIcon } from "./icon";
 import { CondaEnvironments, IEnvironmentManager } from "./services";
 import {
   companionID,
@@ -55,7 +54,7 @@ async function activateCondaEnv(
       content.id = pluginNamespace;
       content.title.label = "Packages";
       content.title.caption = "Conda Packages Manager";
-      content.title.iconClass = Style.TabIcon;
+      content.title.icon = condaIcon;
       const widget = new MainAreaWidget({ content });
 
       void tracker.add(widget);
@@ -89,7 +88,7 @@ async function activateCompanions(
   const settings = await settingsRegistry.load(condaEnvId);
 
   const validator = new CompanionValidator(
-    serviceManager,
+    serviceManager.kernelspecs,
     envManager,
     settings
   );
@@ -97,7 +96,7 @@ async function activateCompanions(
   commands.addCommand(command, {
     label: "Validate kernels compatibility",
     execute: () => {
-      validator.validate(serviceManager.specs);
+      validator.validate(serviceManager.kernelspecs.specs);
     }
   });
 
@@ -132,14 +131,3 @@ const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
 const extensions = [condaManager, companions];
 
 export default extensions;
-
-namespace Style {
-  export const TabIcon = classes(
-    "fa",
-    "fa-cubes",
-    style(GlobalStyle.FaIcon, {
-      lineHeight: "unset",
-      fontWeight: "normal"
-    })
-  );
-}

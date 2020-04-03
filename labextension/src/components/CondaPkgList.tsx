@@ -111,40 +111,38 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     };
 
     const changeRender = ({ rowData }: ICellRender): JSX.Element => (
-      <HTMLSelect
-        className={Style.VersionSelection}
-        value={rowData.version_selected}
-        onClick={(evt: React.MouseEvent): void => {
-          evt.stopPropagation();
-        }}
-        onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
-          this.props.onPkgChange(rowData, evt.target.value)
-        }
-        iconProps={{
-          icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
-        }}
-        aria-label="Package versions"
-        minimal
-      >
-        <option key="-3" value={"none"}>
-          Remove
-        </option>
-        {!rowData.version_installed && (
-          <option key="-2" value={""}>
-            Install
+      <div className={"lm-Widget"}>
+        <HTMLSelect
+          className={Style.VersionSelection}
+          value={rowData.version_selected}
+          onClick={(evt: React.MouseEvent): void => {
+            evt.stopPropagation();
+          }}
+          onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
+            this.props.onPkgChange(rowData, evt.target.value)
+          }
+          aria-label="Package versions"
+        >
+          <option key="-3" value={"none"}>
+            Remove
           </option>
-        )}
-        {rowData.updatable && (
-          <option key="-1" value={""}>
-            Update
-          </option>
-        )}
-        {rowData.version.map((v: string) => (
-          <option key={v} value={v}>
-            {v}
-          </option>
-        ))}
-      </HTMLSelect>
+          {!rowData.version_installed && (
+            <option key="-2" value={""}>
+              Install
+            </option>
+          )}
+          {rowData.updatable && (
+            <option key="-1" value={""}>
+              Update
+            </option>
+          )}
+          {rowData.version.map((v: string) => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))}
+        </HTMLSelect>
+      </div>
     );
 
     return (

@@ -1,5 +1,5 @@
 import { Dialog, showDialog } from "@jupyterlab/apputils";
-import { Widget } from "@phosphor/widgets";
+import { Widget } from "@lumino/widgets";
 import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import { style } from "typestyle";

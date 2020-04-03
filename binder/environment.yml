@@ -1,8 +1,8 @@
 channels:
   - conda-forge
 dependencies:
-  - jupyterlab~=1.1
-  - nb_conda_kernels >=2.2.0
-  - nodejs>=11
+  - jupyterlab ~=2.0
+  - nb_conda_kernels >=2.2.3
+  - nodejs >=11,<13
   - notebook >=4.3.1
   - packaging
