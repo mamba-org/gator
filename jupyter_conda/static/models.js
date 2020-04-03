@@ -357,7 +357,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
           // Usually there will be, but an update
           // might pull in a new package as a dependency.
           if (existing) {
-            existing.available = pkg.version + "-" + pkg.build;
+            existing.available = pkg.version + "-" + pkg.build_number;
           }
         });
 
