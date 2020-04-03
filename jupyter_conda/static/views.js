@@ -333,7 +333,7 @@ define(["jquery", "base/js/utils", "./common", "./models"], function(
     columns: [
       { heading: "Name", attr: "name", width: 5 },
       { heading: "Version", attr: "version", width: 2 },
-      { heading: "Build", attr: "build", width: 2 },
+      { heading: "Build", attr: "build_number", width: 2 },
       { heading: "Available", attr: "available", width: 3 }
     ],
 
