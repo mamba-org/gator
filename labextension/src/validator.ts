@@ -70,7 +70,7 @@ export class CompanionValidator implements ICompanionValidator {
     });
 
     const clean = new Promise<void>(
-      ((resolve: () => void) => {
+      ((resolve: () => void): void => {
         this._clean = resolve;
       }).bind(this)
     );
@@ -98,11 +98,6 @@ export class CompanionValidator implements ICompanionValidator {
     this._clean();
     this._isDisposed = true;
   }
-
-  /**
-   * Resolve promise to disconnect signals at disposal
-   */
-  private _clean(): void {}
 
   /**
    * Load the user settings
@@ -159,7 +154,7 @@ export class CompanionValidator implements ICompanionValidator {
   private async _validateSpecs(
     manager: ServiceManager.IManager, // Needed to connect signal
     specs: Kernel.ISpecModels
-  ) {
+  ): Promise<void> {
     if (Object.keys(this._companions).length === 0) {
       return;
     }
@@ -168,10 +163,10 @@ export class CompanionValidator implements ICompanionValidator {
     const normalizedNames: { [key: string]: string } = {};
     environments.forEach(env => {
       // Normalization need to match as closely as possible nb_conda_kernels conversion
-      let normalized = env.name
+      const normalized = env.name
         .normalize("NFKD")
         .replace(COMBINING, "")
-        .replace(/[^a-zA-Z0-9._\-]/g, "_");
+        .replace(/[^a-zA-Z0-9._-]/g, "_");
       normalizedNames[normalized] = env.name;
     });
 
@@ -179,13 +174,13 @@ export class CompanionValidator implements ICompanionValidator {
       updates: string[],
       manager: IEnvironmentManager,
       name: string
-    ) {
+    ): void {
       INotification.warning(`Environment "${name}" has some inconsistencies.`, {
         buttons: [
           {
             label: "Correct",
             caption: "Correct installed packages",
-            callback: () => {
+            callback: (): void => {
               const toastId = INotification.inProgress(
                 "Correct the environment."
               );
@@ -266,4 +261,8 @@ export class CompanionValidator implements ICompanionValidator {
   private _isDisposed = false;
   private _envManager: IEnvironmentManager;
   private _companions: Companions = {};
+  // Resolve promise to disconnect signals at disposal
+  private _clean: () => void = () => {
+    return;
+  };
 }

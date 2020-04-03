@@ -53,7 +53,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     super(props);
 
     this.state = {
-      environments: new Array(),
+      environments: [],
       currentEnvironment: undefined,
       isLoading: false
     };
@@ -67,26 +67,26 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
   }
 
-  async handleEnvironmentChange(name: string) {
+  async handleEnvironmentChange(name: string): Promise<void> {
     this.setState({
       currentEnvironment: name,
       channels: await this.props.model.getChannels(name)
     });
   }
 
-  async handleCreateEnvironment() {
+  async handleCreateEnvironment(): Promise<void> {
     let toastId = null;
     try {
-      let body = document.createElement("div");
-      let nameLabel = document.createElement("label");
+      const body = document.createElement("div");
+      const nameLabel = document.createElement("label");
       nameLabel.textContent = "Name : ";
-      let nameInput = document.createElement("input");
+      const nameInput = document.createElement("input");
       body.appendChild(nameLabel);
       body.appendChild(nameInput);
 
-      let typeLabel = document.createElement("label");
+      const typeLabel = document.createElement("label");
       typeLabel.textContent = "Type : ";
-      let typeInput = document.createElement("select");
+      const typeInput = document.createElement("select");
       for (const type of this.props.model.environmentTypes) {
         const option = document.createElement("option");
         option.setAttribute("value", type);
@@ -96,7 +96,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       body.appendChild(typeLabel);
       body.appendChild(typeInput);
 
-      let response = await showDialog({
+      const response = await showDialog({
         title: "New Environment",
         body: new Widget({ node: body }),
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
@@ -135,17 +135,17 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async handleCloneEnvironment() {
+  async handleCloneEnvironment(): Promise<void> {
     let toastId = null;
     try {
-      let body = document.createElement("div");
-      let nameLabel = document.createElement("label");
+      const body = document.createElement("div");
+      const nameLabel = document.createElement("label");
       nameLabel.textContent = "Name : ";
-      let nameInput = document.createElement("input");
+      const nameInput = document.createElement("input");
       body.appendChild(nameLabel);
       body.appendChild(nameInput);
 
-      let response = await showDialog({
+      const response = await showDialog({
         title: "Clone Environment",
         body: new Widget({ node: body }),
         buttons: [Dialog.cancelButton(), Dialog.okButton({ caption: "Clone" })]
@@ -189,33 +189,33 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
   private _readText(file: Blob): Promise<any> {
     return new Promise((resolve, reject) => {
-      var reader = new FileReader();
-      reader.onload = function(event: any) {
+      const reader = new FileReader();
+      reader.onload = function(event: any): void {
         resolve(event.target.result);
       };
       reader.readAsText(file);
     });
   }
 
-  async handleImportEnvironment() {
+  async handleImportEnvironment(): Promise<void> {
     let toastId = null;
     try {
-      let body = document.createElement("div");
-      let nameLabel = document.createElement("label");
+      const body = document.createElement("div");
+      const nameLabel = document.createElement("label");
       nameLabel.textContent = "Name : ";
-      let nameInput = document.createElement("input");
+      const nameInput = document.createElement("input");
       body.appendChild(nameLabel);
       body.appendChild(nameInput);
 
-      let fileLabel = document.createElement("label");
+      const fileLabel = document.createElement("label");
       fileLabel.textContent = "File : ";
-      let fileInput = document.createElement("input");
+      const fileInput = document.createElement("input");
       fileInput.setAttribute("type", "file");
 
       body.appendChild(fileLabel);
       body.appendChild(fileInput);
 
-      let response = await showDialog({
+      const response = await showDialog({
         title: "Import Environment",
         body: new Widget({ node: body }),
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
@@ -259,15 +259,15 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async handleExportEnvironment() {
+  async handleExportEnvironment(): Promise<void> {
     try {
-      let response = await this.props.model.export(
+      const response = await this.props.model.export(
         this.state.currentEnvironment
       );
       if (response.ok) {
-        let content = await response.text();
-        let node = document.createElement("div");
-        let link = document.createElement("a");
+        const content = await response.text();
+        const node = document.createElement("div");
+        const link = document.createElement("a");
         link.setAttribute(
           "href",
           "data:text/plain;charset=utf-8," + encodeURIComponent(content)
@@ -286,14 +286,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async handleRefreshEnvironment() {
+  async handleRefreshEnvironment(): Promise<void> {
     await this.loadEnvironments();
   }
 
-  async handleRemoveEnvironment() {
+  async handleRemoveEnvironment(): Promise<void> {
     let toastId = null;
     try {
-      let response = await showDialog({
+      const response = await showDialog({
         title: "Remove Environment",
         body: `Are you sure you want to permanently delete environment "${
           this.state.currentEnvironment
@@ -340,11 +340,11 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async loadEnvironments() {
+  async loadEnvironments(): Promise<void> {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
       try {
-        let newState: Partial<ICondaEnvState> = {
+        const newState: Partial<ICondaEnvState> = {
           environments: await this.props.model.environments
         };
         if (this.state.currentEnvironment === undefined) {
@@ -366,11 +366,11 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.loadEnvironments();
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <div className={Style.Panel}>
         <CondaEnvList

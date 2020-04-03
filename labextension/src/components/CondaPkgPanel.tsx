@@ -12,7 +12,7 @@ import {
 } from "./CondaPkgToolBar";
 
 // Minimal panel width to show package description
-const PANEL_SMALL_WIDTH: number = 500;
+const PANEL_SMALL_WIDTH = 500;
 
 /**
  * Package panel property
@@ -100,7 +100,7 @@ export class CondaPkgPanel extends React.Component<
     this.handleRefreshPackages = this.handleRefreshPackages.bind(this);
   }
 
-  private async _updatePackages() {
+  private async _updatePackages(): Promise<void> {
     this.setState({
       isLoading: true,
       hasUpdate: false,
@@ -109,15 +109,15 @@ export class CondaPkgPanel extends React.Component<
     });
 
     try {
-      let environmentLoading =
+      const environmentLoading =
         this._currentEnvironment || this._model.environment;
       // Get installed packages
-      let packages = await this._model.refresh(false, environmentLoading);
+      const packages = await this._model.refresh(false, environmentLoading);
       this.setState({
         packages: packages
       });
 
-      let available = await this._model.refresh(true, environmentLoading);
+      const available = await this._model.refresh(true, environmentLoading);
 
       let hasUpdate = false;
       available.forEach((pkg: Conda.IPackage, index: number) => {
@@ -156,7 +156,7 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
-  handleCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>) {
+  handleCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>): void {
     if (this.state.isApplyingChanges) {
       return;
     }
@@ -166,13 +166,13 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleClick(pkg: Conda.IPackage) {
+  handleClick(pkg: Conda.IPackage): void {
     if (this.state.isApplyingChanges) {
       return;
     }
 
     const selectIdx = this.state.selected.indexOf(pkg);
-    let selection = this.state.selected;
+    const selection = this.state.selected;
     if (selectIdx >= 0) {
       this.state.selected.splice(selectIdx, 1);
     }
@@ -209,13 +209,13 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleVersionSelection(pkg: Conda.IPackage, version: string) {
+  handleVersionSelection(pkg: Conda.IPackage, version: string): void {
     if (this.state.isApplyingChanges) {
       return;
     }
 
     const selectIdx = this.state.selected.indexOf(pkg);
-    let selection = this.state.selected;
+    const selection = this.state.selected;
     if (selectIdx >= 0) {
       this.state.selected.splice(selectIdx, 1);
     }
@@ -238,7 +238,7 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  handleSearch(event: any) {
+  handleSearch(event: any): void {
     if (this.state.isApplyingChanges) {
       return;
     }
@@ -248,7 +248,7 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  async handleUpdateAll() {
+  async handleUpdateAll(): Promise<void> {
     if (this.state.isApplyingChanges) {
       return;
     }
@@ -260,7 +260,7 @@ export class CondaPkgPanel extends React.Component<
         activeFilter: PkgFilters.Updatable
       });
 
-      let confirmation = await showDialog({
+      const confirmation = await showDialog({
         title: "Update all",
         body:
           "Please confirm you want to update all packages? Conda enforces environment consistency. So maybe only a subset of the available updates will be applied."
@@ -310,7 +310,7 @@ export class CondaPkgPanel extends React.Component<
    * 2. Apply updates
    * 3. Install new packages
    */
-  async handleApply() {
+  async handleApply(): Promise<void> {
     if (this.state.isApplyingChanges) {
       return;
     }
@@ -322,7 +322,7 @@ export class CondaPkgPanel extends React.Component<
         activeFilter: PkgFilters.Selected
       });
 
-      let confirmation = await showDialog({
+      const confirmation = await showDialog({
         title: "Packages actions",
         body: "Please confirm you want to apply the selected actions?"
       });
@@ -334,16 +334,16 @@ export class CondaPkgPanel extends React.Component<
         toastId = INotification.inProgress("Starting packages actions");
 
         // Get modified pkgs
-        const to_remove: Array<string> = [];
-        const to_update: Array<string> = [];
-        const to_install: Array<string> = [];
+        const toRemove: Array<string> = [];
+        const toUpdate: Array<string> = [];
+        const toInstall: Array<string> = [];
         this.state.selected.forEach(pkg => {
           if (pkg.version_installed && pkg.version_selected === "none") {
-            to_remove.push(pkg.name);
+            toRemove.push(pkg.name);
           } else if (pkg.updatable && pkg.version_selected === "") {
-            to_update.push(pkg.name);
+            toUpdate.push(pkg.name);
           } else {
-            to_install.push(
+            toInstall.push(
               pkg.version_selected
                 ? pkg.name + "=" + pkg.version_selected
                 : pkg.name
@@ -351,31 +351,31 @@ export class CondaPkgPanel extends React.Component<
           }
         });
 
-        if (to_remove.length > 0) {
+        if (toRemove.length > 0) {
           INotification.update({
             toastId: toastId,
             message: "Removing selected packages",
             buttons: []
           });
-          await this._model.remove(to_remove, this._currentEnvironment);
+          await this._model.remove(toRemove, this._currentEnvironment);
         }
 
-        if (to_update.length > 0) {
+        if (toUpdate.length > 0) {
           INotification.update({
             toastId: toastId,
             message: "Updating selected packages",
             buttons: []
           });
-          await this._model.update(to_update, this._currentEnvironment);
+          await this._model.update(toUpdate, this._currentEnvironment);
         }
 
-        if (to_install.length > 0) {
+        if (toInstall.length > 0) {
           INotification.update({
             toastId: toastId,
             message: "Installing new packages",
             buttons: []
           });
-          await this._model.install(to_install, this._currentEnvironment);
+          await this._model.install(toInstall, this._currentEnvironment);
         }
 
         INotification.update({
@@ -409,7 +409,7 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
-  handleCancel() {
+  handleCancel(): void {
     if (this.state.isApplyingChanges) {
       return;
     }
@@ -426,7 +426,7 @@ export class CondaPkgPanel extends React.Component<
     });
   }
 
-  async handleRefreshPackages() {
+  async handleRefreshPackages(): Promise<void> {
     try {
       await this._model.refreshAvailablePackages();
       this._updatePackages();
@@ -439,14 +439,14 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
-  componentDidUpdate(prevProps: IPkgPanelProps) {
+  componentDidUpdate(prevProps: IPkgPanelProps): void {
     if (this._currentEnvironment !== this.props.packageManager.environment) {
       this._currentEnvironment = this.props.packageManager.environment;
       this._updatePackages();
     }
   }
 
-  render() {
+  render(): JSX.Element {
     let filteredPkgs: Conda.IPackage[] = [];
     if (this.state.activeFilter === PkgFilters.All) {
       filteredPkgs = this.state.packages;
@@ -507,7 +507,7 @@ export class CondaPkgPanel extends React.Component<
   }
 
   private _model: Conda.IPackageManager;
-  private _currentEnvironment: string = "";
+  private _currentEnvironment = "";
 }
 
 namespace Style {

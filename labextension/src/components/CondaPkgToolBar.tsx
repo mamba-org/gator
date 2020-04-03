@@ -13,7 +13,7 @@ export enum PkgFilters {
   Selected = "SELECTED"
 }
 
-export interface CondaPkgToolBarProps {
+export interface ICondaPkgToolBarProps {
   /**
    * Is the list loading?
    */
@@ -60,7 +60,7 @@ export interface CondaPkgToolBarProps {
   onRefreshPackages: () => void;
 }
 
-export const CondaPkgToolBar = (props: CondaPkgToolBarProps) => {
+export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
   let refreshClasses = "fa fa-refresh";
   if (props.isPending) {
     refreshClasses = refreshClasses + " fa-spin";

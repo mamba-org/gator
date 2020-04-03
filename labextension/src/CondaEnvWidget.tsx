@@ -38,7 +38,7 @@ export class CondaEnvWidget extends ReactWidget {
     super.onResize(msg);
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <NbConda height={this.height} width={this.width} model={this.envModel} />
     );

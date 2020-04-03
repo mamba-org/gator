@@ -58,10 +58,11 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     super(props);
   }
 
-  render() {
-    const rowGetter = ({ index }: IIndex) => this.props.packages[index];
+  render(): JSX.Element {
+    const rowGetter = ({ index }: IIndex): Conda.IPackage =>
+      this.props.packages[index];
 
-    const iconRender = ({ rowData }: ICellRender) => {
+    const iconRender = ({ rowData }: ICellRender): JSX.Element => {
       if (rowData.version_installed) {
         if (rowData.version_selected === "none") {
           return <i className={Style.StatusRemove} />;
@@ -91,15 +92,16 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       return false;
     };
 
-    const nameRender = ({ rowData }: ICellRender) => {
+    const nameRender = ({ rowData }: ICellRender): JSX.Element => {
       if (rowData.home && rowData.home.length > 0) {
         // TODO possible enhancement - open in a JupyterLab Panel
         return (
           <a
             className={Style.Link}
             href={rowData.home}
-            onClick={evt => evt.stopPropagation()}
+            onClick={(evt): void => evt.stopPropagation()}
             target="_blank"
+            rel="noopener noreferrer"
           >
             {rowData.name} <i className="fa fa-external-link" />
           </a>
@@ -108,14 +110,14 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       return <span>{rowData.name}</span>;
     };
 
-    const changeRender = ({ rowData }: ICellRender) => (
+    const changeRender = ({ rowData }: ICellRender): JSX.Element => (
       <HTMLSelect
         className={Style.VersionSelection}
         value={rowData.version_selected}
-        onClick={(evt: React.MouseEvent) => {
+        onClick={(evt: React.MouseEvent): void => {
           evt.stopPropagation();
         }}
-        onChange={(evt: React.ChangeEvent<HTMLSelectElement>) =>
+        onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
           this.props.onPkgChange(rowData, evt.target.value)
         }
         iconProps={{
@@ -148,14 +150,14 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return (
       <div className={Style.TableContainer}>
         <AutoSizer disableHeight>
-          {({ width }) => (
+          {({ width }): JSX.Element => (
             <Table
               className={Style.Table}
               headerClassName={Style.Header}
               headerHeight={29}
               height={this.props.height}
-              onRowClick={({ rowData }) => this.props.onPkgClick(rowData)}
-              rowClassName={({ index }) => {
+              onRowClick={({ rowData }): void => this.props.onPkgClick(rowData)}
+              rowClassName={({ index }): string => {
                 if (index >= 0) {
                   return index % 2 === 0
                     ? Style.RowEven(isSelected(index))
@@ -198,7 +200,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 />
               )}
               <Column
-                cellRenderer={({ rowData }: ICellRender) => (
+                cellRenderer={({ rowData }: ICellRender): JSX.Element => (
                   <span
                     className={
                       rowData.updatable
@@ -267,7 +269,7 @@ namespace Style {
     // }
   });
 
-  export const RowEven = (selected: boolean) =>
+  export const RowEven = (selected: boolean): string =>
     style({
       background: selected ? "var(--jp-brand-color3)" : "unset",
       $nest: {
@@ -277,7 +279,7 @@ namespace Style {
       }
     });
 
-  export const RowOdd = (selected: boolean) =>
+  export const RowOdd = (selected: boolean): string =>
     style({
       background: selected
         ? "var(--jp-brand-color3)"
@@ -365,7 +367,7 @@ namespace Style {
 
     $nest: {
       "&::before": {
-        content: `'↗️'`,
+        content: "'↗️'",
         paddingRight: 2
       }
     }

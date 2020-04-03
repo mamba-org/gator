@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_conda",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Manage your conda environments from JupyterLab",
   "keywords": [
     "jupyter",
@@ -29,11 +29,13 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "watch": "tsc -w",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
     "precommit": "pretty-quick --staged",
     "prepare": "jlpm run clean && jlpm run build",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
-    "test": "jest"
+    "test": "jest",
+    "watch": "tsc -w"
   },
   "dependencies": {
     "@jupyterlab/application": "^1.2.0",
@@ -55,9 +57,16 @@
     "@babel/preset-env": "^7",
     "@jupyterlab/testutils": "^1.2.2",
     "@types/jest": "^24",
-    "@types/react": "~16.8.0",
+    "@types/react": "~16.8.13",
     "@types/react-virtualized": "^9.21.4",
     "@types/semver": "^6.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-jsdoc": "^22.0.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.18.3",
     "husky": "^0.14.0",
     "jest": "^24",
     "jest-fetch-mock": "^2.1.2",
@@ -90,6 +99,6 @@
     "access": "public"
   },
   "resolutions": {
-    "@types/react": "~16.8.0"
+    "@types/react": "~16.8.4"
   }
 }

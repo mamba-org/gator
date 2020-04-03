@@ -1,10 +1,10 @@
 {
   "name": "jupyter_conda",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Development tools for jupyter_conda",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && coverage run -m pytest jupyter_conda && coverage report && cd labextension && npm run test",
+    "test": "npm run lint && coverage run -m pytest jupyter_conda && coverage report && cd labextension && npm run eslint:check && npm run test",
     "lint": "flake8 setup.py jupyter_conda"
   },
   "repository": {
@@ -24,7 +24,6 @@
     "watch": "^0.17.1"
   },
   "eslintConfig": {
-    "strict": true,
     "env": {
       "browser": true,
       "node": true,

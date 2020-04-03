@@ -30,15 +30,15 @@ async function activateCondaEnv(
   settingsRegistry: ISettingRegistry
 ): Promise<IEnvironmentManager> {
   const { commands, shell } = app;
-  const plugin_namespace = "conda-env";
-  const command: string = "jupyter_conda:open-ui";
+  const pluginNamespace = "conda-env";
+  const command = "jupyter_conda:open-ui";
 
   const settings = await settingsRegistry.load(condaEnvId);
   const model = new CondaEnvironments(settings);
 
   // Track and restore the widget state
-  let tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
-    namespace: plugin_namespace
+  const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
+    namespace: pluginNamespace
   });
   let content: CondaEnvWidget;
 
@@ -52,7 +52,7 @@ async function activateCondaEnv(
 
       content = new CondaEnvWidget(-1, -1, model);
       content.addClass("jp-NbConda");
-      content.id = plugin_namespace;
+      content.id = pluginNamespace;
       content.title.label = "Packages";
       content.title.caption = "Conda Packages Manager";
       content.title.iconClass = Style.TabIcon;
@@ -69,7 +69,7 @@ async function activateCondaEnv(
   // Handle state restoration.
   restorer.restore(tracker, {
     command,
-    name: () => plugin_namespace
+    name: () => pluginNamespace
   });
 
   // Add command to settings menu
@@ -85,7 +85,7 @@ async function activateCompanions(
   settingsRegistry: ISettingRegistry
 ): Promise<ICompanionValidator> {
   const { commands, serviceManager } = app;
-  const command: string = "jupyter_conda:companions";
+  const command = "jupyter_conda:companions";
   const settings = await settingsRegistry.load(condaEnvId);
 
   const validator = new CompanionValidator(

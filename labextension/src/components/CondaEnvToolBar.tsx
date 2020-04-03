@@ -8,7 +8,7 @@ export const ENVIRONMENTTOOLBARHEIGHT = 40;
 /**
  * Environment panel toolbar properties
  */
-export interface CondaEnvToolBarProps {
+export interface ICondaEnvToolBarProps {
   /**
    * Is the current environment the root one
    */
@@ -43,7 +43,7 @@ export interface CondaEnvToolBarProps {
   onRemove(): void;
 }
 
-export const CondaEnvToolBar = (props: CondaEnvToolBarProps) => {
+export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
   let refreshClasses = "fa fa-refresh";
   if (props.isPending) {
     refreshClasses = refreshClasses + " fa-spin";

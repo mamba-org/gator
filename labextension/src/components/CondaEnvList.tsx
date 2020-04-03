@@ -61,51 +61,47 @@ export interface IEnvListProps {
 /**
  * React component for the environment list
  */
-export class CondaEnvList extends React.Component<IEnvListProps> {
-  render() {
-    let isDefault = false;
-    const listItems = this.props.environments.map((env, idx) => {
-      let selected = env.name === this.props.selected;
-      if (selected) {
-        // Forbid clone and removing the environment named "base" (base conda environment)
-        // and the default one (i.e. the one containing JupyterLab)
-        isDefault = env.is_default || env.name === "base";
-      }
-      return (
-        <CondaEnvItem
-          name={env.name}
-          key={env.name}
-          selected={
-            this.props.selected ? env.name === this.props.selected : false
-          }
-          onClick={this.props.onSelectedChange}
-        />
-      );
-    });
-
+export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
+  props: IEnvListProps
+) => {
+  let isDefault = false;
+  const listItems = props.environments.map((env, idx) => {
+    const selected = env.name === props.selected;
+    if (selected) {
+      // Forbid clone and removing the environment named "base" (base conda environment)
+      // and the default one (i.e. the one containing JupyterLab)
+      isDefault = env.is_default || env.name === "base";
+    }
     return (
-      <div className={Style.Panel}>
-        <CondaEnvToolBar
-          isBase={isDefault}
-          isPending={this.props.isPending}
-          onCreate={this.props.onCreate}
-          onClone={this.props.onClone}
-          onImport={this.props.onImport}
-          onExport={this.props.onExport}
-          onRefresh={this.props.onRefresh}
-          onRemove={this.props.onRemove}
-        />
-        <div
-          className={Style.ListEnvs(
-            this.props.height - ENVIRONMENTTOOLBARHEIGHT - 32
-          )}
-        >
-          {listItems}
-        </div>
-      </div>
+      <CondaEnvItem
+        name={env.name}
+        key={env.name}
+        selected={props.selected ? env.name === props.selected : false}
+        onClick={props.onSelectedChange}
+      />
     );
-  }
-}
+  });
+
+  return (
+    <div className={Style.Panel}>
+      <CondaEnvToolBar
+        isBase={isDefault}
+        isPending={props.isPending}
+        onCreate={props.onCreate}
+        onClone={props.onClone}
+        onImport={props.onImport}
+        onExport={props.onExport}
+        onRefresh={props.onRefresh}
+        onRemove={props.onRemove}
+      />
+      <div
+        className={Style.ListEnvs(props.height - ENVIRONMENTTOOLBARHEIGHT - 32)}
+      >
+        {listItems}
+      </div>
+    </div>
+  );
+};
 
 namespace Style {
   export const Panel = style({
@@ -117,7 +113,7 @@ namespace Style {
     width: ENVIRONMENTPANELWIDTH
   });
 
-  export const ListEnvs = (height: number) =>
+  export const ListEnvs = (height: number): string =>
     style({
       height: height,
       overflowY: "auto",

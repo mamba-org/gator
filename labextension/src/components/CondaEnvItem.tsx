@@ -5,7 +5,7 @@ import { GlobalStyle } from "./globalStyles";
 /**
  * Environment item properties
  */
-export interface EnvItemProps {
+export interface IEnvItemProps {
   /**
    * Environment name
    */
@@ -23,18 +23,18 @@ export interface EnvItemProps {
 /**
  * Environment item component
  */
-export class CondaEnvItem extends React.Component<EnvItemProps> {
-  render() {
-    return (
-      <div
-        className={this.props.selected ? Style.SelectedItem : Style.Item}
-        onClick={() => this.props.onClick(this.props.name)}
-      >
-        {this.props.name}
-      </div>
-    );
-  }
-}
+export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
+  props: IEnvItemProps
+) => {
+  return (
+    <div
+      className={props.selected ? Style.SelectedItem : Style.Item}
+      onClick={(): void => props.onClick(props.name)}
+    >
+      {props.name}
+    </div>
+  );
+};
 
 namespace Style {
   export const Item = style(GlobalStyle.ListItem, {
@@ -59,7 +59,7 @@ namespace Style {
 
     $nest: {
       "&::after": {
-        content: `' '`,
+        content: "' '",
         display: "inline-block",
         padding: "0 5px",
         width: 0,

@@ -323,7 +323,7 @@ export class CondaEnvironments implements IEnvironmentManager {
       );
 
       const clean = new Promise<void>(
-        ((resolve: () => void) => {
+        ((resolve: () => void): void => {
           this._clean = resolve;
         }).bind(this)
       );
@@ -386,7 +386,7 @@ export class CondaEnvironments implements IEnvironmentManager {
    *
    * @param settings User settings
    */
-  private _updateSettings(settings: ISettingRegistry.ISettings) {
+  private _updateSettings(settings: ISettingRegistry.ISettings): void {
     this._environmentTypes = settings.get("types").composite as IType;
     this._whitelist = settings.get("whitelist").composite as boolean;
   }
@@ -406,7 +406,7 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async getChannels(name: string): Promise<Conda.IChannels> {
     try {
-      let request = {
+      const request = {
         method: "GET"
       };
       const { promise } = Private.requestServer(
@@ -415,7 +415,7 @@ export class CondaEnvironments implements IEnvironmentManager {
       );
       const response = await promise;
       if (response.ok) {
-        let data = await response.json();
+        const data = await response.json();
         return data["channels"] as Conda.IChannels;
       } else {
         throw new Error(`Fail to get the channels for environment ${name}.`);
@@ -427,7 +427,7 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async clone(target: string, name: string): Promise<void> {
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ name, twin: target }),
         method: "POST"
       };
@@ -454,7 +454,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     try {
       const packages: Array<string> = this.getEnvironmentFromType(type || "");
 
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ name, packages }),
         method: "POST"
       };
@@ -478,7 +478,7 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   export(name: string): Promise<Response> {
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         method: "GET"
       };
       const args = URLExt.objectToQueryString({ download: 1 });
@@ -501,7 +501,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     fileName: string
   ): Promise<void> {
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ name, file: fileContent, filename: fileName }),
         method: "POST"
       };
@@ -525,10 +525,10 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async refresh(): Promise<Array<Conda.IEnvironment>> {
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         method: "GET"
       };
-      let queryArgs = {
+      const queryArgs = {
         whitelist: this._whitelist ? 1 : 0
       };
       const { promise } = Private.requestServer(
@@ -537,7 +537,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         request
       );
       const response = await promise;
-      let data = (await response.json()) as RESTAPI.IEnvironments;
+      const data = (await response.json()) as RESTAPI.IEnvironments;
       this._environments = data.environments;
       return data.environments;
     } catch (err) {
@@ -548,7 +548,7 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async remove(name: string): Promise<void> {
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         method: "DELETE"
       };
       const { promise } = await Private.requestServer(
@@ -575,7 +575,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     fileName: string
   ): Promise<void> {
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ file: fileContent, filename: fileName }),
         method: "PATCH"
       };
@@ -597,10 +597,10 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  /**
-   * Resolve promise to disconnect signals at disposal
-   */
-  private _clean(): void {}
+  // Resolve promise to disconnect signals at disposal
+  private _clean: () => void = () => {
+    return;
+  };
 
   private _packageManager = new CondaPackage();
   private _isDisposed = false;
@@ -610,7 +610,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
-  private _whitelist: boolean = false;
+  private _whitelist = false;
   private _environmentTypes: IType = {};
 }
 
@@ -637,7 +637,7 @@ export class CondaPackage implements Conda.IPackageManager {
    * @returns The package list
    */
   async refresh(
-    includeAvailable: boolean = true,
+    includeAvailable = true,
     environment?: string
   ): Promise<Array<Conda.IPackage>> {
     const theEnvironment = environment || this.environment;
@@ -665,25 +665,25 @@ export class CondaPackage implements Conda.IPackageManager {
       };
       const installedPkgs = data.packages;
 
-      let all_packages: Array<Conda.IPackage> = [];
+      const allPackages: Array<Conda.IPackage> = [];
       if (includeAvailable) {
         // Get all available packages
-        all_packages.push(...(await this._getAvailablePackages()));
+        allPackages.push(...(await this._getAvailablePackages()));
       }
 
       // Set installed package status
       //- packages are sorted by name, we take advantage of this.
-      let final_list = [];
+      const finalList = [];
 
       let availableIdx = 0;
       let installedIdx = 0;
 
       while (
         installedIdx < installedPkgs.length ||
-        availableIdx < all_packages.length
+        availableIdx < allPackages.length
       ) {
-        let installed = installedPkgs[installedIdx];
-        let pkg = all_packages[availableIdx] || {
+        const installed = installedPkgs[installedIdx];
+        let pkg = allPackages[availableIdx] || {
           ...installed,
           version: [installed.version],
           build_number: [installed.build_number],
@@ -727,21 +727,21 @@ export class CondaPackage implements Conda.IPackageManager {
         }
 
         // Simplify the package channel name
-        let split_url = pkg.channel.split("/");
-        if (split_url.length > 2) {
+        const splitUrl = pkg.channel.split("/");
+        if (splitUrl.length > 2) {
           let firstNotEmpty = 0;
           if (
-            ["http:", "https:", "file:"].indexOf(split_url[firstNotEmpty]) >= 0
+            ["http:", "https:", "file:"].indexOf(splitUrl[firstNotEmpty]) >= 0
           ) {
             firstNotEmpty = 1; // Skip the scheme http, https or file
           }
-          while (split_url[firstNotEmpty].length === 0) {
+          while (splitUrl[firstNotEmpty].length === 0) {
             firstNotEmpty += 1;
           }
-          pkg.channel = split_url[firstNotEmpty];
-          let pos = split_url.length - 1;
+          pkg.channel = splitUrl[firstNotEmpty];
+          let pos = splitUrl.length - 1;
           while (
-            Conda.PkgSubDirs.indexOf(split_url[pos]) > -1 &&
+            Conda.PkgSubDirs.indexOf(splitUrl[pos]) > -1 &&
             pos > firstNotEmpty
           ) {
             pos -= 1;
@@ -749,14 +749,14 @@ export class CondaPackage implements Conda.IPackageManager {
           if (pos > firstNotEmpty) {
             pkg.channel += "/...";
           }
-          pkg.channel += "/" + split_url[pos];
+          pkg.channel += "/" + splitUrl[pos];
         }
 
-        final_list.push(pkg);
+        finalList.push(pkg);
         availableIdx += 1;
       }
 
-      return final_list;
+      return finalList;
     } catch (err) {
       if (err === "cancelled") {
         throw new Error(err);
@@ -776,7 +776,7 @@ export class CondaPackage implements Conda.IPackageManager {
     }
 
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ packages }),
         method: "POST"
       };
@@ -805,7 +805,7 @@ export class CondaPackage implements Conda.IPackageManager {
     }
 
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ packages: [path] }),
         method: "POST"
       };
@@ -839,7 +839,7 @@ export class CondaPackage implements Conda.IPackageManager {
     this._cancelTasks();
 
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         method: "GET"
       };
       const { promise, cancel } = Private.requestServer(
@@ -850,7 +850,7 @@ export class CondaPackage implements Conda.IPackageManager {
       const idx = this._cancellableStack.push(cancel) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
-      let data = (await response.json()) as {
+      const data = (await response.json()) as {
         updates: Array<RESTAPI.IRawPackage>;
       };
       return data.updates.map(pkg => pkg.name);
@@ -873,7 +873,7 @@ export class CondaPackage implements Conda.IPackageManager {
     }
 
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ packages }),
         method: "PATCH"
       };
@@ -902,7 +902,7 @@ export class CondaPackage implements Conda.IPackageManager {
     }
 
     try {
-      let request: RequestInit = {
+      const request: RequestInit = {
         body: JSON.stringify({ packages }),
         method: "DELETE"
       };
@@ -943,7 +943,7 @@ export class CondaPackage implements Conda.IPackageManager {
    * @param force Force refreshing the available package list
    */
   private async _getAvailablePackages(
-    force: boolean = false
+    force = false
   ): Promise<Array<Conda.IPackage>> {
     this._cancelTasks();
 
@@ -990,16 +990,16 @@ export class CondaPackage implements Conda.IPackageManager {
   > = new Signal<this, Conda.IPackageChange>(this);
   private _cancellableStack: Array<() => void> = [];
   private static _availablePackages: Array<Conda.IPackage> = null;
-  private static _hasDescription: boolean = false;
+  private static _hasDescription = false;
 }
 
 namespace Private {
   /**
    * Polling interval for accepted tasks
    */
-  const POLLING_INTERVAL: number = 1000;
+  const POLLING_INTERVAL = 1000;
 
-  export interface CancelablePromise<T> {
+  export interface ICancellablePromise<T> {
     promise: Promise<T>;
     cancel: () => void;
   }
@@ -1008,16 +1008,16 @@ namespace Private {
    *
    * @param {string} url : request url
    * @param {RequestInit} request : initialization parameters for the request
-   * @returns {CancelablePromise<Response>} : Cancellable response to the request
+   * @returns {ICancellablePromise<Response>} : Cancellable response to the request
    */
-  export function requestServer(
+  export const requestServer = function(
     url: string,
     request: RequestInit
-  ): CancelablePromise<Response> {
+  ): ICancellablePromise<Response> {
     const settings = ServerConnection.makeSettings();
     const fullUrl = URLExt.join(settings.baseUrl, url);
 
-    let answer: CancelablePromise<Response>;
+    let answer: ICancellablePromise<Response>;
     let resolve: (value: Response) => void;
     let reject: (reason?: any) => void;
     let cancelled = false;
@@ -1062,7 +1062,7 @@ namespace Private {
 
     return {
       promise: promise,
-      cancel: () => {
+      cancel: (): void => {
         cancelled = true;
         if (answer) {
           answer.cancel();
@@ -1070,5 +1070,5 @@ namespace Private {
         reject("cancelled");
       }
     };
-  }
+  };
 }
