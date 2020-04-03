@@ -154,7 +154,7 @@ export namespace Conda {
     /**
      * Refresh available package list
      */
-    refreshAvailablePackages(): void;
+    refreshAvailablePackages(): Promise<void>;
 
     /**
      * Does the packages have description?
@@ -309,52 +309,6 @@ namespace RESTAPI {
 }
 
 /**
- * Polling interval for accepted tasks
- */
-const POLLING_INTERVAL: number = 1000;
-
-/** Helper functions to carry on python notebook server request
- *
- * @param {string} url : request url
- * @param {RequestInit} request : initialization parameters for the request
- * @returns {Promise<Response>} : reponse to the request
- */
-export async function requestServer(
-  url: string,
-  request: RequestInit
-): Promise<Response> {
-  let settings = ServerConnection.makeSettings();
-  let fullUrl = URLExt.join(settings.baseUrl, url);
-
-  try {
-    const response = await ServerConnection.makeRequest(
-      fullUrl,
-      request,
-      settings
-    );
-    if (!response.ok) {
-      const body = await response.json();
-      throw new ServerConnection.ResponseError(response, body.error);
-    } else if (response.status === 202) {
-      const redirectUrl = response.headers.get("Location") || url;
-      // @ts-ignore
-      return new Promise(resolve =>
-        setTimeout(
-          (url: string, settings: RequestInit) =>
-            resolve(requestServer(url, settings)),
-          POLLING_INTERVAL,
-          redirectUrl,
-          { method: "GET" }
-        )
-      );
-    }
-    return Promise.resolve(response);
-  } catch (reason) {
-    throw new ServerConnection.NetworkError(reason);
-  }
-}
-
-/**
  * Conda Environment Manager
  */
 export class CondaEnvironments implements IEnvironmentManager {
@@ -455,10 +409,11 @@ export class CondaEnvironments implements IEnvironmentManager {
       let request = {
         method: "GET"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "channels"),
         request
       );
+      const response = await promise;
       if (response.ok) {
         let data = await response.json();
         return data["channels"] as Conda.IChannels;
@@ -476,10 +431,11 @@ export class CondaEnvironments implements IEnvironmentManager {
         body: JSON.stringify({ name, twin: target }),
         method: "POST"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments"),
         request
       );
+      const response = await promise;
 
       if (response.ok) {
         this._environmentChanged.emit({
@@ -502,11 +458,11 @@ export class CondaEnvironments implements IEnvironmentManager {
         body: JSON.stringify({ name, packages }),
         method: "POST"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments"),
         request
       );
-
+      const response = await promise;
       if (response.ok) {
         this._environmentChanged.emit({
           name: name,
@@ -526,10 +482,11 @@ export class CondaEnvironments implements IEnvironmentManager {
         method: "GET"
       };
       const args = URLExt.objectToQueryString({ download: 1 });
-      return requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", name) + args,
         request
       );
+      return promise;
     } catch (err) {
       console.error(err);
       throw new Error(
@@ -548,11 +505,11 @@ export class CondaEnvironments implements IEnvironmentManager {
         body: JSON.stringify({ name, file: fileContent, filename: fileName }),
         method: "POST"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments"),
         request
       );
-
+      const response = await promise;
       if (response.ok) {
         this._environmentChanged.emit({
           name: name,
@@ -574,11 +531,12 @@ export class CondaEnvironments implements IEnvironmentManager {
       let queryArgs = {
         whitelist: this._whitelist ? 1 : 0
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments") +
           URLExt.objectToQueryString(queryArgs),
         request
       );
+      const response = await promise;
       let data = (await response.json()) as RESTAPI.IEnvironments;
       this._environments = data.environments;
       return data.environments;
@@ -593,11 +551,11 @@ export class CondaEnvironments implements IEnvironmentManager {
       let request: RequestInit = {
         method: "DELETE"
       };
-      let response = await requestServer(
+      const { promise } = await Private.requestServer(
         URLExt.join("conda", "environments", name),
         request
       );
-
+      const response = await promise;
       if (response.ok) {
         this._environmentChanged.emit({
           name: name,
@@ -621,11 +579,11 @@ export class CondaEnvironments implements IEnvironmentManager {
         body: JSON.stringify({ file: fileContent, filename: fileName }),
         method: "PATCH"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", name),
         request
       );
-
+      const response = await promise;
       if (response.ok) {
         this._environmentChanged.emit({
           name: name,
@@ -687,16 +645,21 @@ export class CondaPackage implements Conda.IPackageManager {
       return Promise.resolve([]);
     }
 
+    this._cancelTasks();
+
     try {
       const request: RequestInit = {
         method: "GET"
       };
 
       // Get installed packages
-      const response = await requestServer(
+      const { promise, cancel } = Private.requestServer(
         URLExt.join("conda", "environments", theEnvironment),
         request
       );
+      const idx = this._cancellableStack.push(cancel) - 1;
+      const response = await promise;
+      this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
         packages: Array<RESTAPI.IRawPackage>;
       };
@@ -705,7 +668,7 @@ export class CondaPackage implements Conda.IPackageManager {
       let all_packages: Array<Conda.IPackage> = [];
       if (includeAvailable) {
         // Get all available packages
-        all_packages.push(...(await CondaPackage._getAvailablePackages()));
+        all_packages.push(...(await this._getAvailablePackages()));
       }
 
       // Set installed package status
@@ -795,8 +758,14 @@ export class CondaPackage implements Conda.IPackageManager {
 
       return final_list;
     } catch (err) {
-      console.error(err);
-      throw new Error("An error occurred while retrieving available packages.");
+      if (err === "cancelled") {
+        throw new Error(err);
+      } else {
+        console.error(err);
+        throw new Error(
+          "An error occurred while retrieving available packages."
+        );
+      }
     }
   }
 
@@ -811,10 +780,11 @@ export class CondaPackage implements Conda.IPackageManager {
         body: JSON.stringify({ packages }),
         method: "POST"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", theEnvironment, "packages"),
         request
       );
+      const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
@@ -839,11 +809,12 @@ export class CondaPackage implements Conda.IPackageManager {
         body: JSON.stringify({ packages: [path] }),
         method: "POST"
       };
-      const response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", theEnvironment, "packages") +
           URLExt.objectToQueryString({ develop: 1 }),
         request
       );
+      const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
@@ -865,22 +836,33 @@ export class CondaPackage implements Conda.IPackageManager {
       return Promise.resolve([]);
     }
 
+    this._cancelTasks();
+
     try {
       let request: RequestInit = {
         method: "GET"
       };
-      let response = await requestServer(
+      const { promise, cancel } = Private.requestServer(
         URLExt.join("conda", "environments", theEnvironment) +
           URLExt.objectToQueryString({ status: "has_update" }),
         request
       );
+      const idx = this._cancellableStack.push(cancel) - 1;
+      const response = await promise;
+      this._cancellableStack.splice(idx, 1);
       let data = (await response.json()) as {
         updates: Array<RESTAPI.IRawPackage>;
       };
       return data.updates.map(pkg => pkg.name);
     } catch (error) {
-      console.error(error);
-      throw new Error("An error occurred while checking for package updates.");
+      if (error === "cancelled") {
+        throw new Error(error);
+      } else {
+        console.error(error);
+        throw new Error(
+          "An error occurred while checking for package updates."
+        );
+      }
     }
   }
 
@@ -895,11 +877,11 @@ export class CondaPackage implements Conda.IPackageManager {
         body: JSON.stringify({ packages }),
         method: "PATCH"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", theEnvironment, "packages"),
         request
       );
-
+      const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
@@ -924,10 +906,11 @@ export class CondaPackage implements Conda.IPackageManager {
         body: JSON.stringify({ packages }),
         method: "DELETE"
       };
-      let response = await requestServer(
+      const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", theEnvironment, "packages"),
         request
       );
+      const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
@@ -942,7 +925,7 @@ export class CondaPackage implements Conda.IPackageManager {
   }
 
   async refreshAvailablePackages(): Promise<void> {
-    CondaPackage._getAvailablePackages(true);
+    this._getAvailablePackages(true);
   }
 
   /**
@@ -959,18 +942,23 @@ export class CondaPackage implements Conda.IPackageManager {
    *
    * @param force Force refreshing the available package list
    */
-  private static async _getAvailablePackages(
+  private async _getAvailablePackages(
     force: boolean = false
   ): Promise<Array<Conda.IPackage>> {
+    this._cancelTasks();
+
     if (CondaPackage._availablePackages === null || force) {
       const request: RequestInit = {
         method: "GET"
       };
 
-      const response = await requestServer(
+      const { promise, cancel } = Private.requestServer(
         URLExt.join("conda", "packages"),
         request
       );
+      const idx = this._cancellableStack.push(cancel) - 1;
+      const response = await promise;
+      this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
         packages: Array<Conda.IPackage>;
         with_description: boolean;
@@ -981,10 +969,106 @@ export class CondaPackage implements Conda.IPackageManager {
     return Promise.resolve(CondaPackage._availablePackages);
   }
 
+  /**
+   * Cancel optional tasks
+   */
+  private _cancelTasks(): void {
+    if (this._cancellableStack.length > 0) {
+      const tasks = this._cancellableStack.splice(
+        0,
+        this._cancellableStack.length
+      );
+      tasks.forEach(task => {
+        task();
+      });
+    }
+  }
+
   private _packageChanged: Signal<
     CondaPackage,
     Conda.IPackageChange
   > = new Signal<this, Conda.IPackageChange>(this);
+  private _cancellableStack: Array<() => void> = [];
   private static _availablePackages: Array<Conda.IPackage> = null;
   private static _hasDescription: boolean = false;
+}
+
+namespace Private {
+  /**
+   * Polling interval for accepted tasks
+   */
+  const POLLING_INTERVAL: number = 1000;
+
+  export interface CancelablePromise<T> {
+    promise: Promise<T>;
+    cancel: () => void;
+  }
+
+  /** Helper functions to carry on python notebook server request
+   *
+   * @param {string} url : request url
+   * @param {RequestInit} request : initialization parameters for the request
+   * @returns {CancelablePromise<Response>} : Cancellable response to the request
+   */
+  export function requestServer(
+    url: string,
+    request: RequestInit
+  ): CancelablePromise<Response> {
+    const settings = ServerConnection.makeSettings();
+    const fullUrl = URLExt.join(settings.baseUrl, url);
+
+    let answer: CancelablePromise<Response>;
+    let resolve: (value: Response) => void;
+    let reject: (reason?: any) => void;
+    let cancelled = false;
+
+    const promise = new Promise<Response>(
+      (resolveFromPromise, rejectFromPromise) => {
+        resolve = resolveFromPromise;
+        reject = rejectFromPromise;
+      }
+    );
+
+    ServerConnection.makeRequest(fullUrl, request, settings)
+      .then(response => {
+        if (!response.ok) {
+          response.json().then(body => {
+            throw new ServerConnection.ResponseError(response, body.error);
+          });
+        } else if (response.status === 202) {
+          const redirectUrl = response.headers.get("Location") || url;
+
+          setTimeout(
+            (url: string, settings: RequestInit) => {
+              if (cancelled) {
+                // If cancelled, tell the backend to delete the task.
+                console.debug(`Request cancelled ${url}.`);
+                settings = { ...settings, method: "DELETE" };
+              }
+              answer = requestServer(url, settings);
+              answer.promise.then(response => resolve(response));
+            },
+            POLLING_INTERVAL,
+            redirectUrl,
+            { method: "GET" }
+          );
+        } else {
+          resolve(response);
+        }
+      })
+      .catch(reason => {
+        throw new ServerConnection.NetworkError(reason);
+      });
+
+    return {
+      promise: promise,
+      cancel: () => {
+        cancelled = true;
+        if (answer) {
+          answer.cancel();
+        }
+        reject("cancelled");
+      }
+    };
+  }
 }

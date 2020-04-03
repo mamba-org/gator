@@ -29,6 +29,78 @@ describe("jupyterlab_conda/services", () => {
     jest.resetAllMocks();
   });
 
+  describe("server request", () => {
+    it("should send a redirection location for long running task", async () => {
+      // Given
+      const name = "dummy";
+      const redirectURL = URLExt.join("conda", "tasks", "25");
+
+      (ServerConnection.makeRequest as jest.Mock)
+        .mockResolvedValue(
+          new Response("", { status: 200 }) // Default answer
+        )
+        .mockResolvedValueOnce(
+          // First answer
+          new Response("", { headers: { Location: redirectURL }, status: 202 })
+        );
+
+      const envManager = new CondaEnvironments();
+
+      await envManager.create(name);
+
+      expect(ServerConnection.makeRequest).toBeCalledWith(
+        URLExt.join(settings.baseUrl, "conda", "environments"),
+        {
+          body: JSON.stringify({ name, packages: [""] }),
+          method: "POST"
+        },
+        settings
+      );
+      expect(ServerConnection.makeRequest).toHaveBeenLastCalledWith(
+        URLExt.join(settings.baseUrl, redirectURL),
+        {
+          method: "GET"
+        },
+        settings
+      );
+    });
+
+    it("should cancel a redirection location for long running task", async () => {
+      // Given
+      const name = "dummy";
+      const redirectURL = URLExt.join("conda", "tasks", "25");
+
+      (ServerConnection.makeRequest as jest.Mock)
+        .mockResolvedValue(
+          new Response("", { status: 200 }) // Default answer
+        )
+        .mockResolvedValueOnce(
+          // First answer
+          new Response("", { headers: { Location: redirectURL }, status: 202 })
+        );
+
+      const envManager = new CondaEnvironments();
+
+      await envManager.create(name);
+
+      expect(ServerConnection.makeRequest).toBeCalledWith(
+        URLExt.join(settings.baseUrl, "conda", "environments"),
+        {
+          body: JSON.stringify({ name, packages: [""] }),
+          method: "POST"
+        },
+        settings
+      );
+      expect(ServerConnection.makeRequest).toHaveBeenLastCalledWith(
+        URLExt.join(settings.baseUrl, redirectURL),
+        {
+          method: "GET"
+        },
+        settings
+      );
+    });
+  });
+
   describe("CondaEnvironments", () => {
     describe("clone()", () => {
       it("should clone an environment", async () => {
@@ -758,6 +830,6 @@ describe("jupyterlab_conda/services", () => {
 
     // TOD describe("refreshAvailablePackages()", () => {})
 
-    // TODO descibe("hasDescription()", () => {})
+    // TODO describe("hasDescription()", () => {})
   });
 });
