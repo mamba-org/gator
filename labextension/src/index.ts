@@ -10,9 +10,8 @@ import {
 } from "@jupyterlab/apputils";
 import { IMainMenu } from "@jupyterlab/mainmenu";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
-import { classes, style } from "typestyle";
-import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
+import { condaIcon } from "./icon";
 import { CondaEnvironments, IEnvironmentManager } from "./services";
 import {
   companionID,
@@ -55,7 +54,7 @@ async function activateCondaEnv(
       content.id = pluginNamespace;
       content.title.label = "Packages";
       content.title.caption = "Conda Packages Manager";
-      content.title.iconClass = Style.TabIcon;
+      content.title.icon = condaIcon;
       const widget = new MainAreaWidget({ content });
 
       void tracker.add(widget);
@@ -132,14 +131,3 @@ const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
 const extensions = [condaManager, companions];
 
 export default extensions;
-
-namespace Style {
-  export const TabIcon = classes(
-    "fa",
-    "fa-cubes",
-    style(GlobalStyle.FaIcon, {
-      lineHeight: "unset",
-      fontWeight: "normal"
-    })
-  );
-}

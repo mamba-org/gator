@@ -8,9 +8,12 @@
   height: 40px;
 }
 
-.jp-NbConda-ToolbarPackages > .jp-Toolbar-item > .jp-select-wrapper {
-  height: 100%;
-  background-color: var(--jp-notebook-select-background);
+.jp-NbConda-ToolbarPackages.jp-Toolbar > .jp-Toolbar-item {
+  height: auto;
+}
+
+.jp-NbConda .jp-HTMLSelect.jp-DefaultStyle select {
+  width: inherit;
 }
 
 .jp-NbConda-ToolbarPackages select.jp-mod-styled {

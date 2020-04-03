@@ -1,6 +1,6 @@
 import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 import * as React from "react";
-import { style } from "typestyle";
+import { style, classes } from "typestyle";
 import {
   addIcon,
   fileUploadIcon,
@@ -50,7 +50,7 @@ export interface ICondaEnvToolBarProps {
 }
 
 export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
-  let refreshClasses = "fa fa-refresh";
+  let refreshClasses = classes("fa", "fa-refresh", Style.StandardButton);
   if (props.isPending) {
     refreshClasses = refreshClasses + " fa-spin";
   }
@@ -71,7 +71,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           onClick={props.onCreate}
         />
         <ToolbarButtonComponent
-          iconClass="fa fa-clone"
+          iconClass={classes("fa", "fa-clone", Style.StandardButton)}
           tooltip="Clone"
           onClick={props.onClone}
           enabled={!props.isBase}
@@ -106,6 +106,10 @@ namespace Style {
   export const NoGrow = style({
     flexGrow: 0,
     flexShrink: 0
+  });
+
+  export const StandardButton = style({
+    color: "var(--jp-inverse-layout-color3)"
   });
 
   export const Title = style({
