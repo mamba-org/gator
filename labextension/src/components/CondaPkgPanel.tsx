@@ -1,13 +1,14 @@
 import { showDialog } from "@jupyterlab/apputils";
 import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
+import semver from "semver";
 import { style } from "typestyle";
 import { Conda } from "../services";
 import { CondaPkgList } from "./CondaPkgList";
 import {
   CondaPkgToolBar,
-  PkgFilters,
-  PACKAGETOOLBARHEIGHT
+  PACKAGETOOLBARHEIGHT,
+  PkgFilters
 } from "./CondaPkgToolBar";
 
 // Minimal panel width to show package description
@@ -116,39 +117,39 @@ export class CondaPkgPanel extends React.Component<
         packages: packages
       });
 
-      // Now get the updatable packages
-      let data = await this._model.check_updates(environmentLoading);
-
-      let hasUpdate = false;
-      this.state.packages.forEach((pkg: Conda.IPackage, index: number) => {
-        if (data.indexOf(pkg.name) >= 0 && pkg.version_installed) {
-          this.state.packages[index].updatable = true;
-          hasUpdate = true;
-        }
-      });
-      this.setState({
-        packages: this.state.packages,
-        hasUpdate
-      });
-
       let available = await this._model.refresh(true, environmentLoading);
 
+      let hasUpdate = false;
       available.forEach((pkg: Conda.IPackage, index: number) => {
-        if (data.indexOf(pkg.name) >= 0 && pkg.version_installed) {
-          available[index].updatable = true;
+        try {
+          if (
+            pkg.version_installed &&
+            semver.gt(
+              semver.coerce(pkg.version[pkg.version.length - 1]),
+              semver.coerce(pkg.version_installed)
+            )
+          ) {
+            available[index].updatable = true;
+            hasUpdate = true;
+          }
+        } catch (error) {
+          console.debug(
+            `Error when testing updatable status for ${pkg.name}:\n${error}`
+          );
         }
       });
 
       this.setState({
         isLoading: false,
         hasDescription: this._model.hasDescription(),
-        packages: available
+        packages: available,
+        hasUpdate
       });
     } catch (error) {
-      this.setState({
-        isLoading: false
-      });
       if (error.message !== "cancelled") {
+        this.setState({
+          isLoading: false
+        });
         console.error(error);
         INotification.error(error.message);
       }
@@ -261,7 +262,8 @@ export class CondaPkgPanel extends React.Component<
 
       let confirmation = await showDialog({
         title: "Update all",
-        body: "Please confirm you want to update all packages?"
+        body:
+          "Please confirm you want to update all packages? Conda enforces environment consistency. So maybe only a subset of the available updates will be applied."
       });
 
       if (confirmation.button.accept) {
