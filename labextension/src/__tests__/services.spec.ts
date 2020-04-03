@@ -68,33 +68,80 @@ describe("jupyterlab_conda/services", () => {
     it("should cancel a redirection location for long running task", async () => {
       // Given
       const name = "dummy";
-      const redirectURL = URLExt.join("conda", "tasks", "25");
+      let taskIdx = 21;
+      const redirectURL = URLExt.join(
+        "conda",
+        "tasks",
+        (taskIdx + 1).toString()
+      );
 
-      (ServerConnection.makeRequest as jest.Mock)
-        .mockResolvedValue(
-          new Response("", { status: 200 }) // Default answer
-        )
-        .mockResolvedValueOnce(
-          // First answer
-          new Response("", { headers: { Location: redirectURL }, status: 202 })
-        );
+      (ServerConnection.makeRequest as jest.Mock).mockImplementation(
+        (
+          url: string,
+          request: RequestInit,
+          settings: ServerConnection.ISettings
+        ) => {
+          if (url.indexOf("/tasks") < 0) {
+            taskIdx += 1;
+            return Promise.resolve(
+              new Response("", {
+                headers: {
+                  Location: URLExt.join("conda", "tasks", taskIdx.toString())
+                },
+                status: 202
+              })
+            );
+          } else if (Number.parseInt(url.slice(url.length - 2)) !== 22) {
+            return Promise.resolve(
+              new Response(JSON.stringify({ packages: [] }))
+            );
+          }
 
-      const envManager = new CondaEnvironments();
+          // let resolve: (value: Response) => void;
+          let reject: (reason?: any) => void;
 
-      await envManager.create(name);
+          const promise = new Promise<Response>(
+            (resolveFromPromise, rejectFromPromise) => {
+              // resolve = resolveFromPromise;
+              reject = rejectFromPromise;
+            }
+          );
 
-      expect(ServerConnection.makeRequest).toBeCalledWith(
-        URLExt.join(settings.baseUrl, "conda", "environments"),
+          setTimeout(
+            () => {
+              reject("Fail to cancel promise");
+            },
+            5000 // Wait maximum for 5 sec
+          );
+
+          return promise;
+        }
+      );
+
+      // when
+      const pkgManager = new CondaPackage(name);
+      pkgManager.refresh(false, name).catch(err => {
+        expect(err.message).toEqual("cancelled");
+      });
+      try {
+        await pkgManager.refresh(false, name);
+      } catch (error) {
+        console.debug(error);
+      }
+
+      // Then
+      expect(ServerConnection.makeRequest).toHaveBeenNthCalledWith(
+        2,
+        URLExt.join(settings.baseUrl, "conda", "environments", name),
         {
-          body: JSON.stringify({ name, packages: [""] }),
-          method: "POST"
+          method: "GET"
         },
         settings
       );
-      expect(ServerConnection.makeRequest).toHaveBeenLastCalledWith(
+      expect(ServerConnection.makeRequest).toHaveBeenCalledWith(
         URLExt.join(settings.baseUrl, redirectURL),
         {
-          method: "GET"
+          method: "DELETE"
         },
         settings
       );
