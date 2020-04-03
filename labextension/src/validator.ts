@@ -157,7 +157,7 @@ export class CompanionValidator implements ICompanionValidator {
    * @param specs Available kernelSpec models
    */
   private async _validateSpecs(
-    manager: ServiceManager.IManager,
+    manager: ServiceManager.IManager, // Needed to connect signal
     specs: Kernel.ISpecModels
   ) {
     if (Object.keys(this._companions).length === 0) {
@@ -216,8 +216,13 @@ export class CompanionValidator implements ICompanionValidator {
 
     // Loop on the kernelSpecs
     for (const spec of Object.keys(specs.kernelspecs)) {
-      const name = CompanionValidator.kernelNameToEnvironment(spec);
-      const environment = normalizedNames[name];
+      let environment = specs.kernelspecs[spec].metadata[
+        "conda_env_name"
+      ] as string;
+      if (environment === undefined) {
+        const name = CompanionValidator.kernelNameToEnvironment(spec);
+        environment = normalizedNames[name];
+      }
       if (environment) {
         const packages = await this._envManager
           .getPackageManager()
