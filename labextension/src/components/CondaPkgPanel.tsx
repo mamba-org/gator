@@ -1,13 +1,14 @@
 import { showDialog } from "@jupyterlab/apputils";
 import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
+import semver from "semver";
 import { style } from "typestyle";
 import { Conda } from "../services";
 import { CondaPkgList } from "./CondaPkgList";
 import {
   CondaPkgToolBar,
-  PkgFilters,
-  PACKAGETOOLBARHEIGHT
+  PACKAGETOOLBARHEIGHT,
+  PkgFilters
 } from "./CondaPkgToolBar";
 
 // Minimal panel width to show package description
@@ -39,10 +40,6 @@ export interface IPkgPanelState {
    * Is package list loading?
    */
   isLoading: boolean;
-  /**
-   * Does the package list needs to be updated?
-   */
-  needsReload: boolean;
   /**
    * Is the package manager applying changes?
    */
@@ -82,7 +79,6 @@ export class CondaPkgPanel extends React.Component<
     super(props);
     this.state = {
       isLoading: false,
-      needsReload: false,
       isApplyingChanges: false,
       hasDescription: false,
       hasUpdate: false,
@@ -105,80 +101,52 @@ export class CondaPkgPanel extends React.Component<
   }
 
   private async _updatePackages() {
-    function cancel(self: CondaPkgPanel) {
-      self.setState({
-        isLoading: false,
-        hasUpdate: false,
-        packages: [],
-        selected: []
-      });
-      self._updatePackages();
-    }
+    this.setState({
+      isLoading: true,
+      hasUpdate: false,
+      packages: [],
+      selected: []
+    });
 
-    if (!this.state.isLoading) {
+    try {
+      let environmentLoading =
+        this._currentEnvironment || this._model.environment;
+      // Get installed packages
+      let packages = await this._model.refresh(false, environmentLoading);
       this.setState({
-        isLoading: true,
-        needsReload: false
+        packages: packages
       });
-      try {
-        let environmentLoading =
-          this._currentEnvironment || this._model.environment;
-        // Get installed packages
-        let packages = await this._model.refresh(false, environmentLoading);
-        // If current environment changes when waiting for the packages
-        if (
-          this._model.environment !== environmentLoading ||
-          this.state.needsReload
-        ) {
-          return cancel(this);
-        }
-        this.setState({
-          packages: packages
-        });
 
-        // Now get the updatable packages
-        let data = await this._model.check_updates(environmentLoading);
-        // If current environment changes when waiting for the update status
-        if (
-          this._model.environment !== environmentLoading ||
-          this.state.needsReload
-        ) {
-          return cancel(this);
-        }
+      let available = await this._model.refresh(true, environmentLoading);
 
-        let hasUpdate = false;
-        this.state.packages.forEach((pkg: Conda.IPackage, index: number) => {
-          if (data.indexOf(pkg.name) >= 0 && pkg.version_installed) {
-            this.state.packages[index].updatable = true;
+      let hasUpdate = false;
+      available.forEach((pkg: Conda.IPackage, index: number) => {
+        try {
+          if (
+            pkg.version_installed &&
+            semver.gt(
+              semver.coerce(pkg.version[pkg.version.length - 1]),
+              semver.coerce(pkg.version_installed)
+            )
+          ) {
+            available[index].updatable = true;
             hasUpdate = true;
           }
-        });
-        this.setState({
-          packages: this.state.packages,
-          hasUpdate
-        });
-
-        let available = await this._model.refresh(true, environmentLoading);
-        // If current environment changes when waiting for the available package
-        if (
-          this._model.environment !== environmentLoading ||
-          this.state.needsReload
-        ) {
-          return cancel(this);
+        } catch (error) {
+          console.debug(
+            `Error when testing updatable status for ${pkg.name}:\n${error}`
+          );
         }
+      });
 
-        available.forEach((pkg: Conda.IPackage, index: number) => {
-          if (data.indexOf(pkg.name) >= 0 && pkg.version_installed) {
-            available[index].updatable = true;
-          }
-        });
-
-        this.setState({
-          isLoading: false,
-          hasDescription: this._model.hasDescription(),
-          packages: available
-        });
-      } catch (error) {
+      this.setState({
+        isLoading: false,
+        hasDescription: this._model.hasDescription(),
+        packages: available,
+        hasUpdate
+      });
+    } catch (error) {
+      if (error.message !== "cancelled") {
         this.setState({
           isLoading: false
         });
@@ -294,7 +262,8 @@ export class CondaPkgPanel extends React.Component<
 
       let confirmation = await showDialog({
         title: "Update all",
-        body: "Please confirm you want to update all packages?"
+        body:
+          "Please confirm you want to update all packages? Conda enforces environment consistency. So maybe only a subset of the available updates will be applied."
       });
 
       if (confirmation.button.accept) {
@@ -327,7 +296,6 @@ export class CondaPkgPanel extends React.Component<
       }
     } finally {
       this.setState({
-        needsReload: true, // For packages reload if loading is still in progress
         isApplyingChanges: false,
         selected: [],
         activeFilter: PkgFilters.All
@@ -433,7 +401,6 @@ export class CondaPkgPanel extends React.Component<
       }
     } finally {
       this.setState({
-        needsReload: true, // For packages reload if loading is still in progress
         isApplyingChanges: false,
         selected: [],
         activeFilter: PkgFilters.All
@@ -460,18 +427,21 @@ export class CondaPkgPanel extends React.Component<
   }
 
   async handleRefreshPackages() {
-    await this._model.refreshAvailablePackages();
-    this._updatePackages();
+    try {
+      await this._model.refreshAvailablePackages();
+      this._updatePackages();
+    } catch (error) {
+      if (error.message !== "cancelled") {
+        console.error(
+          `Error when refreshing the available packages:\n${error}`
+        );
+      }
+    }
   }
 
   componentDidUpdate(prevProps: IPkgPanelProps) {
     if (this._currentEnvironment !== this.props.packageManager.environment) {
       this._currentEnvironment = this.props.packageManager.environment;
-      this.setState({
-        isLoading: false,
-        packages: [],
-        selected: []
-      });
       this._updatePackages();
     }
   }

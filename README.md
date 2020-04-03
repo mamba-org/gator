@@ -83,8 +83,7 @@ There are three ways to create an environment:
 ## Development
 
 ```shell
-conda create -y -n jupyter_conda python jupyterlab
-conda install -y -n jupyter_conda --file requirements.txt -c conda-forge
+conda create -y -n jupyter_conda python jupyterlab~=1.2
 conda install -y -n jupyter_conda --file requirements_dev.txt -c conda-forge
 source activate jupyter_conda
 python setup.py develop
@@ -93,6 +92,7 @@ jupyter nbextension enable jupyter_conda --py --sys-prefix
 jupyter serverextension enable jupyter_conda --py --sys-prefix
 
 cd labextension
+jupyter labextension install jupyterlab_toastify --no-build
 jupyter labextension install .
 ```
 

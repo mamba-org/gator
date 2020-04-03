@@ -1,12 +1,13 @@
-# Copyright (c) 2016-2019 Jupyter Development Team.
+# Copyright (c) 2016-2020 Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-
+import asyncio
 import json
 import os
 import re
 import ssl
 import sys
 import tempfile
+from functools import partial
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from packaging.version import parse
@@ -80,19 +81,6 @@ class EnvManager(LoggingConfigurable):
 
         return {"error": True}
 
-    def _call_subprocess(self, cmdline: List[str]) -> Tuple[int, bytes, bytes]:
-        """Execute a command using subprocess.Popen.
-        
-        Args:
-            cmdline (List[str]): Command line to be executed
-
-        Returns:
-            (int, bytes, bytes): (return code, stdout, stderr)
-        """
-        process = Popen(cmdline, stdout=PIPE, stderr=PIPE)
-        output, error = process.communicate()
-        return (process.returncode, output, error)
-
     async def _execute(self, cmd: str, *args) -> Tuple[int, str]:
         """Asynchronously execute a command.
         
@@ -109,10 +97,19 @@ class EnvManager(LoggingConfigurable):
         self.log.debug("[jupyter_conda] command: {!s}".format(" ".join(cmdline)))
 
         current_loop = tornado.ioloop.IOLoop.current()
-        returncode, output, error = await current_loop.run_in_executor(
-            None, self._call_subprocess, cmdline
+        process = await current_loop.run_in_executor(
+            None, partial(Popen, cmdline, stdout=PIPE, stderr=PIPE)
         )
+        try:
+            output, error = await current_loop.run_in_executor(
+                None, process.communicate
+            )
+        except asyncio.CancelledError:
+            process.terminate()
+            await current_loop.run_in_executor(None, process.wait)
+            raise
 
+        returncode = process.returncode
         if returncode == 0:
             output = output.decode("utf-8")
         else:
@@ -295,7 +292,7 @@ class EnvManager(LoggingConfigurable):
         }
 
         Returns:
-         {"environments": List[env]}: The environments
+            {"environments": List[env]}: The environments
         """
         ans = await self._execute(CONDA_EXE, "info", "--json")
         rcode, output = ans

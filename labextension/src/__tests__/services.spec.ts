@@ -5,7 +5,17 @@ import { URLExt } from "@jupyterlab/coreutils";
 import { Settings } from "@jupyterlab/coreutils/lib/settingregistry";
 import { testEmission } from "@jupyterlab/testutils";
 
-jest.mock("@jupyterlab/services");
+jest.mock("@jupyterlab/services", () => {
+  return {
+    __esModule: true,
+    ServerConnection: {
+      makeRequest: jest.fn(),
+      makeSettings: jest.fn().mockReturnValue({
+        baseUrl: "foo/"
+      })
+    }
+  };
+});
 jest.mock("@jupyterlab/coreutils/lib/settingregistry");
 
 describe("jupyterlab_conda/services", () => {
@@ -17,6 +27,125 @@ describe("jupyterlab_conda/services", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  describe("server request", () => {
+    it("should send a redirection location for long running task", async () => {
+      // Given
+      const name = "dummy";
+      const redirectURL = URLExt.join("conda", "tasks", "25");
+
+      (ServerConnection.makeRequest as jest.Mock)
+        .mockResolvedValue(
+          new Response("", { status: 200 }) // Default answer
+        )
+        .mockResolvedValueOnce(
+          // First answer
+          new Response("", { headers: { Location: redirectURL }, status: 202 })
+        );
+
+      const envManager = new CondaEnvironments();
+
+      await envManager.create(name);
+
+      expect(ServerConnection.makeRequest).toBeCalledWith(
+        URLExt.join(settings.baseUrl, "conda", "environments"),
+        {
+          body: JSON.stringify({ name, packages: [""] }),
+          method: "POST"
+        },
+        settings
+      );
+      expect(ServerConnection.makeRequest).toHaveBeenLastCalledWith(
+        URLExt.join(settings.baseUrl, redirectURL),
+        {
+          method: "GET"
+        },
+        settings
+      );
+    });
+
+    it("should cancel a redirection location for long running task", async () => {
+      // Given
+      const name = "dummy";
+      let taskIdx = 21;
+      const redirectURL = URLExt.join(
+        "conda",
+        "tasks",
+        (taskIdx + 1).toString()
+      );
+
+      (ServerConnection.makeRequest as jest.Mock).mockImplementation(
+        (
+          url: string,
+          request: RequestInit,
+          settings: ServerConnection.ISettings
+        ) => {
+          if (url.indexOf("/tasks") < 0) {
+            taskIdx += 1;
+            return Promise.resolve(
+              new Response("", {
+                headers: {
+                  Location: URLExt.join("conda", "tasks", taskIdx.toString())
+                },
+                status: 202
+              })
+            );
+          } else if (Number.parseInt(url.slice(url.length - 2)) !== 22) {
+            return Promise.resolve(
+              new Response(JSON.stringify({ packages: [] }))
+            );
+          }
+
+          // let resolve: (value: Response) => void;
+          let reject: (reason?: any) => void;
+
+          const promise = new Promise<Response>(
+            (resolveFromPromise, rejectFromPromise) => {
+              // resolve = resolveFromPromise;
+              reject = rejectFromPromise;
+            }
+          );
+
+          setTimeout(
+            () => {
+              reject("Fail to cancel promise");
+            },
+            5000 // Wait maximum for 5 sec
+          );
+
+          return promise;
+        }
+      );
+
+      // when
+      const pkgManager = new CondaPackage(name);
+      pkgManager.refresh(false, name).catch(err => {
+        expect(err.message).toEqual("cancelled");
+      });
+      try {
+        await pkgManager.refresh(false, name);
+      } catch (error) {
+        console.debug(error);
+      }
+
+      // Then
+      expect(ServerConnection.makeRequest).toHaveBeenNthCalledWith(
+        2,
+        URLExt.join(settings.baseUrl, "conda", "environments", name),
+        {
+          method: "GET"
+        },
+        settings
+      );
+      expect(ServerConnection.makeRequest).toHaveBeenCalledWith(
+        URLExt.join(settings.baseUrl, redirectURL),
+        {
+          method: "DELETE"
+        },
+        settings
+      );
+    });
   });
 
   describe("CondaEnvironments", () => {
@@ -748,6 +877,6 @@ describe("jupyterlab_conda/services", () => {
 
     // TOD describe("refreshAvailablePackages()", () => {})
 
-    // TODO descibe("hasDescription()", () => {})
+    // TODO describe("hasDescription()", () => {})
   });
 });
