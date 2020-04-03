@@ -1,8 +1,9 @@
-import { URLExt, ISettingRegistry } from "@jupyterlab/coreutils";
+import { URLExt } from "@jupyterlab/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
-import { Token } from "@phosphor/coreutils";
-import { IDisposable } from "@phosphor/disposable";
-import { ISignal, Signal } from "@phosphor/signaling";
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
+import { Token } from "@lumino/coreutils";
+import { IDisposable } from "@lumino/disposable";
+import { ISignal, Signal } from "@lumino/signaling";
 
 export const IEnvironmentManager = new Token<IEnvironmentManager>(
   "jupyterlab_conda:IEnvironmentManager"

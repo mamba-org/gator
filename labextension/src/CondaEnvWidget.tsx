@@ -1,5 +1,5 @@
 import { ReactWidget } from "@jupyterlab/apputils";
-import { Widget } from "@phosphor/widgets";
+import { Widget } from "@lumino/widgets";
 import * as React from "react";
 
 import { NbConda } from "./components/NbConda";

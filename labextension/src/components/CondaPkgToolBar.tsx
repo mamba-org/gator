@@ -1,5 +1,5 @@
 import { ToolbarButtonComponent } from "@jupyterlab/apputils";
-import { HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
+import { HTMLSelect, InputGroup, caretDownIcon } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { classes, style } from "typestyle/lib";
 
@@ -67,15 +67,13 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
   }
 
   return (
-    <div className="p-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
+    <div className="lm-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
       <HTMLSelect
         value={props.category}
         onChange={props.onCategoryChanged}
-        iconProps={{
-          icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
-        }}
+        icon={caretDownIcon}
         aria-label="Package filter"
-        minimal
+        // minimal
       >
         <option value={PkgFilters.All}>All</option>
         <option value={PkgFilters.Installed}>Installed</option>
@@ -83,7 +81,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         <option value={PkgFilters.Updatable}>Updatable</option>
         <option value={PkgFilters.Selected}>Selected</option>
       </HTMLSelect>
-      <div className="p-Widget jp-Toolbar-item">
+      <div className="lm-Widget jp-Toolbar-item">
         <div className={classes("jp-NbConda-search-wrapper", Style.Search)}>
           <InputGroup
             className={Style.SearchInput}
@@ -95,9 +93,9 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           />
         </div>
       </div>
-      <div className="p-Widget jp-Toolbar-spacer jp-Toolbar-item" />
+      <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
       <ToolbarButtonComponent
-        iconClassName={classes(
+        iconClass={classes(
           "fa",
           "fa-external-link-square",
           props.hasUpdate && Style.UpdateButton
@@ -107,7 +105,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         enabled={props.hasUpdate}
       />
       <ToolbarButtonComponent
-        iconClassName={classes(
+        iconClass={classes(
           "fa",
           "fa-cart-arrow-down",
           props.hasSelection && Style.ApplyButton
@@ -117,13 +115,13 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         tooltip="Apply package modifications"
       />
       <ToolbarButtonComponent
-        iconClassName="fa fa-undo"
+        iconClass="fa fa-undo"
         enabled={props.hasSelection}
         onClick={props.onCancel}
         tooltip="Clear package modifications"
       />
       <ToolbarButtonComponent
-        iconClassName={refreshClasses}
+        iconClass={refreshClasses}
         onClick={props.onRefreshPackages}
         tooltip="Refresh available packages"
         enabled={!props.isPending}

@@ -1,4 +1,4 @@
-import { HTMLSelect } from "@jupyterlab/ui-components";
+import { HTMLSelect, caretDownIcon } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { style, classes } from "typestyle";
 import { AutoSizer, Column, Table } from "react-virtualized";
@@ -120,11 +120,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
           this.props.onPkgChange(rowData, evt.target.value)
         }
-        iconProps={{
-          icon: <span className="jp-MaterialIcon jp-DownCaretIcon bp3-icon" />
-        }}
+        icon={caretDownIcon}
         aria-label="Package versions"
-        minimal
+        // minimal
       >
         <option key="-3" value={"none"}>
           Remove

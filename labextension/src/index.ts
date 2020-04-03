@@ -8,8 +8,8 @@ import {
   MainAreaWidget,
   WidgetTracker
 } from "@jupyterlab/apputils";
-import { ISettingRegistry } from "@jupyterlab/coreutils";
 import { IMainMenu } from "@jupyterlab/mainmenu";
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { classes, style } from "typestyle";
 import { GlobalStyle } from "./components/globalStyles";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
@@ -89,7 +89,7 @@ async function activateCompanions(
   const settings = await settingsRegistry.load(condaEnvId);
 
   const validator = new CompanionValidator(
-    serviceManager,
+    serviceManager.kernelspecs,
     envManager,
     settings
   );
@@ -97,7 +97,7 @@ async function activateCompanions(
   commands.addCommand(command, {
     label: "Validate kernels compatibility",
     execute: () => {
-      validator.validate(serviceManager.specs);
+      validator.validate(serviceManager.kernelspecs.specs);
     }
   });
 

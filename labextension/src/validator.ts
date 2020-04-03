@@ -1,10 +1,10 @@
-import { ISettingRegistry } from "@jupyterlab/coreutils";
-import { Kernel, ServiceManager } from "@jupyterlab/services";
-import { Token } from "@phosphor/coreutils";
-import { IDisposable } from "@phosphor/disposable";
+import { KernelSpecAPI, KernelSpecManager } from "@jupyterlab/services";
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
+import { Token } from "@lumino/coreutils";
+import { IDisposable } from "@lumino/disposable";
+import { INotification } from "jupyterlab_toastify";
 import semver from "semver";
 import { IEnvironmentManager } from "./services";
-import { INotification } from "jupyterlab_toastify";
 
 export const companionID = "jupyterlab_conda:companion";
 
@@ -28,7 +28,7 @@ export interface ICompanionValidator extends IDisposable {
    *
    * @param specs Available kernelSpec models
    */
-  validate(specs: Kernel.ISpecModels): void;
+  validate(specs: KernelSpecAPI.ISpecModels): void;
 }
 
 // Unicode Combining Diacritical Marks
@@ -49,7 +49,7 @@ type Companions = { [key: string]: string };
  */
 export class CompanionValidator implements ICompanionValidator {
   constructor(
-    serviceManager: ServiceManager.IManager,
+    kernelManager: KernelSpecManager,
     envManager: IEnvironmentManager,
     settings: ISettingRegistry.ISettings
   ) {
@@ -61,9 +61,9 @@ export class CompanionValidator implements ICompanionValidator {
       this
     );
 
-    serviceManager.ready.then(() => {
-      this._validateSpecs(serviceManager, serviceManager.specs);
-      serviceManager.specsChanged.connect(
+    kernelManager.ready.then(() => {
+      this._validateSpecs(kernelManager, kernelManager.specs);
+      kernelManager.specsChanged.connect(
         this._validateSpecs,
         this
       );
@@ -77,7 +77,7 @@ export class CompanionValidator implements ICompanionValidator {
 
     clean.then(() => {
       settings.changed.disconnect(this._updateCompanions, this);
-      serviceManager.specsChanged.disconnect(this._validateSpecs, this);
+      kernelManager.specsChanged.disconnect(this._validateSpecs, this);
     });
   }
 
@@ -152,8 +152,8 @@ export class CompanionValidator implements ICompanionValidator {
    * @param specs Available kernelSpec models
    */
   private async _validateSpecs(
-    manager: ServiceManager.IManager, // Needed to connect signal
-    specs: Kernel.ISpecModels
+    manager: KernelSpecManager, // Needed to connect signal
+    specs: KernelSpecAPI.ISpecModels
   ): Promise<void> {
     if (Object.keys(this._companions).length === 0) {
       return;
@@ -254,7 +254,7 @@ export class CompanionValidator implements ICompanionValidator {
    *
    * @param kernelSpecs Available kernelSpec models
    */
-  validate(kernelSpecs: Kernel.ISpecModels): void {
+  validate(kernelSpecs: KernelSpecAPI.ISpecModels): void {
     this._validateSpecs(null, kernelSpecs);
   }
 

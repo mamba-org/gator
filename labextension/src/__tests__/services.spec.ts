@@ -1,9 +1,9 @@
+import { URLExt } from "@jupyterlab/coreutils";
+import { ServerConnection } from "@jupyterlab/services";
+import { Settings } from "@jupyterlab/settingregistry";
+import { testEmission } from "@jupyterlab/testutils";
 import "jest";
 import { CondaEnvironments, CondaPackage } from "../services";
-import { ServerConnection } from "@jupyterlab/services";
-import { URLExt } from "@jupyterlab/coreutils";
-import { Settings } from "@jupyterlab/coreutils/lib/settingregistry";
-import { testEmission } from "@jupyterlab/testutils";
 
 jest.mock("@jupyterlab/services", () => {
   return {
@@ -16,7 +16,7 @@ jest.mock("@jupyterlab/services", () => {
     }
   };
 });
-jest.mock("@jupyterlab/coreutils/lib/settingregistry");
+jest.mock("@jupyterlab/settingregistry");
 
 describe("jupyterlab_conda/services", () => {
   const settings = { baseUrl: "foo/" };
