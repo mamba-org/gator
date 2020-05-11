@@ -1,0 +1,12 @@
+{
+  "channels": [
+    "conda-forge",
+    "defaults"
+  ],
+  "dependencies": [
+    "mamba",
+    "numpy"
+  ],
+  "name": "mamba-gui",
+  "prefix": "/home/marianne/miniconda3/envs/mamba-gui"
+}
