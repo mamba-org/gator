@@ -1,5 +1,7 @@
 <template>
   <v-app>
+  <v-treeview :items="items">
+  </v-treeview>
 
     <v-content>
       <HelloWorld/>
@@ -9,6 +11,7 @@
 
 <script>
 import HelloWorld from './components/HelloWorld';
+import Req_1 from './json/req_1.json';
 
 export default {
   name: 'App',
@@ -18,7 +21,9 @@ export default {
   },
 
   data: () => ({
-    //
+    items: [
+        Req_1
+    ]
   }),
 };
 </script>
