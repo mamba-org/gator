@@ -1,10 +1,13 @@
 <template>
   <v-app>
-  <v-treeview :items="items">
-  </v-treeview>
 
     <v-content>
       <HelloWorld/>
+      <v-treeview
+        :items="items"
+        selectable
+        caption-field="dependencies"
+      ></v-treeview>
     </v-content>
   </v-app>
 </template>

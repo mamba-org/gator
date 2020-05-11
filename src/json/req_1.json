@@ -3,10 +3,10 @@
     "conda-forge",
     "defaults"
   ],
-  "dependencies": [
-    "mamba",
-    "numpy"
+  "children": [
+      {"name": "mamba"},
+      {"name": "numpy"}
   ],
-  "name": "mamba-gui",
+  "name": "mamba-gui-env",
   "prefix": "/home/marianne/miniconda3/envs/mamba-gui"
 }
