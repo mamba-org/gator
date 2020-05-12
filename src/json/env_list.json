@@ -1,0 +1,31 @@
+{
+  "envs": [
+    "/home/marianne/miniconda3",
+    "/home/marianne/miniconda3/envs/announce-voila-reveal",
+    "/home/marianne/miniconda3/envs/bioinformatica",
+    "/home/marianne/miniconda3/envs/covid",
+    "/home/marianne/miniconda3/envs/covid-dashboard",
+    "/home/marianne/miniconda3/envs/covid-plots",
+    "/home/marianne/miniconda3/envs/dash-bio-dev",
+    "/home/marianne/miniconda3/envs/dash-bio-utils",
+    "/home/marianne/miniconda3/envs/dash-dev",
+    "/home/marianne/miniconda3/envs/dash_docs",
+    "/home/marianne/miniconda3/envs/dashbio-demo",
+    "/home/marianne/miniconda3/envs/dina",
+    "/home/marianne/miniconda3/envs/fluxgui",
+    "/home/marianne/miniconda3/envs/gaussian-density",
+    "/home/marianne/miniconda3/envs/mamba-gui",
+    "/home/marianne/miniconda3/envs/meteo",
+    "/home/marianne/miniconda3/envs/nbconvert",
+    "/home/marianne/miniconda3/envs/py-repr-dina",
+    "/home/marianne/miniconda3/envs/python-novice-gapminder",
+    "/home/marianne/miniconda3/envs/scikit-image",
+    "/home/marianne/miniconda3/envs/skimage-dev",
+    "/home/marianne/miniconda3/envs/test",
+    "/home/marianne/miniconda3/envs/voila",
+    "/home/marianne/miniconda3/envs/voila-dev",
+    "/home/marianne/miniconda3/envs/voila-hack",
+    "/home/marianne/miniconda3/envs/voila-reveal",
+    "/home/marianne/miniconda3/envs/voila-reveal-example"
+  ]
+}
