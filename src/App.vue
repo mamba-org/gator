@@ -23,10 +23,10 @@
 
     <v-col>
     <v-card>
-      <tree-table
-        class="table"
-        :columns="columns"
-        :table-data="items" />
+      <v-data-table
+        :headers="columns"
+        :items="items"
+      ></v-data-table>
     </v-card>
     </v-col>
     </v-row>
@@ -38,14 +38,12 @@
 import HelloWorld from './components/HelloWorld';
 import EnvList from './json/env_list.json';
 import Req_1 from './json/req_1.json';
-import TreeTable from 'vue-tree-table-component'
 
 export default {
   name: 'App',
 
   components: {
     HelloWorld,
-    TreeTable,
   },
 
   data: () => ({
@@ -53,9 +51,9 @@ export default {
     items: [
         Req_1
     ],
-    columns: [{label: "Package", id: "dependencies"},
-              {label: "Version", id: "null"},
-              {label: "Description", id: "null"}]
+    columns: [{text: "Package", value: "dependencies"},
+              {text: "Version", value: "null", sortable: false},
+              {text: "Description", value: "null", sortable: false}]
   }),
 };
 </script>
