@@ -3,7 +3,7 @@
     "conda-forge",
     "defaults"
   ],
-  "children": [
+  "dependencies": [
       {"name": "mamba"},
       {"name": "numpy"}
   ],
