@@ -4,6 +4,9 @@
     <v-content>
       <HelloWorld/>
 
+    <v-row>
+    <v-col>
+    <v-card>
        <v-list>
          <v-subheader>ENVIRONMENTS</v-subheader>
          <v-list-item-group v-model="item" color="primary">
@@ -15,11 +18,18 @@
            </v-list-item>
          </v-list-item-group>
        </v-list>
+    </v-card>
+    </v-col>
 
+    <v-col>
+    <v-card>
       <tree-table
         class="table"
         :columns="columns"
         :table-data="items" />
+    </v-card>
+    </v-col>
+    </v-row>
     </v-content>
   </v-app>
 </template>
