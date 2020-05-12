@@ -4,9 +4,10 @@
     <v-content>
       <HelloWorld/>
       <v-treeview
-        :items="items"
         selectable
-        caption-field="dependencies"
+        selected-color="red"
+        :items="items"
+        item-children="dependencies"
       ></v-treeview>
     </v-content>
   </v-app>
