@@ -22,10 +22,10 @@
     </v-col>
 
     <v-col>
-    <v-card>
-      <v-data-table
+    <v-card v-for="item in items" :key="item.prefix">
+      <v-data-table v-if="item.prefix === '/home/marianne/miniconda3/envs/mamba-gui'"
         :headers="columns"
-        :items="items"
+        :items="item.dependencies"
       ></v-data-table>
     </v-card>
     </v-col>
