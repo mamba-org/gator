@@ -4,9 +4,9 @@
     "defaults"
   ],
   "dependencies": [
-    "conda",
-    "python=3",
-    "mamba"
+      {"name": "conda"},
+      {"name": "python", "version": "3"},
+      {"name": "mamba"}
   ],
   "name": "base",
   "prefix": "/home/marianne/miniconda3"
