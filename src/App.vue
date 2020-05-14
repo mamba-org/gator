@@ -9,7 +9,9 @@
     <v-card>
        <v-list>
          <v-subheader>ENVIRONMENTS</v-subheader>
-         <v-list-item-group v-model="item" color="primary">
+         <v-list-item-group
+           v-model="selectedEnvIndex"
+           color="primary">
            <v-list-item
              v-for="env in envs"
              :key="env"
@@ -22,6 +24,9 @@
     </v-col>
 
     <v-col>
+    <v-card>
+    <p>Selected environment: {{ envs[selectedEnvIndex] }}</p>
+    </v-card>
     <v-card v-for="item in items" :key="item.prefix">
       <v-data-table v-if="item.prefix === '/home/marianne/miniconda3/envs/mamba-gui'"
         :headers="columns"
@@ -47,6 +52,7 @@ export default {
   },
 
   data: () => ({
+    selectedEnvIndex: [],
     envs: EnvList.envs,
     items: [
         Req_1
