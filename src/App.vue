@@ -27,10 +27,10 @@
     <v-card>
     <p>Selected environment: {{ envs[selectedEnvIndex] }}</p>
     </v-card>
-    <v-card v-for="item in items" :key="item.name">
-      <v-data-table v-if="item.prefix === envs[selectedEnvIndex]"
+    <v-card>
+      <v-data-table
         :headers="columns"
-        :items="item.dependencies"
+        :items="items[envs[selectedEnvIndex]]"
       ></v-data-table>
     </v-card>
     </v-col>
@@ -56,7 +56,11 @@ export default {
   data: () => ({
     selectedEnvIndex: [],
     envs: EnvList.envs,
-    items: [Req_1, Req_2, Req_3],
+    items: {
+       [Req_1.prefix]: Req_1.dependencies,
+       [Req_2.prefix]: Req_2.dependencies,
+       [Req_3.prefix]: Req_3.dependencies,
+    },
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
               {text: "Platform info", value: "platform", sortable: false}]
