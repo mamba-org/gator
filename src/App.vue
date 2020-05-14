@@ -27,8 +27,8 @@
     <v-card>
     <p>Selected environment: {{ envs[selectedEnvIndex] }}</p>
     </v-card>
-    <v-card v-for="item in items" :key="item.prefix">
-      <v-data-table v-if="item.prefix === '/home/marianne/miniconda3/envs/mamba-gui'"
+    <v-card v-for="item in items" :key="item.name">
+      <v-data-table v-if="item.prefix === envs[selectedEnvIndex]"
         :headers="columns"
         :items="item.dependencies"
       ></v-data-table>
@@ -43,6 +43,8 @@
 import HelloWorld from './components/HelloWorld';
 import EnvList from './json/env_list.json';
 import Req_1 from './json/req_1.json';
+import Req_2 from './json/req_2.json';
+import Req_3 from './json/req_3.json';
 
 export default {
   name: 'App',
@@ -54,12 +56,10 @@ export default {
   data: () => ({
     selectedEnvIndex: [],
     envs: EnvList.envs,
-    items: [
-        Req_1
-    ],
-    columns: [{text: "Package", value: "dependencies"},
-              {text: "Version", value: "null", sortable: false},
-              {text: "Description", value: "null", sortable: false}]
+    items: [Req_1, Req_2, Req_3],
+    columns: [{text: "Package", value: "name"},
+              {text: "Version", value: "version", sortable: false},
+              {text: "Platform info", value: "platform", sortable: false}]
   }),
 };
 </script>

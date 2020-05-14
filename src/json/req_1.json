@@ -4,9 +4,13 @@
     "defaults"
   ],
   "dependencies": [
-      {"name": "mamba"},
-      {"name": "numpy"}
+      {"name": "mamba",
+       "version": "0.2.6",
+       "platform": "py38h77160cf_1"},
+      {"name": "numpy",
+       "version": "1.18.4",
+       "platform": "py38h8854b6b_0"}
   ],
-  "name": "mamba-gui-env",
+  "name": "mamba-gui",
   "prefix": "/home/marianne/miniconda3/envs/mamba-gui"
 }
