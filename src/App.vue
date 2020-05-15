@@ -33,7 +33,7 @@
     <v-card>
       <v-data-table
         :headers="columns"
-        :items="items[envs[selectedEnvIndex]]"
+        :items="items"
       ></v-data-table>
     </v-card>
     </v-col>
@@ -45,9 +45,6 @@
 <script>
 import axios from 'axios';
 import HelloWorld from './components/HelloWorld';
-import Req_1 from './json/req_1.json';
-import Req_2 from './json/req_2.json';
-import Req_3 from './json/req_3.json';
 
 export default {
   name: 'App',
@@ -58,22 +55,22 @@ export default {
 
   data: () => ({
     envs: [],
+    items: [],
     selectedEnvIndex: [],
     selectedEnvName: [],
     envUrl: 'http://0.0.0.0:5000/envs',
-    items: {
-       [Req_1.prefix]: Req_1.dependencies,
-       [Req_2.prefix]: Req_2.dependencies,
-       [Req_3.prefix]: Req_3.dependencies,
-    },
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
-              {text: "Platform info", value: "platform"}]
+              {text: "Platform", value: "platform"}]
   }),
   watch: {
     // whenever selectedEnvIndex changes, this function will run
     selectedEnvIndex: function () {
       this.getEnvName()
+    },
+    // whenever selectedEnvName changes, this function will run
+    selectedEnvName: function () {
+      this.getReqs()
     }
   },
 
@@ -94,6 +91,12 @@ export default {
       } else {
         this.selectedEnvName = name;
       }
+    },
+    getReqs() {
+      let reqUrl = this.envUrl + '/' + this.selectedEnvName;
+      axios.get(reqUrl).then((response) => {
+        this.items = response.data;
+      }).catch(error => { console.log(error); });
     },
   },
 };
