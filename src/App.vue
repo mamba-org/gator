@@ -25,7 +25,10 @@
 
     <v-col>
     <v-card>
-    <p>Selected environment: {{ envs[selectedEnvIndex] }}</p>
+    <p>Selected environment (prefix): {{ envs[selectedEnvIndex] }}</p>
+    </v-card>
+    <v-card>
+    <p>Selected environment (name): {{ selectedEnvName }}</p>
     </v-card>
     <v-card>
       <v-data-table
@@ -56,6 +59,8 @@ export default {
   data: () => ({
     envs: [],
     selectedEnvIndex: [],
+    selectedEnvName: [],
+    envUrl: 'http://0.0.0.0:5000/envs',
     items: {
        [Req_1.prefix]: Req_1.dependencies,
        [Req_2.prefix]: Req_2.dependencies,
@@ -65,17 +70,28 @@ export default {
               {text: "Version", value: "version", sortable: false},
               {text: "Platform info", value: "platform"}]
   }),
+  watch: {
+    // whenever selectedEnvIndex changes, this function will run
+    selectedEnvIndex: function () {
+      this.getEnvName()
+    }
+  },
 
   mounted: function() {
     this.getEnvs();
+    this.getReqs();
   },
   methods: {
     getEnvs() {
-      let url = 'http://0.0.0.0:5000/envs';
+      let url = this.envUrl;
       axios.get(url).then((response) => {
         this.envs = response.data.envs;
       }).catch(error => { console.log(error); });
-    }
+    },
+    getEnvName() {
+      let prefix = this.envs[this.selectedEnvIndex];
+      this.selectedEnvName = prefix.split('/').pop();
+    },
   },
 };
 </script>
