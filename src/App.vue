@@ -40,8 +40,8 @@
 </template>
 
 <script>
+import axios from 'axios';
 import HelloWorld from './components/HelloWorld';
-import EnvList from './json/env_list.json';
 import Req_1 from './json/req_1.json';
 import Req_2 from './json/req_2.json';
 import Req_3 from './json/req_3.json';
@@ -54,8 +54,8 @@ export default {
   },
 
   data: () => ({
+    envs: [],
     selectedEnvIndex: [],
-    envs: EnvList.envs,
     items: {
        [Req_1.prefix]: Req_1.dependencies,
        [Req_2.prefix]: Req_2.dependencies,
@@ -65,5 +65,17 @@ export default {
               {text: "Version", value: "version", sortable: false},
               {text: "Platform info", value: "platform", sortable: false}]
   }),
+
+  mounted: function() {
+    this.getEnvs();
+  },
+  methods: {
+    getEnvs() {
+      let url = 'http://0.0.0.0:5000/envs';
+      axios.get(url).then((response) => {
+        this.envs = response.data.envs;
+      }).catch(error => { console.log(error); });
+    }
+  },
 };
 </script>
