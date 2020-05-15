@@ -79,7 +79,6 @@ export default {
 
   mounted: function() {
     this.getEnvs();
-    this.getReqs();
   },
   methods: {
     getEnvs() {
@@ -89,8 +88,8 @@ export default {
       }).catch(error => { console.log(error); });
     },
     getEnvName() {
-      let prefix = this.envs[this.selectedEnvIndex];
-      this.selectedEnvName = prefix.split('/').pop();
+      let name = this.envs[this.selectedEnvIndex].split('/').pop();
+      this.selectedEnvName = name;
     },
   },
 };
