@@ -63,7 +63,7 @@ export default {
     },
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
-              {text: "Platform info", value: "platform", sortable: false}]
+              {text: "Platform info", value: "platform"}]
   }),
 
   mounted: function() {
