@@ -89,7 +89,11 @@ export default {
     },
     getEnvName() {
       let name = this.envs[this.selectedEnvIndex].split('/').pop();
-      this.selectedEnvName = name;
+      if (name.includes('miniconda') || name.includes('anaconda')) {
+        this.selectedEnvName = 'base';
+      } else {
+        this.selectedEnvName = name;
+      }
     },
   },
 };
