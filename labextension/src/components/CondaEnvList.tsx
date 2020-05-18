@@ -1,8 +1,6 @@
 import * as React from "react";
 import { style } from "typestyle";
-
-import { Conda } from "../services";
-
+import { Conda } from "../tokens";
 import { CondaEnvItem } from "./CondaEnvItem";
 import { CondaEnvToolBar, ENVIRONMENTTOOLBARHEIGHT } from "./CondaEnvToolBar";
 

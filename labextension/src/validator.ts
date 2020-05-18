@@ -4,7 +4,7 @@ import { Token } from "@lumino/coreutils";
 import { IDisposable } from "@lumino/disposable";
 import { INotification } from "jupyterlab_toastify";
 import semver from "semver";
-import { IEnvironmentManager } from "./services";
+import { IEnvironmentManager } from "./tokens";
 
 export const companionID = "jupyterlab_conda:companion";
 
