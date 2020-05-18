@@ -1,7 +1,7 @@
 import { URLExt } from "@jupyterlab/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
-import { Token } from "@lumino/coreutils";
+import { JSONObject, Token } from "@lumino/coreutils";
 import { IDisposable } from "@lumino/disposable";
 import { ISignal, Signal } from "@lumino/signaling";
 
@@ -24,7 +24,7 @@ export interface IEnvironmentManager extends IDisposable {
   environmentTypes: string[];
 
   /**
-   * Get all packages channels avalaible in the requested environment
+   * Get all packages channels available in the requested environment
    *
    * @param name environment name
    */
@@ -73,6 +73,18 @@ export interface IEnvironmentManager extends IDisposable {
    */
   import(name: string, fileContent: string, fileName: string): Promise<void>;
 
+  /**
+   * Create an environment from a packages list file
+   *
+   * @param name name of the environment to create
+   * @param fileContent file content of the file containing the packages list to import
+   * @param fileName
+   */
+  update(
+    name: string,
+    fileContent: string,
+    fileName: string
+  ): Promise<void>
   /**
    * Remove a given environment
    *
@@ -499,11 +511,15 @@ export class CondaEnvironments implements IEnvironmentManager {
   async import(
     name: string,
     fileContent: string,
-    fileName: string
+    fileName?: string
   ): Promise<void> {
     try {
+      const data: JSONObject = {name, file: fileContent};
+      if(fileName){
+        data['filename'] = fileName;
+      }
       const request: RequestInit = {
-        body: JSON.stringify({ name, file: fileContent, filename: fileName }),
+        body: JSON.stringify(data),
         method: "POST"
       };
       const { promise } = Private.requestServer(
@@ -573,11 +589,15 @@ export class CondaEnvironments implements IEnvironmentManager {
   async update(
     name: string,
     fileContent: string,
-    fileName: string
+    fileName?: string
   ): Promise<void> {
     try {
+      const data: JSONObject = {file: fileContent};
+      if(fileName){
+        data['filename'] = fileName;
+      }
       const request: RequestInit = {
-        body: JSON.stringify({ file: fileContent, filename: fileName }),
+        body: JSON.stringify(data),
         method: "PATCH"
       };
       const { promise } = Private.requestServer(
