@@ -3,7 +3,7 @@ import { Widget } from "@lumino/widgets";
 import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import { style } from "typestyle";
-import { Conda, IEnvironmentManager } from "../services";
+import { Conda, IEnvironmentManager } from "../tokens";
 import { CondaEnvList, ENVIRONMENTPANELWIDTH } from "./CondaEnvList";
 import { CondaPkgPanel } from "./CondaPkgPanel";
 

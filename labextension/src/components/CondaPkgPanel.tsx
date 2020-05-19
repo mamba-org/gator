@@ -3,7 +3,7 @@ import { INotification } from "jupyterlab_toastify";
 import * as React from "react";
 import semver from "semver";
 import { style } from "typestyle";
-import { Conda } from "../services";
+import { Conda } from "../tokens";
 import { CondaPkgList } from "./CondaPkgList";
 import {
   CondaPkgToolBar,

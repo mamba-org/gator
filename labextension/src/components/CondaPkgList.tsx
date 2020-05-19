@@ -1,9 +1,8 @@
 import { HTMLSelect } from "@jupyterlab/ui-components";
 import * as React from "react";
-import { style, classes } from "typestyle";
 import { AutoSizer, Column, Table } from "react-virtualized";
-
-import { Conda } from "../services";
+import { classes, style } from "typestyle";
+import { Conda } from "../tokens";
 import { GlobalStyle } from "./globalStyles";
 
 /**

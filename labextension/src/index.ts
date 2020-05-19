@@ -12,14 +12,15 @@ import { IMainMenu } from "@jupyterlab/mainmenu";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
 import { condaIcon } from "./icon";
-import { CondaEnvironments, IEnvironmentManager } from "./services";
+import { CondaEnvironments } from "./services";
+import { IEnvironmentManager } from "./tokens";
 import {
   companionID,
   CompanionValidator,
   ICompanionValidator
 } from "./validator";
 
-export { Conda, IEnvironmentManager } from "./services";
+export { Conda, IEnvironmentManager } from "./tokens";
 
 async function activateCondaEnv(
   app: JupyterFrontEnd,
