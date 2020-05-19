@@ -487,7 +487,7 @@ default_handlers = [
     # PATCH / POST / DELETE
     (r"/environments/%s/packages" % _env_regex, PackagesEnvironmentHandler),
     (r"/packages", PackagesHandler),  # GET
-    (r"/tasks/%s" % r"(?P<index>\d+)", TaskHandler),  # GET
+    (r"/tasks/%s" % r"(?P<index>\d+)", TaskHandler),  # GET / DELETE
 ]
 
 

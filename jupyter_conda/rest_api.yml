@@ -1,0 +1,258 @@
+swagger: "2.0"
+info:
+  description: "This is the REST API introduce by the Jupyter server extension `jupyter_conda`; see [GitHub repository](https://github.com/fcollonval/jupyter_conda) for more information."
+  version: "3.3.0"
+  title: "jupyter_conda API"
+  license:
+    name: "BSD-3-Clause"
+    url: "https://opensource.org/licenses/BSD-3-Clause"
+basePath: "/conda"
+tags:
+  - name: "channel"
+    description: "Conda channel"
+  - name: "environment"
+    description: "Conda environment actions"
+  - name: "package"
+    description: "Conda package actions"
+  - name: "task"
+    description: "Long running task actions"
+schemes:
+  - "https"
+paths:
+  /channels:
+    get:
+      tags:
+        - "channel"
+      summary: "List conda channels"
+      responses:
+        "200":
+          description: "Conda channels"
+        "500":
+          description: "Fail to list conda channels"
+  /environments:
+    get:
+      tags:
+        - "environment"
+      summary: "List conda environments"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "whitelist"
+          in: "query"
+          description: "Whether to respect KernelSpecManager.whitelist"
+          type: "integer"
+          default: 0
+      responses:
+        "200":
+          description: "Conda environments"
+        "500":
+          description: "Fail to list environments"
+    post:
+      tags:
+        - "environment"
+      summary: "Add a new conda environment"
+      consumes:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Environment option"
+          required: true
+          schema:
+            $ref: "#/definitions/EnvironmentPost"
+      responses:
+        "202":
+          description: "Redirect on tasks"
+  /environments/{environmentName}:
+    get:
+      tags:
+        - "environment"
+      summary: "List the environment content"
+      produces:
+        - "application/json"
+        - "attachment"
+      parameters:
+        - name: "environmentName"
+          in: "path"
+          description: "Environment name to return"
+          required: true
+          type: "string"
+          pattern: /([^/&+$?@<>%*-][^/&+$?@<>%*]*)/
+        - name: "status"
+          in: "query"
+          description: "installed or has_update"
+          type: "string"
+          default: "installed"
+          enum: ["installed", "has_update"]
+        - name: "download"
+          in: "query"
+          description: "Whether to download the packages list"
+          type: "integer"
+          default: 0
+        - name: "history"
+          in: "query"
+          description: "Whether to export only from history"
+          type: "integer"
+          default: 0
+      responses:
+        "200":
+          description: "Package list"
+          schema:
+            type: "object"
+            properties:
+              packages:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Package"
+
+        "202":
+          description: "Redirect long running task"
+        "500":
+          description: "Error listing the packages"
+    patch:
+      tags:
+        - "environment"
+      summary: "Updates the packages environment"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "environmentName"
+          in: "path"
+          description: "Environment name to update"
+          required: true
+          type: "string"
+          pattern: /([^/&+$?@<>%*-][^/&+$?@<>%*]*)/
+      responses:
+        "202":
+          description: "Long running task"
+    delete:
+      tags:
+        - "environment"
+      summary: "Deletes an environment"
+      description: ""
+      parameters:
+        - name: "environmentName"
+          in: "path"
+          description: "Environment name to remove"
+          required: true
+          type: "string"
+          pattern: /([^/&+$?@<>%*-][^/&+$?@<>%*]*)/
+      responses:
+        "202":
+          description: "Redirect long running task"
+  /environments/{environmentName}/packages:
+    patch:
+      tags:
+        - "package"
+      summary: "Update environment packages"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "environmentName"
+          in: "path"
+          description: "Environment name to modify"
+          required: true
+          type: "string"
+          pattern: /([^/&+$?@<>%*-][^/&+$?@<>%*]*)/
+      responses:
+        "202":
+          description: "Redirect long running task"
+    post:
+      tags:
+        - "package"
+      summary: "Install environment packages"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "environmentName"
+          in: "path"
+          description: "Environment name to modify"
+          required: true
+          type: "string"
+          pattern: /([^/&+$?@<>%*-][^/&+$?@<>%*]*)/
+        - name: "develop"
+          in: "query"
+          description: "Whether to install the package in development mode"
+          type: "integer"
+          default: 0
+      responses:
+        "202":
+          description: "Redirect long running task"
+    delete:
+      tags:
+        - "package"
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "environmentName"
+          in: "path"
+          description: "Environment name to modify"
+          required: true
+          type: "string"
+          pattern: /([^/&+$?@<>%*-][^/&+$?@<>%*]*)/
+      responses:
+        "202":
+          description: "Redirect long running task"
+  /packages:
+    get:
+      tags:
+        - "package"
+      summary: "Search for packages"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "query"
+          in: "query"
+          description: "Query string to pass to conda search"
+          type: "string"
+          default: ""
+      responses:
+        "200":
+          description: "Query result"
+        "202":
+          description: "Redirect long running task"
+  /tasks/{taskId}:
+    get:
+      tags:
+        - "task"
+      summary: "Get long running task result"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "taskId"
+          in: "path"
+          description: "Task ID"
+          required: true
+          type: "integer"
+      responses:
+        "200":
+          description: "Successful execution of the task - returns its result"
+        "202":
+          description: "Task still running"
+        "404":
+          description: "Task not found"
+        "500":
+          description: "An error occurred when executing the task"
+    delete:
+      tags:
+        - "task"
+      summary: "Stop the long running task"
+      parameters:
+        - name: "taskId"
+          in: "path"
+          description: "ID of the order that needs to be deleted"
+          required: true
+          type: "integer"
+      responses:
+        "204":
+          description: "Task cancelled"
+        "404":
+          description: "Task not found"
+definitions:
+  EnvironmentPost:
+    type: "object"
+  Package:
+    type: "object"
+externalDocs:
+  description: "Find out more about jupyter_conda"
+  url: "https://github.com/fcollonval/jupyter_conda"
