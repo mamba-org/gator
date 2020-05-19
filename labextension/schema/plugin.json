@@ -4,10 +4,21 @@
   "title": "Conda",
   "description": "Environments and packages manager settings.",
   "properties": {
-    "whitelist": {
+    "companions": {
+      "type": "object",
+      "title": "Kernel companions",
+      "description": "{'package name': 'semver specification'} - pre and post releases not supported",
+      "default": {},
+      "properties": {
+        "^\\w[\\w\\-]*$": {
+          "type": "string"
+        }
+      }
+    },
+    "fromHistory": {
       "type": "boolean",
-      "title": "Only kernel whitelist",
-      "description": "Show only environment corresponding to whitelisted kernels",
+      "title": "Whether to export environment packages from history or not",
+      "description": "Use --from-history or not for `conda env export`",
       "default": false
     },
     "types": {
@@ -30,16 +41,11 @@
         }
       }
     },
-    "companions": {
-      "type": "object",
-      "title": "Kernel companions",
-      "description": "{'package name': 'semver specification'} - pre and post releases not supported",
-      "default": {},
-      "properties": {
-        "^\\w[\\w\\-]*$": {
-          "type": "string"
-        }
-      }
+    "whitelist": {
+      "type": "boolean",
+      "title": "Only kernel whitelist",
+      "description": "Show only environment corresponding to whitelisted kernels",
+      "default": false
     }
   },
   "additionalProperties": false,

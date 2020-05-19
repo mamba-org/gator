@@ -51,9 +51,10 @@ export interface IEnvironmentManager extends IDisposable {
   /**
    * Export the packages list of an environment
    *
-   * @param name name of the environment to be exported
+   * @param name Name of the environment to be exported
+   * @param fromHistory Whether to export only from the history
    */
-  export(name: string): Promise<Response>;
+  export(name: string, fromHistory: boolean): Promise<Response>;
   /**
    * Create an environment from a packages list file
    *
