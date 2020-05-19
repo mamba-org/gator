@@ -302,7 +302,10 @@ class EnvManager(LoggingConfigurable):
         info = self._clean_conda_json(output)
         if rcode == 0:
             EnvManager._conda_version = tuple(
-                info.get("conda_version", EnvManager._conda_version).split(".")
+                map(
+                    lambda part: int(part),
+                    info.get("conda_version", EnvManager._conda_version).split("."),
+                )
             )
         return info
 
