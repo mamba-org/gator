@@ -16,6 +16,7 @@ from nb_conda_kernels import CondaKernelSpecManager
 import tornado
 from traitlets.config import Config
 
+from jupyter_conda.envmanager import EnvManager
 from jupyter_conda.handlers import AVAILABLE_CACHE, PackagesHandler
 from jupyter_conda.tests.utils import ServerTest, assert_http_error
 
@@ -556,6 +557,37 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         self.assertRegex(content, r"dependencies:")
         self.assertRegex(content, r"- python=\d\.\d+\.\d+=\w+")
         self.assertRegex(content, r"prefix:")
+
+    def test_env_export_history(self):
+        n = generate_name()
+        self.wait_for_task(self.mk_env, n)
+        r = self.conda_api.get(["environments", n], params={"download": 1, "history": 1})
+        self.assertEqual(r.status_code, 200)
+
+        content = " ".join(r.text.splitlines())
+        self.assertRegex(content, r"^name:\s" + n + r"\s+channels:\s+- python\s+prefix:")
+
+    @mock.patch("jupyter_conda.envmanager.EnvManager._conda_version", (3, 6, 0))
+    def test_env_export_not_supporting_history(self):
+        n = generate_name()
+        self.wait_for_task(self.mk_env, n)
+        r = self.conda_api.get(["environments", n], params={"download": 1, "history": 1})
+        self.assertEqual(r.status_code, 200)
+
+        content = r.text
+        self.assertRegex(content, r"name: " + n)
+        self.assertRegex(content, r"channels:")
+        self.assertRegex(content, r"dependencies:")
+        self.assertRegex(content, r"- python=\d\.\d+\.\d+=\w+")
+        self.assertRegex(content, r"prefix:")
+
+
+class TestCondaVersion(JupyterCondaAPITest):
+
+    def test_version(self):
+        self.assertIsNone(EnvManager._conda_version)
+        self.conda_api.get(["environments", ])
+        self.assertIsNotNone(EnvManager._conda_version)
 
 
 class TestPackagesEnvironmentHandler(JupyterCondaAPITest):

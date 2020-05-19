@@ -233,16 +233,18 @@ class EnvironmentHandler(EnvBaseHandler):
         Query arguments:
             status: "installed" (default) or "has_update"
             download: 0 (default) or 1
+            history: 0 (default) or 1
         """
         status = self.get_query_argument("status", "installed")
         download = self.get_query_argument("download", 0)
+        history = self.get_query_argument("history", 0)
 
         if download:
             # export requirements file
             self.set_header(
                 "Content-Disposition", 'attachment; filename="%s"' % (env + ".yml")
             )
-            answer = await self.env_manager.export_env(env)
+            answer = await self.env_manager.export_env(env, bool(history))
             if "error" in answer:
                 self.set_status(500)
                 self.finish(tornado.escape.json_encode(answer))

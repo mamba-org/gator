@@ -55,6 +55,8 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
 class EnvManager(LoggingConfigurable):
     """Handles environment and package actions."""
 
+    _conda_version: Optional[str] = None
+
     def _clean_conda_json(self, output: str) -> Dict[str, Any]:
         """Clean a command output to fit json format.
         
@@ -232,16 +234,30 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
-    async def export_env(self, env: str) -> Union[str, Dict[str, str]]:
+    async def export_env(
+        self, env: str, from_history: bool = False
+    ) -> Union[str, Dict[str, str]]:
         """Export an environment as YAML file.
         
         Args:
             env (str): Environment name
+            from_history (bool): If True, use `--from-history` option; default False
 
         Returns:
             str: YAML file content
         """
-        ans = await self._execute(CONDA_EXE, "env", "export", "-n", env)
+        command = [CONDA_EXE, "env", "export", "-n", env]
+        if from_history:
+            if EnvManager._conda_version is None:
+                await self.info()  # Set conda version
+            if EnvManager._conda_version < (4, 7, 12):
+                self.log.warning(
+                    "[jupyter_conda] conda<4.7.12 does not support `env export --from-history`. It will be ignored."
+                )
+            else:
+                command.append("--from-history")
+
+        ans = await self._execute(*command)
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
@@ -275,6 +291,21 @@ class EnvManager(LoggingConfigurable):
             return {"error": output}
         return output
 
+    async def info(self) -> Dict[str, Any]:
+        """Returns `conda info --json` execution.
+
+        Returns:
+            The dictionary of conda information
+        """
+        ans = await self._execute(CONDA_EXE, "info", "--json")
+        rcode, output = ans
+        info = self._clean_conda_json(output)
+        if rcode == 0:
+            EnvManager._conda_version = tuple(
+                info.get("conda_version", EnvManager._conda_version).split(".")
+            )
+        return info
+
     async def list_envs(
         self, whitelist: bool = False
     ) -> Dict[str, List[Dict[str, Union[str, bool]]]]:
@@ -294,10 +325,8 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {"environments": List[env]}: The environments
         """
-        ans = await self._execute(CONDA_EXE, "info", "--json")
-        rcode, output = ans
-        info = self._clean_conda_json(output)
-        if rcode > 0:
+        info = await self.info()
+        if "error" in info:
             return info
 
         default_env = info["default_prefix"]
