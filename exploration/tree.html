@@ -16,7 +16,7 @@
 }
 
 .node text {
-  font: 12px sans-serif;
+  font: 14px sans-serif;
 }
 
 .link {
@@ -25,12 +25,20 @@
   stroke-width: 2px;
 }
 
+.d3-tip {
+    font: 12px sans-serif;
+    padding: 12px;
+    background: steelblue;
+    color: #fff;
+    border-radius: 2px;
+}
 </style>
 
 <body>
 
 <!-- load the d3.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
     <script src="tree_data.js"></script>
     <script>
 
@@ -41,13 +49,32 @@ var margin = {top: 20, right: 90, bottom: 30, left: 90},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
+// initialize tooltips
+var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .direction('e')
+    .offset([0, 5])
+    .html(
+        function (d) {
+            var content = `
+                <span style='margin-left: 2.5px;'><b>` + d.data["name"] + `</b></span><br>
+                <table style="margin-top: 2.5px;">
+                    <tr><td>Version</td><td>` + d.data["version"] + `</td></tr>
+                    <tr><td>Platform</td><td>` + d.data["platform"] + `</td></tr>
+                </table>
+                `
+            return content
+        }
+    );
+
 // append the svg object to the body of the page
 // appends a 'group' element to 'svg'
 // moves the 'group' element to the top left margin
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .call(tip)
+    .append("g")
     .attr("transform", "translate("
           + margin.left + "," + margin.top + ")");
 
@@ -101,7 +128,10 @@ function update(source) {
       .attr("transform", function(d) {
         return "translate(" + source.y0 + "," + source.x0 + ")";
     })
-    .on('click', click);
+    .on('click', click)
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
+    .attr('visible', true);
 
   // Add Circle for the nodes
   nodeEnter.append('circle')
