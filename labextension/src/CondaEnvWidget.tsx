@@ -3,7 +3,7 @@ import { Widget } from "@phosphor/widgets";
 import * as React from "react";
 
 import { NbConda } from "./components/NbConda";
-import { IEnvironmentManager } from "./services";
+import { IEnvironmentManager } from "./tokens";
 
 export const condaEnvId = "jupyterlab_conda:plugin";
 

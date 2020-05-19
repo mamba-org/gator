@@ -2,9 +2,9 @@ import { ISettingRegistry } from "@jupyterlab/coreutils";
 import { Kernel, ServiceManager } from "@jupyterlab/services";
 import { Token } from "@phosphor/coreutils";
 import { IDisposable } from "@phosphor/disposable";
-import semver from "semver";
-import { IEnvironmentManager } from "./services";
 import { INotification } from "jupyterlab_toastify";
+import semver from "semver";
+import { IEnvironmentManager } from "./tokens";
 
 export const companionID = "jupyterlab_conda:companion";
 
