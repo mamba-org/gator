@@ -177,7 +177,7 @@ class EnvironmentsHandler(EnvBaseHandler):
         self.finish(tornado.escape.json_encode(list_envs))
 
     @tornado.web.authenticated
-    async def post(self):
+    def post(self):
         """`POST /environments` creates an environment.
 
         Method of creation depends on the request data (first find is used):
@@ -220,7 +220,7 @@ class EnvironmentHandler(EnvBaseHandler):
     """Environment handler."""
 
     @tornado.web.authenticated
-    async def delete(self, env: str):
+    def delete(self, env: str):
         """`DELETE /environments/<env>` deletes an environment."""
         idx = self._stack.put(self.env_manager.delete_env, env)
 
@@ -263,7 +263,6 @@ class EnvironmentHandler(EnvBaseHandler):
                 self.finish(tornado.escape.json_encode(packages))
 
     @tornado.web.authenticated
-    @tornado.gen.coroutine
     def patch(self, env: str):
         """`PATCH /environments/<env>` update an environment.
 
@@ -286,7 +285,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
     """Handle actions on environment packages."""
 
     @tornado.web.authenticated
-    async def delete(self, env: str):
+    def delete(self, env: str):
         """`DELETE /environments/<env>/packages` delete some packages.
         
         Request json body:
@@ -300,7 +299,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
-    async def patch(self, env: str):
+    def patch(self, env: str):
         """`PATCH /environments/<env>/packages` update some packages.
         
         If no packages are provided, update all possible packages.
@@ -316,7 +315,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
-    async def post(self, env: str):
+    def post(self, env: str):
         """`POST /environments/<env>/packages` install some packages.
         
         Packages can be installed in development mode. In that case,
@@ -366,11 +365,8 @@ class PackagesHandler(EnvBaseHandler):
                 with open(cache_file) as cache:
                     cache_data = cache.read()
             except OSError as e:
-                logger.info(
-                    "[jupyter_conda] No available packages list in cache {!s}.".format(
-                        e
-                    )
-                )
+                logger.info("[jupyter_conda] No available packages list in cache.")
+                logger.debug(str(e))
 
             async def update_available(
                 env_manager: EnvManager, cache_file: str, return_packages: bool = True
@@ -380,11 +376,8 @@ class PackagesHandler(EnvBaseHandler):
                     with open(cache_file, "w+") as cache:
                         json.dump(answer, cache)
                 except (ValueError, OSError) as e:
-                    logger.info(
-                        "[jupyter_conda] Fail to cache available packages {!s}.".format(
-                            e
-                        )
-                    )
+                    logger.info("[jupyter_conda] Fail to cache available packages.")
+                    logger.debug(str(e))
                 else:
                     # Change rights to ensure every body can update the cache
                     os.chmod(
