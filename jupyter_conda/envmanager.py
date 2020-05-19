@@ -340,7 +340,9 @@ class EnvManager(LoggingConfigurable):
 
         return {"environments": envs_list}
 
-    async def update_env(self, env: str, file_content: str, file_name: str = "environment.yml") -> Dict[str, str]:
+    async def update_env(
+        self, env: str, file_content: str, file_name: str = "environment.yml"
+    ) -> Dict[str, str]:
         """Update a environment from a file.
         
         Args:
@@ -512,8 +514,9 @@ class EnvManager(LoggingConfigurable):
                 try:  # Skip if file is not accessible
                     with open(path) as f:
                         channeldata = json.load(f)
-                except OSError as err:
-                    self.log.info("[jupyter_conda] Error: {}".format(str(err)))
+                except (json.JSONDecodeError, OSError, ValueError) as err:
+                    self.log.info("[jupyter_conda] {!s} skipped".format(path))
+                    self.log.debug(str(err))
                 else:
                     pkg_info.update(channeldata["packages"])
             else:
@@ -527,13 +530,20 @@ class EnvManager(LoggingConfigurable):
                     )
                 except Exception as e:
                     self.log.info(
-                        "[jupyter_conda] Error getting {}/channeldata.json: {}".format(
-                            channel, str(e)
-                        )
+                        "[jupyter_conda] {}/channeldata.json skipped.".format(channel)
                     )
+                    self.log.debug(str(e))
                 else:
                     channeldata = response.body.decode("utf-8")
-                    pkg_info.update(json.loads(channeldata)["packages"])
+                    try:
+                        pkg_info.update(json.loads(channeldata)["packages"])
+                    except (json.JSONDecodeError, ValueError) as error:
+                        self.log.info(
+                            "[jupyter_conda] {}/channeldata.json skipped.".format(
+                                channel
+                            )
+                        )
+                        self.log.debug(str(error))
 
         # Example structure channeldata['packages'] for channeldata_version == 1
         # "tmpc0d7d950": {
