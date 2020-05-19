@@ -575,11 +575,12 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         content = " ".join(r.text.splitlines())
         self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:\s+- python\s+prefix:"
+            content, r"^name:\s" + n + r"\s+channels:\s+- defaults\s+dependencies:\s+- python\s+prefix:"
         )
 
     def test_env_export_not_supporting_history(self):
-        EnvManager._conda_version = (3, 6, 0)
+        manager = TestEnvironmentHandler.notebook.web_app.settings["env_manager"]
+        manager._conda_version = (4, 6, 0)
 
         try:
             n = generate_name()
@@ -596,7 +597,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
             self.assertRegex(content, r"- python=\d\.\d+\.\d+=\w+")
             self.assertRegex(content, r"prefix:")
         finally:
-            EnvManager._conda_version = None
+            manager._conda_version = None
 
 
 class TestCondaVersion(JupyterCondaAPITest):
