@@ -102,10 +102,20 @@ jupyter labextension install .
 
 ## Changelog
 
+### 3.3.0
+
+- Features
+  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/fcollonval/jupyter_conda/pull/39)
+- Bugs
+  - Fixes absent `channeldata.json` file [#36](https://github.com/fcollonval/jupyter_conda/issues/36)
+  - Fixes environment update absent from public API [#37](https://github.com/fcollonval/jupyter_conda/pull/37)
+- Documentation
+  - Start REST API description with Swagger
+
 ### 3.2.0
 
-- Available package cache file is now writable for everybody to avoid trouble in multi-user context. #25
-- Add update environment from file through REST endpoint PATCH /environments/ #26
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/fcollonval/jupyter_conda/pull/25)
+- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/fcollonval/jupyter_conda/pull/26)
 - Switch to newer Python syntax async-await
 - To improve UI reactivity in Jupyterlab:
 
