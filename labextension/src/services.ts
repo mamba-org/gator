@@ -134,6 +134,7 @@ export class CondaEnvironments implements IEnvironmentManager {
    */
   private _updateSettings(settings: ISettingRegistry.ISettings): void {
     this._environmentTypes = settings.get("types").composite as IType;
+    this._fromHistory = settings.get("fromHistory").composite as boolean;
     this._whitelist = settings.get("whitelist").composite as boolean;
   }
 
@@ -222,12 +223,18 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  export(name: string): Promise<Response> {
+  export(name: string, fromHistory: boolean | null = null): Promise<Response> {
+    if (fromHistory === null) {
+      fromHistory = this._fromHistory;
+    }
     try {
       const request: RequestInit = {
         method: "GET"
       };
-      const args = URLExt.objectToQueryString({ download: 1 });
+      const args = URLExt.objectToQueryString({
+        download: 1,
+        history: fromHistory ? 1 : 0
+      });
       const { promise } = Private.requestServer(
         URLExt.join("conda", "environments", name) + args,
         request
@@ -355,17 +362,17 @@ export class CondaEnvironments implements IEnvironmentManager {
   private _clean: () => void = () => {
     return;
   };
-
-  private _packageManager = new CondaPackage();
   private _isDisposed = false;
-  private _environments: Array<Conda.IEnvironment>;
-  private _environmentsTimer = -1;
   private _environmentChanged = new Signal<
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
-  private _whitelist = false;
+  private _environments: Array<Conda.IEnvironment>;
+  private _environmentsTimer = -1;
   private _environmentTypes: IType = {};
+  private _fromHistory = false;
+  private _packageManager = new CondaPackage();
+  private _whitelist = false;
 }
 
 export class CondaPackage implements Conda.IPackageManager {
