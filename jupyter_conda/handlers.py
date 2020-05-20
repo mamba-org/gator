@@ -170,8 +170,8 @@ class EnvironmentsHandler(EnvBaseHandler):
         Raises:
             500 if an error occurs
         """
-        whitelist = self.get_query_argument("whitelist", 0)
-        list_envs = await self.env_manager.list_envs(int(whitelist) == 1)
+        whitelist = int(self.get_query_argument("whitelist", 0))
+        list_envs = await self.env_manager.list_envs(whitelist == 1)
         if "error" in list_envs:
             self.set_status(500)
         self.finish(tornado.escape.json_encode(list_envs))
@@ -236,8 +236,8 @@ class EnvironmentHandler(EnvBaseHandler):
             history: 0 (default) or 1
         """
         status = self.get_query_argument("status", "installed")
-        download = self.get_query_argument("download", 0)
-        history = self.get_query_argument("history", 0)
+        download = int(self.get_query_argument("download", 0))
+        history = int(self.get_query_argument("history", 0))
 
         if download:
             # export requirements file
@@ -333,7 +333,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         """
         body = self.get_json_body()
         packages = body["packages"]
-        develop = self.get_query_argument("develop", 0)
+        develop = int(self.get_query_argument("develop", 0))
 
         if develop:
             idx = self._stack.put(self.env_manager.develop_packages, env, packages)
