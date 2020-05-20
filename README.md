@@ -99,6 +99,11 @@ jupyter labextension install .
 
 ## Changelog
 
+### 3.3.1
+
+- Bugs
+  - Fix export always from history (settings ignored)
+
 ### 3.3.0
 
 - Features

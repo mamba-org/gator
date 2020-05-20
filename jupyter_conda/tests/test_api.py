@@ -555,7 +555,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
     def test_env_export(self):
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(["environments", n], params={"download": 1})
+        r = self.conda_api.get(["environments", n], params={"download": 1, "history": 0})
         self.assertEqual(r.status_code, 200)
 
         content = r.text
