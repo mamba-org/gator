@@ -3,6 +3,7 @@ language: shell
 branches:
   only:
     - master
+    - jlab-1.x
 
 env:
   global:
