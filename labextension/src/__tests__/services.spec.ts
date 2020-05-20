@@ -249,7 +249,7 @@ describe("jupyterlab_conda/services", () => {
     // TODO describe("dispose()", () => {});
 
     describe("export()", () => {
-      it("should request to export", async () => {
+      it("should request to export in full format", async () => {
         const name = "dummy";
         (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
           new Response("", { status: 200 })
@@ -258,7 +258,33 @@ describe("jupyterlab_conda/services", () => {
         const envManager = new CondaEnvironments();
         await envManager.export(name);
 
-        const queryArgs = URLExt.objectToQueryString({ download: 1 });
+        const queryArgs = URLExt.objectToQueryString({
+          download: 1,
+          history: 0
+        });
+        expect(ServerConnection.makeRequest).toBeCalledWith(
+          URLExt.join(settings.baseUrl, "conda", "environments", name) +
+            queryArgs,
+          {
+            method: "GET"
+          },
+          settings
+        );
+      });
+
+      it("should request to export in history format", async () => {
+        const name = "dummy";
+        (ServerConnection.makeRequest as jest.Mock).mockResolvedValue(
+          new Response("", { status: 200 })
+        );
+
+        const envManager = new CondaEnvironments();
+        await envManager.export(name, true);
+
+        const queryArgs = URLExt.objectToQueryString({
+          download: 1,
+          history: 1
+        });
         expect(ServerConnection.makeRequest).toBeCalledWith(
           URLExt.join(settings.baseUrl, "conda", "environments", name) +
             queryArgs,
@@ -364,6 +390,7 @@ describe("jupyterlab_conda/services", () => {
             get: jest.fn().mockImplementation((key: string) => {
               // @ts-ignore
               return {
+                fromHistory: { composite: false },
                 types: { composite: {} },
                 whitelist: { composite: true }
               }[key];

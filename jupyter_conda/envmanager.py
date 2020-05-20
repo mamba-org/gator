@@ -256,7 +256,6 @@ class EnvManager(LoggingConfigurable):
                 )
             else:
                 command.append("--from-history")
-
         ans = await self._execute(*command)
         rcode, output = ans
         if rcode > 0:
