@@ -1,11 +1,11 @@
 # jupyter_conda
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter_conda/master?urlpath=lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter_conda/jlab-1.x?urlpath=lab)
 [![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
 [![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
-[![Build Status](https://travis-ci.com/fcollonval/jupyter_conda.svg?branch=master)](https://travis-ci.com/fcollonval/jupyter_conda)
-[![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter_conda/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter_conda?branch=master)
-[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Ffcollonval%2Fjupyter_conda%2Fmaster%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/fcollonval/jupyter_conda/master/jupyter_conda/rest_api.yml)
+[![Build Status](https://travis-ci.com/fcollonval/jupyter_conda.svg?branch=jlab-1.x)](https://travis-ci.com/fcollonval/jupyter_conda)
+[![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter_conda/badge.svg?branch=jlab-1.x)](https://coveralls.io/github/fcollonval/jupyter_conda?branch=jlab-1.x)
+[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Ffcollonval%2Fjupyter_conda%2Fjlab-1.x%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/fcollonval/jupyter_conda/jlab-1.x/jupyter_conda/rest_api.yml)
 
 Provides Conda environment and package access extension from within Jupyter Notebook and JupyterLab.
 
@@ -98,6 +98,26 @@ jupyter labextension install .
 ```
 
 ## Changelog
+
+### 3.3.0
+
+- Features
+  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/fcollonval/jupyter_conda/pull/39)
+- Bugs
+  - Fixes absent `channeldata.json` file [#36](https://github.com/fcollonval/jupyter_conda/issues/36)
+  - Fixes environment update absent from public API [#37](https://github.com/fcollonval/jupyter_conda/pull/37)
+- Documentation
+  - Start REST API description with Swagger
+
+### 3.2.0
+
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/fcollonval/jupyter_conda/pull/25)
+- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/fcollonval/jupyter_conda/pull/26)
+- Switch to newer Python syntax async-await
+- To improve UI reactivity in Jupyterlab:
+
+  - Long running task can now be cancelled #32
+  - The available packages list is used to find updatable package. conda update --dry-run --all is not used any longer. But it is still used if the user request updating all possible packages.
 
 ### 3.1.0
 
