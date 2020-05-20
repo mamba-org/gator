@@ -1,2 +1,6 @@
-pip install .
+#!/usr/bin/env bash
+#
+# Binder postBuild instructions
+set -eux
+python -m pip install .
 jupyter labextension install jupyterlab_toastify jupyterlab_conda
