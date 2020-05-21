@@ -1,7 +1,7 @@
 import { URLExt } from "@jupyterlab/coreutils";
 import { ServerConnection } from "@jupyterlab/services";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
-import { JSONObject } from "@lumino/coreutils";
+import { JSONObject, PromiseDelegate } from "@lumino/coreutils";
 import { ISignal, Signal } from "@lumino/signaling";
 import { Conda, IEnvironmentManager } from "./tokens";
 
@@ -779,23 +779,27 @@ namespace Private {
     const fullUrl = URLExt.join(settings.baseUrl, url);
 
     let answer: ICancellablePromise<Response>;
-    let resolve: (value: Response) => void;
-    let reject: (reason?: any) => void;
     let cancelled = false;
 
-    const promise = new Promise<Response>(
-      (resolveFromPromise, rejectFromPromise) => {
-        resolve = resolveFromPromise;
-        reject = rejectFromPromise;
-      }
-    );
+    const promise = new PromiseDelegate<Response>();
 
     ServerConnection.makeRequest(fullUrl, request, settings)
       .then(response => {
         if (!response.ok) {
-          response.json().then(body => {
-            throw new ServerConnection.ResponseError(response, body.error);
-          });
+          response
+            .json()
+            .then(body =>
+              promise.reject(
+                new ServerConnection.ResponseError(response, body.error)
+              )
+            )
+            .catch(reason => {
+              console.error(
+                "Fail to read JSON response for request",
+                request,
+                reason
+              );
+            });
         } else if (response.status === 202) {
           const redirectUrl = response.headers.get("Location") || url;
 
@@ -807,28 +811,30 @@ namespace Private {
                 settings = { ...settings, method: "DELETE" };
               }
               answer = requestServer(url, settings);
-              answer.promise.then(response => resolve(response));
+              answer.promise
+                .then(response => promise.resolve(response))
+                .catch(reason => promise.reject(reason));
             },
             POLLING_INTERVAL,
             redirectUrl,
             { method: "GET" }
           );
         } else {
-          resolve(response);
+          promise.resolve(response);
         }
       })
       .catch(reason => {
-        throw new ServerConnection.NetworkError(reason);
+        promise.reject(new ServerConnection.NetworkError(reason));
       });
 
     return {
-      promise: promise,
+      promise: promise.promise,
       cancel: (): void => {
         cancelled = true;
         if (answer) {
           answer.cancel();
         }
-        reject("cancelled");
+        promise.reject("cancelled");
       }
     };
   };
