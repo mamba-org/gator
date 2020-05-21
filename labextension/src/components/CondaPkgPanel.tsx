@@ -134,7 +134,8 @@ export class CondaPkgPanel extends React.Component<
           }
         } catch (error) {
           console.debug(
-            `Error when testing updatable status for ${pkg.name}:\n${error}`
+            `Error when testing updatable status for ${pkg.name}`,
+            error
           );
         }
       });
