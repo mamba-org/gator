@@ -181,28 +181,29 @@ export class CompanionValidator implements ICompanionValidator {
             label: "Correct",
             caption: "Correct installed packages",
             callback: (): void => {
-              const toastId = INotification.inProgress(
-                "Correct the environment."
+              INotification.inProgress("Correct the environment.").then(
+                toastId => {
+                  manager
+                    .getPackageManager()
+                    .install(updates, name)
+                    .then(() => {
+                      INotification.update({
+                        toastId,
+                        message: "Environment corrected",
+                        type: "success",
+                        autoClose: 5000
+                      });
+                    })
+                    .catch(reason => {
+                      console.error(reason);
+                      INotification.update({
+                        toastId,
+                        message: "Fail to correct the environment.",
+                        type: "error"
+                      });
+                    });
+                }
               );
-              manager
-                .getPackageManager()
-                .install(updates, name)
-                .then(() => {
-                  INotification.update({
-                    toastId,
-                    message: "Environment corrected",
-                    type: "success",
-                    autoClose: 5000
-                  });
-                })
-                .catch(reason => {
-                  console.error(reason);
-                  INotification.update({
-                    toastId,
-                    message: "Fail to correct the environment.",
-                    type: "error"
-                  });
-                });
             }
           }
         ]
