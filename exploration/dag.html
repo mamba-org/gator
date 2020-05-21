@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+<script src="https://unpkg.com/d3-dag@0.2.3"></script>
+<script src="strat_data.js"></script>
+<div id="svgwrapper">
+  <svg id="svg-canvas" width=900 height=600></svg>
+</div>
+  <script>
+
+  var dag = d3.dagStratify()(data)
+
+  d3.sugiyama()(dag)
+
+  const links = dag.links()
+  const descendants = dag.descendants();
+
+  const width = 400;
+  const height = 400;
+
+  const svgSelection = d3.select('svg');
+
+  const line = d3.line()
+    .curve(d3.curveCatmullRom)
+    .x(d => d.x * width)
+    .y(d => d.y * height);
+
+  const g = svgSelection.append('g')
+    .attr('transform', `translate(${100},${100})`)
+
+  g.append('g')
+    .selectAll('path')
+    .data(links)
+    .enter()
+    .append('path')
+    .attr('d', ({
+        source,
+        target,
+        data
+      }) =>
+      line([{
+        x: source.x,
+        y: source.y
+      }].concat(
+        data.points || [], [{
+          x: target.x,
+          y: target.y
+        }])))
+    .attr('fill', 'none')
+    .attr('stroke', 'black')
+
+  const nodes = g.append('g')
+    .selectAll('g')
+    .data(descendants)
+    .enter()
+    .append('g')
+    .attr('transform', ({
+      x,
+      y
+    }) => `translate(${x*width}, ${y*height})`);
+
+  nodes.append('circle')
+    .attr('r', 20)
+    .attr('fill', 'white')
+    .attr('stroke', 'black');
+
+  // Add text
+  nodes.append('text')
+    .text(d => d.id)
+    .attr('text-anchor', 'middle')
+    .attr('alignment-baseline', 'middle');
+
+  </script>
+</body>
+</html>
