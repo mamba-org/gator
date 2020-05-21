@@ -75,7 +75,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleCreateEnvironment(): Promise<void> {
-    let toastId = null;
+    let toastId: React.ReactText;
     try {
       const body = document.createElement("div");
       const nameLabel = document.createElement("label");
@@ -105,16 +105,15 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (nameInput.value.length === 0) {
           throw new Error("A environment name should be provided.");
         }
-        toastId = INotification.inProgress(
+        toastId = await INotification.inProgress(
           "Creating environment " + nameInput.value
         );
         await this.props.model.create(nameInput.value, typeInput.value);
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: "Environment " + nameInput.value + " has been created.",
           type: "success",
-          autoClose: 5000,
-          buttons: []
+          autoClose: 5000
         });
         this.setState({ currentEnvironment: nameInput.value });
         this.loadEnvironments();
@@ -123,20 +122,19 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       console.error(error);
       if (toastId) {
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: error.message,
           type: "error",
-          autoClose: 0,
-          buttons: []
+          autoClose: 0
         });
       } else {
-        toastId = INotification.error(error.message);
+        INotification.error(error.message);
       }
     }
   }
 
   async handleCloneEnvironment(): Promise<void> {
-    let toastId = null;
+    let toastId: React.ReactText;
     try {
       const body = document.createElement("div");
       const nameLabel = document.createElement("label");
@@ -154,7 +152,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (nameInput.value.length === 0) {
           throw new Error("A environment name should be provided.");
         }
-        toastId = INotification.inProgress(
+        toastId = await INotification.inProgress(
           "Cloning environment " + this.state.currentEnvironment
         );
         await this.props.model.clone(
@@ -162,11 +160,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           nameInput.value
         );
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: "Environment " + nameInput.value + " created.",
           type: "success",
-          autoClose: 5000,
-          buttons: []
+          autoClose: 5000
         });
         this.setState({ currentEnvironment: nameInput.value });
         this.loadEnvironments();
@@ -175,14 +172,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       console.error(error);
       if (toastId) {
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: error.message,
           type: "error",
-          autoClose: 0,
-          buttons: []
+          autoClose: 0
         });
       } else {
-        toastId = INotification.error(error.message);
+        INotification.error(error.message);
       }
     }
   }
@@ -198,7 +194,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleImportEnvironment(): Promise<void> {
-    let toastId = null;
+    let toastId: React.ReactText;
     try {
       const body = document.createElement("div");
       const nameLabel = document.createElement("label");
@@ -227,18 +223,17 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (fileInput.files.length === 0) {
           throw new Error("A environment file should be selected.");
         }
-        toastId = INotification.inProgress(
+        toastId = await INotification.inProgress(
           "Import environment " + nameInput.value
         );
         const selectedFile = fileInput.files[0];
         const file = await this._readText(selectedFile);
         await this.props.model.import(nameInput.value, file, selectedFile.name);
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: "Environment " + nameInput.value + " created.",
           type: "success",
-          autoClose: 5000,
-          buttons: []
+          autoClose: 5000
         });
         this.setState({ currentEnvironment: nameInput.value });
         this.loadEnvironments();
@@ -247,14 +242,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       console.error(error);
       if (toastId) {
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: error.message,
           type: "error",
-          autoClose: 0,
-          buttons: []
+          autoClose: 0
         });
       } else {
-        toastId = INotification.error(error.message);
+        INotification.error(error.message);
       }
     }
   }
@@ -291,7 +285,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleRemoveEnvironment(): Promise<void> {
-    let toastId = null;
+    let toastId: React.ReactText;
     try {
       const response = await showDialog({
         title: "Remove Environment",
@@ -307,19 +301,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         ]
       });
       if (response.button.accept) {
-        toastId = INotification.inProgress(
+        toastId = await INotification.inProgress(
           "Removing environment " + this.state.currentEnvironment
         );
         await this.props.model.remove(this.state.currentEnvironment);
         INotification.update({
-          toastId: toastId,
+          toastId,
           message:
             "Environment " +
             this.state.currentEnvironment +
             " has been removed.",
           type: "success",
-          autoClose: 5000,
-          buttons: []
+          autoClose: 5000
         });
         this.setState({ currentEnvironment: undefined });
         this.loadEnvironments();
@@ -328,14 +321,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       console.error(error);
       if (toastId) {
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: error.message,
           type: "error",
-          autoClose: 0,
-          buttons: []
+          autoClose: 0
         });
       } else {
-        toastId = INotification.error(error.message);
+        INotification.error(error.message);
       }
     }
   }

@@ -48,7 +48,7 @@
     "@lumino/coreutils": "^1.3.0",
     "@lumino/signaling": "^1.2.0",
     "@lumino/widgets": "^1.6.0",
-    "jupyterlab_toastify": "^3.0.0",
+    "jupyterlab_toastify": "^4.0.0",
     "react-virtualized": "^9.21.1",
     "semver": "^6.3.0",
     "typestyle": "^2.0.0"
@@ -56,7 +56,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
-    "@jupyterlab/testutils": "^1.2.2",
+    "@jupyterlab/testutils": "^2.0.0",
     "@types/jest": "^25",
     "@types/react": "~16.9.0",
     "@types/react-virtualized": "^9.21.4",
@@ -74,9 +74,14 @@
     "prettier": "~1.14.2",
     "pretty-quick": "~1.6.0",
     "react": "~16.9.0",
+    "react-dom": "~16.9.0",
     "rimraf": "~2.6.1",
     "ts-jest": "^25.0.0",
     "typescript": "~3.7.3"
+  },
+  "peerDependencies": {
+    "react": "~16.9.0",
+    "react-dom": "~16.9.0"
   },
   "sideEffects": [
     "style/*"
@@ -97,8 +102,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "resolutions": {
-    "@types/react": "~16.9.0"
   }
 }
