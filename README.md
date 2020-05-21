@@ -30,7 +30,7 @@ To install in the JupyterLab:
 
 ```shell
 conda install -c conda-forge jupyterlab jupyter_conda
-jupyter labextension install jupyterlab_toastify jupyterlab_conda
+jupyter labextension install jupyterlab_conda
 ```
 
 ## Classical Jupyter Notebook
@@ -87,7 +87,7 @@ There are three ways to create an environment:
 ## Development
 
 ```shell
-conda create -y -n jupyter_conda python jupyterlab~=1.2
+conda create -y -n jupyter_conda python jupyterlab~=2.1
 conda install -y -n jupyter_conda --file requirements_dev.txt -c conda-forge
 source activate jupyter_conda
 python setup.py develop
@@ -96,7 +96,6 @@ jupyter nbextension enable jupyter_conda --py --sys-prefix
 jupyter serverextension enable jupyter_conda --py --sys-prefix
 
 cd labextension
-jupyter labextension install jupyterlab_toastify --no-build
 jupyter labextension install .
 ```
 
