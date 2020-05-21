@@ -119,16 +119,22 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     }
   }
@@ -169,16 +175,22 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     }
   }
@@ -239,16 +251,22 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     }
   }
@@ -275,8 +293,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         document.body.removeChild(node);
       }
     } catch (error) {
-      console.error(error);
-      INotification.error(error.message);
+      if (error !== "cancelled") {
+        console.error(error);
+        INotification.error(error.message);
+      }
     }
   }
 
@@ -318,16 +338,22 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.loadEnvironments();
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     }
   }
@@ -352,8 +378,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         newState.isLoading = false;
         this.setState(newState as ICondaEnvState);
       } catch (error) {
-        console.error(error);
-        INotification.error(error.message);
+        if (error !== "cancelled") {
+          console.error(error);
+          INotification.error(error.message);
+        }
       }
     }
   }

@@ -281,16 +281,22 @@ export class CondaPkgPanel extends React.Component<
         });
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId: toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId: toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     } finally {
       this.setState({
@@ -381,16 +387,22 @@ export class CondaPkgPanel extends React.Component<
         });
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     } finally {
       this.setState({
@@ -425,9 +437,7 @@ export class CondaPkgPanel extends React.Component<
       this._updatePackages();
     } catch (error) {
       if (error.message !== "cancelled") {
-        console.error(
-          `Error when refreshing the available packages:\n${error}`
-        );
+        console.error("Error when refreshing the available packages.", error);
       }
     }
   }
