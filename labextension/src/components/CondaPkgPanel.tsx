@@ -134,7 +134,8 @@ export class CondaPkgPanel extends React.Component<
           }
         } catch (error) {
           console.debug(
-            `Error when testing updatable status for ${pkg.name}:\n${error}`
+            `Error when testing updatable status for ${pkg.name}`,
+            error
           );
         }
       });
@@ -253,7 +254,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    let toastId = null;
+    let toastId: React.ReactText;
     try {
       this.setState({
         searchTerm: "",
@@ -270,29 +271,33 @@ export class CondaPkgPanel extends React.Component<
         this.setState({
           isApplyingChanges: true
         });
-        toastId = INotification.inProgress("Updating packages");
+        toastId = await INotification.inProgress("Updating packages");
         await this._model.update(["--all"], this._currentEnvironment);
 
         INotification.update({
           toastId: toastId,
           message: "Package updated successfully.",
           type: "success",
-          autoClose: 5000,
-          buttons: []
+          autoClose: 5000
         });
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId: toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0,
-          buttons: []
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId: toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        toastId = INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     } finally {
       this.setState({
@@ -315,7 +320,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    let toastId = null;
+    let toastId: React.ReactText;
     try {
       this.setState({
         searchTerm: "",
@@ -331,7 +336,7 @@ export class CondaPkgPanel extends React.Component<
         this.setState({
           isApplyingChanges: true
         });
-        toastId = INotification.inProgress("Starting packages actions");
+        toastId = await INotification.inProgress("Starting packages actions");
 
         // Get modified pkgs
         const toRemove: Array<string> = [];
@@ -352,52 +357,53 @@ export class CondaPkgPanel extends React.Component<
         });
 
         if (toRemove.length > 0) {
-          INotification.update({
-            toastId: toastId,
-            message: "Removing selected packages",
-            buttons: []
+          await INotification.update({
+            toastId,
+            message: "Removing selected packages"
           });
           await this._model.remove(toRemove, this._currentEnvironment);
         }
 
         if (toUpdate.length > 0) {
-          INotification.update({
-            toastId: toastId,
-            message: "Updating selected packages",
-            buttons: []
+          await INotification.update({
+            toastId,
+            message: "Updating selected packages"
           });
           await this._model.update(toUpdate, this._currentEnvironment);
         }
 
         if (toInstall.length > 0) {
-          INotification.update({
-            toastId: toastId,
-            message: "Installing new packages",
-            buttons: []
+          await INotification.update({
+            toastId,
+            message: "Installing new packages"
           });
           await this._model.install(toInstall, this._currentEnvironment);
         }
 
         INotification.update({
-          toastId: toastId,
+          toastId,
           message: "Package actions successfully done.",
           type: "success",
-          autoClose: 5000,
-          buttons: []
+          autoClose: 5000
         });
       }
     } catch (error) {
-      console.error(error);
-      if (toastId) {
-        INotification.update({
-          toastId: toastId,
-          message: error.message,
-          type: "error",
-          autoClose: 0,
-          buttons: []
-        });
+      if (error !== "cancelled") {
+        console.error(error);
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message: error.message,
+            type: "error",
+            autoClose: 0
+          });
+        } else {
+          INotification.error(error.message);
+        }
       } else {
-        toastId = INotification.error(error.message);
+        if (toastId) {
+          INotification.dismiss(toastId);
+        }
       }
     } finally {
       this.setState({
@@ -432,9 +438,7 @@ export class CondaPkgPanel extends React.Component<
       this._updatePackages();
     } catch (error) {
       if (error.message !== "cancelled") {
-        console.error(
-          `Error when refreshing the available packages:\n${error}`
-        );
+        console.error("Error when refreshing the available packages.", error);
       }
     }
   }
