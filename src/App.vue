@@ -46,6 +46,9 @@
         </template>
       </v-data-table>
     </v-card>
+    <v-card>
+      <Network/>
+    </v-card>
     </v-col>
     </v-row>
     </v-content>
@@ -55,12 +58,14 @@
 <script>
 import axios from 'axios';
 import HelloWorld from './components/HelloWorld';
+import Network from './components/Network';
 
 export default {
   name: 'App',
 
   components: {
     HelloWorld,
+    Network
   },
 
   data: () => ({
