@@ -435,12 +435,12 @@ export class CondaPkgPanel extends React.Component<
   async handleRefreshPackages(): Promise<void> {
     try {
       await this._model.refreshAvailablePackages();
-      this._updatePackages();
     } catch (error) {
       if (error.message !== "cancelled") {
         console.error("Error when refreshing the available packages.", error);
       }
     }
+    this._updatePackages();
   }
 
   componentDidUpdate(prevProps: IPkgPanelProps): void {

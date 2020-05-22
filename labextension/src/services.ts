@@ -724,8 +724,8 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  async refreshAvailablePackages(): Promise<void> {
-    this._getAvailablePackages(true);
+  async refreshAvailablePackages(cancellable = true): Promise<void> {
+    await this._getAvailablePackages(true, cancellable);
   }
 
   /**
@@ -741,9 +741,11 @@ export class CondaPackage implements Conda.IPackageManager {
    * Get the available packages list.
    *
    * @param force Force refreshing the available package list
+   * @param cancellable Can this asynchronous action be cancelled?
    */
   private async _getAvailablePackages(
-    force = false
+    force = false,
+    cancellable = true
   ): Promise<Array<Conda.IPackage>> {
     this._cancelTasks();
 
@@ -756,9 +758,14 @@ export class CondaPackage implements Conda.IPackageManager {
         URLExt.join("conda", "packages"),
         request
       );
-      const idx = this._cancellableStack.push(cancel) - 1;
+      let idx: number;
+      if (cancellable) {
+        idx = this._cancellableStack.push(cancel) - 1;
+      }
       const response = await promise;
-      this._cancellableStack.splice(idx, 1);
+      if (idx) {
+        this._cancellableStack.splice(idx, 1);
+      }
       const data = (await response.json()) as {
         packages: Array<Conda.IPackage>;
         with_description: boolean;
