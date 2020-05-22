@@ -25,16 +25,26 @@
 
     <v-col>
     <v-card>
-    <p>Selected environment (prefix): {{ envs[selectedEnvIndex] }}</p>
+    <p>Selected environment (prefix): {{ envs[selectedEnvIndex] }}
+      <br>Selected environment (name): {{ selectedEnvName }}</br></p>
     </v-card>
     <v-card>
-    <p>Selected environment (name): {{ selectedEnvName }}</p>
+    <p>Select a package to view its dependencies as a tree!
+       <br>Selected package: {{ selectedPkgName }}</br></p>
     </v-card>
     <v-card>
       <v-data-table
+        v-model="selectedPkg"
         :headers="columns"
         :items="items"
-      ></v-data-table>
+        :single-select=true
+        item-key="name"
+        show-select
+        class="elevation-1"
+      >
+        <template v-slot:top>
+        </template>
+      </v-data-table>
     </v-card>
     </v-col>
     </v-row>
@@ -58,6 +68,8 @@ export default {
     items: [],
     selectedEnvIndex: [],
     selectedEnvName: [],
+    selectedPkg: [],
+    selectedPkgName: [],
     envUrl: 'http://0.0.0.0:5000/envs',
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
@@ -67,6 +79,10 @@ export default {
     // whenever selectedEnvIndex changes, this function will run
     selectedEnvIndex: function () {
       this.getEnvName()
+    },
+    // whenever selectedPkg changes, this function will run
+    selectedPkg: function () {
+      this.getPkgName()
     },
     // whenever selectedEnvName changes, this function will run
     selectedEnvName: function () {
@@ -91,6 +107,10 @@ export default {
       } else {
         this.selectedEnvName = name;
       }
+    },
+    getPkgName() {
+      let name = this.selectedPkg[0].name;
+      this.selectedPkgName = name;
     },
     getReqs() {
       let reqUrl = this.envUrl + '/' + this.selectedEnvName;
