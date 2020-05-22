@@ -149,8 +149,10 @@ export namespace Conda {
     ): Promise<Array<Conda.IPackage>>;
     /**
      * Refresh available package list
+     *
+     * @param cancellable Whether allowing this request to be cancelled or not?
      */
-    refreshAvailablePackages(): Promise<void>;
+    refreshAvailablePackages(cancellable?: boolean): Promise<void>;
     /**
      * Does the packages have description?
      */
