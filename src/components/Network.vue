@@ -4,7 +4,11 @@ import vis from 'vis';
 export default {
   name: 'non-vue-network',
   render (h) {
-    return h('div')
+    return h('div', {
+      attrs: {
+        class: 'container'
+      }
+    })
   },
   mounted() {
     fetch("http://0.0.0.0:8000/numpy_deps.json").then(async (response) => {
@@ -39,7 +43,9 @@ export default {
 };
 </script>
 
-<style lang="sass">
-svg
-  height: 100%
+<style>
+.container {
+  height: 700px;
+  width: 900px
+}
 </style>
