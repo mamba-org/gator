@@ -10,8 +10,9 @@ export default {
       }
     })
   },
+  props: ['datapath'],
   mounted() {
-    fetch("http://0.0.0.0:8000/numpy_deps.json").then(async (response) => {
+    fetch(this.datapath).then(async (response) => {
       console.log(response);
       let contents = await response.json();
       var nodes = [];

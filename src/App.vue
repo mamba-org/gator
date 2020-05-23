@@ -47,7 +47,7 @@
       </v-data-table>
     </v-card>
     <v-card>
-      <Network/>
+      <Network :datapath="depUrl"></Network>
     </v-card>
     </v-col>
     </v-row>
@@ -76,6 +76,7 @@ export default {
     selectedPkg: [],
     selectedPkgName: [],
     envUrl: 'http://0.0.0.0:5000/envs',
+    depUrl: 'http://0.0.0.0:5000/pkgs/python',
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
               {text: "Platform", value: "platform"}]
