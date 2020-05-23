@@ -42,7 +42,7 @@ def create_app(test_config=None):
 
     @app.route('/pkgs/<name>')
     def deps(name=None):
-        query_json = get_mamba(["repoquery", "--json", "search", name,
+        query_json = get_mamba(["repoquery", "--json", "depends", name,
             # TODO handle `name + "=" + version`
             "--installed"])  # TODO drop this
         return json_response(query_json)
