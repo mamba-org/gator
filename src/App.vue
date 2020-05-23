@@ -47,7 +47,7 @@
       </v-data-table>
     </v-card>
     <v-card>
-      <Network :datapath="depUrl"></Network>
+      <Network :datapath="depUrl" :key="componentKey"></Network>
     </v-card>
     </v-col>
     </v-row>
@@ -76,7 +76,9 @@ export default {
     selectedPkg: [{"name": "python", "version": "3"}],
     selectedPkgName: [],
     envUrl: 'http://0.0.0.0:5000/envs',
-    depUrl: 'http://0.0.0.0:5000/pkgs/python',
+    pkgUrl: 'http://0.0.0.0:5000/pkgs',
+    depUrl: [],
+    componentKey: 0,
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
               {text: "Platform", value: "platform"}]
@@ -115,16 +117,19 @@ export default {
       }
     },
     getPkgName() {
+      this.componentKey += 1;
       let name = 'python';
       let pkg = this.selectedPkg[0];
       if (pkg) {
         if (pkg.name) {
           let name = pkg.name;
           this.selectedPkgName = name;
+          this.depUrl = this.pkgUrl + '/' + name;
           return
         }
       }
       this.selectedPkgName = name;
+      this.depUrl = this.pkgUrl + '/' + name;
     },
     getPkgs() {
       let reqUrl = this.envUrl + '/' + this.selectedEnvName;
