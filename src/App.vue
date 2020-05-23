@@ -25,12 +25,10 @@
 
     <v-col>
     <v-card>
-    <p>Selected environment (prefix): {{ envs[selectedEnvIndex] }}
-      <br>Selected environment (name): {{ selectedEnvName }}</br></p>
+      <p>Selected environment (name): {{ selectedEnvName }}</p>
     </v-card>
     <v-card>
-    <p>Select a package to view its dependencies as a tree!
-       <br>Selected package: {{ selectedPkgName }}</br></p>
+      <h3>Select a package and view its dependencies in a graph!</h3>
     </v-card>
     <v-card>
       <v-data-table
@@ -72,12 +70,12 @@ export default {
     envs: [],
     items: [],
     selectedEnvIndex: [],
-    selectedEnvName: [],
-    selectedPkg: [{"name": "python", "version": "3"}],
-    selectedPkgName: [],
+    selectedEnvName: '',
+    selectedPkg: [],
+    selectedPkgName: '',
     envUrl: 'http://0.0.0.0:5000/envs',
     pkgUrl: 'http://0.0.0.0:5000/pkgs',
-    depUrl: [],
+    depUrl: '',
     componentKey: 0,
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
