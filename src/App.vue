@@ -92,7 +92,7 @@ export default {
     },
     // whenever selectedEnvName changes, this function will run
     selectedEnvName: function () {
-      this.getReqs()
+      this.getPkgs()
     }
   },
 
@@ -118,7 +118,7 @@ export default {
       let name = this.selectedPkg[0].name;
       this.selectedPkgName = name;
     },
-    getReqs() {
+    getPkgs() {
       let reqUrl = this.envUrl + '/' + this.selectedEnvName;
       axios.get(reqUrl).then((response) => {
         this.items = response.data;
