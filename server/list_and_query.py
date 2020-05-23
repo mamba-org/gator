@@ -12,6 +12,11 @@ def get_mamba_json(args):
     res = result.stdout.decode('utf-8')
     return json.loads(res)
 
+def get_mamba(args):
+    result = subprocess.run(["mamba"] + args, stdout=subprocess.PIPE)
+    res = result.stdout.decode('utf-8')
+    return json.loads(res)
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -27,13 +32,20 @@ def create_app(test_config=None):
             "--from-history", "-n", name])
         deps = exphist_json["dependencies"]
         pkg_list = [{"name": k.split("=")[0].split("[")[0],
-                     "version": "".join(k.split("=")[1:]).split("]")[0]}
+                     "version": "".join(k.split("=")[1:]).split("]")[0].replace("'", "")}
                      for k in deps]
         return json_response(pkg_list)
 
     @app.route('/envs')
     def all_envs():
         return get_mamba_json(["env", "list"])
+
+    @app.route('/pkgs/<name>')
+    def deps(name=None):
+        query_json = get_mamba(["repoquery", "--json", "search", name,
+            # TODO handle `name + "=" + version`
+            "--installed"])  # TODO drop this
+        return json_response(query_json)
 
     return app
 
