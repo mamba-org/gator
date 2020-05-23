@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
+    "dagre-d3": "^0.6.4",
     "vis": "^4.21.0-EOL",
     "vue": "^2.6.11",
     "vuetify": "^2.2.11"

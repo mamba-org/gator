@@ -1,5 +1,4 @@
 <script>
-import * as d3 from 'd3';
 import vis from 'vis';
 
 export default {
@@ -27,7 +26,6 @@ export default {
         }
       }
 
-      var dataset = new vis.DataSet(nodes);
       var container = this.$el;
 
       var data = {
@@ -40,3 +38,8 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+svg
+  height: 100%
+</style>
