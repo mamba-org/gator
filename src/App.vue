@@ -73,7 +73,7 @@ export default {
     items: [],
     selectedEnvIndex: [],
     selectedEnvName: [],
-    selectedPkg: [],
+    selectedPkg: [{"name": "python", "version": "3"}],
     selectedPkgName: [],
     envUrl: 'http://0.0.0.0:5000/envs',
     depUrl: 'http://0.0.0.0:5000/pkgs/python',
@@ -115,7 +115,15 @@ export default {
       }
     },
     getPkgName() {
-      let name = this.selectedPkg[0].name;
+      let name = 'python';
+      let pkg = this.selectedPkg[0];
+      if (pkg) {
+        if (pkg.name) {
+          let name = pkg.name;
+          this.selectedPkgName = name;
+          return
+        }
+      }
       this.selectedPkgName = name;
     },
     getPkgs() {
