@@ -38,7 +38,7 @@ export default {
         edges: edges
       };
       var options = {autoResize: true};
-      var network = new vis.Network(container, data, options);
+      new vis.Network(container, data, options);
     });
   },
 };
