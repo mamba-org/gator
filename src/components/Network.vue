@@ -45,6 +45,9 @@ export default {
       };
       var options = {
         autoResize: true,
+        edges: {
+          arrows: 'to'
+        },
         groups: {
           roots: {color: 'pink'}
         }
