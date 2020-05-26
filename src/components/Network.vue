@@ -50,6 +50,9 @@ export default {
         },
         groups: {
           roots: {color: 'pink'}
+        },
+        layout: {
+          randomSeed: 123
         }
       };
       new vis.Network(container, data, options);
