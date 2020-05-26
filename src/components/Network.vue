@@ -13,17 +13,23 @@ export default {
   props: ['datapath'],
   mounted() {
     fetch(this.datapath).then(async (response) => {
-      console.log(response);
       let contents = await response.json();
+      let graph_roots = contents.result.graph_roots;
+      console.log(graph_roots);
       var nodes = [];
       var edges = [];
+      var pkgGroup = [];
       for (let pkg of contents.result.pkgs)
       {
         console.log(pkg.name)
-        nodes.push({id: pkg.name, label: pkg.name});
+        if (graph_roots.includes(pkg.name)) {
+          pkgGroup = 'roots';
+        } else {
+          pkgGroup = 'higher-order';
+        }
+        nodes.push({id: pkg.name, label: pkg.name, group: pkgGroup});
         if (pkg.depends)
         {
-          console.log(pkg.depends)
           for (let dep of pkg.depends)
           {
             edges.push({from: pkg.name, to: dep.split(" ")[0]})
@@ -37,7 +43,12 @@ export default {
         nodes: nodes,
         edges: edges
       };
-      var options = {autoResize: true};
+      var options = {
+        autoResize: true,
+        groups: {
+          roots: {color: 'pink'}
+        }
+      };
       new vis.Network(container, data, options);
     });
   },
