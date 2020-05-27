@@ -45,7 +45,7 @@
       </v-data-table>
     </v-card>
     <v-card>
-      <Network :datapath="depUrl" :key="componentKey"></Network>
+      <Network :data-promise="depData" :key="componentKey"></Network>
     </v-card>
     </v-col>
     </v-row>
@@ -76,6 +76,7 @@ export default {
     envUrl: 'http://0.0.0.0:5000/envs',
     pkgUrl: 'http://0.0.0.0:5000/pkgs',
     depUrl: '',
+    depData: [],
     componentKey: 0,
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false},
@@ -123,6 +124,7 @@ export default {
           let name = pkg.name;
           this.selectedPkgName = name;
           this.depUrl = this.pkgUrl + '/' + name;
+          this.depData = fetch(this.depUrl).then(response => response.json());
           return
         }
       }

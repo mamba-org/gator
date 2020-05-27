@@ -10,10 +10,9 @@ export default {
       }
     })
   },
-  props: ['datapath'],
+  props: ['dataPromise'],
   mounted() {
-    fetch(this.datapath).then(async (response) => {
-      let contents = await response.json();
+    this.dataPromise.then(async (contents) => {
       let graph_roots = contents.result.graph_roots;
       console.log(graph_roots);
       var nodes = [];
