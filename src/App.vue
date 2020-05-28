@@ -78,10 +78,10 @@ export default {
     selectedEnvIndex: [],
     selectedEnvName: '',
     selectedPkg: [],
-    selectedPkgName: '',
+    selectedPkgName: [],
     envUrl: 'http://0.0.0.0:5000/envs',
     pkgUrl: 'http://0.0.0.0:5000/pkgs',
-    depUrl: '',
+    depUrl: [],
     depData: [],
     componentKey: 0,
     columns: [{text: "Package", value: "name"},
@@ -121,22 +121,24 @@ export default {
         this.selectedEnvName = name;
       }
     },
-    getPkgName() {
-      this.componentKey += 1;
-      let pkg = this.selectedPkg[0];
-      if (pkg && pkg.name) {
-        this.selectedPkgName = pkg.name;
-      } else {
-        this.selectedPkgName = 'python';
-      }
-      this.depUrl = this.pkgUrl + '/' + this.selectedPkgName;
-      this.depData = fetch(this.depUrl).then(response => response.json());
-    },
     getPkgs() {
       let reqUrl = this.envUrl + '/' + this.selectedEnvName;
       axios.get(reqUrl).then((response) => {
         this.items = response.data;
       }).catch(error => { console.log(error); });
+    },
+    getPkgName() {
+      this.componentKey += 1;
+      let pkg = this.selectedPkg[0];
+      if (pkg && pkg.name) {
+        let pkgNames = this.selectedPkg.map(function (i) { return i.name; });
+        this.selectedPkgName = pkgNames;
+      } else {
+        this.selectedPkgName = ['python'];
+      }
+      let url = this.pkgUrl;
+      this.depUrl = this.selectedPkgName.map(function (i) { return url + '/' + i });
+      this.depData = fetch(this.depUrl).then(response => response.json());
     },
   },
 };
