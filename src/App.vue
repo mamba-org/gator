@@ -117,19 +117,14 @@ export default {
     },
     getPkgName() {
       this.componentKey += 1;
-      let name = 'python';
       let pkg = this.selectedPkg[0];
-      if (pkg) {
-        if (pkg.name) {
-          let name = pkg.name;
-          this.selectedPkgName = name;
-          this.depUrl = this.pkgUrl + '/' + name;
-          this.depData = fetch(this.depUrl).then(response => response.json());
-          return
-        }
+      if (pkg && pkg.name) {
+        this.selectedPkgName = pkg.name;
+      } else {
+        this.selectedPkgName = 'python';
       }
-      this.selectedPkgName = name;
-      this.depUrl = this.pkgUrl + '/' + name;
+      this.depUrl = this.pkgUrl + '/' + this.selectedPkgName;
+      this.depData = fetch(this.depUrl).then(response => response.json());
     },
     getPkgs() {
       let reqUrl = this.envUrl + '/' + this.selectedEnvName;
