@@ -5,7 +5,10 @@
       <HelloWorld/>
 
     <v-row>
-    <v-col>
+    <v-col
+      cols="12"
+      sm="4"
+    >
     <v-card>
        <v-list>
          <v-subheader>ENVIRONMENTS</v-subheader>
@@ -23,7 +26,10 @@
     </v-card>
     </v-col>
 
-    <v-col>
+    <v-col
+      cols="12"
+      sm="8"
+    >
     <v-card>
       <p>Selected environment (name): {{ selectedEnvName }}</p>
     </v-card>
