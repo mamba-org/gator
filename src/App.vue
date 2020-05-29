@@ -41,7 +41,7 @@
         v-model="selectedPkg"
         :headers="columns"
         :items="items"
-        :single-select=true
+        :single-select=false
         item-key="name"
         show-select
         class="elevation-1"
