@@ -23,10 +23,10 @@ export default {
       });
       // Idem
       pkgs = pkgs.flat();
-      // One-liner to filter out duplicate dependencies
+      // Filter out duplicate dependencies (by name)
       let uniqDeps = pkgs.filter((v, i, a) =>
         a.findIndex(t => (t.name === v.name)) === i);
-      return {'graph_roots': graph_roots, 'pkgs': uniqDeps.flat()};
+      return {'graph_roots': graph_roots, 'pkgs': uniqDeps};
     })
     .then(data => {
       let nodes = [];
