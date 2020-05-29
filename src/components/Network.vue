@@ -12,16 +12,29 @@ export default {
   },
   props: ['dataPromise'],
   mounted() {
-    this.dataPromise.then(async (contents) => {
-      let graph_roots = contents.result.graph_roots;
-      console.log(graph_roots);
-      var nodes = [];
-      var edges = [];
-      var pkgGroup = [];
-      for (let pkg of contents.result.pkgs)
+    Promise.all(this.dataPromise).then(data => {
+      let graph_roots = data.map(function (i) {
+        return i.result.graph_roots;
+      });
+      // Flatten array (made like list comprehension)
+      graph_roots = graph_roots.flat();
+      let pkgs = data.map(function (i) {
+        return i.result.pkgs;
+      });
+      // Idem
+      pkgs = pkgs.flat();
+      // One-liner to filter out duplicate dependencies
+      let uniqDeps = pkgs.filter((v, i, a) =>
+        a.findIndex(t => (t.name === v.name)) === i);
+      return {'graph_roots': graph_roots, 'pkgs': uniqDeps.flat()};
+    })
+    .then(data => {
+      let nodes = [];
+      let edges = [];
+      let pkgGroup = [];
+      for (let pkg of data.pkgs)
       {
-        console.log(pkg.name)
-        if (graph_roots.includes(pkg.name)) {
+        if (data.graph_roots.includes(pkg.name)) {
           pkgGroup = 'roots';
         } else {
           pkgGroup = 'higher-order';
@@ -38,7 +51,7 @@ export default {
 
       var container = this.$el;
 
-      var data = {
+      var graphData = {
         nodes: nodes,
         edges: edges
       };
@@ -54,7 +67,7 @@ export default {
           randomSeed: 123
         }
       };
-      new vis.Network(container, data, options);
+      new vis.Network(container, graphData, options);
     });
   },
 };

@@ -138,7 +138,7 @@ export default {
       }
       let url = this.pkgUrl;
       this.depUrl = this.selectedPkgName.map(function (i) { return url + '/' + i });
-      this.depData = fetch(this.depUrl).then(response => response.json());
+      this.depData = this.depUrl.map(u => fetch(u).then(resp => resp.json()));
     },
   },
 };
