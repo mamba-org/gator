@@ -7,10 +7,10 @@ about: Create a report to help us improve
 Welcome! Before creating a new issue:
 * Search for relevant issues
 * Check that you have updated both the jupyterlab extension and the python package:
-  
+
   ```
   conda update -c conda-forge jupyter_conda
-  jupyter labextension update jupyterlab_toastify jupyterlab_conda
+  jupyter labextension update jupyterlab_conda
   ```
 -->
 
@@ -36,11 +36,11 @@ Welcome! Before creating a new issue:
 <!--Complete the following for context, and add any other relevant context-->
 
 - Python package version:
-<!-- Results of `conda list jupyter_conda` -->
+  <!-- Results of `conda list jupyter_conda` -->
 - Extension version:
-<!-- Results of `jupyter labextension list` -->
+  <!-- Results of `jupyter labextension list` -->
 - General information:
-<!-- Results of `conda info` -->
+  <!-- Results of `conda info` -->
 
 <details><summary>Command Line Output</summary>
 <pre>

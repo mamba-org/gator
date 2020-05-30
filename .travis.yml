@@ -62,7 +62,6 @@ install:
   - cd labextension
   - conda install -n $NAME -c conda-forge -c anaconda jupyterlab~=2.0
   - jlpm install
-  - jupyter labextension install jupyterlab_toastify --no-build
   - jupyter labextension install .
   - cd ..
 
