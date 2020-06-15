@@ -47,6 +47,11 @@ def create_app(test_config=None):
             "--installed"])  # TODO drop this
         return json_response(query_json)
 
+    @app.route('/search/<name>')
+    def search_pkg(name=None):
+        query_json = get_mamba(["repoquery", "--json", "search", name])
+        return json_response(query_json)
+
     return app
 
 app = create_app()
