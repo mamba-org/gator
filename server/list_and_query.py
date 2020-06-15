@@ -12,8 +12,9 @@ def get_mamba_json(args):
     res = result.stdout.decode('utf-8')
     return json.loads(res)
 
-def get_mamba(args):
-    result = subprocess.run(["mamba"] + args, stdout=subprocess.PIPE)
+def get_mamba_repoquery(args):
+    result = subprocess.run(["mamba"] + ["repoquery"] + args,
+                            stdout=subprocess.PIPE)
     res = result.stdout.decode('utf-8')
     return json.loads(res)
 
@@ -27,7 +28,7 @@ def create_app(test_config=None):
         return 'Hello, World!'
 
     @app.route('/envs/<name>')
-    def envs(name=None):
+    def list_envs(name=None):
         exphist_json = get_mamba_json(["env", "export",
             "--from-history", "-n", name])
         deps = exphist_json["dependencies"]
@@ -41,15 +42,15 @@ def create_app(test_config=None):
         return get_mamba_json(["env", "list"])
 
     @app.route('/pkgs/<name>')
-    def deps(name=None):
-        query_json = get_mamba(["repoquery", "--json", "depends", name,
+    def get_deps(name=None):
+        query_json = get_mamba_repoquery(["--json", "depends", name,
             # TODO handle `name + "=" + version`
             "--installed"])  # TODO drop this
         return json_response(query_json)
 
     @app.route('/search/<name>')
     def search_pkg(name=None):
-        query_json = get_mamba(["repoquery", "--json", "search", name])
+        query_json = get_mamba_repoquery(["--json", "search", name])
         return json_response(query_json)
 
     return app
