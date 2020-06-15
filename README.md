@@ -1,5 +1,12 @@
 # hack-frontend
 
+## Mimic mamba backend
+Activate an environment with these [requirements](./server/requirements.txt)
+and run:
+```
+python server/list_and_query.py
+```
+
 ## Project setup
 ```
 npm install
