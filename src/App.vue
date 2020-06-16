@@ -26,7 +26,7 @@
 
     <v-col
       cols="12"
-      sm="8"
+      sm="4"
     >
     <v-card>
       <p>Selected environment (name): {{ selectedEnvName }}</p>
@@ -49,6 +49,12 @@
     <v-card>
       <Network :data-promise="depData" :key="componentKey"></Network>
     </v-card>
+    </v-col>
+
+    <v-col
+      cols="12"
+      sm="4"
+    >
     <v-card>
       <v-subheader>SEARCH FOR PACKAGE</v-subheader>
       <cv-search
@@ -57,9 +63,7 @@
       <v-data-table
         :headers="searchColumns"
         :items="searchItems"
-        :single-select=false
         item-key="build"
-        show-select
         class="elevation-1"
       >
       </v-data-table>

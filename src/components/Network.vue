@@ -75,7 +75,7 @@ export default {
 
 <style>
 .container {
-  height: 100vh;
+  height: 70vh;
   width: 100%;
 }
 </style>
