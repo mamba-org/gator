@@ -1,1 +1,2 @@
 flask
+flask_cors
