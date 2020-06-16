@@ -31,6 +31,13 @@
       sm="8"
     >
     <v-card>
+      <h3>Search for a package:</h3>
+      <cv-search
+        :label="label"
+        v-model="searchedPkg">
+      </cv-search>
+    </v-card>
+    <v-card>
       <p>Selected environment (name): {{ selectedEnvName }}</p>
     </v-card>
     <v-card>
@@ -61,6 +68,7 @@
 
 <script>
 import axios from 'axios';
+import { CvSearch } from '@carbon/vue';
 import HelloWorld from './components/HelloWorld';
 import Network from './components/Network';
 
@@ -68,6 +76,7 @@ export default {
   name: 'App',
 
   components: {
+    CvSearch,
     HelloWorld,
     Network
   },
