@@ -11,7 +11,7 @@
     >
     <v-card>
        <v-list>
-         <v-subheader>ENVIRONMENTS</v-subheader>
+         <v-subheader>SELECT ENVIRONMENT</v-subheader>
          <v-list-item-group
            v-model="selectedEnvIndex"
            color="primary">
@@ -31,19 +31,10 @@
       sm="8"
     >
     <v-card>
-      <h3>Search for a package:</h3>
-      <cv-search
-        :label="label"
-        v-model="searchedPkg">
-      </cv-search>
-    </v-card>
-    <v-card>
       <p>Selected environment (name): {{ selectedEnvName }}</p>
     </v-card>
     <v-card>
-      <h3>Select a package and view its dependencies in a graph!</h3>
-    </v-card>
-    <v-card>
+      <v-subheader>SELECT PACKAGE</v-subheader>
       <v-data-table
         v-model="selectedPkg"
         :headers="columns"
@@ -59,6 +50,13 @@
     </v-card>
     <v-card>
       <Network :data-promise="depData" :key="componentKey"></Network>
+    </v-card>
+    <v-card>
+      <v-subheader>SEARCH FOR PACKAGE</v-subheader>
+      <cv-search
+        :label="label"
+        v-model="searchedPkg">
+      </cv-search>
     </v-card>
     </v-col>
     </v-row>
