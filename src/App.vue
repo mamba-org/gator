@@ -2,8 +2,6 @@
   <v-app>
 
     <v-content>
-      <HelloWorld/>
-
     <v-row>
     <v-col
       cols="12"
@@ -67,7 +65,6 @@
 <script>
 import axios from 'axios';
 import { CvSearch } from '@carbon/vue';
-import HelloWorld from './components/HelloWorld';
 import Network from './components/Network';
 
 export default {
@@ -75,7 +72,6 @@ export default {
 
   components: {
     CvSearch,
-    HelloWorld,
     Network
   },
 
