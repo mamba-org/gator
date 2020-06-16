@@ -96,9 +96,7 @@ export default {
     selectedPkgName: [],
     searchPkg: '',
     searchItems: [],
-    envUrl: 'http://0.0.0.0:5000/envs',
-    pkgUrl: 'http://0.0.0.0:5000/pkgs',
-    searchUrl: 'http://0.0.0.0:5000/search',
+    baseUrl: 'http://0.0.0.0:5000',
     depUrl: [],
     depData: [],
     componentKey: 0,
@@ -131,7 +129,7 @@ export default {
   },
   methods: {
     getEnvs() {
-      let url = this.envUrl;
+      let url = this.baseUrl + '/' + 'envs';
       axios.get(url).then((response) => {
         this.envs = response.data.envs;
       }).catch(error => { console.log(error); });
@@ -145,7 +143,7 @@ export default {
       }
     },
     getPkgs() {
-      let reqUrl = this.envUrl + '/' + this.selectedEnvName;
+      let reqUrl = this.baseUrl + '/envs/' + this.selectedEnvName;
       axios.get(reqUrl).then((response) => {
         this.items = response.data;
       }).catch(error => { console.log(error); });
@@ -159,12 +157,12 @@ export default {
       } else {
         this.selectedPkgName = ['python'];
       }
-      let url = this.pkgUrl;
+      let url = this.baseUrl + '/pkgs';
       this.depUrl = this.selectedPkgName.map(function (i) { return url + '/' + i });
       this.depData = this.depUrl.map(u => fetch(u).then(resp => resp.json()));
     },
     getChannels() {
-      let reqUrl = this.searchUrl + '/' + this.searchPkg;
+      let reqUrl = this.baseUrl + '/search/' + this.searchPkg;
       axios.get(reqUrl).then((response) => {
         this.searchItems = response.data.result.pkgs;
       }).catch(error => { console.log(error); });
