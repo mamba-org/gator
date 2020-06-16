@@ -52,9 +52,17 @@
     <v-card>
       <v-subheader>SEARCH FOR PACKAGE</v-subheader>
       <cv-search
-        :label="label"
-        v-model="searchedPkg">
+        v-model="searchPkg">
       </cv-search>
+      <v-data-table
+        :headers="searchColumns"
+        :items="searchItems"
+        :single-select=false
+        item-key="build"
+        show-select
+        class="elevation-1"
+      >
+      </v-data-table>
     </v-card>
     </v-col>
     </v-row>
@@ -82,14 +90,18 @@ export default {
     selectedEnvName: '',
     selectedPkg: [],
     selectedPkgName: [],
+    searchPkg: '',
+    searchItems: [],
     envUrl: 'http://0.0.0.0:5000/envs',
     pkgUrl: 'http://0.0.0.0:5000/pkgs',
+    searchUrl: 'http://0.0.0.0:5000/search',
     depUrl: [],
     depData: [],
     componentKey: 0,
     columns: [{text: "Package", value: "name"},
-              {text: "Version", value: "version", sortable: false},
-              {text: "Platform", value: "platform"}]
+              {text: "Version", value: "version", sortable: false}],
+    searchColumns: [{text: "Channel", value: "channel"},
+              {text: "Build", value: "build"}]
   }),
   watch: {
     // whenever selectedEnvIndex changes, this function will run
@@ -103,7 +115,11 @@ export default {
     // whenever selectedEnvName changes, this function will run
     selectedEnvName: function () {
       this.getPkgs()
-    }
+    },
+    // whenever searchPkg changes, this function will run
+    searchPkg: function () {
+      this.getChannels()
+    },
   },
 
   mounted: function() {
@@ -142,6 +158,12 @@ export default {
       let url = this.pkgUrl;
       this.depUrl = this.selectedPkgName.map(function (i) { return url + '/' + i });
       this.depData = this.depUrl.map(u => fetch(u).then(resp => resp.json()));
+    },
+    getChannels() {
+      let reqUrl = this.searchUrl + '/' + this.searchPkg;
+      axios.get(reqUrl).then((response) => {
+        this.searchItems = response.data.result.pkgs;
+      }).catch(error => { console.log(error); });
     },
   },
 };
