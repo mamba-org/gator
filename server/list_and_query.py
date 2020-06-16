@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 from flask import Flask, Response
+from flask_cors import CORS
 
 def json_response(j):
     return Response(json.dumps(j),  mimetype='application/json')
@@ -21,6 +22,8 @@ def get_mamba_repoquery(args):
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
+
     # a simple page that says hello
 
     @app.route('/hello')
