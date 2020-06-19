@@ -63,7 +63,12 @@
       <cv-data-table
         :columns="searchColumns"
         :data="searchItems"
+        @sort="onSort"
       >
+        <template slot="headings">
+          <cv-data-table-heading heading="Channel" sortable />
+          <cv-data-table-heading heading="Build" sortable />
+        </template>
       </cv-data-table>
     </v-card>
     </v-col>
@@ -74,7 +79,11 @@
 
 <script>
 import axios from 'axios';
-import { CvDataTable, CvSearch } from '@carbon/vue';
+import {
+  CvDataTable,
+  CvDataTableHeading,
+  CvSearch
+} from '@carbon/vue';
 import Network from './components/Network';
 
 export default {
@@ -82,6 +91,7 @@ export default {
 
   components: {
     CvDataTable,
+    CvDataTableHeading,
     CvSearch,
     Network
   },
@@ -126,6 +136,31 @@ export default {
     this.getEnvs();
   },
   methods: {
+    onSort(sortBy) {
+      if (sortBy) {
+        this.searchItems.sort((a, b) => {
+          const itemA = a[sortBy.index];
+          const itemB = b[sortBy.index];
+          if (sortBy.order === 'descending') {
+            if (sortBy.index === 2) {
+              // sort as number
+              return parseFloat(itemA) - parseFloat(itemB);
+            } else {
+              return itemB.localeCompare(itemA);
+            }
+          }
+          if (sortBy.order === 'ascending') {
+            if (sortBy.index === 2) {
+              // sort as number
+              return parseFloat(itemB) - parseFloat(itemA);
+            } else {
+              return itemA.localeCompare(itemB);
+            }
+          }
+          return 0;
+        });
+      }
+    },
     getEnvs() {
       let url = this.baseUrl + '/' + 'envs';
       axios.get(url).then((response) => {
