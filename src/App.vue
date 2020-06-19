@@ -60,13 +60,12 @@
       <cv-search
         v-model="searchPkg">
       </cv-search>
-      <v-data-table
-        :headers="searchColumns"
-        :items="searchItems"
+      <cv-data-table
+        :columns="searchColumns"
+        :data="searchItems"
         item-key="build"
-        class="elevation-1"
       >
-      </v-data-table>
+      </cv-data-table>
     </v-card>
     </v-col>
     </v-row>
@@ -76,13 +75,14 @@
 
 <script>
 import axios from 'axios';
-import { CvSearch } from '@carbon/vue';
+import { CvDataTable, CvSearch } from '@carbon/vue';
 import Network from './components/Network';
 
 export default {
   name: 'App',
 
   components: {
+    CvDataTable,
     CvSearch,
     Network
   },
