@@ -63,7 +63,6 @@
       <cv-data-table
         :columns="searchColumns"
         :data="searchItems"
-        item-key="build"
       >
       </cv-data-table>
     </v-card>
@@ -102,8 +101,7 @@ export default {
     componentKey: 0,
     columns: [{text: "Package", value: "name"},
               {text: "Version", value: "version", sortable: false}],
-    searchColumns: [{text: "Channel", value: "channel"},
-              {text: "Build", value: "build"}]
+    searchColumns: ["Channel", "Build"]
   }),
   watch: {
     // whenever selectedEnvIndex changes, this function will run
@@ -164,7 +162,10 @@ export default {
     getChannels() {
       let reqUrl = this.baseUrl + '/search/' + this.searchPkg;
       axios.get(reqUrl).then((response) => {
-        this.searchItems = response.data.result.pkgs;
+        let pk = response.data.result.pkgs;
+        this.searchItems = pk.map(function(el) {
+          return [el.channel, el.build];
+        })
       }).catch(error => { console.log(error); });
     },
   },
