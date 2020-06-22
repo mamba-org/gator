@@ -8,19 +8,13 @@
       sm="4"
     >
     <v-card>
-       <v-list>
-         <v-subheader>SELECT ENVIRONMENT</v-subheader>
-         <v-list-item-group
-           v-model="selectedEnvIndex"
-           color="primary">
-           <v-list-item
-             v-for="env in envs"
-             :key="env"
-           >
-             {{ env }}
-           </v-list-item>
-         </v-list-item-group>
-       </v-list>
+      <v-subheader>SELECT ENVIRONMENT</v-subheader>
+      <cv-multi-select
+        :label="envSelectLabel"
+        :options="envs"
+        v-model="selectedEnvIndex"
+      >
+      </cv-multi-select>
     </v-card>
     </v-col>
 
@@ -82,6 +76,7 @@ import axios from 'axios';
 import {
   CvDataTable,
   CvDataTableHeading,
+  CvMultiSelect,
   CvSearch
 } from '@carbon/vue';
 import Network from './components/Network';
@@ -92,12 +87,14 @@ export default {
   components: {
     CvDataTable,
     CvDataTableHeading,
+    CvMultiSelect,
     CvSearch,
     Network
   },
 
   data: () => ({
     envs: [],
+    envSelectLabel: 'Click one environment prefix',
     items: [],
     selectedEnvIndex: [],
     selectedEnvName: '',
@@ -164,16 +161,24 @@ export default {
     getEnvs() {
       let url = this.baseUrl + '/' + 'envs';
       axios.get(url).then((response) => {
-        this.envs = response.data.envs;
+        let li = response.data.envs;
+        this.envs = li.map(el => {
+          let envName = el.split('/').pop();
+          if (envName.includes('miniconda') || envName.includes('anaconda')) {
+            envName = 'base';
+          }
+          return {
+            name: el,
+            label: el,
+            value: envName,
+          };
+        })
       }).catch(error => { console.log(error); });
     },
     getEnvName() {
-      let name = this.envs[this.selectedEnvIndex].split('/').pop();
-      if (name.includes('miniconda') || name.includes('anaconda')) {
-        this.selectedEnvName = 'base';
-      } else {
-        this.selectedEnvName = name;
-      }
+      // forces single select
+      this.selectedEnvIndex = this.selectedEnvIndex.pop();
+      this.selectedEnvName = this.selectedEnvIndex;
     },
     getPkgs() {
       let reqUrl = this.baseUrl + '/envs/' + this.selectedEnvName;
