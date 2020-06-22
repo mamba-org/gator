@@ -12,7 +12,7 @@
       <cv-multi-select
         :label="envSelectLabel"
         :options="envs"
-        v-model="selectedEnvIndex"
+        v-model="selectedEnv"
       >
       </cv-multi-select>
     </v-card>
@@ -23,7 +23,7 @@
       sm="4"
     >
     <v-card>
-      <p>Selected environment (name): {{ selectedEnvName }}</p>
+      <p>Selected environment (name): {{ selectedEnv }}</p>
     </v-card>
     <v-card>
       <v-subheader>SELECT PACKAGE</v-subheader>
@@ -96,8 +96,7 @@ export default {
     envs: [],
     envSelectLabel: 'Click one environment prefix',
     items: [],
-    selectedEnvIndex: [],
-    selectedEnvName: '',
+    selectedEnv: [],
     selectedPkg: [],
     selectedPkgName: [],
     searchPkg: '',
@@ -111,17 +110,14 @@ export default {
     searchColumns: ["Channel", "Build"]
   }),
   watch: {
-    // whenever selectedEnvIndex changes, this function will run
-    selectedEnvIndex: function () {
-      this.getEnvName()
+    // whenever selectedEnv changes, this function will run
+    selectedEnv: function () {
+      this.getEnvName(),
+      this.getPkgs()
     },
     // whenever selectedPkg changes, this function will run
     selectedPkg: function () {
       this.getPkgName()
-    },
-    // whenever selectedEnvName changes, this function will run
-    selectedEnvName: function () {
-      this.getPkgs()
     },
     // whenever searchPkg changes, this function will run
     searchPkg: function () {
@@ -177,11 +173,10 @@ export default {
     },
     getEnvName() {
       // forces single select
-      this.selectedEnvIndex = this.selectedEnvIndex.pop();
-      this.selectedEnvName = this.selectedEnvIndex;
+      this.selectedEnv = this.selectedEnv.pop();
     },
     getPkgs() {
-      let reqUrl = this.baseUrl + '/envs/' + this.selectedEnvName;
+      let reqUrl = this.baseUrl + '/envs/' + this.selectedEnv;
       axios.get(reqUrl).then((response) => {
         this.items = response.data;
       }).catch(error => { console.log(error); });
