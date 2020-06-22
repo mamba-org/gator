@@ -8,19 +8,13 @@
       sm="4"
     >
     <v-card>
-       <v-list>
-         <v-subheader>SELECT ENVIRONMENT</v-subheader>
-         <v-list-item-group
-           v-model="selectedEnvIndex"
-           color="primary">
-           <v-list-item
-             v-for="env in envs"
-             :key="env"
-           >
-             {{ env }}
-           </v-list-item>
-         </v-list-item-group>
-       </v-list>
+      <v-subheader>SELECT ENVIRONMENT</v-subheader>
+      <cv-multi-select
+        :label="envSelectLabel"
+        :options="envs"
+        v-model="selectedEnv"
+      >
+      </cv-multi-select>
     </v-card>
     </v-col>
 
@@ -29,7 +23,7 @@
       sm="4"
     >
     <v-card>
-      <p>Selected environment (name): {{ selectedEnvName }}</p>
+      <p>Selected environment (name): {{ selectedEnv }}</p>
     </v-card>
     <v-card>
       <v-subheader>SELECT PACKAGE</v-subheader>
@@ -82,6 +76,7 @@ import axios from 'axios';
 import {
   CvDataTable,
   CvDataTableHeading,
+  CvMultiSelect,
   CvSearch
 } from '@carbon/vue';
 import Network from './components/Network';
@@ -92,15 +87,16 @@ export default {
   components: {
     CvDataTable,
     CvDataTableHeading,
+    CvMultiSelect,
     CvSearch,
     Network
   },
 
   data: () => ({
     envs: [],
+    envSelectLabel: 'Click one environment prefix',
     items: [],
-    selectedEnvIndex: [],
-    selectedEnvName: '',
+    selectedEnv: [],
     selectedPkg: [],
     selectedPkgName: [],
     searchPkg: '',
@@ -114,17 +110,14 @@ export default {
     searchColumns: ["Channel", "Build"]
   }),
   watch: {
-    // whenever selectedEnvIndex changes, this function will run
-    selectedEnvIndex: function () {
-      this.getEnvName()
+    // whenever selectedEnv changes, this function will run
+    selectedEnv: function () {
+      this.getEnvName(),
+      this.getPkgs()
     },
     // whenever selectedPkg changes, this function will run
     selectedPkg: function () {
       this.getPkgName()
-    },
-    // whenever selectedEnvName changes, this function will run
-    selectedEnvName: function () {
-      this.getPkgs()
     },
     // whenever searchPkg changes, this function will run
     searchPkg: function () {
@@ -164,19 +157,26 @@ export default {
     getEnvs() {
       let url = this.baseUrl + '/' + 'envs';
       axios.get(url).then((response) => {
-        this.envs = response.data.envs;
+        let li = response.data.envs;
+        this.envs = li.map(el => {
+          let envName = el.split('/').pop();
+          if (envName.includes('miniconda') || envName.includes('anaconda')) {
+            envName = 'base';
+          }
+          return {
+            name: el,
+            label: el,
+            value: envName,
+          };
+        })
       }).catch(error => { console.log(error); });
     },
     getEnvName() {
-      let name = this.envs[this.selectedEnvIndex].split('/').pop();
-      if (name.includes('miniconda') || name.includes('anaconda')) {
-        this.selectedEnvName = 'base';
-      } else {
-        this.selectedEnvName = name;
-      }
+      // forces single select
+      this.selectedEnv = this.selectedEnv.pop();
     },
     getPkgs() {
-      let reqUrl = this.baseUrl + '/envs/' + this.selectedEnvName;
+      let reqUrl = this.baseUrl + '/envs/' + this.selectedEnv;
       axios.get(reqUrl).then((response) => {
         this.items = response.data;
       }).catch(error => { console.log(error); });
