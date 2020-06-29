@@ -95,7 +95,6 @@ export default {
     items: [],
     pkgSelectLabel: 'View dependency graph for...',
     selectedPkg: [],
-    selectedPkgName: [],
     searchPkg: '',
     searchItems: [],
     baseUrl: 'http://0.0.0.0:5000',
@@ -187,15 +186,8 @@ export default {
     },
     getDepGraph() {
       this.componentKey += 1;
-      let pkg = this.selectedPkg[0];
-      if (pkg && pkg.name) {
-        let pkgNames = this.selectedPkg.map(function (i) { return i.name; });
-        this.selectedPkgName = pkgNames;
-      } else {
-        this.selectedPkgName = ['python'];
-      }
       let url = this.baseUrl + '/pkgs';
-      this.depUrl = this.selectedPkgName.map(function (i) { return url + '/' + i });
+      this.depUrl = this.selectedPkg.map(function (i) { return url + '/' + i });
       this.depData = this.depUrl.map(u => fetch(u).then(resp => resp.json()));
     },
     getChannels() {
