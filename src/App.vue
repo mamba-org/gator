@@ -26,19 +26,15 @@
       <p>Selected environment (name): {{ selectedEnv }}</p>
     </v-card>
     <v-card>
-      <v-subheader>SELECT PACKAGE</v-subheader>
-      <v-data-table
+      <v-subheader>SELECT PACKAGE(S)</v-subheader>
+      <cv-multi-select
+        :label="pkgSelectLabel"
+        :options="items"
         v-model="selectedPkg"
-        :headers="columns"
-        :items="items"
-        :single-select=false
-        item-key="name"
-        show-select
-        class="elevation-1"
       >
         <template v-slot:top>
         </template>
-      </v-data-table>
+      </cv-multi-select>
     </v-card>
     <v-card>
       <Network :data-promise="depData" :key="componentKey"></Network>
@@ -95,8 +91,9 @@ export default {
   data: () => ({
     envs: [],
     envSelectLabel: 'Click one environment prefix',
-    items: [],
     selectedEnv: [],
+    items: [],
+    pkgSelectLabel: 'View dependency graph for...',
     selectedPkg: [],
     selectedPkgName: [],
     searchPkg: '',
@@ -178,7 +175,14 @@ export default {
     getPkgs() {
       let reqUrl = this.baseUrl + '/envs/' + this.selectedEnv;
       axios.get(reqUrl).then((response) => {
-        this.items = response.data;
+        let pk = response.data;
+        this.items = pk.map(el => {
+          return {
+            name: el.name,
+            label: el.name + ' ' + el.version,
+            value: el.name,
+          };
+        })
       }).catch(error => { console.log(error); });
     },
     getPkgName() {
