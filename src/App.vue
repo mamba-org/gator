@@ -32,8 +32,6 @@
         :options="items"
         v-model="selectedPkg"
       >
-        <template v-slot:top>
-        </template>
       </cv-multi-select>
     </v-card>
     <v-card>
