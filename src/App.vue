@@ -114,7 +114,7 @@ export default {
     },
     // whenever selectedPkg changes, this function will run
     selectedPkg: function () {
-      this.getPkgName()
+      this.getDepGraph()
     },
     // whenever searchPkg changes, this function will run
     searchPkg: function () {
@@ -185,7 +185,7 @@ export default {
         })
       }).catch(error => { console.log(error); });
     },
-    getPkgName() {
+    getDepGraph() {
       this.componentKey += 1;
       let pkg = this.selectedPkg[0];
       if (pkg && pkg.name) {
