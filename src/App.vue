@@ -26,19 +26,13 @@
       <p>Selected environment (name): {{ selectedEnv }}</p>
     </v-card>
     <v-card>
-      <v-subheader>SELECT PACKAGE</v-subheader>
-      <v-data-table
+      <v-subheader>SELECT PACKAGE(S)</v-subheader>
+      <cv-multi-select
+        :label="pkgSelectLabel"
+        :options="items"
         v-model="selectedPkg"
-        :headers="columns"
-        :items="items"
-        :single-select=false
-        item-key="name"
-        show-select
-        class="elevation-1"
       >
-        <template v-slot:top>
-        </template>
-      </v-data-table>
+      </cv-multi-select>
     </v-card>
     <v-card>
       <Network :data-promise="depData" :key="componentKey"></Network>
@@ -95,10 +89,10 @@ export default {
   data: () => ({
     envs: [],
     envSelectLabel: 'Click one environment prefix',
-    items: [],
     selectedEnv: [],
+    items: [],
+    pkgSelectLabel: 'View dependency graph for...',
     selectedPkg: [],
-    selectedPkgName: [],
     searchPkg: '',
     searchItems: [],
     baseUrl: 'http://0.0.0.0:5000',
@@ -117,7 +111,7 @@ export default {
     },
     // whenever selectedPkg changes, this function will run
     selectedPkg: function () {
-      this.getPkgName()
+      this.getDepGraph()
     },
     // whenever searchPkg changes, this function will run
     searchPkg: function () {
@@ -178,20 +172,20 @@ export default {
     getPkgs() {
       let reqUrl = this.baseUrl + '/envs/' + this.selectedEnv;
       axios.get(reqUrl).then((response) => {
-        this.items = response.data;
+        let pk = response.data;
+        this.items = pk.map(el => {
+          return {
+            name: el.name,
+            label: el.name + ' ' + el.version,
+            value: el.name,
+          };
+        })
       }).catch(error => { console.log(error); });
     },
-    getPkgName() {
+    getDepGraph() {
       this.componentKey += 1;
-      let pkg = this.selectedPkg[0];
-      if (pkg && pkg.name) {
-        let pkgNames = this.selectedPkg.map(function (i) { return i.name; });
-        this.selectedPkgName = pkgNames;
-      } else {
-        this.selectedPkgName = ['python'];
-      }
       let url = this.baseUrl + '/pkgs';
-      this.depUrl = this.selectedPkgName.map(function (i) { return url + '/' + i });
+      this.depUrl = this.selectedPkg.map(function (i) { return url + '/' + i });
       this.depData = this.depUrl.map(u => fetch(u).then(resp => resp.json()));
     },
     getChannels() {
