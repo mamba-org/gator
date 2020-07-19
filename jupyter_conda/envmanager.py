@@ -11,7 +11,7 @@ from functools import partial
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from packaging.version import parse
-from subprocess import Popen, PIPE
+from subprocess import CalledProcessError, Popen, PIPE
 
 from nb_conda_kernels.manager import RUNNER_COMMAND
 import tornado
@@ -56,6 +56,8 @@ class EnvManager(LoggingConfigurable):
     """Handles environment and package actions."""
 
     _conda_version: Optional[str] = None
+    _mamba_version: Optional[str] = None
+    _manager_exe: Optional[str] = None
 
     def _clean_conda_json(self, output: str) -> Dict[str, Any]:
         """Clean a command output to fit json format.
@@ -125,6 +127,37 @@ class EnvManager(LoggingConfigurable):
 
         return returncode, output
 
+    @property
+    def manager(self) -> str:
+        """Conda package manager name.
+
+        For now, use mamba if it is installed. Otherwise, fallback to conda.
+        
+        Returns:
+            str: Package manager
+        """
+        if EnvManager._manager_exe is None:
+            try:
+                process = Popen(["mamba", "--version"], stdout=PIPE, stderr=PIPE)
+                output, error = process.communicate()
+                
+                if process.returncode != 0:
+                    raise RuntimeError( error.decode("utf-8"))
+                
+                versions = list(map(lambda l: l.split(), output.decode("utf-8").splitlines()))
+                if versions[0][0] == "mamba" and versions[1][0] == "conda":
+                    EnvManager._conda_version = versions[1][1]
+                    EnvManager._mamba_version = versions[0][1]
+                    EnvManager._manager_exe = "mamba"
+
+            except BaseException:
+                self.log.debug("[jupyter_conda] Fail to get mamba version, falling back to conda", exc_info=sys.exc_info())
+                EnvManager._manager_exe = CONDA_EXE
+            
+            self.log.debug("[jupyter_conda] Package manager: {}".format(EnvManager._manager_exe))
+
+        return EnvManager._manager_exe
+
     async def env_channels(
         self, configuration: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Dict[str, List[str]]]:
@@ -189,7 +222,7 @@ class EnvManager(LoggingConfigurable):
             Dict[str, str]: Clone command output.
         """
         ans = await self._execute(
-            CONDA_EXE, "create", "-y", "-q", "--json", "-n", name, "--clone", env
+            self.manager, "create", "-y", "-q", "--json", "-n", name, "--clone", env
         )
 
         rcode, output = ans
@@ -208,7 +241,7 @@ class EnvManager(LoggingConfigurable):
             Dict[str, str]: Create command output
         """
         ans = await self._execute(
-            CONDA_EXE, "create", "-y", "-q", "--json", "-n", env, *args
+            self.manager, "create", "-y", "-q", "--json", "-n", env, *args
         )
 
         rcode, output = ans
@@ -296,7 +329,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             The dictionary of conda information
         """
-        ans = await self._execute(CONDA_EXE, "info", "--json")
+        ans = await self._execute(self.manager, "info", "--json")
         rcode, output = ans
         info = self._clean_conda_json(output)
         if rcode == 0:
@@ -406,7 +439,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             {"packages": List[package]}
         """
-        ans = await self._execute(CONDA_EXE, "list", "--no-pip", "--json", "-n", env)
+        ans = await self._execute(self.manager, "list", "--no-pip", "--json", "-n", env)
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -439,7 +472,7 @@ class EnvManager(LoggingConfigurable):
                 "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        ans = await self._execute(CONDA_EXE, "search", "--json")
+        ans = await self._execute(self.manager, "search", "--json")
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -632,7 +665,7 @@ class EnvManager(LoggingConfigurable):
                 "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        ans = await self._execute(CONDA_EXE, "search", "--json", q)
+        ans = await self._execute(self.manager, "search", "--json", q)
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -677,7 +710,7 @@ class EnvManager(LoggingConfigurable):
             {"updates": List[package]}
         """
         ans = await self._execute(
-            CONDA_EXE, "update", "--dry-run", "-q", "--json", "-n", env, *packages
+            self.manager, "update", "--dry-run", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
         data = self._clean_conda_json(output)
@@ -722,7 +755,7 @@ class EnvManager(LoggingConfigurable):
             Dict[str, str]: Install command output.
         """
         ans = await self._execute(
-            CONDA_EXE, "install", "-y", "-q", "--json", "-n", env, *packages
+            self.manager, "install", "-y", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
         return self._clean_conda_json(output)
@@ -796,7 +829,7 @@ class EnvManager(LoggingConfigurable):
             Dict[str, str]: Update command output.
         """
         ans = await self._execute(
-            CONDA_EXE, "update", "-y", "-q", "--json", "-n", env, *packages
+            self.manager, "update", "-y", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
         return self._clean_conda_json(output)
@@ -812,7 +845,7 @@ class EnvManager(LoggingConfigurable):
             Dict[str, str]: Delete command output.
         """
         ans = await self._execute(
-            CONDA_EXE, "remove", "-y", "-q", "--json", "-n", env, *packages
+            self.manager, "remove", "-y", "-q", "--json", "-n", env, *packages
         )
         _, output = ans
         return self._clean_conda_json(output)
