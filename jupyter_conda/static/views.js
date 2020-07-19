@@ -127,7 +127,6 @@ define(["jquery", "base/js/utils", "./common", "./models"], function(
             .append(
               $(
                 '<select id="env_type" name="type">' +
-                  '<option value="python2">Python 2</option>' +
                   '<option selected value="python3">Python 3</option>' +
                   '<option value="r">R</option>' +
                   "</select>"
