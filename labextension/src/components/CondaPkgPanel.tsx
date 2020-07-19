@@ -7,7 +7,7 @@ import { Conda } from "../tokens";
 import { CondaPkgList } from "./CondaPkgList";
 import {
   CondaPkgToolBar,
-  PACKAGETOOLBARHEIGHT,
+  PACKAGE_TOOLBAR_HEIGHT,
   PkgFilters
 } from "./CondaPkgToolBar";
 
@@ -498,7 +498,7 @@ export class CondaPkgPanel extends React.Component<
           onRefreshPackages={this.handleRefreshPackages}
         />
         <CondaPkgList
-          height={this.props.height - PACKAGETOOLBARHEIGHT}
+          height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
           hasDescription={
             this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
           }

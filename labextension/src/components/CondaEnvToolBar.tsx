@@ -1,15 +1,19 @@
+import { faClone } from "@fortawesome/free-regular-svg-icons";
+import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ToolbarButtonComponent } from "@jupyterlab/apputils";
-import * as React from "react";
-import { style, classes } from "typestyle";
 import {
   addIcon,
-  fileUploadIcon,
+  Button,
+  closeIcon,
   downloadIcon,
-  closeIcon
+  fileUploadIcon
 } from "@jupyterlab/ui-components";
+import * as React from "react";
+import { style } from "typestyle";
 
 //Toolbar height to align with package toolbar
-export const ENVIRONMENTTOOLBARHEIGHT = 40;
+export const ENVIRONMENT_TOOLBAR_HEIGHT = 40;
 
 /**
  * Environment panel toolbar properties
@@ -50,19 +54,22 @@ export interface ICondaEnvToolBarProps {
 }
 
 export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
-  let refreshClasses = classes("fa", "fa-refresh", Style.StandardButton);
-  if (props.isPending) {
-    refreshClasses = refreshClasses + " fa-spin";
-  }
   return (
     <div className={Style.NoGrow}>
       <div className={Style.Title}>
         <span className={Style.Grow}>Conda environments</span>
-        <ToolbarButtonComponent
-          iconClass={refreshClasses}
-          tooltip="Refresh environments"
-          onClick={props.onRefresh}
-        />
+        <Button
+          className="jp-ToolbarButtonComponent"
+          onMouseDown={props.onRefresh}
+          title="Refresh environments"
+          minimal
+        >
+          <FontAwesomeIcon
+            icon={faSyncAlt}
+            spin={props.isPending}
+            style={{ color: "var(--jp-inverse-layout-color3)" }}
+          />
+        </Button>
       </div>
       <div className="lm-Widget jp-Toolbar jp-NbConda-EnvToolbar">
         <ToolbarButtonComponent
@@ -70,12 +77,18 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           tooltip="Create"
           onClick={props.onCreate}
         />
-        <ToolbarButtonComponent
-          iconClass={classes("fa", "fa-clone", Style.StandardButton)}
-          tooltip="Clone"
-          onClick={props.onClone}
-          enabled={!props.isBase}
-        />
+        <Button
+          className="jp-ToolbarButtonComponent"
+          disabled={props.isBase}
+          onMouseDown={props.onClone}
+          title="Clone"
+          minimal
+        >
+          <FontAwesomeIcon
+            icon={faClone}
+            style={{ color: "var(--jp-inverse-layout-color3)" }}
+          />
+        </Button>
         <ToolbarButtonComponent
           icon={fileUploadIcon}
           tooltip="Import"
@@ -108,16 +121,12 @@ namespace Style {
     flexShrink: 0
   });
 
-  export const StandardButton = style({
-    color: "var(--jp-inverse-layout-color3)"
-  });
-
   export const Title = style({
     color: "var(--jp-ui-font-color1)",
     textAlign: "center",
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
-    height: ENVIRONMENTTOOLBARHEIGHT,
+    height: ENVIRONMENT_TOOLBAR_HEIGHT,
     display: "flex",
     flex: "0 0 auto",
     flexDirection: "row"

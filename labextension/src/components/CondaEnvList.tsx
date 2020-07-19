@@ -2,9 +2,9 @@ import * as React from "react";
 import { style } from "typestyle";
 import { Conda } from "../tokens";
 import { CondaEnvItem } from "./CondaEnvItem";
-import { CondaEnvToolBar, ENVIRONMENTTOOLBARHEIGHT } from "./CondaEnvToolBar";
+import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from "./CondaEnvToolBar";
 
-export const ENVIRONMENTPANELWIDTH = 250;
+export const ENVIRONMENT_PANEL_WIDTH = 250;
 
 /**
  * Environment list properties
@@ -93,7 +93,9 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         onRemove={props.onRemove}
       />
       <div
-        className={Style.ListEnvs(props.height - ENVIRONMENTTOOLBARHEIGHT - 32)}
+        className={Style.ListEnvs(
+          props.height - ENVIRONMENT_TOOLBAR_HEIGHT - 32
+        )}
       >
         {listItems}
       </div>
@@ -108,7 +110,7 @@ namespace Style {
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-    width: ENVIRONMENTPANELWIDTH
+    width: ENVIRONMENT_PANEL_WIDTH
   });
 
   export const ListEnvs = (height: number): string =>

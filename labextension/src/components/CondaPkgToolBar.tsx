@@ -1,9 +1,15 @@
-import { ToolbarButtonComponent } from "@jupyterlab/apputils";
-import { HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
+import {
+  faCartArrowDown,
+  faExternalLinkSquareAlt,
+  faSyncAlt,
+  faUndoAlt
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button, HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { classes, style } from "typestyle/lib";
 
-export const PACKAGETOOLBARHEIGHT = 40;
+export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
 export enum PkgFilters {
   All = "ALL",
@@ -61,11 +67,6 @@ export interface ICondaPkgToolBarProps {
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
-  let refreshClasses = classes("fa", "fa-refresh", Style.StandardButton);
-  if (props.isPending) {
-    refreshClasses = refreshClasses + " fa-spin";
-  }
-
   return (
     <div className="lm-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
       <div className="lm-Widget jp-Toolbar-item">
@@ -94,38 +95,63 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         </div>
       </div>
       <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
-      <ToolbarButtonComponent
-        iconClass={classes(
-          "fa",
-          "fa-external-link-square",
-          props.hasUpdate ? Style.UpdateButton : Style.StandardButton
-        )}
-        onClick={props.onUpdateAll}
-        tooltip="Update all packages"
-        enabled={props.hasUpdate}
-      />
-      <ToolbarButtonComponent
-        iconClass={classes(
-          "fa",
-          "fa-cart-arrow-down",
-          props.hasSelection ? Style.ApplyButton : Style.StandardButton
-        )}
-        enabled={props.hasSelection}
-        onClick={props.onApply}
-        tooltip="Apply package modifications"
-      />
-      <ToolbarButtonComponent
-        iconClass={classes("fa", "fa-undo", Style.StandardButton)}
-        enabled={props.hasSelection}
-        onClick={props.onCancel}
-        tooltip="Clear package modifications"
-      />
-      <ToolbarButtonComponent
-        iconClass={refreshClasses}
-        onClick={props.onRefreshPackages}
-        tooltip="Refresh available packages"
-        enabled={!props.isPending}
-      />
+      <Button
+        className="jp-ToolbarButtonComponent"
+        disabled={!props.hasUpdate}
+        minimal
+        onMouseDown={props.onUpdateAll}
+        title="Update all packages"
+      >
+        <FontAwesomeIcon
+          icon={faExternalLinkSquareAlt}
+          style={{
+            color: props.hasUpdate
+              ? "var(--jp-accent-color0)"
+              : "var(--jp-inverse-layout-color3)"
+          }}
+        />
+      </Button>
+      <Button
+        className="jp-ToolbarButtonComponent"
+        disabled={!props.hasSelection}
+        minimal
+        onMouseDown={props.onApply}
+        title="Apply package modifications"
+      >
+        <FontAwesomeIcon
+          icon={faCartArrowDown}
+          style={{
+            color: props.hasSelection
+              ? "var(--jp-brand-color0)"
+              : "var(--jp-inverse-layout-color3)"
+          }}
+        />
+      </Button>
+      <Button
+        className="jp-ToolbarButtonComponent"
+        disabled={!props.hasSelection}
+        minimal
+        onMouseDown={props.onCancel}
+        title="Clear package modifications"
+      >
+        <FontAwesomeIcon
+          icon={faUndoAlt}
+          style={{ color: "var(--jp-inverse-layout-color3)" }}
+        />
+      </Button>
+      <Button
+        className="jp-ToolbarButtonComponent"
+        disabled={props.isPending}
+        minimal
+        onMouseDown={props.onRefreshPackages}
+        title="Refresh available packages"
+      >
+        <FontAwesomeIcon
+          icon={faSyncAlt}
+          spin={props.isPending}
+          style={{ color: "var(--jp-inverse-layout-color3)" }}
+        />
+      </Button>
     </div>
   );
 };
@@ -133,7 +159,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
 namespace Style {
   export const Toolbar = style({
     alignItems: "center",
-    height: PACKAGETOOLBARHEIGHT
+    height: PACKAGE_TOOLBAR_HEIGHT
   });
 
   export const SearchInput = style({
@@ -142,17 +168,5 @@ namespace Style {
 
   export const Search = style({
     padding: "4px"
-  });
-
-  export const StandardButton = style({
-    color: "var(--jp-inverse-layout-color3)"
-  });
-
-  export const ApplyButton = style({
-    color: "var(--jp-brand-color0)"
-  });
-
-  export const UpdateButton = style({
-    color: "var(--jp-accent-color0)"
   });
 }
