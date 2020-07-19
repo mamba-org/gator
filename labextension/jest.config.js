@@ -1,5 +1,8 @@
 module.exports = {
   automock: false,
+  collectCoverageFrom: ["src/**.{ts,tsx}", "!src/*.d.ts"],
+  coverageDirectory: "coverage",
+  coverageReporters: ["lcov", "text"],
   moduleNameMapper: {
     "\\.(css|less|sass|scss)$": "identity-obj-proxy",
     "\\.(gif|ttf|eot|svg)$": "@jupyterlab/testutils/lib/jest-file-mock.js"
