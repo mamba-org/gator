@@ -135,7 +135,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
         // "Accepted" - try back later on this async request
         setTimeout(function() {
           requestServer(
-            xhr.getResponseHeader("Location") || url,
+            (urls.base_url + xhr.getResponseHeader("Location")) || url,
             "GET",
             handle_response,
             on_error
