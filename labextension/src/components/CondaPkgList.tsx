@@ -1,9 +1,16 @@
+import { faSquare } from "@fortawesome/free-regular-svg-icons";
+import {
+  faCheckSquare,
+  faExternalLinkAlt,
+  faExternalLinkSquareAlt,
+  faMinusSquare
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { HTMLSelect } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { AutoSizer, Column, Table } from "react-virtualized";
 import { classes, style } from "typestyle";
 import { Conda } from "../tokens";
-import { GlobalStyle } from "./globalStyles";
 
 /**
  * Package list component properties
@@ -64,16 +71,41 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     const iconRender = ({ rowData }: ICellRender): JSX.Element => {
       if (rowData.version_installed) {
         if (rowData.version_selected === "none") {
-          return <i className={Style.StatusRemove} />;
+          return (
+            <FontAwesomeIcon
+              icon={faMinusSquare}
+              style={{ color: "var(--jp-error-color1)" }}
+            />
+          );
         } else if (rowData.version_selected !== rowData.version_installed) {
-          return <i className={Style.StatusUpdate} />;
+          return (
+            <FontAwesomeIcon
+              icon={faExternalLinkSquareAlt}
+              style={{ color: "var(--jp-accent-color1)" }}
+            />
+          );
         }
-        return <i className={Style.StatusInstalled} />;
+        return (
+          <FontAwesomeIcon
+            icon={faCheckSquare}
+            style={{ color: "var(--jp-brand-color1)" }}
+          />
+        );
       } else if (rowData.version_selected !== "none") {
-        return <i className={Style.StatusInstalled} />;
+        return (
+          <FontAwesomeIcon
+            icon={faCheckSquare}
+            style={{ color: "var(--jp-brand-color1)" }}
+          />
+        );
       }
 
-      return <i className={Style.StatusAvailable} />;
+      return (
+        <FontAwesomeIcon
+          icon={faSquare}
+          style={{ color: "var(--jp-ui-font-color2)" }}
+        />
+      );
     };
 
     const isSelected = (index: number): boolean => {
@@ -102,7 +134,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {rowData.name} <i className="fa fa-external-link" />
+            {rowData.name} <FontAwesomeIcon icon={faExternalLinkAlt} />
           </a>
         );
       }
@@ -154,6 +186,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
               headerHeight={29}
               height={this.props.height}
               onRowClick={({ rowData }): void => this.props.onPkgClick(rowData)}
+              overscanRowCount={3}
               rowClassName={({ index }): string => {
                 if (index >= 0) {
                   return index % 2 === 0
@@ -250,20 +283,6 @@ namespace Style {
     fontWeight: "bold",
     fontSize: "var(--jp-ui-font-size2)",
     textAlign: "left"
-
-    // $nest: {
-    //   '&:hover div': {
-    //     fontWeight: 600,
-    //     color: 'var(--jp-ui-font-color0)'
-    //   },
-    //   '&:focus div': {
-    //     outline: 'none'
-    //   },
-    //   '&:active div': {
-    //     fontWeight: 600,
-    //     color: 'var(--jp-ui-font-color0)'
-    //   }
-    // }
   });
 
   export const RowEven = (selected: boolean): string =>
@@ -319,45 +338,6 @@ namespace Style {
       }
     }
   });
-
-  export const StatusAvailable = classes(
-    "fa",
-    "fa-square-o",
-    "fa-fw",
-    style(GlobalStyle.FaIcon, {
-      verticalAlign: "middle"
-    })
-  );
-
-  export const StatusInstalled = classes(
-    "fa",
-    "fa-check-square",
-    "fa-fw",
-    style(GlobalStyle.FaIcon, {
-      verticalAlign: "middle",
-      color: "var(--jp-brand-color1)"
-    })
-  );
-
-  export const StatusUpdate = classes(
-    "fa",
-    "fa-external-link-square",
-    "fa-fw",
-    style(GlobalStyle.FaIcon, {
-      verticalAlign: "middle",
-      color: "var(--jp-accent-color1)"
-    })
-  );
-
-  export const StatusRemove = classes(
-    "fa",
-    "fa-minus-square",
-    "fa-fw",
-    style(GlobalStyle.FaIcon, {
-      verticalAlign: "middle",
-      color: "var(--jp-error-color1)"
-    })
-  );
 
   export const Updatable = style({
     color: "var(--jp-brand-color0)",
