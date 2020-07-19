@@ -135,6 +135,7 @@ jobs:
         with:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
+          mamba-version: "*"
           python-version: ${{ matrix.python-version }}
           channels: conda-forge, anaconda
           show-channel-urls: true
@@ -143,8 +144,8 @@ jobs:
       - name: Install dependencies
         run: |
           conda activate test_jupyter_conda
-          conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda -c anaconda mamba
+          mamba install -n test_jupyter_conda --file requirements_dev.txt
+          mamba install -n test_jupyter_conda -c anaconda mamba
           pip install .
         shell: bash -l {0}
 
