@@ -186,6 +186,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
               headerHeight={29}
               height={this.props.height}
               onRowClick={({ rowData }): void => this.props.onPkgClick(rowData)}
+              overscanRowCount={3}
               rowClassName={({ index }): string => {
                 if (index >= 0) {
                   return index % 2 === 0
