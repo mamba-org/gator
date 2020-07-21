@@ -101,6 +101,11 @@ jupyter labextension install .
 
 ## Changelog
 
+### 3.3.2
+
+- Bugs
+  - Fix wrong redirection url [#47](https://github.com/fcollonval/jupyter_conda/issues/47)
+
 ### 3.3.1
 
 - Bugs
