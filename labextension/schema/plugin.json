@@ -26,7 +26,6 @@
       "title": "Environment types",
       "description": "Type of environment available when creating it from scratch.",
       "default": {
-        "Python 2": ["python=2", "ipykernel"],
         "Python 3": ["python=3", "ipykernel"],
         "R": ["r-base", "r-essentials"]
       },

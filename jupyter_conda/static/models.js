@@ -15,7 +15,6 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
     selected: null,
     view: NullView,
     _mapping: {
-      python2: ["python=2", "ipykernel"],
       python3: ["python=3", "ipykernel"],
       r: ["r-base", "r-essentials"]
     },

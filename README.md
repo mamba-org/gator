@@ -73,7 +73,7 @@ This extension add a new entry _Conda Packages Manager_ in the _Settings_ menu.
 There are three ways to create an environment:
 
 - Create a new environment
-  Use the New Environment button at the top of the page, and select `Python 2`, `Python 3`, or `R` to create a
+  Use the New Environment button at the top of the page, and select `Python 3`, or `R` to create a
   base environment with the corresponding packages. Note that if you want to run a
   Jupyter python kernel in the new environment, you must also install the `ipykernel`
   package in the environment.
