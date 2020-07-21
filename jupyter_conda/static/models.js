@@ -134,8 +134,9 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       if (xhr.status == 202) {
         // "Accepted" - try back later on this async request
         setTimeout(function() {
+          const target = xhr.getResponseHeader("Location") ? (urls.base_url.strip("/") + xhr.getResponseHeader("Location")) : url;
           requestServer(
-            (urls.base_url + xhr.getResponseHeader("Location")) || url,
+            target,
             "GET",
             handle_response,
             on_error
