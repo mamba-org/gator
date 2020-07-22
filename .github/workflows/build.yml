@@ -34,6 +34,7 @@ jobs:
           conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
           npm install
           pip install .
+          npm run test
           cd labextension
           jlpm install
           jupyter labextension install .
