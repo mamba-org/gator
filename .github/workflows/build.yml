@@ -35,7 +35,6 @@ jobs:
           npm install
           npm install -g casperjs
           pip install .
-          npm run test
           cd labextension
           jlpm install
           jupyter labextension install .
@@ -98,6 +97,7 @@ jobs:
           conda install -n test_jupyter_conda --file requirements_dev.txt
           conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
           npm install
+          npm install -g casperjs
           pip install .
           cd labextension
           jlpm install
@@ -148,6 +148,8 @@ jobs:
           conda activate test_jupyter_conda
           mamba install -n test_jupyter_conda --file requirements_dev.txt
           mamba install -n test_jupyter_conda -c anaconda mamba
+          npm install
+          npm install -g casperjs
           pip install .
         shell: bash -l {0}
 
