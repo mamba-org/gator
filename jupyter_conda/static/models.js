@@ -135,9 +135,9 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function (
         // "Accepted" - try back later on this async request
         setTimeout(function () {
           let target = url;
-          if (xhr.getResponseHeader("Location")) {
-            // target = urls.base_url.replace(/\/$/, "") + xhr.getResponseHeader("Location");            
-            target = urls.base_url + xhr.getResponseHeader("Location");
+          const location = xhr.getResponseHeader("Location")
+          if (location) {
+            target = urls.base_url + location.slice(1);
           }
           requestServer(target, "GET", handle_response, on_error);
         }, 1000);
