@@ -70,13 +70,15 @@ jobs:
           gem install coveralls-lcov
           coveralls-lcov -v -n labextension/coverage/lcov.info > jscoverage.json
           python -m coveralls --merge=jscoverage.json
+        shell: bash -l {0}
 
   test-conda-os:
     name: Test Conda Python 3.7 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["macos-latest", "windows-latest"]
+        os: ["macos-latest", ]
+        # os: ["macos-latest", "windows-latest"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -87,7 +89,6 @@ jobs:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
           python-version: "3.7"
-          channels: conda-forge, anaconda
           show-channel-urls: true
           use-only-tar-bz2: true
 
