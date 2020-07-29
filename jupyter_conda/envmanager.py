@@ -31,7 +31,7 @@ JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
 
 def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
     """Normalize package information.
-    
+
     Args:
         s (dict): Raw package information
 
@@ -59,7 +59,7 @@ class EnvManager(LoggingConfigurable):
 
     def _clean_conda_json(self, output: str) -> Dict[str, Any]:
         """Clean a command output to fit json format.
-        
+
         Args:
             output (str): output to clean
 
@@ -85,7 +85,7 @@ class EnvManager(LoggingConfigurable):
 
     async def _execute(self, cmd: str, *args) -> Tuple[int, str]:
         """Asynchronously execute a command.
-        
+
         Args:
             cmd (str): command to execute
             *args: additional command arguments
@@ -129,7 +129,7 @@ class EnvManager(LoggingConfigurable):
         self, configuration: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Dict[str, List[str]]]:
         """List available channels.
-        
+
         Args:
             configuration (Dict[str, Any] or None): Conda configuration
 
@@ -163,20 +163,24 @@ class EnvManager(LoggingConfigurable):
             else:
                 parsed_channel = tornado.httputil.urlparse(channel)
                 if parsed_channel.scheme:
-                    deployed_channels[strip_channel] = [channel.strip("/"), ]
+                    deployed_channels[strip_channel] = [
+                        channel.strip("/"),
+                    ]
                 else:
                     spec = info["channel_alias"]
                     spec["name"] = channel
-                    deployed_channels[channel] = [get_uri(spec), ]
+                    deployed_channels[channel] = [
+                        get_uri(spec),
+                    ]
 
         self.log.debug("[jupyter_conda] channels: {}".format(deployed_channels))
         return {"channels": deployed_channels}
 
     async def conda_config(self) -> Dict[str, Any]:
         """Get conda configuration.
-        
+
         Returns:
-            Dict[str, Any]: Conda configuration      
+            Dict[str, Any]: Conda configuration
         """
         ans = await self._execute(CONDA_EXE, "config", "--show", "--json")
         _, output = ans
@@ -184,11 +188,11 @@ class EnvManager(LoggingConfigurable):
 
     async def clone_env(self, env: str, name: str) -> Dict[str, str]:
         """Clone an environment.
-        
+
         Args:
             env (str): To-be-cloned environment name
             name (str): New environment name
-        
+
         Returns:
             Dict[str, str]: Clone command output.
         """
@@ -203,7 +207,7 @@ class EnvManager(LoggingConfigurable):
 
     async def create_env(self, env: str, *args) -> Dict[str, str]:
         """Create a environment from a list of packages.
-        
+
         Args:
             env (str): Name of the environment
             *args (List[str]): optional, packages to install
@@ -222,10 +226,10 @@ class EnvManager(LoggingConfigurable):
 
     async def delete_env(self, env: str) -> Dict[str, str]:
         """Delete an environment.
-        
+
         Args:
             env (str): Environment name
-        
+
         Returns:
             Dict[str, str]: Deletion command output
         """
@@ -242,7 +246,7 @@ class EnvManager(LoggingConfigurable):
         self, env: str, from_history: bool = False
     ) -> Union[str, Dict[str, str]]:
         """Export an environment as YAML file.
-        
+
         Args:
             env (str): Environment name
             from_history (bool): If True, use `--from-history` option; default False
@@ -270,7 +274,7 @@ class EnvManager(LoggingConfigurable):
         self, env: str, file_content: str, file_name: str = "environment.txt"
     ) -> Dict[str, str]:
         """Create an environment from a file.
-        
+
         Args:
             env (str): Environment name
             file_content (str): File content
@@ -318,9 +322,9 @@ class EnvManager(LoggingConfigurable):
         """List all environments that conda knows about.
 
         Args:
-            whitelist (bool): optional, filter the environment list to respect 
+            whitelist (bool): optional, filter the environment list to respect
                 KernelSpecManager.whitelist (default: False)
-        
+
         An environment is described by a dictionary:
         {
             name (str): environment name,
@@ -379,7 +383,7 @@ class EnvManager(LoggingConfigurable):
         self, env: str, file_content: str, file_name: str = "environment.yml"
     ) -> Dict[str, str]:
         """Update a environment from a file.
-        
+
         Args:
             env (str): Name of the environment
             file_content (str): File content
@@ -403,7 +407,7 @@ class EnvManager(LoggingConfigurable):
 
     async def env_packages(self, env: str) -> Dict[str, List[str]]:
         """List environment package.
-        
+
         Args:
             env (str): Environment name
 
@@ -436,7 +440,7 @@ class EnvManager(LoggingConfigurable):
 
     async def list_available(self) -> Dict[str, List[Dict[str, str]]]:
         """List all available packages
-        
+
         Returns:
             {
                 "packages": List[package],
@@ -626,7 +630,7 @@ class EnvManager(LoggingConfigurable):
 
     async def package_search(self, q: str) -> Dict[str, List]:
         """Search packages.
-        
+
         Args:
             q (str): Search query
 
@@ -669,7 +673,7 @@ class EnvManager(LoggingConfigurable):
         self, env: str, packages: List[str]
     ) -> Dict[str, List[Dict[str, str]]]:
         """Check for packages update in an environment.
-        
+
         if '--all' is the only element in `packages`, search for all
         possible update in the given environment.
 
@@ -717,7 +721,7 @@ class EnvManager(LoggingConfigurable):
 
     async def install_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
         """Install packages in an environment.
-        
+
         Args:
             env (str): Environment name
             packages (List[str]): List of packages to install
@@ -735,7 +739,7 @@ class EnvManager(LoggingConfigurable):
         self, env: str, packages: List[str]
     ) -> Dict[str, List[Dict[str, str]]]:
         """Install packages in pip editable mode in an environment.
-        
+
         Args:
             env (str): Environment name
             packages (List[str]): List of packages to install
@@ -791,7 +795,7 @@ class EnvManager(LoggingConfigurable):
 
     async def update_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
         """Update packages in an environment.
-        
+
         Args:
             env (str): Environment name
             packages (List[str]): List of packages to update
@@ -807,7 +811,7 @@ class EnvManager(LoggingConfigurable):
 
     async def remove_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
         """Delete packages in an environment.
-        
+
         Args:
             env (str): Environment name
             packages (List[str]): List of packages to delete
