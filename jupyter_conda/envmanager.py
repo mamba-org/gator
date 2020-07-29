@@ -134,7 +134,7 @@ class EnvManager(LoggingConfigurable):
             configuration (Dict[str, Any] or None): Conda configuration
 
         Returns:
-            {"channels": {<channel>: <uri>}}        
+            {"channels": {<channel>: <uri>}}
         """
         if configuration is None:
             info = await self.conda_config()
@@ -161,9 +161,13 @@ class EnvManager(LoggingConfigurable):
                     get_uri(info["custom_channels"][strip_channel])
                 ]
             else:
-                spec = info["channel_alias"]
-                spec["name"] = channel
-                deployed_channels[channel] = [get_uri(spec)]
+                parsed_channel = tornado.httputil.urlparse(channel)
+                if parsed_channel.scheme:
+                    deployed_channels[strip_channel] = [channel.strip("/"), ]
+                else:
+                    spec = info["channel_alias"]
+                    spec["name"] = channel
+                    deployed_channels[channel] = [get_uri(spec), ]
 
         self.log.debug("[jupyter_conda] channels: {}".format(deployed_channels))
         return {"channels": deployed_channels}
