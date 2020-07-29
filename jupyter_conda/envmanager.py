@@ -259,7 +259,7 @@ class EnvManager(LoggingConfigurable):
             Dict[str, str]: Deletion command output
         """
         ans = await self._execute(
-            CONDA_EXE, "env", "remove", "-y", "-q", "--json", "-n", env
+            self.manager, "env", "remove", "-y", "-q", "--json", "-n", env
         )
 
         rcode, output = ans
@@ -279,7 +279,7 @@ class EnvManager(LoggingConfigurable):
         Returns:
             str: YAML file content
         """
-        command = [CONDA_EXE, "env", "export", "-n", env]
+        command = [self.manager, "env", "export", "-n", env]
         if from_history:
             if EnvManager._conda_version is None:
                 await self.info()  # Set conda version
@@ -313,7 +313,7 @@ class EnvManager(LoggingConfigurable):
             f.write(file_content)
 
         ans = await self._execute(
-            CONDA_EXE, "env", "create", "-q", "--json", "-n", env, "--file", name
+            self.manager, "env", "create", "-q", "--json", "-n", env, "--file", name
         )
         # Remove temporary file
         os.unlink(name)
@@ -422,7 +422,7 @@ class EnvManager(LoggingConfigurable):
             f.write(file_content)
 
         ans = await self._execute(
-            CONDA_EXE, "env", "update", "-q", "--json", "-n", env, "-f", name
+            self.manager, "env", "update", "-q", "--json", "-n", env, "-f", name
         )
 
         rcode, output = ans
