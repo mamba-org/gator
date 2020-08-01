@@ -11,7 +11,7 @@ from functools import partial
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from packaging.version import parse
-from subprocess import CalledProcessError, Popen, PIPE
+from subprocess import Popen, PIPE
 
 from nb_conda_kernels.manager import RUNNER_COMMAND
 import tornado
