@@ -101,10 +101,14 @@ jupyter labextension install .
 
 ## Changelog
 
-### 3.3.2
+### 3.4.0
 
+- Features
+  - Use `mamba` if available. Otherwise use `conda` [#48](https://github.com/fcollonval/jupyter_conda/issues/48)
+  - Move to GitHub workflow (extend coverage to JupyterLab code)
 - Bugs
-  - Fix wrong redirection url [#47](https://github.com/fcollonval/jupyter_conda/issues/47)
+  - Fix wrong redirection url in classic notebook [#46](https://github.com/fcollonval/jupyter_conda/issues/46)
+  - Fix channel given by full URL not properly handle [#55](https://github.com/fcollonval/jupyter_conda/issues/55)
 
 ### 3.3.1
 
