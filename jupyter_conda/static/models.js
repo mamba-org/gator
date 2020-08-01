@@ -134,11 +134,8 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function (
       if (xhr.status == 202) {
         // "Accepted" - try back later on this async request
         setTimeout(function () {
-          let target = url;
-          const location = xhr.getResponseHeader("Location")
-          if (location) {
-            target = urls.base_url + location.slice(1);
-          }
+          var location_ = xhr.getResponseHeader("Location");
+          var target = location_ ? (urls.base_url + location_.slice(1)) : url;
           requestServer(target, "GET", handle_response, on_error);
         }, 1000);
       } else {
