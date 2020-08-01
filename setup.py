@@ -55,5 +55,7 @@ setuptools.setup(
         "packaging",
         "typing;python_version<'3.7'",
     ],
-    extras_require={"test": ["nose", "requests", "coverage", "flake8"]},
+    extras_require={
+        "test": ["coverage", "flake8", "pytest", "pytest-asyncio", "requests"]
+    },
 )
