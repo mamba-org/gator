@@ -34,7 +34,7 @@
     "precommit": "pretty-quick --staged",
     "prepare": "jlpm run clean && jlpm run build",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
-    "test": "jest",
+    "test": "jest --coverage",
     "watch": "tsc -w"
   },
   "dependencies": {
