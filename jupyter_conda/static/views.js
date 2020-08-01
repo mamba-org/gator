@@ -146,7 +146,7 @@ define(["jquery", "base/js/utils", "./common", "./models"], function(
     selector: "#environments",
     label: "Conda environment",
     selectable: false,
-    model: models.environments,
+    model: models ? models.environments : [],
     columns: [
       { heading: "Action", attr: "_action", width: 1 },
       { heading: "Name", attr: "name", width: 3 },
