@@ -129,15 +129,17 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
   };
 
   function requestServer(url, method, on_success, on_error, data) {
-    const base_url = urls.base_url;
+    var base_url = urls.base_url;
     function handle_response(data, status, xhr) {
       if (xhr.status == 202) {
         // "Accepted" - try back later on this async request
         setTimeout(function() {
           requestServer(
-            xhr.getResponseHeader("Location") ? base_url + xhr.getResponseHeader("Location").slice(1) : url, 
-            "GET", 
-            handle_response, 
+            xhr.getResponseHeader("Location")
+              ? base_url + xhr.getResponseHeader("Location").slice(1)
+              : url,
+            "GET",
+            handle_response,
             on_error
           );
         }, 1000);
