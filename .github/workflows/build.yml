@@ -126,6 +126,7 @@ jobs:
         uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: test_jupyter_conda
+          miniconda-version: "latest"
           python-version: "3.7"
           show-channel-urls: true
           use-only-tar-bz2: true
