@@ -382,6 +382,7 @@ class EnvManager(LoggingConfigurable):
                     whitelist_env.add(spec["metadata"]["conda_env_path"])
                 elif argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
                     whitelist_env.add(argv[4])
+        print(type(self.parent.kernel_spec_manager), self.parent.kernel_spec_manager)
         print(whitelist, whitelist_env)
         def get_info(env):
             base_dir = os.path.dirname(env)

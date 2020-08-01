@@ -45,7 +45,7 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda 
+          coverage run -m pytest -sv jupyter_conda
           coverage report 
           cd labextension 
           npm run eslint:check
@@ -68,8 +68,10 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           gem install coveralls-lcov
-          coveralls-lcov -v -n labextension/coverage/lcov.info > jscoverage.json
-          python -m coveralls --merge=jscoverage.json
+          cd labextension
+          coveralls-lcov -v -n coverage/lcov.info > jscoverage.json
+          cd ..
+          python -m coveralls --merge=labextension/jscoverage.json
         shell: bash -l {0}
 
   test-conda-os:
@@ -77,8 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["macos-latest", ]
-        # os: ["macos-latest", "windows-latest"]
+        os: ["macos-latest", "windows-latest"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -98,7 +99,6 @@ jobs:
           conda install -n test_jupyter_conda --file requirements_dev.txt
           conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
           npm install
-          npm install -g casperjs
           pip install .
           cd labextension
           jlpm install
