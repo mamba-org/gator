@@ -372,12 +372,10 @@ class EnvManager(LoggingConfigurable):
             "is_default": info["root_prefix"] == default_env,
         }
 
-        print(whitelist)
         whitelist_env = set()
         if whitelist:
             # Build env path list - simplest way to compare kernel and environment
             for entry in self.parent.kernel_spec_manager.get_all_specs().values():
-                print("Kernel spec: ", entry)
                 spec = entry["spec"]
                 argv = spec.get("argv", [])
                 if "conda_env_path" in spec["metadata"]:
@@ -396,7 +394,6 @@ class EnvManager(LoggingConfigurable):
                 "is_default": env == default_env,
             }
 
-        print(info["envs"])
         envs_list = [root_env]
         for env in info["envs"]:
             env_info = get_info(env)

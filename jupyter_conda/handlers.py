@@ -171,7 +171,6 @@ class EnvironmentsHandler(EnvBaseHandler):
             500 if an error occurs
         """
         whitelist = int(self.get_query_argument("whitelist", 0))
-        print(whitelist)
         list_envs = await self.env_manager.list_envs(whitelist == 1)
         if "error" in list_envs:
             self.set_status(500)

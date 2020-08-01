@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: master
+    branches: [master]
   pull_request:
     branches: "*"
 
@@ -23,7 +23,6 @@ jobs:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          channels: conda-forge, anaconda
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -132,10 +131,8 @@ jobs:
           npm run eslint:check
           npm run test
           cd ..
-          jupyter serverextension list 1>serverextensions 2>&1
-          cat serverextensions | grep "jupyter_conda.*OK"
-          jupyter labextension list 1>labextensions 2>&1
-          cat labextensions | grep "jupyterlab_conda.*OK"
+          jupyter serverextension list
+          jupyter labextension list
           python -m jupyterlab.browser_check
         shell: bash -l {0}
 
@@ -156,7 +153,6 @@ jobs:
           auto-update-conda: true
           mamba-version: "*"
           python-version: ${{ matrix.python-version }}
-          channels: conda-forge, anaconda
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -164,7 +160,6 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           mamba install -n test_jupyter_conda --file requirements_dev.txt
-          mamba install -n test_jupyter_conda -c anaconda mamba
           npm install
           npm install -g casperjs
           pip install .
