@@ -1,4 +1,4 @@
-define(["jquery", "base/js/utils", "./common", "./urls"], function(
+define(["jquery", "base/js/utils", "./common", "./urls"], function (
   $,
   utils,
   common,
@@ -7,7 +7,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
   "use strict";
 
   var NullView = {
-    refresh: function() {}
+    refresh: function () {},
   };
 
   var environments = {
@@ -16,10 +16,10 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
     view: NullView,
     _mapping: {
       python3: ["python=3", "ipykernel"],
-      r: ["r-base", "r-essentials"]
+      r: ["r-base", "r-essentials"],
     },
 
-    load: function() {
+    load: function () {
       // Load the list via ajax to the /environments endpoint
       var that = this;
       var error_callback = common.MakeErrorCallback(
@@ -35,7 +35,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
         that.all = envs;
 
         // Select the default environment as current
-        $.each(envs, function(index, env) {
+        $.each(envs, function (index, env) {
           if (env.is_default) {
             default_env = env;
           }
@@ -56,20 +56,20 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
 
       var settings = common.AjaxSettings({
         success: common.SuccessWrapper(handle_response, error_callback),
-        error: error_callback
+        error: error_callback,
       });
 
       return utils.ajax(urls.api_url + "environments", settings);
     },
 
-    select: function(env) {
+    select: function (env) {
       this.selected = _.findWhere(this.all, env);
 
       // refresh list of packages installed in the selected environment
       return installed.load();
     },
 
-    create: function(name, type) {
+    create: function (name, type) {
       var error_callback = common.MakeErrorCallback(
         "Error Creating Environment",
         'An error occurred while creating "' + name + '"'
@@ -83,11 +83,11 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       var url = urls.api_url + utils.url_join_encode("environments");
       return requestServer(url, "POST", create_success, error_callback, {
         name: name,
-        packages: this._mapping[type]
+        packages: this._mapping[type],
       });
     },
 
-    clone: function(env, new_name) {
+    clone: function (env, new_name) {
       var error_callback = common.MakeErrorCallback(
         "Error Cloning Environment",
         'An error occurred while cloning "' + env.name + '"'
@@ -101,11 +101,11 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
 
       return requestServer(url, "POST", clone_success, error_callback, {
         name: new_name,
-        twin: env.name
+        twin: env.name,
       });
     },
 
-    remove: function(env) {
+    remove: function (env) {
       var error_callback = common.MakeErrorCallback(
         "Error Removing Environment",
         'An error occurred while removing "' + env.name + '"'
@@ -119,26 +119,23 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       return requestServer(url, "DELETE", remove_success, error_callback);
     },
 
-    export: function(env) {
+    export: function (env) {
       return (
         urls.api_url +
         utils.url_join_encode("environments", env.name) +
         "?download=1"
       );
-    }
+    },
   };
 
   function requestServer(url, method, on_success, on_error, data) {
     function handle_response(data, status, xhr) {
       if (xhr.status == 202) {
         // "Accepted" - try back later on this async request
-        setTimeout(function() {
-          requestServer(
-            xhr.getResponseHeader("Location") || url,
-            "GET",
-            handle_response,
-            on_error
-          );
+        setTimeout(function () {
+          var location_ = xhr.getResponseHeader("Location");
+          var target = location_ ? (urls.base_url + location_.slice(1)) : url;
+          requestServer(target, "GET", handle_response, on_error);
         }, 1000);
       } else {
         common.SuccessWrapper(on_success, on_error)(data, status, xhr);
@@ -149,7 +146,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       data: JSON.stringify(data),
       type: method,
       success: common.SuccessWrapper(handle_response, on_error),
-      error: on_error
+      error: on_error,
     });
 
     return utils.ajax(url, settings);
@@ -159,13 +156,13 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
     packages: [],
     view: NullView,
 
-    load: function() {
+    load: function () {
       // Load the package list via ajax to the /packages endpoint
       var that = this;
 
       function handle_response(data, status, xhr) {
         var packages = data.packages;
-        $.each(packages, function(index, pkg) {
+        $.each(packages, function (index, pkg) {
           pkg.selected = false;
         });
 
@@ -187,25 +184,25 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       );
     },
 
-    get_selection: function() {
-      return this.packages.filter(function(pkg) {
+    get_selection: function () {
+      return this.packages.filter(function (pkg) {
         return pkg.selected;
       });
     },
 
-    select_none: function() {
-      $.each(this.packages, function(index, pkg) {
+    select_none: function () {
+      $.each(this.packages, function (index, pkg) {
         pkg.selected = false;
       });
     },
 
-    get_selected_names: function() {
-      return this.get_selection().map(function(pkg) {
+    get_selected_names: function () {
+      return this.get_selection().map(function (pkg) {
         return pkg.name;
       });
     },
 
-    conda_install: function() {
+    conda_install: function () {
       var that = this;
       var packages = this.get_selected_names();
 
@@ -232,9 +229,9 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
           "packages"
         );
       return requestServer(url, "POST", install_success, error_callback, {
-        packages: packages
+        packages: packages,
       });
-    }
+    },
   };
 
   var installed = {
@@ -242,7 +239,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
     by_name: {},
     view: NullView,
 
-    load: function() {
+    load: function () {
       if (environments.selected !== null) {
         return this.conda_list(environments.selected.name);
       } else {
@@ -254,19 +251,19 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       }
     },
 
-    get_selection: function() {
-      return this.packages.filter(function(pkg) {
+    get_selection: function () {
+      return this.packages.filter(function (pkg) {
         return pkg.selected;
       });
     },
 
-    get_selected_names: function() {
-      return this.get_selection().map(function(pkg) {
+    get_selected_names: function () {
+      return this.get_selection().map(function (pkg) {
         return pkg.name;
       });
     },
 
-    conda_list: function(query) {
+    conda_list: function (query) {
       // Load the package list via ajax to the /environments/<name> endpoint
       var that = this;
 
@@ -274,7 +271,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
         var packages = data.packages || [];
         var by_name = {};
 
-        $.each(packages, function(index, pkg) {
+        $.each(packages, function (index, pkg) {
           pkg.selected = false;
           pkg.available = "";
           by_name[pkg.name] = pkg;
@@ -292,14 +289,14 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
 
       var settings = common.AjaxSettings({
         success: common.SuccessWrapper(handle_response, error_callback),
-        error: error_callback
+        error: error_callback,
       });
 
       var url = urls.api_url + utils.url_join_encode("environments", query);
       return utils.ajax(url, settings);
     },
 
-    _update: function(dry_run, handler) {
+    _update: function (dry_run, handler) {
       // Load the package list via ajax to the /environments/ENV/check endpoint
       var that = this;
 
@@ -345,11 +342,11 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       }
     },
 
-    conda_check_updates: function() {
+    conda_check_updates: function () {
       var that = this;
 
       function handle_response(response, status, xhr) {
-        $.each(response.updates, function(index, pkg) {
+        $.each(response.updates, function (index, pkg) {
           var existing = that.by_name[pkg.name];
 
           // See if there is an existing entry.
@@ -366,7 +363,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       return this._update(true, handle_response);
     },
 
-    conda_update: function() {
+    conda_update: function () {
       var that = this;
 
       function handle_response(packages, status, xhr) {
@@ -377,7 +374,7 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
       return this._update(false, handle_response);
     },
 
-    conda_remove: function() {
+    conda_remove: function () {
       var that = this;
       var packages = this.get_selected_names();
 
@@ -402,14 +399,14 @@ define(["jquery", "base/js/utils", "./common", "./urls"], function(
           "packages"
         );
       return requestServer(url, "DELETE", remove_success, error_callback, {
-        packages: packages
+        packages: packages,
       });
-    }
+    },
   };
 
   return {
     environments: environments,
     available: available,
-    installed: installed
+    installed: installed,
   };
 });
