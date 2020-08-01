@@ -23,15 +23,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel twine jupyterlab
       - name: Build and publish NPM package
+        if: ${{ startsWith(github.ref, "jupyterlab_conda") }}
         run: |
-          python setup.py sdist bdist_wheel
           cd labextension
+          jlpm
           npm publish
           cd ..
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Python package
+        if: ${{ !startsWith(github.ref, "jupyterlab_conda") }}
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*
+        run: |
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
