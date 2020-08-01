@@ -32,8 +32,8 @@ class NBCondaTestController(jstest.JSController):
         js_test_dir = jstest.get_js_test_dir()
 
         includes = [
-            os.path.join(js_test_dir, 'tests', 'util.js')
-        ] + glob.glob(os.path.join(here, 'js', '_*.js'))
+            os.path.join(js_test_dir, 'util.js')
+        ] + glob.glob(os.path.join(here, 'js', '_*.js')) + glob.glob(os.path.join(here, '..', 'static', '*.js'))
 
         self.cmd = [
             'casperjs', 'test',
