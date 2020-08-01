@@ -62,9 +62,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
-      - name: Coveralls
+      - name: Upload coverage
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
+          COVERALLS_PARALLEL: true
         run: |
           conda activate test_jupyter_conda
           gem install coveralls-lcov
@@ -73,6 +75,19 @@ jobs:
           cd ..
           python -m coveralls --merge=labextension/jscoverage.json
         shell: bash -l {0}
+
+  coveralls:
+    name: Finish Coveralls
+    needs: test-conda-3x
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+      - name: Finished
+        run: |
+          pip3 install --upgrade coveralls
+          coveralls --finish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   test-conda-os:
     name: Test Conda Python 3.7 on ${{ matrix.os }}
