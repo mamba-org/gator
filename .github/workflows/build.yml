@@ -1,0 +1,209 @@
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: "*"
+
+jobs:
+  test-conda-3x:
+    name: Test Conda Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if requirements_dev.txt has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ubuntu-latest-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          restore-keys: |
+            ubuntu-latest-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ubuntu-latest-conda-${{ matrix.python-version }}
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: test_jupyter_conda
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          show-channel-urls: true
+          use-only-tar-bz2: true
+
+      - name: Install dependencies
+        run: |
+          conda activate test_jupyter_conda
+          conda install -n test_jupyter_conda --file requirements_dev.txt
+          conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
+          npm install
+          npm install -g casperjs
+          pip install .
+          cd labextension
+          jlpm install
+          jupyter labextension install .
+          cd ..
+        shell: bash -l {0}
+
+      - name: Test the extension
+        run: |
+          conda activate test_jupyter_conda
+          flake8 setup.py jupyter_conda
+          coverage run -m pytest jupyter_conda
+          coverage report 
+          cd labextension 
+          npm run eslint:check
+          npm run test
+          cd ..
+          jupyter serverextension list 1>serverextensions 2>&1
+          cat serverextensions | grep "jupyter_conda.*OK"
+          jupyter labextension list 1>labextensions 2>&1
+          cat labextensions | grep "jupyterlab_conda.*OK"
+          python -m jupyterlab.browser_check
+        shell: bash -l {0}
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - name: Upload coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
+          COVERALLS_PARALLEL: true
+        run: |
+          conda activate test_jupyter_conda
+          gem install coveralls-lcov
+          cd labextension
+          coveralls-lcov -v -n coverage/lcov.info > jscoverage.json
+          cd ..
+          python -m coveralls --merge=labextension/jscoverage.json
+        shell: bash -l {0}
+
+  coveralls:
+    name: Finish Coveralls
+    needs: test-conda-3x
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+      - name: Finished
+        run: |
+          pip3 install --upgrade coveralls
+          coveralls --finish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-conda-os:
+    name: Test Conda Python 3.7 on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["macos-latest", "windows-latest"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if requirements_dev.txt has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.7
+
+      - name: Setup Python 3.7
+        uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: test_jupyter_conda
+          miniconda-version: "latest"
+          python-version: "3.7"
+          show-channel-urls: true
+          use-only-tar-bz2: true
+
+      - name: Install dependencies
+        run: |
+          conda activate test_jupyter_conda
+          conda install -n test_jupyter_conda --file requirements_dev.txt
+          conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
+          npm install
+          npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
+          pip install .
+          cd labextension
+          jlpm install
+          jupyter labextension install .
+          cd ..
+        shell: bash -l {0}
+
+      - name: Test the extension
+        run: |
+          conda activate test_jupyter_conda
+          flake8 setup.py jupyter_conda
+          coverage run -m pytest jupyter_conda 
+          coverage report 
+          cd labextension 
+          npm run eslint:check
+          npm run test
+          cd ..
+          jupyter serverextension list
+          jupyter labextension list
+          python -m jupyterlab.browser_check
+        shell: bash -l {0}
+
+  test-mamba-3x:
+    name: Test Mamba Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if requirements_dev.txt has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ubuntu-latest-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          restore-keys: |
+            ubuntu-latest-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ubuntu-latest-mamba-${{ matrix.python-version }}
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: test_jupyter_conda
+          auto-update-conda: true
+          channels: conda-forge
+          mamba-version: "*"
+          python-version: ${{ matrix.python-version }}
+          show-channel-urls: true
+          use-only-tar-bz2: true
+
+      - name: Install dependencies
+        run: |
+          conda activate test_jupyter_conda
+          mamba install -n test_jupyter_conda --file requirements_dev.txt
+          npm install
+          npm install -g casperjs
+          pip install .
+        shell: bash -l {0}
+
+      - name: Test the extension
+        run: |
+          conda activate test_jupyter_conda
+          python -m pytest jupyter_conda
+        shell: bash -l {0}
