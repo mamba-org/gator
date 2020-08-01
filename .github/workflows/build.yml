@@ -17,6 +17,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if requirements_dev.txt has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ubuntu-latest-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          restore-keys: |
+            ubuntu-latest-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ubuntu-latest-conda-${{ matrix.python-version }}
+
       - name: Setup Python ${{ matrix.python-version }}
         uses: goanpeca/setup-miniconda@v1
         with:
@@ -98,11 +110,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if requirements_dev.txt has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.7
+
       - name: Setup Python 3.7
         uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: test_jupyter_conda
-          auto-update-conda: true
           python-version: "3.7"
           show-channel-urls: true
           use-only-tar-bz2: true
@@ -146,12 +169,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Cache conda
+        uses: actions/cache@v1
+        env:
+          # Increase this value to reset cache if requirements_dev.txt has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ubuntu-latest-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          restore-keys: |
+            ubuntu-latest-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ubuntu-latest-mamba-${{ matrix.python-version }}
+
       - name: Setup Python ${{ matrix.python-version }}
         uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
-          channels: conda-forge,defaults
+          channels: conda-forge
           mamba-version: "*"
           python-version: ${{ matrix.python-version }}
           show-channel-urls: true
