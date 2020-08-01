@@ -32,7 +32,7 @@ class NBCondaTestController(jstest.JSController):
         js_test_dir = jstest.get_js_test_dir()
 
         includes = [
-            os.path.join(js_test_dir, 'util.js')
+            os.path.join(js_test_dir, 'tests', 'util.js')
         ] + glob.glob(os.path.join(here, 'js', '_*.js'))
 
         self.cmd = [
@@ -54,7 +54,9 @@ def prepare_controllers(options):
         groups = options.testgroups
     else:
         groups = ['']
-    return [NBCondaTestController(g, xunit=True) for g in groups], []
+    
+    engine = 'slimerjs' if options.slimerjs else 'phantomjs'
+    return [NBCondaTestController(g, xunit=True, engine=engine, url=options.url) for g in groups], []
 
 
 def test_notebook():
