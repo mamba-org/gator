@@ -1,5 +1,5 @@
-import { faClone } from "@fortawesome/free-regular-svg-icons";
-import { faSyncAlt } from "@fortawesome/free-solid-svg-icons";
+import { faClone } from "@fortawesome/free-regular-svg-icons/faClone";
+import { faSyncAlt } from "@fortawesome/free-solid-svg-icons/faSyncAlt";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 import {
