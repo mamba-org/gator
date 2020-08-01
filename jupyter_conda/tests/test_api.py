@@ -466,9 +466,7 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
         self.wait_for_task(self.mk_env, n, packages=["ipykernel",])
         manager = CondaKernelSpecManager()
         manager.whitelist = set(["conda-env-banana-py",])
-        print(TestEnvironmentsHandlerWhiteList.notebook.kernel_spec_manager)
         TestEnvironmentsHandlerWhiteList.notebook.kernel_spec_manager = manager
-        print(type(TestEnvironmentsHandlerWhiteList.notebook.kernel_spec_manager), TestEnvironmentsHandlerWhiteList.notebook.kernel_spec_manager)
 
         r = self.conda_api.get(["environments",], params={"whitelist": 1})
         self.assertEqual(r.status_code, 200)

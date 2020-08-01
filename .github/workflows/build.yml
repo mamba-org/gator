@@ -45,7 +45,7 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
-          coverage run -m pytest -sv jupyter_conda
+          coverage run -m pytest jupyter_conda
           coverage report 
           cd labextension 
           npm run eslint:check
@@ -99,6 +99,7 @@ jobs:
           conda install -n test_jupyter_conda --file requirements_dev.txt
           conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
           npm install
+          npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
           pip install .
           cd labextension
           jlpm install
