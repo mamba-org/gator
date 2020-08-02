@@ -3,7 +3,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter_conda/master?urlpath=lab)
 [![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
 [![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
-[![Build Status](https://travis-ci.com/fcollonval/jupyter_conda.svg?branch=master)](https://travis-ci.com/fcollonval/jupyter_conda)
+![Github Actions Status](https://github.com/fcollonval/jupyter_conda/workflows/Test/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter_conda/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter_conda?branch=master)
 [![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Ffcollonval%2Fjupyter_conda%2Fmaster%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/fcollonval/jupyter_conda/master/jupyter_conda/rest_api.yml)
 
@@ -32,6 +32,9 @@ To install in the JupyterLab:
 conda install -c conda-forge jupyterlab jupyter_conda
 jupyter labextension install jupyterlab_conda
 ```
+
+> Optionally, you could install [`jupyterlab-tour`](https://github.com/fcollonval/jupyterlab-tour) to
+> add a help tour for the conda packages manager.
 
 ## Classical Jupyter Notebook
 

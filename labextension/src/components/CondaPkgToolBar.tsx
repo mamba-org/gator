@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { classes, style } from "typestyle/lib";
+import { PACKAGES_TOOLBAR_CLASS } from "../constants";
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
@@ -68,7 +69,7 @@ export interface ICondaPkgToolBarProps {
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
   return (
-    <div className="lm-Widget jp-NbConda-ToolbarPackages jp-Toolbar">
+    <div className={`lm-Widget ${PACKAGES_TOOLBAR_CLASS} jp-Toolbar`}>
       <div className="lm-Widget jp-Toolbar-item">
         <HTMLSelect
           value={props.category}

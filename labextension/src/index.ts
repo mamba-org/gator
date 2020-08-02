@@ -20,6 +20,8 @@ import {
   CompanionValidator,
   ICompanionValidator
 } from "./validator";
+import { WIDGET_CLASS } from "./constants";
+import { managerTour } from "./tour";
 
 export { Conda, IEnvironmentManager } from "./tokens";
 
@@ -30,6 +32,7 @@ async function activateCondaEnv(
   restorer: ILayoutRestorer,
   settingsRegistry: ISettingRegistry
 ): Promise<IEnvironmentManager> {
+  let tour: any;
   const { commands, shell } = app;
   const pluginNamespace = "conda-env";
   const command = "jupyter_conda:open-ui";
@@ -55,7 +58,7 @@ async function activateCondaEnv(
       }
 
       content = new CondaEnvWidget(-1, -1, model);
-      content.addClass("jp-NbConda");
+      content.addClass(WIDGET_CLASS);
       content.id = pluginNamespace;
       content.title.label = "Packages";
       content.title.caption = "Conda Packages Manager";
@@ -64,6 +67,13 @@ async function activateCondaEnv(
 
       void tracker.add(widget);
       shell.add(widget, "main");
+
+      if (tour) {
+        commands.execute("jupyterlab-tour:launch", {
+          id: tour.id,
+          force: false
+        });
+      }
     }
   });
 
@@ -78,6 +88,18 @@ async function activateCondaEnv(
 
   // Add command to settings menu
   menu.settingsMenu.addGroup([{ command: command }], 999);
+
+  app.restored.then(() => {
+    if (commands.hasCommand("jupyterlab-tour:add")) {
+      commands
+        .execute("jupyterlab-tour:add", {
+          tour: managerTour as any
+        })
+        .then(result => {
+          tour = result;
+        });
+    }
+  });
 
   return model;
 }
