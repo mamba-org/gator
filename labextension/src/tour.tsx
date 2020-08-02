@@ -17,7 +17,7 @@ export const managerTour = {
       content: (
         <p>
           Thanks for installing <em>jupyter_conda</em>.<br />
-          Let's have a tour of the UI.
+          Let&apos;s have a tour of the UI.
         </p>
       ),
       placement: "center",
