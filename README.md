@@ -20,6 +20,8 @@ _Requirements_
 - notebook >= 4.3
 - JupyterLab 1.x or 2.x (for the jupyterlab extension only)
 
+> Starting from 3.4, this extension will use [mamba](https://github.com/TheSnakePit/mamba) instead of `conda` if it finds it.
+
 To install in the classical notebook:
 
 ```shell
