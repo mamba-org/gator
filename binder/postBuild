@@ -4,3 +4,6 @@
 set -eux
 python -m pip install .
 jupyter labextension install jupyterlab_conda jupyterlab-tour
+
+# Import the workspace into JupyterLab
+jupyter lab workspaces import binder/workspace.json
