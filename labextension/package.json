@@ -54,7 +54,7 @@
     "@lumino/widgets": "^1.6.0",
     "jupyterlab_toastify": "^4.1.0",
     "react-virtualized": "^9.21.1",
-    "semver": "^7.0.0",
+    "semver": "^6.0.0||^7.0.0",
     "typestyle": "^2.0.0"
   },
   "devDependencies": {
