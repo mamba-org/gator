@@ -69,9 +69,13 @@ async function activateCondaEnv(
       shell.add(widget, "main");
 
       if (tour) {
-        commands.execute("jupyterlab-tour:launch", {
-          id: tour.id,
-          force: false
+        app.restored.then(() => {
+          setTimeout(() => {
+            commands.execute("jupyterlab-tour:launch", {
+              id: tour.id,
+              force: false
+            });
+          }, 1000);
         });
       }
     }
