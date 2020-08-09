@@ -4178,15 +4178,14 @@ jsx-ast-utils@^2.2.3:
     array-includes "^3.0.3"
     object.assign "^4.1.0"
 
-jupyterlab_toastify@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/jupyterlab_toastify/-/jupyterlab_toastify-4.1.0.tgz#8ed89c87f6df914848a25b143adaaa3390121bda"
-  integrity sha512-lnoLIrdquiNa17lq8ZAQ+kYn6pwdVeq4V1XVhsD/OS7NsAT5U2C1oYU46JMfZK1rDJqP4ulRRBN9gVOZt3dF2g==
+jupyterlab_toastify@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/jupyterlab_toastify/-/jupyterlab_toastify-4.1.2.tgz#b794be24f787dcf1de0fd61d5b932f3826c829dc"
+  integrity sha512-t6qtSmooENGyi9FBtvJp7tezIKpUMtaKGTMGAQm1wrDKJJ3yDh/o+CYBPSGamzfIn1j4KSPh50yQs2CpoKDZSw==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.30"
     "@fortawesome/free-solid-svg-icons" "^5.14.0"
     "@fortawesome/react-fontawesome" "^0.1.11"
-    "@jupyterlab/ui-components" "^2.0.0"
     react-toastify "^6.0.5"
 
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
