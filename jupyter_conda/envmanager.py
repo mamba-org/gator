@@ -482,75 +482,85 @@ class EnvManager(LoggingConfigurable):
         """
         ans = await self._execute(self.manager, "search", "--json")
         _, output = ans
-        data = self._clean_conda_json(output)
-
+        
+        current_loop = tornado.ioloop.IOLoop.current()
+        data = await current_loop.run_in_executor(
+            None, self._clean_conda_json, output
+        )
+        
         if "error" in data:
             # we didn't get back a list of packages, we got a
             # dictionary with error info
             return data
 
-        packages = []
+        def format_packages(data: Dict) -> List:
+            packages = []
 
-        # Data structure
-        #  Dictionary with package name key and value is a list of dictionary. Example:
-        #  {
-        #   "arch": "x86_64",
-        #   "build": "np17py33_0",
-        #   "build_number": 0,
-        #   "channel": "https://repo.anaconda.com/pkgs/free/win-64",
-        #   "constrains": [],
-        #   "date": "2013-02-20",
-        #   "depends": [
-        #     "numpy 1.7*",
-        #     "python 3.3*"
-        #   ],
-        #   "fn": "astropy-0.2-np17py33_0.tar.bz2",
-        #   "license": "BSD",
-        #   "md5": "3522090a8922faebac78558fbde9b492",
-        #   "name": "astropy",
-        #   "platform": "win32",
-        #   "size": 3352442,
-        #   "subdir": "win-64",
-        #   "url": "https://repo.anaconda.com/pkgs/free/win-64/astropy-0.2-np17py33_0.tar.bz2",
-        #   "version": "0.2"
-        # }
+            # Data structure
+            #  Dictionary with package name key and value is a list of dictionary. Example:
+            #  {
+            #   "arch": "x86_64",
+            #   "build": "np17py33_0",
+            #   "build_number": 0,
+            #   "channel": "https://repo.anaconda.com/pkgs/free/win-64",
+            #   "constrains": [],
+            #   "date": "2013-02-20",
+            #   "depends": [
+            #     "numpy 1.7*",
+            #     "python 3.3*"
+            #   ],
+            #   "fn": "astropy-0.2-np17py33_0.tar.bz2",
+            #   "license": "BSD",
+            #   "md5": "3522090a8922faebac78558fbde9b492",
+            #   "name": "astropy",
+            #   "platform": "win32",
+            #   "size": 3352442,
+            #   "subdir": "win-64",
+            #   "url": "https://repo.anaconda.com/pkgs/free/win-64/astropy-0.2-np17py33_0.tar.bz2",
+            #   "version": "0.2"
+            # }
 
-        # List all available version for packages
-        for entries in data.values():
-            pkg_entry = None
-            versions = list()
-            max_build_numbers = list()
-            max_build_strings = list()
+            # List all available version for packages
+            for entries in data.values():
+                pkg_entry = None
+                versions = list()
+                max_build_numbers = list()
+                max_build_strings = list()
 
-            for entry in entries:
-                entry = normalize_pkg_info(entry)
-                if pkg_entry is None:
-                    pkg_entry = entry
+                for entry in entries:
+                    entry = normalize_pkg_info(entry)
+                    if pkg_entry is None:
+                        pkg_entry = entry
 
-                version = parse(entry.get("version", ""))
+                    version = parse(entry.get("version", ""))
 
-                if version not in versions:
-                    versions.append(version)
-                    max_build_numbers.append(entry.get("build_number", 0))
-                    max_build_strings.append(entry.get("build_string", ""))
-                else:
-                    version_idx = versions.index(version)
-                    build_number = entry.get("build_number", 0)
-                    if build_number > max_build_numbers[version_idx]:
-                        max_build_numbers[version_idx] = build_number
-                        max_build_strings[version_idx] = entry.get("build_string", "")
+                    if version not in versions:
+                        versions.append(version)
+                        max_build_numbers.append(entry.get("build_number", 0))
+                        max_build_strings.append(entry.get("build_string", ""))
+                    else:
+                        version_idx = versions.index(version)
+                        build_number = entry.get("build_number", 0)
+                        if build_number > max_build_numbers[version_idx]:
+                            max_build_numbers[version_idx] = build_number
+                            max_build_strings[version_idx] = entry.get("build_string", "")
 
-            sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
+                sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
 
-            pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
-            pkg_entry["build_number"] = [
-                max_build_numbers[i] for i in sorted_versions_idx
-            ]
-            pkg_entry["build_string"] = [
-                max_build_strings[i] for i in sorted_versions_idx
-            ]
+                pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
+                pkg_entry["build_number"] = [
+                    max_build_numbers[i] for i in sorted_versions_idx
+                ]
+                pkg_entry["build_string"] = [
+                    max_build_strings[i] for i in sorted_versions_idx
+                ]
 
-            packages.append(pkg_entry)
+                packages.append(pkg_entry)
+            return packages
+
+        packages = await current_loop.run_in_executor(
+            None, format_packages, data
+        )
 
         # Get channel short names
         configuration = await self.conda_config()
@@ -641,23 +651,30 @@ class EnvManager(LoggingConfigurable):
         #     "version": "0.1.0.dev1"
         # }
 
-        # Update channel and add some info
-        for package in packages:
-            name = package["name"]
-            if name in pkg_info:
-                package["summary"] = pkg_info[name].get("summary", "")
-                package["home"] = pkg_info[name].get("home", "")
-                # May return None so "or" with empty list
-                package["keywords"] = pkg_info[name].get("keywords", []) or []
-                package["tags"] = pkg_info[name].get("tags", []) or []
+        def update_packages(packages, pkg_info, tr_channels):
+            # Update channel and add some info
+            for package in packages:
+                name = package["name"]
+                if name in pkg_info:
+                    package["summary"] = pkg_info[name].get("summary", "")
+                    package["home"] = pkg_info[name].get("home", "")
+                    # May return None so "or" with empty list
+                    package["keywords"] = pkg_info[name].get("keywords", []) or []
+                    package["tags"] = pkg_info[name].get("tags", []) or []
 
-            # Convert to short channel names
-            channel, _ = os.path.split(package["channel"])
-            if channel in tr_channels:
-                package["channel"] = tr_channels[channel]
+                # Convert to short channel names
+                channel, _ = os.path.split(package["channel"])
+                if channel in tr_channels:
+                    package["channel"] = tr_channels[channel]
+            
+            return sorted(packages, key=lambda entry: entry.get("name"))
+
+        packages = await current_loop.run_in_executor(
+            None, update_packages, packages, pkg_info, tr_channels
+        )
 
         return {
-            "packages": sorted(packages, key=lambda entry: entry.get("name")),
+            "packages": packages,
             "with_description": len(pkg_info) > 0,
         }
 
