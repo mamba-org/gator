@@ -116,7 +116,9 @@ jobs:
   test-conda-os:
     name: Test Conda Python 3.7 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         os: ["macos-latest", "windows-latest"]
     steps:
