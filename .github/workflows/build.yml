@@ -46,6 +46,7 @@ jobs:
         with:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
+          channels: conda-forge
           python-version: ${{ matrix.python-version }}
           show-channel-urls: true
           use-only-tar-bz2: true
