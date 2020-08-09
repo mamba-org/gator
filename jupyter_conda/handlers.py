@@ -19,10 +19,9 @@ from typing import Any, Callable, ClassVar, Dict, NoReturn
 
 import tornado
 
-from .server import APIHandler, url_path_join
 from .envmanager import EnvManager
-
-logger = logging.getLogger(__name__)
+from .log import get_logger
+from .server import APIHandler, url_path_join
 
 NS = r"conda"
 # Filename for the available conda packages list cache in temp folder
@@ -39,7 +38,6 @@ class ActionsStack:
     """
 
     __last_index: ClassVar[int] = 0
-    logger: ClassVar[logging.Logger] = logging.getLogger("ActionsStack")
 
     def __init__(self):
         self.__tasks: Dict[int, asyncio.Task] = dict()
@@ -50,7 +48,7 @@ class ActionsStack:
         Args:
             idx (int): Task index
         """
-        ActionsStack.logger.debug("[jupyter_conda] Cancel task {}.".format(idx))
+        get_logger().debug("Cancel task {}.".format(idx))
         if idx not in self.__tasks:
             raise ValueError("Task {} does not exists.".format(idx))
 
@@ -93,9 +91,7 @@ class ActionsStack:
 
         async def execute_task(idx, f, *args) -> Any:
             try:
-                ActionsStack.logger.debug(
-                    "[jupyter_conda] Will execute task {}.".format(idx)
-                )
+                get_logger().debug("Will execute task {}.".format(idx))
                 result = await f(*args)
             except asyncio.CancelledError:
                 raise
@@ -107,13 +103,9 @@ class ActionsStack:
                     "message": repr(e),
                     "traceback": traceback.format_tb(tb),
                 }
-                ActionsStack.logger.error(
-                    "[jupyter_conda] Error for task {}.".format(result)
-                )
+                get_logger().error("Error for task {}.".format(result))
             else:
-                ActionsStack.logger.debug(
-                    "[jupyter_conda] Has executed task {}.".format(idx)
-                )
+                get_logger().debug("Has executed task {}.".format(idx))
 
             return result
 
@@ -135,8 +127,13 @@ class EnvBaseHandler(APIHandler):
 
     @property
     def env_manager(self) -> EnvManager:
-        """Return our env_manager instance"""
+        """EnvManager : Return our env_manager instance"""
         return self.settings["env_manager"]
+
+    @property
+    def log(self) -> logging.Logger:
+        """logging.Logger: The extension logger"""
+        return get_logger()
 
     def redirect_to_task(self, index: int):
         """Close a request by redirecting to a task."""
@@ -367,8 +364,8 @@ class PackagesHandler(EnvBaseHandler):
                 with open(cache_file) as cache:
                     cache_data = cache.read()
             except OSError as e:
-                logger.info("[jupyter_conda] No available packages list in cache.")
-                logger.debug(str(e))
+                self.log.info("No available packages list in cache.")
+                self.log.debug(str(e))
 
             async def update_available(
                 env_manager: EnvManager, cache_file: str, return_packages: bool = True
@@ -378,8 +375,8 @@ class PackagesHandler(EnvBaseHandler):
                     with open(cache_file, "w+") as cache:
                         json.dump(answer, cache)
                 except (ValueError, OSError) as e:
-                    logger.info("[jupyter_conda] Fail to cache available packages.")
-                    logger.debug(str(e))
+                    self.log.info("Fail to cache available packages.")
+                    self.log.debug(str(e))
                 else:
                     # Change rights to ensure every body can update the cache
                     os.chmod(
@@ -395,7 +392,7 @@ class PackagesHandler(EnvBaseHandler):
                     return {}
 
             if len(cache_data) > 0:
-                logger.debug("[jupyter_conda] Loading available packages from cache.")
+                self.log.debug("Loading available packages from cache.")
                 # Request cache update in background
                 if not PackagesHandler.__is_listing_available:
                     PackagesHandler.__is_listing_available = True
@@ -444,7 +441,7 @@ class TaskHandler(EnvBaseHandler):
             else:
                 if "error" in r:
                     self.set_status(500)
-                    logger.debug("[jupyter_conda] {}".format(r))
+                    self.log.debug("{}".format(r))
                 else:
                     self.set_status(200)
                 self.finish(json.dumps(r))
@@ -494,8 +491,9 @@ default_handlers = [
 def load_jupyter_server_extension(nbapp):
     """Load the nbserver extension"""
     webapp = nbapp.web_app
-    webapp.settings["env_manager"] = EnvManager(parent=nbapp)
-    ActionsStack.logger = nbapp.log
+    webapp.settings["env_manager"] = EnvManager(
+        nbapp.contents_manager.root_dir, nbapp.kernel_spec_manager
+    )
 
     base_url = webapp.settings["base_url"]
     webapp.add_handlers(
@@ -505,4 +503,5 @@ def load_jupyter_server_extension(nbapp):
             for pat, handler in default_handlers
         ],
     )
-    nbapp.log.info("[jupyter_conda] enabled")
+
+    get_logger().info("Server extension enabled")
