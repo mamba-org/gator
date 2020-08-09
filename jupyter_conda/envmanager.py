@@ -2,22 +2,22 @@
 # Distributed under the terms of the Modified BSD License.
 import asyncio
 import json
+import logging
 import os
 import re
 import ssl
 import sys
 import tempfile
 from functools import partial
+from subprocess import PIPE, Popen
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from packaging.version import parse
-from subprocess import Popen, PIPE
-
-from nb_conda_kernels.manager import RUNNER_COMMAND
 import tornado
-from traitlets.config.configurable import LoggingConfigurable
+from nb_conda_kernels.manager import RUNNER_COMMAND
+from packaging.version import parse
 
-from .server import url_path_join, url2path
+from .log import get_logger
+from .server import url2path, url_path_join
 
 ROOT_ENV_NAME = "base"
 
@@ -52,12 +52,19 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
     }
 
 
-class EnvManager(LoggingConfigurable):
+class EnvManager:
     """Handles environment and package actions."""
 
     _conda_version: Optional[str] = None
     _mamba_version: Optional[str] = None
     _manager_exe: Optional[str] = None
+
+    def __init__(self, root_dir: str):
+        """
+        Args:
+            root_dir (str): Server root path
+        """
+        self._root_dir = root_dir
 
     def _clean_conda_json(self, output: str) -> Dict[str, Any]:
         """Clean a command output to fit json format.
@@ -73,7 +80,7 @@ class EnvManager(LoggingConfigurable):
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.warn("[jupyter_conda] JSON parse fail:\n{!s}".format(err))
+            self.log.warn("JSON parse fail:\n{!s}".format(err))
 
         # try to remove bad lines
         lines = [line for line in lines if re.match(JSONISH_RE, line)]
@@ -81,7 +88,7 @@ class EnvManager(LoggingConfigurable):
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.error("[jupyter_conda] JSON clean/parse fail:\n{!s}".format(err))
+            self.log.error("JSON clean/parse fail:\n{!s}".format(err))
 
         return {"error": True}
 
@@ -98,7 +105,7 @@ class EnvManager(LoggingConfigurable):
         cmdline = [cmd]
         cmdline.extend(args)
 
-        self.log.debug("[jupyter_conda] command: {!s}".format(" ".join(cmdline)))
+        self.log.debug("command: {!s}".format(" ".join(cmdline)))
 
         current_loop = tornado.ioloop.IOLoop.current()
         process = await current_loop.run_in_executor(
@@ -117,15 +124,20 @@ class EnvManager(LoggingConfigurable):
         if returncode == 0:
             output = output.decode("utf-8")
         else:
-            self.log.debug("[jupyter_conda] exit code: {!s}".format(returncode))
+            self.log.debug("exit code: {!s}".format(returncode))
             output = error.decode("utf-8") + output.decode("utf-8")
 
-        self.log.debug("[jupyter_conda] output: {!s}".format(output[:MAX_LOG_OUTPUT]))
+        self.log.debug("output: {!s}".format(output[:MAX_LOG_OUTPUT]))
 
         if len(output) > MAX_LOG_OUTPUT:
-            self.log.debug("[jupyter_conda] ...")
+            self.log.debug("...")
 
         return returncode, output
+
+    @property
+    def log(self) -> logging.Logger:
+        """logging.Logger : Extension logger"""
+        return get_logger()
 
     @property
     def manager(self) -> str:
@@ -151,10 +163,10 @@ class EnvManager(LoggingConfigurable):
                     EnvManager._manager_exe = "mamba"
 
             except BaseException:
-                self.log.debug("[jupyter_conda] Fail to get mamba version, falling back to conda", exc_info=sys.exc_info())
+                self.log.debug("Fail to get mamba version, falling back to conda", exc_info=sys.exc_info())
                 EnvManager._manager_exe = CONDA_EXE
             
-            self.log.debug("[jupyter_conda] Package manager: {}".format(EnvManager._manager_exe))
+            self.log.debug("Package manager: {}".format(EnvManager._manager_exe))
 
         return EnvManager._manager_exe
 
@@ -206,7 +218,7 @@ class EnvManager(LoggingConfigurable):
                         get_uri(spec),
                     ]
 
-        self.log.debug("[jupyter_conda] channels: {}".format(deployed_channels))
+        self.log.debug("channels: {}".format(deployed_channels))
         return {"channels": deployed_channels}
 
     async def conda_config(self) -> Dict[str, Any]:
@@ -293,7 +305,7 @@ class EnvManager(LoggingConfigurable):
                 await self.info()  # Set conda version
             if EnvManager._conda_version < (4, 7, 12):
                 self.log.warning(
-                    "[jupyter_conda] conda<4.7.12 does not support `env export --from-history`. It will be ignored."
+                    "conda<4.7.12 does not support `env export --from-history`. It will be ignored."
                 )
             else:
                 command.append("--from-history")
@@ -592,12 +604,12 @@ class EnvManager(LoggingConfigurable):
                 else:
                     path = url.path
                 path = os.path.join(path, "channeldata.json")
-                self.log.debug("[jupyter_conda] Reading {}".format(path))
+                self.log.debug("Reading {}".format(path))
                 try:  # Skip if file is not accessible
                     with open(path) as f:
                         channeldata = json.load(f)
                 except (json.JSONDecodeError, OSError, ValueError) as err:
-                    self.log.info("[jupyter_conda] {!s} skipped".format(path))
+                    self.log.info("{!s} skipped".format(path))
                     self.log.debug(str(err))
                 else:
                     pkg_info.update(channeldata["packages"])
@@ -612,7 +624,7 @@ class EnvManager(LoggingConfigurable):
                     )
                 except Exception as e:
                     self.log.info(
-                        "[jupyter_conda] {}/channeldata.json skipped.".format(channel)
+                        "{}/channeldata.json skipped.".format(channel)
                     )
                     self.log.debug(str(e))
                 else:
@@ -621,7 +633,7 @@ class EnvManager(LoggingConfigurable):
                         pkg_info.update(json.loads(channeldata)["packages"])
                     except (json.JSONDecodeError, ValueError) as error:
                         self.log.info(
-                            "[jupyter_conda] {}/channeldata.json skipped.".format(
+                            "{}/channeldata.json skipped.".format(
                                 channel
                             )
                         )
@@ -820,7 +832,7 @@ class EnvManager(LoggingConfigurable):
                     # Convert jupyterlab path to local path if the path does not exists
                     realpath = os.path.realpath(
                         os.path.join(
-                            self.parent.contents_manager.root_dir, url2path(path)
+                            self._root_dir, url2path(path)
                         )
                     )
                     if not os.path.exists(realpath):
