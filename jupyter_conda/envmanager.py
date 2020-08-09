@@ -13,6 +13,7 @@ from subprocess import PIPE, Popen
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import tornado
+from jupyter_client.kernelspec import KernelSpecManager
 from nb_conda_kernels.manager import RUNNER_COMMAND
 from packaging.version import parse
 
@@ -59,12 +60,13 @@ class EnvManager:
     _mamba_version: Optional[str] = None
     _manager_exe: Optional[str] = None
 
-    def __init__(self, root_dir: str):
+    def __init__(self, root_dir: str, kernel_spec_manager: KernelSpecManager):
         """
         Args:
             root_dir (str): Server root path
         """
         self._root_dir = root_dir
+        self._kernel_spec_manager = kernel_spec_manager
 
     def _clean_conda_json(self, output: str) -> Dict[str, Any]:
         """Clean a command output to fit json format.
@@ -395,12 +397,12 @@ class EnvManager:
         whitelist_env = set()
         if whitelist:
             # Build env path list - simplest way to compare kernel and environment
-            for entry in self.parent.kernel_spec_manager.get_all_specs().values():
+            for entry in self._kernel_spec_manager.get_all_specs().values():
                 spec = entry["spec"]
                 argv = spec.get("argv", [])
                 if "conda_env_path" in spec["metadata"]:
                     whitelist_env.add(spec["metadata"]["conda_env_path"])
-                elif argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
+                elif len(argv) >= 5 and argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
                     whitelist_env.add(argv[4])
         
         def get_info(env):

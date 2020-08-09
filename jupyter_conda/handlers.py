@@ -491,7 +491,9 @@ default_handlers = [
 def load_jupyter_server_extension(nbapp):
     """Load the nbserver extension"""
     webapp = nbapp.web_app
-    webapp.settings["env_manager"] = EnvManager(nbapp.contents_manager.root_dir)
+    webapp.settings["env_manager"] = EnvManager(
+        nbapp.contents_manager.root_dir, nbapp.kernel_spec_manager
+    )
 
     base_url = webapp.settings["base_url"]
     webapp.add_handlers(
