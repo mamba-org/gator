@@ -5,7 +5,7 @@ set -eux
 python -m pip install .
 
 # !! Be sure the version of jupyterlab-tour matches the one saved in bind/workspace.json
-jupyter labextension install jupyterlab_conda jupyterlab-tour@2.1.0
+jupyter labextension install jupyterlab_conda jupyterlab-tour@^2.1.1
 
 # Import the workspace into JupyterLab
 jupyter lab workspaces import binder/workspace.json
