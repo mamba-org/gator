@@ -52,6 +52,23 @@ async function activateCondaEnv(
   commands.addCommand(command, {
     label: "Conda Packages Manager",
     execute: () => {
+      
+      app.restored.then(() => {
+        const delayTour = setTimeout(() => {
+            if (tour) {
+              commands.execute("jupyterlab-tour:launch", {
+                id: tour.id,
+                force: false
+              });
+            } else {
+              delayTour();
+            }
+          }, 
+          1000
+        );
+        delayTour();
+      });
+    
       if (tracker.currentWidget) {
         shell.activateById(tracker.currentWidget.id);
         return;
@@ -67,17 +84,6 @@ async function activateCondaEnv(
 
       void tracker.add(widget);
       shell.add(widget, "main");
-
-      if (tour) {
-        app.restored.then(() => {
-          setTimeout(() => {
-            commands.execute("jupyterlab-tour:launch", {
-              id: tour.id,
-              force: false
-            });
-          }, 1000);
-        });
-      }
     }
   });
 
