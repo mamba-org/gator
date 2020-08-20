@@ -50,12 +50,11 @@ setuptools.setup(
     zip_safe=False,
     install_requires=[
         # "conda>=4.5",  # Required conda not available through PyPi anymore
-        "nb_conda_kernels>=2.2.0",
         "notebook>=4.3.1",
         "packaging",
         "typing;python_version<'3.7'",
     ],
     extras_require={
-        "test": ["coverage", "flake8", "pytest", "pytest-asyncio", "requests"]
+        "test": ["coverage", "flake8", "nb_conda_kernels", "pytest", "pytest-asyncio", "requests"]
     },
 )

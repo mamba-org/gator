@@ -14,20 +14,27 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import tornado
 from jupyter_client.kernelspec import KernelSpecManager
-from nb_conda_kernels.manager import RUNNER_COMMAND
+
 from packaging.version import parse
 
 from .log import get_logger
 from .server import url2path, url_path_join
 
-ROOT_ENV_NAME = "base"
-
-MAX_LOG_OUTPUT = 6000  # type: int
 
 CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
 
+PATH_SEP = "\\" + os.path.sep
+CONDA_ENV_PATH = r"^(.*?" + PATH_SEP + r"envs" + PATH_SEP + r".+?)" + PATH_SEP
+
 # try to match lines of json
 JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
+
+MAX_LOG_OUTPUT = 6000  # type: int
+
+ROOT_ENV_NAME = "base"
+
+# See https://github.com/Anaconda-Platform/nb_conda_kernels/blob/master/nb_conda_kernels/manager.py#L19
+RUNNER_COMMAND = ['python', '-m', 'nb_conda_kernels.runner']
 
 
 def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
@@ -51,6 +58,28 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "keywords": s.get("keywords", []),
         "tags": s.get("tags", []),
     }
+
+
+def get_env_path(kernel_spec: Dict[str, Any]) -> Optional[str]:
+    """Get the conda environment path.
+    
+    Args:
+        kernel_spec (dict): Kernel spec
+    
+    Returns:
+        str: Best guess for the environment path
+    """
+    argv = kernel_spec.get("argv", [])
+    if "conda_env_path" in kernel_spec["metadata"]:
+        return kernel_spec["metadata"]["conda_env_path"]
+    elif len(argv) >= 5 and argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
+        return argv[4]
+    elif len(argv) > 0:
+        match = re.match(CONDA_ENV_PATH, argv[0])
+        if match is not None:
+            return match.groups()[0]
+        
+    return None
 
 
 class EnvManager:
@@ -398,13 +427,10 @@ class EnvManager:
         if whitelist:
             # Build env path list - simplest way to compare kernel and environment
             for entry in self._kernel_spec_manager.get_all_specs().values():
-                spec = entry["spec"]
-                argv = spec.get("argv", [])
-                if "conda_env_path" in spec["metadata"]:
-                    whitelist_env.add(spec["metadata"]["conda_env_path"])
-                elif len(argv) >= 5 and argv[:3] == RUNNER_COMMAND and len(argv[4]) > 0:
-                    whitelist_env.add(argv[4])
-        
+                path = get_env_path(entry["spec"])
+                if path:
+                    whitelist_env.add(path)
+
         def get_info(env):
             base_dir = os.path.dirname(env)
             if base_dir not in info["envs_dirs"]:
