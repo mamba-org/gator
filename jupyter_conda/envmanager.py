@@ -5,18 +5,25 @@ import json
 import logging
 import os
 import re
+import shutil
 import ssl
 import sys
 import tempfile
 from functools import partial
+from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
 import tornado
 from jupyter_client.kernelspec import KernelSpecManager
-
 from packaging.version import parse
 
+try:
+    import nb_conda_kernels
+except ImportError:
+    nb_conda_kernels = None
+
+from .config import JupyterConda
 from .log import get_logger
 from .server import url2path, url_path_join
 
@@ -34,7 +41,7 @@ MAX_LOG_OUTPUT = 6000  # type: int
 ROOT_ENV_NAME = "base"
 
 # See https://github.com/Anaconda-Platform/nb_conda_kernels/blob/master/nb_conda_kernels/manager.py#L19
-RUNNER_COMMAND = ['python', '-m', 'nb_conda_kernels.runner']
+RUNNER_COMMAND = ["python", "-m", "nb_conda_kernels.runner"] if nb_conda_kernels is None else nb_conda_kernels.manager.RUNNER_COMMAND
 
 
 def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
@@ -78,7 +85,7 @@ def get_env_path(kernel_spec: Dict[str, Any]) -> Optional[str]:
         match = re.match(CONDA_ENV_PATH, argv[0])
         if match is not None:
             return match.groups()[0]
-        
+
     return None
 
 
@@ -89,13 +96,21 @@ class EnvManager:
     _mamba_version: Optional[str] = None
     _manager_exe: Optional[str] = None
 
-    def __init__(self, root_dir: str, kernel_spec_manager: KernelSpecManager):
+    def __init__(
+        self,
+        root_dir: str,
+        kernel_spec_manager: KernelSpecManager,
+        config: JupyterConda,
+    ):
         """
         Args:
             root_dir (str): Server root path
+            kernel_spec_manager (KernelSpecManager): Kernel Specification Manager
+            config (JupyterConda): Server extension configuration
         """
         self._root_dir = root_dir
         self._kernel_spec_manager = kernel_spec_manager
+        self._config = config
 
     def _clean_conda_json(self, output: str) -> Dict[str, Any]:
         """Clean a command output to fit json format.
@@ -165,6 +180,43 @@ class EnvManager:
 
         return returncode, output
 
+    async def _install_kernelspec(self, env_name: str) -> NoReturn:
+        if self._config.kernels_path is None:
+            return
+        
+        code, output = await self._execute(CONDA_EXE, "run", "-n", env_name, "jupyter", "kernelspec", "list", "--json")
+        if code != 0:
+            return
+        
+        kernelspecs = json.loads(output)["kernelspecs"]
+
+        kernels_dir = Path(self._config.kernels_path)
+        for name, info in kernelspecs.items():
+            new_name = "conda-env-{}-{}".format(env_name, name)
+            kernel_spec_dir = kernels_dir / new_name
+            shutil.copytree(info["resource_dir"], kernel_spec_dir)
+            spec = info["spec"]
+            spec["display_name"] = self._config.name_format.format(spec["language"], env_name)
+            kernel_spec_file = kernel_spec_dir / "kernel.json"
+            # Q Should we add the nb_conda_kernels runner?        
+            kernel_spec_file.write_text(json.dumps(spec))
+
+    async def _uninstall_kernelspec(self, env_name: str) -> NoReturn:
+        if self._config.kernels_path is None:
+            return
+        
+        code, output = await self._execute(CONDA_EXE, "run", "-n", env_name, "jupyter", "kernelspec", "list", "--json")
+        if code != 0:
+            kernelspecs = {}
+        else:
+            kernelspecs = json.loads(output)["kernelspecs"]
+
+        kernels_dir = Path(self._config.kernels_path)
+        for folder in kernels_dir.glob("conda-env-{}-*".format(env_name)):
+            kernel_name = folder.name[len("conda-env-{}-".format(env_name)):]
+            if folder.is_dir() and kernel_name not in kernelspecs:
+                await self._execute("jupyter", "kernelspec", "uninstall", folder.name)
+
     @property
     def log(self) -> logging.Logger:
         """logging.Logger : Extension logger"""
@@ -183,20 +235,25 @@ class EnvManager:
             try:
                 process = Popen(["mamba", "--version"], stdout=PIPE, stderr=PIPE)
                 output, error = process.communicate()
-                
+
                 if process.returncode != 0:
-                    raise RuntimeError( error.decode("utf-8"))
-                
-                versions = list(map(lambda l: l.split(), output.decode("utf-8").splitlines()))
+                    raise RuntimeError(error.decode("utf-8"))
+
+                versions = list(
+                    map(lambda l: l.split(), output.decode("utf-8").splitlines())
+                )
                 if versions[0][0] == "mamba" and versions[1][0] == "conda":
                     EnvManager._conda_version = versions[1][1]
                     EnvManager._mamba_version = versions[0][1]
                     EnvManager._manager_exe = "mamba"
 
             except BaseException:
-                self.log.debug("Fail to get mamba version, falling back to conda", exc_info=sys.exc_info())
+                self.log.debug(
+                    "Fail to get mamba version, falling back to conda",
+                    exc_info=sys.exc_info(),
+                )
                 EnvManager._manager_exe = CONDA_EXE
-            
+
             self.log.debug("Package manager: {}".format(EnvManager._manager_exe))
 
         return EnvManager._manager_exe
@@ -298,6 +355,7 @@ class EnvManager:
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
+        
         return output
 
     async def delete_env(self, env: str) -> Dict[str, str]:
@@ -522,12 +580,10 @@ class EnvManager:
         """
         ans = await self._execute(self.manager, "search", "--json")
         _, output = ans
-        
+
         current_loop = tornado.ioloop.IOLoop.current()
-        data = await current_loop.run_in_executor(
-            None, self._clean_conda_json, output
-        )
-        
+        data = await current_loop.run_in_executor(None, self._clean_conda_json, output)
+
         if "error" in data:
             # we didn't get back a list of packages, we got a
             # dictionary with error info
@@ -583,9 +639,13 @@ class EnvManager:
                         build_number = entry.get("build_number", 0)
                         if build_number > max_build_numbers[version_idx]:
                             max_build_numbers[version_idx] = build_number
-                            max_build_strings[version_idx] = entry.get("build_string", "")
+                            max_build_strings[version_idx] = entry.get(
+                                "build_string", ""
+                            )
 
-                sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
+                sorted_versions_idx = sorted(
+                    range(len(versions)), key=versions.__getitem__
+                )
 
                 pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
                 pkg_entry["build_number"] = [
@@ -598,9 +658,7 @@ class EnvManager:
                 packages.append(pkg_entry)
             return packages
 
-        packages = await current_loop.run_in_executor(
-            None, format_packages, data
-        )
+        packages = await current_loop.run_in_executor(None, format_packages, data)
 
         # Get channel short names
         configuration = await self.conda_config()
@@ -651,20 +709,14 @@ class EnvManager:
                         )
                     )
                 except Exception as e:
-                    self.log.info(
-                        "{}/channeldata.json skipped.".format(channel)
-                    )
+                    self.log.info("{}/channeldata.json skipped.".format(channel))
                     self.log.debug(str(e))
                 else:
                     channeldata = response.body.decode("utf-8")
                     try:
                         pkg_info.update(json.loads(channeldata)["packages"])
                     except (json.JSONDecodeError, ValueError) as error:
-                        self.log.info(
-                            "{}/channeldata.json skipped.".format(
-                                channel
-                            )
-                        )
+                        self.log.info("{}/channeldata.json skipped.".format(channel))
                         self.log.debug(str(error))
 
         # Example structure channeldata['packages'] for channeldata_version == 1
@@ -706,7 +758,7 @@ class EnvManager:
                 channel, _ = os.path.split(package["channel"])
                 if channel in tr_channels:
                     package["channel"] = tr_channels[channel]
-            
+
             return sorted(packages, key=lambda entry: entry.get("name"))
 
         packages = await current_loop.run_in_executor(
@@ -859,9 +911,7 @@ class EnvManager:
                 if not os.path.exists(realpath):
                     # Convert jupyterlab path to local path if the path does not exists
                     realpath = os.path.realpath(
-                        os.path.join(
-                            self._root_dir, url2path(path)
-                        )
+                        os.path.join(self._root_dir, url2path(path))
                     )
                     if not os.path.exists(realpath):
                         return {"error": "Unable to find path {}.".format(path)}

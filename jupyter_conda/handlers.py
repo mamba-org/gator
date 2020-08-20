@@ -19,6 +19,7 @@ from typing import Any, Callable, ClassVar, Dict, NoReturn
 
 import tornado
 
+from .config import JupyterConda
 from .envmanager import EnvManager
 from .log import get_logger
 from .server import APIHandler, url_path_join
@@ -490,9 +491,11 @@ default_handlers = [
 
 def load_jupyter_server_extension(nbapp):
     """Load the nbserver extension"""
+    config = JupyterConda(config=nbapp.config)
+
     webapp = nbapp.web_app
     webapp.settings["env_manager"] = EnvManager(
-        nbapp.contents_manager.root_dir, nbapp.kernel_spec_manager
+        nbapp.contents_manager.root_dir, nbapp.kernel_spec_manager, config
     )
 
     base_url = webapp.settings["base_url"]
