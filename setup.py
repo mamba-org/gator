@@ -55,6 +55,6 @@ setuptools.setup(
         "typing;python_version<'3.7'",
     ],
     extras_require={
-        "test": ["coverage", "flake8", "nb_conda_kernels", "pytest", "pytest-asyncio", "requests"]
+        "test": ["coverage", "flake8", "nb_conda_kernels>=2.2.0", "pytest", "pytest-asyncio", "requests"]
     },
 )
