@@ -1,5 +1,6 @@
 coverage
 flake8
+nb_conda_kernels
 nodejs
 pytest
 pytest-asyncio
