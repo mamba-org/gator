@@ -25,6 +25,9 @@ import { managerTour } from "./tour";
 
 export { Conda, IEnvironmentManager } from "./tokens";
 
+const TOUR_DELAY = 1000;
+const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
+
 async function activateCondaEnv(
   app: JupyterFrontEnd,
   palette: ICommandPalette,
@@ -52,6 +55,38 @@ async function activateCondaEnv(
   commands.addCommand(command, {
     label: "Conda Packages Manager",
     execute: () => {
+      app.restored.then(() => {
+        let timeout = 0;
+
+        const delayTour = (): void => {
+          setTimeout(() => {
+            timeout += TOUR_DELAY;
+            if (content.isVisible && tour) {
+              commands.execute("jupyterlab-tour:launch", {
+                id: tour.id,
+                force: false
+              });
+            } else if (timeout < TOUR_TIMEOUT) {
+              delayTour();
+            }
+          }, 1000);
+        };
+
+        if (commands.hasCommand("jupyterlab-tour:add")) {
+          if (!tour) {
+            commands
+              .execute("jupyterlab-tour:add", {
+                tour: managerTour as any
+              })
+              .then(result => {
+                tour = result;
+              });
+          }
+
+          delayTour();
+        }
+      });
+
       if (tracker.currentWidget) {
         shell.activateById(tracker.currentWidget.id);
         return;
@@ -67,17 +102,6 @@ async function activateCondaEnv(
 
       void tracker.add(widget);
       shell.add(widget, "main");
-
-      if (tour) {
-        app.restored.then(() => {
-          setTimeout(() => {
-            commands.execute("jupyterlab-tour:launch", {
-              id: tour.id,
-              force: false
-            });
-          }, 1000);
-        });
-      }
     }
   });
 
@@ -92,18 +116,6 @@ async function activateCondaEnv(
 
   // Add command to settings menu
   menu.settingsMenu.addGroup([{ command: command }], 999);
-
-  app.restored.then(() => {
-    if (commands.hasCommand("jupyterlab-tour:add")) {
-      commands
-        .execute("jupyterlab-tour:add", {
-          tour: managerTour as any
-        })
-        .then(result => {
-          tour = result;
-        });
-    }
-  });
 
   return model;
 }
@@ -165,7 +177,7 @@ export default extensions;
 
 /* eslint-disable no-inner-declarations */
 namespace Private {
-  export function loadPackages(model: CondaEnvironments) {
+  export function loadPackages(model: CondaEnvironments): void {
     let packageFound = false;
     let toastId: React.ReactText;
     const messages = [
@@ -175,7 +187,7 @@ namespace Private {
       "Available packages list still loading..."
     ];
 
-    function displayMessage(message: React.ReactNode) {
+    function displayMessage(message: React.ReactNode): void {
       setTimeout(() => {
         if (!packageFound) {
           INotification.update({
