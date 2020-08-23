@@ -55,11 +55,10 @@ async function activateCondaEnv(
   commands.addCommand(command, {
     label: "Conda Packages Manager",
     execute: () => {
-
       app.restored.then(() => {
         let timeout = 0;
 
-        const delayTour = () => {
+        const delayTour = (): void => {
           setTimeout(() => {
             timeout += TOUR_DELAY;
             if (content.isVisible && tour) {
@@ -70,10 +69,8 @@ async function activateCondaEnv(
             } else if (timeout < TOUR_TIMEOUT) {
               delayTour();
             }
-          },
-            1000
-          );
-        }
+          }, 1000);
+        };
 
         if (commands.hasCommand("jupyterlab-tour:add")) {
           if (!tour) {
@@ -180,7 +177,7 @@ export default extensions;
 
 /* eslint-disable no-inner-declarations */
 namespace Private {
-  export function loadPackages(model: CondaEnvironments) {
+  export function loadPackages(model: CondaEnvironments): void {
     let packageFound = false;
     let toastId: React.ReactText;
     const messages = [
@@ -190,7 +187,7 @@ namespace Private {
       "Available packages list still loading..."
     ];
 
-    function displayMessage(message: React.ReactNode) {
+    function displayMessage(message: React.ReactNode): void {
       setTimeout(() => {
         if (!packageFound) {
           INotification.update({
