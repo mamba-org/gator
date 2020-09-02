@@ -3,7 +3,13 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
+import { DOMUtils } from '@jupyterlab/apputils';
+
+import { Widget } from '@lumino/widgets';
+
 import { IMainMenu } from '../top/tokens';
+
+import { mambaIcon } from '../../icons';
 
 /**
  * The command ids used by the main navigator plugin.
@@ -25,7 +31,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
     commands.addCommand(CommandIDs.open, {
       label: 'Open',
       execute: () => {
-        console.log('Open Command');
+        const widget = new Widget();
+        mambaIcon.element({
+          container: widget.node,
+          elementPosition: 'center',
+          margin: '5px 5px 5px 5px',
+          height: 'auto',
+          width: 'auto'
+        });
+        widget.id = DOMUtils.createDomID();
+        widget.title.label = 'Mamba Logo';
+        app.shell.add(widget, 'main');
       }
     });
 

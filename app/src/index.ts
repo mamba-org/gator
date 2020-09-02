@@ -3,8 +3,6 @@ import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 import { App } from './app/app';
 
 import '@jupyterlab/application/style/index.css';
-import '@jupyterlab/codemirror/style/index.css';
-import '@jupyterlab/json-extension/style/index.css';
 import '@jupyterlab/theme-light-extension/style/index.css';
 import '@jupyterlab/theme-light-extension/style/variables.css';
 

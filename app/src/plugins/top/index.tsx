@@ -3,7 +3,7 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import { LabIcon } from '@jupyterlab/ui-components';
+import { showDialog, Dialog } from '@jupyterlab/apputils';
 
 import { Widget } from '@lumino/widgets';
 
@@ -11,10 +11,9 @@ import { MainMenu } from './menu';
 
 import { IMainMenu } from './tokens';
 
-import mambaIconStr from '../../../style/mamba.svg';
+import { mambaIcon } from '../../icons';
 
 import * as React from 'react';
-import { showDialog, Dialog } from '@jupyterlab/apputils';
 
 /**
  * The command IDs used by the top plugin.
@@ -32,8 +31,7 @@ const plugin: JupyterFrontEndPlugin<IMainMenu> = {
   provides: IMainMenu,
   activate: (app: JupyterFrontEnd): IMainMenu => {
     const logo = new Widget();
-    const icon = new LabIcon({ name: 'mamba-icon', svgstr: mambaIconStr });
-    icon.element({
+    mambaIcon.element({
       container: logo.node,
       elementPosition: 'center',
       margin: '2px 2px 2px 8px',
@@ -49,12 +47,13 @@ const plugin: JupyterFrontEndPlugin<IMainMenu> = {
       execute: () => {
         const title = (
           <span className="about-header">
-            <icon.react margin="7px 9.5px" height="auto" width="58px" />
+            <mambaIcon.react margin="7px 9.5px" height="auto" width="58px" />
             <div className="about-header-info">About the Mamba Navigator</div>
           </span>
         );
 
-        const mambaNavigatorUrl = 'https://github.com/TheSnakePit/mamba-navigator';
+        const mambaNavigatorUrl =
+          'https://github.com/TheSnakePit/mamba-navigator';
         const externalLinks = (
           <span>
             <a
@@ -88,7 +87,6 @@ const plugin: JupyterFrontEndPlugin<IMainMenu> = {
 
     app.shell.add(logo, 'top');
     app.shell.add(menu, 'top');
-
 
     return menu;
   }
