@@ -17,3 +17,39 @@ body {
   display: flex;
   min-height: var(--jp-private-menubar-height);
 }
+
+.about-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.about-body {
+  display: flex;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  text-align: left;
+  flex-direction: column;
+  width: 100%;
+  min-width: 360px;
+  overflow: visible;
+}
+
+.about-body pre {
+  white-space: pre-wrap;
+}
+
+.about-header-info {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+}
+
+.about-externalLinks {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-top: 12px;
+  color: var(--jp-ui-font-color1);
+}
