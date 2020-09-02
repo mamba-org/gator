@@ -1,0 +1,81 @@
+{
+  "name": "mamba-navigator",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "lib/**/*.d.ts",
+    "lib/**/*.js.map",
+    "lib/**/*.js",
+    "schema/*.json",
+    "style/**/*.css",
+    "style/**/*.svg"
+  ],
+  "sideEffects": [
+    "style/**/*.css"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "style": "style/index.css",
+  "directories": {
+    "lib": "lib/"
+  },
+  "scripts": {
+    "build": "tsc && webpack",
+    "build:prod": "tsc && webpack --mode=production",
+    "clean": "rimraf build && rimraf tsconfig.tsbuildinfo",
+    "prepublishOnly": "npm run build",
+    "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}'",
+    "prettier:check": "prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
+    "watch:ts": "tsc -w --listEmittedFiles",
+    "watch:webpack": "webpack --watch",
+    "watch": "npm-run-all --parallel watch:ts watch:webpack"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^3.0.0-alpha.4",
+    "@jupyterlab/apputils": "^3.0.0-alpha.4",
+    "@jupyterlab/buildutils": "^3.0.0-alpha.4",
+    "@jupyterlab/mainmenu": "^3.0.0-alpha.4",
+    "@jupyterlab/theme-light-extension": "^3.0.0-alpha.4",
+    "@jupyterlab/ui-components": "^3.0.0-alpha.4",
+    "@lumino/widgets": "^1.13.2",
+    "es6-promise": "~4.2.8",
+    "react": "~16.9.0",
+    "react-dom": "~16.9.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "css-loader": "~3.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-jsdoc": "^22.0.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.18.3",
+    "file-loader": "~5.0.2",
+    "fs-extra": "^8.1.0",
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.3",
+    "glob": "~7.1.6",
+    "mini-css-extract-plugin": "~0.9.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.19.1",
+    "raw-loader": "~4.0.0",
+    "read-package-tree": "^5.3.1",
+    "rimraf": "~3.0.0",
+    "style-loader": "~1.0.1",
+    "svg-url-loader": "~3.0.3",
+    "typescript": "~3.9.0",
+    "url-loader": "~3.0.0",
+    "watch": "~1.0.2",
+    "webpack": "5.0.0-beta.21",
+    "webpack-cli": "^3.3.10",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}
