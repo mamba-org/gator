@@ -30,10 +30,10 @@ const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
 
 async function activateCondaEnv(
   app: JupyterFrontEnd,
-  palette: ICommandPalette,
-  menu: IMainMenu,
-  restorer: ILayoutRestorer,
-  settingsRegistry: ISettingRegistry
+  settingsRegistry: ISettingRegistry,
+  palette: ICommandPalette | null,
+  menu: IMainMenu | null,
+  restorer: ILayoutRestorer | null
 ): Promise<IEnvironmentManager> {
   let tour: any;
   const { commands, shell } = app;
@@ -106,25 +106,31 @@ async function activateCondaEnv(
   });
 
   // Add command to command palette
-  palette.addItem({ command, category: "Settings" });
+  if (palette) {
+    palette.addItem({ command, category: "Settings" });
+  }
 
   // Handle state restoration.
-  restorer.restore(tracker, {
-    command,
-    name: () => pluginNamespace
-  });
+  if (restorer) {
+    restorer.restore(tracker, {
+      command,
+      name: () => pluginNamespace
+    });
+  }
 
   // Add command to settings menu
-  menu.settingsMenu.addGroup([{ command: command }], 999);
+  if (menu) {
+    menu.settingsMenu.addGroup([{ command: command }], 999);
+  }
 
   return model;
 }
 
 async function activateCompanions(
   app: JupyterFrontEnd,
-  palette: ICommandPalette,
   envManager: IEnvironmentManager,
-  settingsRegistry: ISettingRegistry
+  settingsRegistry: ISettingRegistry,
+  palette: ICommandPalette | null
 ): Promise<ICompanionValidator> {
   const { commands, serviceManager } = app;
   const command = "jupyter_conda:companions";
@@ -144,7 +150,9 @@ async function activateCompanions(
   });
 
   // Add command to command palette
-  palette.addItem({ command, category: "Troubleshooting" });
+  if (palette) {
+    palette.addItem({ command, category: "Troubleshooting" });
+  }
 
   return validator;
 }
@@ -156,7 +164,8 @@ const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,
-  requires: [ICommandPalette, IMainMenu, ILayoutRestorer, ISettingRegistry],
+  requires: [ISettingRegistry],
+  optional: [ICommandPalette, IMainMenu, ILayoutRestorer],
   provides: IEnvironmentManager
 };
 
@@ -167,7 +176,8 @@ const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
   id: companionID,
   autoStart: true,
   activate: activateCompanions,
-  requires: [ICommandPalette, IEnvironmentManager, ISettingRegistry],
+  requires: [IEnvironmentManager, ISettingRegistry],
+  optional: [ICommandPalette],
   provides: ICompanionValidator
 };
 
