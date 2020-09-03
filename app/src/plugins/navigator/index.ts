@@ -13,6 +13,8 @@ import { CondaEnvironments } from 'jupyterlab_conda/lib/services';
 
 import { condaIcon } from 'jupyterlab_conda/lib/icon';
 
+import { WIDGET_CLASS as CONDA_WIDGET_CLASS } from 'jupyterlab_conda/lib/constants';
+
 import { IMainMenu } from '../top/tokens';
 
 import { mambaIcon } from '../../icons';
@@ -36,6 +38,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const model = new CondaEnvironments();
     const content = new CondaEnvWidget(-1, -1, model);
+    content.addClass(CONDA_WIDGET_CLASS);
     content.id = DOMUtils.createDomID();
     content.title.label = 'Packages';
     content.title.caption = 'Conda Packages Manager';
