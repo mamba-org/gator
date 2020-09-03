@@ -1,5 +1,13 @@
 # hack-frontend
 
+Open Mamba Navigator:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TheSnakePit/mamba-navigator/master?urlpath=mamba/navigator)
+
+Open JupyterLab:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/TheSnakePit/mamba-navigator/master?urlpath=lab)
+
 ## Mimic mamba backend
 Activate an environment with these [requirements](./server/requirements.txt)
 and run:

@@ -18,7 +18,6 @@ with open(os.path.join(HERE, 'package.json')) as fid:
     version = json.load(fid)['version']
 
 class MambaNavigator(LabServerApp):
-    base_url = '/'
     default_url = Unicode('/navigator',
                           help='The default URL to redirect to from `/`')
 
@@ -36,13 +35,7 @@ class MambaNavigator(LabServerApp):
     )
 
     def start(self):
-        settings = self.web_app.settings
-
-        # By default, make terminals available.
-        settings.setdefault('terminals_available', True)
-
         load_jupyter_server_extension(self)
-
         super().start()
 
 if __name__ == '__main__':
