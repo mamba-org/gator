@@ -63,10 +63,7 @@ export class CondaEnvironments implements IEnvironmentManager {
 
     if (settings) {
       this._updateSettings(settings);
-      settings.changed.connect(
-        this._updateSettings,
-        this
-      );
+      settings.changed.connect(this._updateSettings, this);
 
       const clean = new Promise<void>(
         ((resolve: () => void): void => {

@@ -56,17 +56,11 @@ export class CompanionValidator implements ICompanionValidator {
     this._envManager = envManager;
 
     this._updateCompanions(settings);
-    settings.changed.connect(
-      this._updateCompanions,
-      this
-    );
+    settings.changed.connect(this._updateCompanions, this);
 
     kernelManager.ready.then(() => {
       this._validateSpecs(kernelManager, kernelManager.specs);
-      kernelManager.specsChanged.connect(
-        this._validateSpecs,
-        this
-      );
+      kernelManager.specsChanged.connect(this._validateSpecs, this);
     });
 
     const clean = new Promise<void>(
