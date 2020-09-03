@@ -5,3 +5,4 @@ dependencies:
 - yarn
 - nodejs
 - jupyterlab_server
+- jupyter_conda
