@@ -30,7 +30,7 @@ const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
 
 async function activateCondaEnv(
   app: JupyterFrontEnd,
-  settingsRegistry: ISettingRegistry,
+  settingsRegistry: ISettingRegistry | null,
   palette: ICommandPalette | null,
   menu: IMainMenu | null,
   restorer: ILayoutRestorer | null
@@ -40,7 +40,7 @@ async function activateCondaEnv(
   const pluginNamespace = "conda-env";
   const command = "jupyter_conda:open-ui";
 
-  const settings = await settingsRegistry.load(condaEnvId);
+  const settings = await settingsRegistry?.load(condaEnvId);
   const model = new CondaEnvironments(settings);
 
   // Request listing available package as quickly as possible
@@ -164,8 +164,7 @@ const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: condaEnvId,
   autoStart: true,
   activate: activateCondaEnv,
-  requires: [ISettingRegistry],
-  optional: [ICommandPalette, IMainMenu, ILayoutRestorer],
+  optional: [ISettingRegistry, ICommandPalette, IMainMenu, ILayoutRestorer],
   provides: IEnvironmentManager
 };
 
