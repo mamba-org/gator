@@ -5,6 +5,7 @@ import { App } from './app/app';
 import '@jupyterlab/application/style/index.css';
 import '@jupyterlab/theme-light-extension/style/index.css';
 import '@jupyterlab/theme-light-extension/style/variables.css';
+import 'jupyterlab_conda/style/index.css';
 
 import '../style/index.css';
 

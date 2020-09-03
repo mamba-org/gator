@@ -2,6 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 from jupyterlab_server import LabServerApp, LabConfig
+from jupyter_conda.handlers import load_jupyter_server_extension
 from notebook.utils import url_path_join as ujoin
 import json
 import os
@@ -39,6 +40,8 @@ class MambaNavigator(LabServerApp):
 
         # By default, make terminals available.
         settings.setdefault('terminals_available', True)
+
+        load_jupyter_server_extension(self)
 
         super().start()
 

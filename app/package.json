@@ -40,6 +40,7 @@
     "@jupyterlab/theme-light-extension": "^3.0.0-alpha.4",
     "@jupyterlab/ui-components": "^3.0.0-alpha.4",
     "@lumino/widgets": "^1.13.2",
+    "jupyterlab_conda": "^2.2.3",
     "es6-promise": "~4.2.8",
     "react": "~16.9.0",
     "react-dom": "~16.9.0"
