@@ -16,7 +16,7 @@ Open JupyterLab:
 
 ```bash
 # create a new conda environment
-conda env create
+conda env create --file=binder/environment.yml
 
 # activate the environment
 conda activate mamba-navigator

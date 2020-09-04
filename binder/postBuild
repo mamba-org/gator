@@ -3,7 +3,6 @@ set -euo pipefail
 
 export NODE_OPTIONS="--max_old_space_size=4096"
 
-cd app/
 yarn
 yarn run build
 
@@ -11,4 +10,4 @@ jupyter labextension install @jupyterlab/server-proxy jupyterlab_conda --no-buil
 jupyter lab build --minimize=False
 
 mkdir -p $HOME/.jupyter/
-cp ../binder/jupyter_notebook_config.py ${HOME}/.jupyter/
+cp binder/jupyter_notebook_config.py ${HOME}/.jupyter/
