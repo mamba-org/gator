@@ -1,3 +1,4 @@
+import { PathExt } from "@jupyterlab/coreutils";
 import { KernelSpecAPI, KernelSpecManager } from "@jupyterlab/services";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { Token } from "@lumino/coreutils";
@@ -206,39 +207,51 @@ export class CompanionValidator implements ICompanionValidator {
 
     // Loop on the kernelSpecs
     for (const spec of Object.keys(specs.kernelspecs)) {
-      let environment = specs.kernelspecs[spec].metadata[
-        "conda_env_name"
-      ] as string;
-      if (environment === undefined) {
+      let environment: string;
+      const { conda_env_name, conda_env_path } = specs.kernelspecs[spec]
+        .metadata as { conda_env_name: string; conda_env_path: string };
+
+      if (conda_env_path) {
+        environment =
+          conda_env_name === "root" ? "base" : PathExt.basename(conda_env_path);
+      } else {
         const name = CompanionValidator.kernelNameToEnvironment(spec);
         environment = normalizedNames[name];
       }
+
       if (environment) {
-        const packages = await this._envManager
-          .getPackageManager()
-          .refresh(false, environment);
-        const companions = Object.keys(this._companions);
-        const updates: string[] = [];
-        packages.forEach(pkg => {
-          if (
-            companions.indexOf(pkg.name) >= 0 &&
-            !semver.satisfies(pkg.version_installed, this._companions[pkg.name])
-          ) {
-            let pythonVersion = CompanionValidator._semverToPython(
-              semver.validRange(this._companions[pkg.name])
-            );
+        try {
+          const packages = await this._envManager
+            .getPackageManager()
+            .refresh(false, environment);
+          const companions = Object.keys(this._companions);
+          const updates: string[] = [];
+          packages.forEach(pkg => {
+            if (
+              companions.indexOf(pkg.name) >= 0 &&
+              !semver.satisfies(
+                pkg.version_installed,
+                this._companions[pkg.name]
+              )
+            ) {
+              let pythonVersion = CompanionValidator._semverToPython(
+                semver.validRange(this._companions[pkg.name])
+              );
 
-            if (pythonVersion) {
-              if ("<>=".indexOf(pythonVersion[0]) < 0) {
-                pythonVersion = "=" + pythonVersion; // prefix with '=' if nothing
+              if (pythonVersion) {
+                if ("<>=".indexOf(pythonVersion[0]) < 0) {
+                  pythonVersion = "=" + pythonVersion; // prefix with '=' if nothing
+                }
+                updates.push(pkg.name + pythonVersion);
               }
-              updates.push(pkg.name + pythonVersion);
             }
-          }
-        });
+          });
 
-        if (updates.length > 0) {
-          requestCorrection(updates, this._envManager, environment);
+          if (updates.length > 0) {
+            requestCorrection(updates, this._envManager, environment);
+          }
+        } catch (error) {
+          console.error(`Fail to check environment '${environment}'`, error);
         }
       }
     }
