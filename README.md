@@ -106,6 +106,18 @@ jupyter labextension install .
 
 ## Changelog
 
+### Upcoming
+
+- Features
+  - Depend optionally on `nb_conda_kernels`
+
+### 3.4.1
+
+- Features
+  - Better logger
+- Bugs
+  - Reduce UI freezing time by running expensive code in asynchronous executor
+
 ### 3.4.0
 
 - Features
