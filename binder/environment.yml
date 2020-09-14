@@ -2,6 +2,7 @@ channels:
   - conda-forge
 dependencies:
   - jupyterlab ~=2.0
+  - jupyter-server-proxy
   - mamba
   - nb_conda_kernels >=2.2.3
   - nodejs >=11

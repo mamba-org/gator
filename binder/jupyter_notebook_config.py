@@ -4,7 +4,7 @@ c.ServerProxy.servers = {
     "mamba": {
         "command": [
             sys.executable,
-            "main.py",
+            "navigator/main.py",
             "--no-browser",
             '--port={port}',
             "--ip=0.0.0.0",
@@ -16,7 +16,7 @@ c.ServerProxy.servers = {
         "absolute_url": True,
         "launcher_entry": {
             "enabled": True,
-            "icon_path": "/home/jovyan/style/mamba.svg",
+            "icon_path": "/home/jovyan/navigator/style/mamba.svg",
             "title": "Mamba Navigator",
         },
     },

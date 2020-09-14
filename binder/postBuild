@@ -9,3 +9,9 @@ jupyter labextension install jupyterlab_conda jupyterlab-tour@^2.1.1
 
 # Import the workspace into JupyterLab
 jupyter lab workspaces import binder/workspace.json
+
+mkdir -p $HOME/.jupyter/
+cp binder/jupyter_notebook_config.py ${HOME}/.jupyter/
+
+cd navigator/
+npm && npm run build
