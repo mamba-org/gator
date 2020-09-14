@@ -15,4 +15,4 @@ mkdir -p $HOME/.jupyter/
 cp binder/jupyter_notebook_config.py ${HOME}/.jupyter/
 
 cd navigator/
-npm install && npm run build
+yarn && yarn run build
