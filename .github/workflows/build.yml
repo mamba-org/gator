@@ -120,7 +120,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   test-conda-os:
-    name: Test Conda Python 3.7 on ${{ matrix.os }}
+    name: Test Conda Python 3.x on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
@@ -135,13 +135,13 @@ jobs:
         uses: actions/cache@v2
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3x-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ matrix.os }}-conda-3.7
+            ${{ matrix.os }}-conda-3x-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3x
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -161,13 +161,13 @@ jobs:
             ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-yarn
 
-      - name: Setup Python 3.7
+      - name: Setup Python 3.x
         uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: test_jupyter_conda
           miniconda-version: "latest"
           channels: conda-forge
-          python-version: "3.7"
+          python-version: "3"
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -186,6 +186,8 @@ jobs:
         shell: bash -l {0}
 
       - name: Test the extension
+        env:
+          OS_RUNNER: ${{ matrix.os }}
         run: |
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
@@ -197,7 +199,7 @@ jobs:
           cd ..
           jupyter serverextension list
           jupyter labextension list
-          python -m jupyterlab.browser_check
+          if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
         shell: bash -l {0}
 
   test-mamba-3x:
