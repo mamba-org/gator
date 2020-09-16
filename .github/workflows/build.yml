@@ -186,6 +186,8 @@ jobs:
         shell: bash -l {0}
 
       - name: Test the extension
+        env:
+          OS_RUNNER: ${{ matrix.os }}
         run: |
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
@@ -197,7 +199,7 @@ jobs:
           cd ..
           jupyter serverextension list
           jupyter labextension list
-          python -m jupyterlab.browser_check
+          if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
         shell: bash -l {0}
 
   test-mamba-3x:
