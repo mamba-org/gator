@@ -1,0 +1,61 @@
+.DS_Store
+node_modules
+MANIFEST
+build
+dist
+lib
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.cache
+*.py[co]
+.pytest_cache
+__pycache__
+*.egg-info
+*~
+*.bak
+.ipynb_checkpoints
+.DS_Store
+\#*#
+.#*
+
+*.swp
+*.map
+
+coverage/
+tests/**/coverage
+tests/**/.cache-loader
+docs/_build
+docs/api
+docs/source/_build
+
+yarn-error.log
+
+junit.xml
+
+*.tsbuildinfo
+
+# jetbrains IDE stuff
+*.iml
+.idea/
+
+# ms IDE stuff
+*.code-workspace
+.history
+.vscode

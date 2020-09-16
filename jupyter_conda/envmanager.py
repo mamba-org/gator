@@ -39,11 +39,10 @@ MAX_LOG_OUTPUT = 6000  # type: int
 ROOT_ENV_NAME = "base"
 
 # See https://github.com/Anaconda-Platform/nb_conda_kernels/blob/master/nb_conda_kernels/manager.py#L19
-RUNNER_COMMAND = (
-    ["python", "-m", "nb_conda_kernels.runner"]
-    if nb_conda_kernels is None
-    else nb_conda_kernels.manager.RUNNER_COMMAND
-)
+try:
+    RUNNER_COMMAND = nb_conda_kernels.manager.RUNNER_COMMAND
+except AttributeError:
+    RUNNER_COMMAND = ["python", "-m", "nb_conda_kernels.runner"]
 
 
 def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:

@@ -104,6 +104,53 @@ cd labextension
 jupyter labextension install .
 ```
 
+## Navigator
+
+The `navigator/` subfolder contains an experimental standalone navigator application.
+
+### Try it online
+
+Open Mamba Navigator:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=mamba/navigator)
+
+Open JupyterLab:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=lab)
+
+![lab-launcher](https://user-images.githubusercontent.com/591645/92235600-3d687000-eeb4-11ea-8f8a-c4d4f14a4d4b.png)
+
+### Development
+
+```bash
+# activate the environment created above
+conda activate jupyter_conda
+
+# go to the navigator folder
+cd navigator/
+
+# install the dependencies
+jlpm
+
+# build the application
+jlpm run build
+
+# start the app
+python main.py
+
+# or with the --no-browser option
+python main.py --no-browser
+```
+
+The app will open in the browser at http://localhost:8888.
+
+There is also a watch script to automatically rebuild the application when there is a new change:
+
+```bash
+jlpm run watch
+```
+
+
 ## Changelog
 
 ### Upcoming
@@ -189,7 +236,7 @@ jupyter labextension install .
 - Cache some API requests (GET environments, GET channels and GET available packages).
 - Available packages are now truncated to 100.
   - Use query argument `$skip` to skip N first packages
-  - If the list is longer than 100, a entry `$next` in the response is returned. This  
+  - If the list is longer than 100, a entry `$next` in the response is returned. This
     is the request url to use to get the next batch of packages.
 - Report full error message in web browser console to ease debugging.
 
