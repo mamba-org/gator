@@ -120,7 +120,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   test-conda-os:
-    name: Test Conda Python 3.x on ${{ matrix.os }}
+    name: Test Conda Python 3.7 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
@@ -135,13 +135,13 @@ jobs:
         uses: actions/cache@v2
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 0
+          CACHE_NUMBER: 1
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3x-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3x-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ matrix.os }}-conda-3x
+            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.7
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -161,13 +161,13 @@ jobs:
             ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-yarn
 
-      - name: Setup Python 3.x
+      - name: Setup Python 3.7
         uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: test_jupyter_conda
           miniconda-version: "latest"
           channels: conda-forge
-          python-version: "3"
+          python-version: "3.7"
           show-channel-urls: true
           use-only-tar-bz2: true
 
