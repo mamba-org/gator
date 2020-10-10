@@ -8,9 +8,9 @@
     "jupyterlab-extension",
     "conda"
   ],
-  "homepage": "https://github.com/fcollonval/jupyter_conda",
+  "homepage": "https://github.com/mamba-org/jupyter_conda",
   "bugs": {
-    "url": "https://github.com/fcollonval/jupyter_conda/issues"
+    "url": "https://github.com/mamba-org/jupyter_conda/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Jupyter Development Team",
@@ -24,7 +24,7 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fcollonval/jupyter_conda.git"
+    "url": "https://github.com/mamba-org/jupyter_conda.git"
   },
   "scripts": {
     "build": "tsc",

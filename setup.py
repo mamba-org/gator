@@ -16,7 +16,7 @@ with open("README.md") as rd:
 setuptools.setup(
     name="jupyter_conda",
     version=__version__,
-    url="https://github.com/fcollonval/jupyter_conda",
+    url="https://github.com/mamba-org/jupyter_conda",
     author="Continuum Analytics, Frederic Collonval",
     description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
     long_description=long_description,

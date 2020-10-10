@@ -168,11 +168,11 @@ jlpm run watch
 ### 3.4.0
 
 - Features
-  - Use `mamba` if available. Otherwise use `conda` [#48](https://github.com/fcollonval/jupyter_conda/issues/48)
+  - Use `mamba` if available. Otherwise use `conda` [#46](https://github.com/mamba-org/jupyter_conda/issues/46)
   - Move to GitHub workflow (extend coverage to JupyterLab code)
 - Bugs
-  - Fix wrong redirection url in classic notebook [#46](https://github.com/fcollonval/jupyter_conda/issues/46)
-  - Fix channel given by full URL not properly handle [#55](https://github.com/fcollonval/jupyter_conda/issues/55)
+  - Fix wrong redirection url in classic notebook [#47](https://github.com/mamba-org/jupyter_conda/issues/47)
+  - Fix channel given by full URL not properly handle [#55](https://github.com/mamba-org/jupyter_conda/issues/55)
 
 ### 3.3.1
 
@@ -182,17 +182,17 @@ jlpm run watch
 ### 3.3.0
 
 - Features
-  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/fcollonval/jupyter_conda/pull/39)
+  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/mamba-org/jupyter_conda/pull/39)
 - Bugs
-  - Fixes absent `channeldata.json` file [#36](https://github.com/fcollonval/jupyter_conda/issues/36)
-  - Fixes environment update absent from public API [#37](https://github.com/fcollonval/jupyter_conda/pull/37)
+  - Fixes absent `channeldata.json` file [#36](https://github.com/mamba-org/jupyter_conda/issues/36)
+  - Fixes environment update absent from public API [#37](https://github.com/mamba-org/jupyter_conda/pull/37)
 - Documentation
   - Start REST API description with Swagger
 
 ### 3.2.0
 
-- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/fcollonval/jupyter_conda/pull/25)
-- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/fcollonval/jupyter_conda/pull/26)
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/mamba-org/jupyter_conda/pull/25)
+- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/mamba-org/jupyter_conda/pull/26)
 - Switch to newer Python syntax async-await
 - To improve UI reactivity in Jupyterlab:
 
