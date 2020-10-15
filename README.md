@@ -92,7 +92,7 @@ There are three ways to create an environment:
 ## Development
 
 ```shell
-conda create -y -n jupyter_conda python jupyterlab~=2.1
+conda create -n jupyter_conda -c conda-forge/label/jupyterlab_rc -c conda-forge/label/jupyterlab_server_rc -c conda-forge jupyterlab=3 nodejs python -y
 conda install -y -n jupyter_conda --file requirements_dev.txt -c conda-forge
 source activate jupyter_conda
 python setup.py develop
