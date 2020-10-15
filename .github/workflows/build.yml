@@ -52,7 +52,7 @@ jobs:
         with:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
-          channels: conda-forge
+          channels: conda-forge/label/jupyterlab_rc,conda-forge/label/jupyterlab_server_rc,conda-forge
           python-version: ${{ matrix.python-version }}
           show-channel-urls: true
           use-only-tar-bz2: true
@@ -61,14 +61,10 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
+          conda install -n test_jupyter_conda coveralls jupyterlab~=3.0
           npm install
           npm install -g casperjs
           pip install .
-          cd labextension
-          jlpm install
-          jupyter labextension install .
-          cd ..
         shell: bash -l {0}
 
       - name: Test the extension
@@ -76,8 +72,8 @@ jobs:
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
           coverage run -m pytest jupyter_conda
-          coverage report 
-          cd labextension 
+          coverage report
+          cd labextension
           npm run eslint:check
           npm run test
           cd ..
@@ -191,9 +187,9 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda 
-          coverage report 
-          cd labextension 
+          coverage run -m pytest jupyter_conda
+          coverage report
+          cd labextension
           npm run eslint:check
           npm run test
           cd ..
