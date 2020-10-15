@@ -61,7 +61,7 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab~=3.0
+          conda install -n test_jupyter_conda coveralls jupyterlab=3
           npm install
           npm install -g casperjs
           pip install .
@@ -171,7 +171,7 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab~=3.0
+          conda install -n test_jupyter_conda coveralls jupyterlab=3
           npm install
           npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
           pip install .
