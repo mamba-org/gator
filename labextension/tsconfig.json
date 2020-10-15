@@ -17,7 +17,7 @@
     "resolveJsonModule": true,
     "rootDir": "src",
     "sourceMap": true,
-    "sourceRoot": "./jupyterlab_conda/src",
+    "sourceRoot": "./jupyter_conda/src",
     "strict": true,
     "strictNullChecks": false,
     "target": "es2017",

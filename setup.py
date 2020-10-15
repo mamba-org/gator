@@ -18,7 +18,7 @@ name = "jupyter_conda"
 version = get_version(os.path.join(name, "_version.py"))
 
 nb_path = os.path.join(HERE, name, "static")
-lab_path = os.path.join(HERE, name, "labextension")
+lab_path = os.path.join(HERE, "labextension")
 
 # Representative files that should exist after a successful build
 jstargets = [
@@ -32,23 +32,23 @@ labext_name = "jupyter_conda"
 
 data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, lab_path, "*.*"),
-    (
-        "share/jupyter/nbextensions/jupyter_conda",
-        [os.path.join(nb_path, a_file) for a_file in os.listdir(nb_path)],
-    ),
+    ("share/jupyter/nbextensions/jupyter_conda", "jupyter_conda/nbextension", "*.*"),
     # like `jupyter nbextension enable --sys-prefix`
     (
         "etc/jupyter/nbconfig/notebook.d",
-        ["jupyter-config/nbconfig/notebook.d/jupyter_conda.json"],
+        "jupyter-config/nbconfig/notebook.d",
+        "jupyter_conda.json",
     ),
     (
         "etc/jupyter/nbconfig/tree.d",
-        ["jupyter-config/nbconfig/tree.d/jupyter_conda.json"],
+        "jupyter-config/nbconfig/tree.d",
+        "jupyter_conda.json",
     ),
     # like `jupyter serverextension enable --sys-prefix`
     (
         "etc/jupyter/jupyter_notebook_config.d",
-        ["jupyter-config/jupyter_notebook_config.d/jupyter_conda.json"],
+        "jupyter-config/jupyter_notebook_config.d",
+        "jupyter_conda.json",
     ),
 ]
 
