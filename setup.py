@@ -28,7 +28,7 @@ jstargets = [
 
 package_data_spec = {name: ["*"]}
 
-labext_name = "jupyter_conda"
+labext_name = "jupyterlab_conda"
 
 data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, lab_path, "*.*"),
@@ -57,7 +57,7 @@ cmdclass = create_cmdclass(
 )
 
 cmdclass["jsdeps"] = combine_commands(
-    install_npm(lab_path, build_cmd="build", npm=["jlpm"]), ensure_targets(jstargets),
+    install_npm(lab_path, build_cmd="build:prod", npm=["jlpm"]), ensure_targets(jstargets),
 )
 
 with open("README.md", "r") as fh:

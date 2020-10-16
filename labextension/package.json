@@ -1,5 +1,5 @@
 {
-  "name": "jupyter_conda",
+  "name": "jupyterlab_conda",
   "version": "2.2.4",
   "description": "Manage your conda environments from JupyterLab",
   "keywords": [
@@ -28,7 +28,8 @@
     "url": "https://github.com/mamba-org/jupyter_conda.git"
   },
   "scripts": {
-    "build": "jlpm run build:lib && jlpm run build:labextension",
+    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
+    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
