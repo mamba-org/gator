@@ -17,7 +17,7 @@ name = "jupyter_conda"
 # Get our version
 version = get_version(os.path.join(name, "_version.py"))
 
-nb_path = os.path.join(HERE, name, "static")
+nb_path = os.path.join(HERE, name, "nbextension")
 lab_path = os.path.join(HERE, "labextension")
 
 # Representative files that should exist after a successful build

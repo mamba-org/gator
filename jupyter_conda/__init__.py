@@ -23,9 +23,9 @@ def _jupyter_labextension_paths():
 def _jupyter_nbextension_paths():
     return [
         dict(
-            section="notebook", src="static", dest="jupyter_conda", require="jupyter_conda/main"
+            section="notebook", src="nbextension", dest="jupyter_conda", require="jupyter_conda/main"
         ),
-        dict(section="tree", src="static", dest="jupyter_conda", require="jupyter_conda/tree"),
+        dict(section="tree", src="nbextension", dest="jupyter_conda", require="jupyter_conda/tree"),
     ]
 
 
