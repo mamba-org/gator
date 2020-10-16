@@ -15,7 +15,7 @@ with open(osp.join(HERE, 'labextension', 'package.json')) as fid:
 # Jupyter Extension points
 def _jupyter_labextension_paths():
     return [{
-        'src': 'static',
+        'src': 'labextension',
         'dest': data['name']
     }]
 
