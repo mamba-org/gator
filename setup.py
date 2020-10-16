@@ -7,7 +7,7 @@ from jupyter_packaging import (
     combine_commands,
     get_version,
 )
-import setuptools
+from setuptools import find_packages, setup
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,11 +18,12 @@ name = "jupyter_conda"
 version = get_version(os.path.join(name, "_version.py"))
 
 nb_path = os.path.join(HERE, name, "nbextension")
-lab_path = os.path.join(HERE, "labextension")
+lab_path = os.path.join(HERE, name, "labextension")
+lab_src = os.path.join(HERE, "labextension")
 
 # Representative files that should exist after a successful build
 jstargets = [
-    os.path.join(lab_path, "lib", "index.js"),
+    os.path.join(HERE, "labextension", "lib", "index.js"),
     os.path.join(HERE, name, "labextension", "package.json"),
 ]
 
@@ -57,7 +58,7 @@ cmdclass = create_cmdclass(
 )
 
 cmdclass["jsdeps"] = combine_commands(
-    install_npm(lab_path, build_cmd="build:prod", npm=["jlpm"]), ensure_targets(jstargets),
+    install_npm(lab_src, build_cmd="build:prod", npm=["jlpm"]), ensure_targets(jstargets),
 )
 
 with open("README.md", "r") as fh:
@@ -72,7 +73,7 @@ setup_args = dict(
     long_description=long_description,
     long_description_content_type="text/markdown",
     cmdclass=cmdclass,
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     zip_safe=False,
     include_package_data=True,
     python_requires=">=3.6",
@@ -106,4 +107,4 @@ setup_args = dict(
 )
 
 if __name__ == "__main__":
-    setuptools.setup(**setup_args)
+    setup(**setup_args)
