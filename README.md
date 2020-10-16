@@ -91,17 +91,21 @@ There are three ways to create an environment:
 
 ## Development
 
-```shell
-conda create -n jupyter_conda -c conda-forge/label/jupyterlab_rc -c conda-forge/label/jupyterlab_server_rc -c conda-forge jupyterlab=3 nodejs python -y
+```bash
+# create a new environment with the dependencies
+conda create -n jupyter_conda -c conda-forge/label/jupyterlab_rc -c conda-forge/label/jupyterlab_server_rc -c conda-forge jupyterlab=3 python -y
 conda install -y -n jupyter_conda --file requirements_dev.txt -c conda-forge
-source activate jupyter_conda
-python setup.py develop
-jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
-jupyter nbextension enable jupyter_conda --py --sys-prefix
-jupyter serverextension enable jupyter_conda --py --sys-prefix
+conda activate jupyter_conda
 
-cd labextension
-jupyter labextension install .
+# install the package in development mode
+python -m pip install -e .
+
+# link the lab extension for local development
+jupyter labextension develop ./labextension --overwrite
+
+# when working on the lab extension, run the following command in a separate
+# terminal to rebuild the extension. Then refresh the page
+jlpm run build
 ```
 
 ## Navigator
