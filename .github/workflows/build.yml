@@ -64,7 +64,8 @@ jobs:
           conda install -n test_jupyter_conda coveralls jupyterlab=3
           npm install
           npm install -g casperjs
-          pip install .
+          python -m pip install -U pip
+          python -m pip install -e .
         shell: bash -l {0}
 
       - name: Test the extension
@@ -174,7 +175,8 @@ jobs:
           conda install -n test_jupyter_conda coveralls jupyterlab=3
           npm install
           npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
-          pip install .
+          python -m pip install -U pip
+          python -m pip install -e .
           cd labextension
           jlpm install
           jupyter labextension install .
@@ -237,7 +239,8 @@ jobs:
           mamba install -n test_jupyter_conda --file requirements_dev.txt
           npm install
           npm install -g casperjs
-          pip install .
+          python -m pip install -U pip
+          python -m pip install -e .
         shell: bash -l {0}
 
       - name: Test the extension
