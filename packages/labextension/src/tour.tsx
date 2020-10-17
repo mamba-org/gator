@@ -1,12 +1,12 @@
 import * as React from "react";
 import {
-  ENVIRONMENT_PANEL_ID,
-  ENVIRONMENT_TOOLBAR_CLASS,
-  PACKAGES_PANEL_ID,
-  PACKAGES_TOOLBAR_CLASS,
-  PACKAGE_SELECT_CLASS,
-  WIDGET_CLASS
-} from "./constants";
+  CONDA_ENVIRONMENT_PANEL_ID,
+  CONDA_ENVIRONMENT_TOOLBAR_CLASS,
+  CONDA_PACKAGES_PANEL_ID,
+  CONDA_PACKAGES_TOOLBAR_CLASS,
+  CONDA_PACKAGE_SELECT_CLASS,
+  CONDA_WIDGET_CLASS
+} from "@mamba-org/common";
 
 export const managerTour = {
   id: "jupyterlab-conda:tour",
@@ -21,7 +21,7 @@ export const managerTour = {
         </p>
       ),
       placement: "center",
-      target: `.${WIDGET_CLASS}`,
+      target: `.${CONDA_WIDGET_CLASS}`,
       title: "Conda Packages Manager"
     },
     {
@@ -33,7 +33,7 @@ export const managerTour = {
         </p>
       ),
       placement: "right",
-      target: `#${ENVIRONMENT_PANEL_ID}`
+      target: `#${CONDA_ENVIRONMENT_PANEL_ID}`
     },
     {
       content: (
@@ -43,7 +43,7 @@ export const managerTour = {
         </p>
       ),
       placement: "bottom",
-      target: `.${ENVIRONMENT_TOOLBAR_CLASS}`
+      target: `.${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`
     },
     {
       content: (
@@ -52,7 +52,7 @@ export const managerTour = {
           the selected environment (i.e. installed, updatable or available).
         </p>
       ),
-      target: `#${PACKAGES_PANEL_ID}`
+      target: `#${CONDA_PACKAGES_PANEL_ID}`
     },
     {
       content: (
@@ -62,7 +62,7 @@ export const managerTour = {
         </p>
       ),
       placement: "bottom",
-      target: `.${PACKAGE_SELECT_CLASS}`
+      target: `.${CONDA_PACKAGE_SELECT_CLASS}`
     },
     {
       content: (
@@ -72,12 +72,12 @@ export const managerTour = {
         </p>
       ),
       placement: "bottom-start",
-      target: `.${PACKAGES_TOOLBAR_CLASS}`
+      target: `.${CONDA_PACKAGES_TOOLBAR_CLASS}`
     },
     {
       content: <p>Execute package changes with the cart button.</p>,
       placement: "bottom",
-      target: `.${PACKAGES_TOOLBAR_CLASS} .fa-cart-arrow-down`
+      target: `.${CONDA_PACKAGES_TOOLBAR_CLASS} .fa-cart-arrow-down`
     }
   ]
 };

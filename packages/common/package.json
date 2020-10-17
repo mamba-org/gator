@@ -1,12 +1,12 @@
 {
-  "name": "jupyterlab_conda",
-  "version": "2.2.4",
-  "description": "Manage your conda environments from JupyterLab",
+  "name": "@mamba-org/common",
+  "version": "1.0.0",
+  "description": "Base components and models to manage conda/mamba environments within Jupyter",
   "keywords": [
+    "conda",
     "jupyter",
     "jupyterlab",
-    "jupyterlab-extension",
-    "conda"
+    "mamba"
   ],
   "homepage": "https://github.com/mamba-org/jupyter_conda",
   "bugs": {
@@ -16,8 +16,7 @@
   "author": "Jupyter Development Team",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
-    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
-    "schema/*.json"
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,12 +26,13 @@
     "url": "https://github.com/mamba-org/jupyter_conda.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --project .",
     "clean": "rimraf lib tsconfig.tsbuildinfo",
     "eslint": "eslint . --ext .ts,.tsx --fix",
     "eslint:check": "eslint . --ext .ts,.tsx",
+    "lab:link": "jupyter labextension link . --no-build",
     "precommit": "pretty-quick --staged",
-    "prepare": "jlpm run clean && jlpm run build",
+    "prepare": "yarn run clean && yarn run build",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "test": "jest --coverage",
     "watch": "tsc -w"
@@ -42,10 +42,8 @@
     "@fortawesome/free-regular-svg-icons": "^5.14.0",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@fortawesome/react-fontawesome": "^0.1.11",
-    "@jupyterlab/application": "^2.0.0",
     "@jupyterlab/apputils": "^2.0.0",
     "@jupyterlab/coreutils": "^4.0.0",
-    "@jupyterlab/mainmenu": "^2.0.0",
     "@jupyterlab/services": "^5.0.0",
     "@jupyterlab/settingregistry": "^2.0.1",
     "@jupyterlab/ui-components": "^2.0.0",
@@ -88,20 +86,6 @@
   "sideEffects": [
     "style/*"
   ],
-  "jupyterlab": {
-    "extension": true,
-    "schemaDir": "schema",
-    "discovery": {
-      "server": {
-        "base": {
-          "name": "jupyter_conda"
-        },
-        "managers": [
-          "conda"
-        ]
-      }
-    }
-  },
   "publishConfig": {
     "access": "public"
   }

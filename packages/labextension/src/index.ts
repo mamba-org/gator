@@ -12,18 +12,16 @@ import { IMainMenu } from "@jupyterlab/mainmenu";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { INotification } from "jupyterlab_toastify";
 import { condaEnvId, CondaEnvWidget } from "./CondaEnvWidget";
-import { condaIcon } from "./icon";
-import { CondaEnvironments } from "./services";
-import { IEnvironmentManager } from "./tokens";
+import { condaIcon } from "@mamba-org/common";
+import { CondaEnvironments } from "@mamba-org/common";
+import { IEnvironmentManager } from "@mamba-org/common";
 import {
   companionID,
   CompanionValidator,
   ICompanionValidator
 } from "./validator";
-import { WIDGET_CLASS } from "./constants";
+import { CONDA_WIDGET_CLASS } from "@mamba-org/common";
 import { managerTour } from "./tour";
-
-export { Conda, IEnvironmentManager } from "./tokens";
 
 const TOUR_DELAY = 1000;
 const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
@@ -93,7 +91,7 @@ async function activateCondaEnv(
       }
 
       content = new CondaEnvWidget(-1, -1, model);
-      content.addClass(WIDGET_CLASS);
+      content.addClass(CONDA_WIDGET_CLASS);
       content.id = pluginNamespace;
       content.title.label = "Packages";
       content.title.caption = "Conda Packages Manager";
@@ -158,7 +156,7 @@ async function activateCompanions(
 }
 
 /**
- * Initialization data for the jupyterlab_conda extension.
+ * Initialization data for the @mamba-org/conda-lab extension.
  */
 const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: condaEnvId,
@@ -219,7 +217,7 @@ namespace Private {
           INotification.dismiss(toastId);
         }
       })
-      .catch(reason => {
+      .catch((reason: Error) => {
         console.debug("Fail to cache available packages list.", reason);
         if (toastId) {
           INotification.dismiss(toastId);

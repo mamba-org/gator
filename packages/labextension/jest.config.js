@@ -1,0 +1,34 @@
+const jestJupyterLab = require("@jupyterlab/testutils/lib/jest-config");
+
+const jlabConfig = jestJupyterLab(__dirname);
+
+const {
+  moduleFileExtensions,
+  moduleNameMapper,
+  preset,
+  setupFilesAfterEnv,
+  setupFiles,
+  testPathIgnorePatterns,
+  transform
+} = jlabConfig;
+
+module.exports = {
+  moduleFileExtensions,
+  moduleNameMapper,
+  preset,
+  setupFilesAfterEnv,
+  setupFiles,
+  testPathIgnorePatterns,
+  transform,
+  automock: false,
+  collectCoverageFrom: ["src/**.{ts,tsx}", "!src/*.d.ts"],
+  coverageDirectory: "coverage",
+  coverageReporters: ["lcov", "text"],
+  globals: {
+    "ts-jest": {
+      tsConfig: "tsconfig.json"
+    }
+  },
+  testRegex: "src/.*/.*.spec.ts[x]?$",
+  transformIgnorePatterns: ["/node_modules/(?!(@jupyterlab/.*)/)"]
+};

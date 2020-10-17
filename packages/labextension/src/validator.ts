@@ -5,12 +5,12 @@ import { Token } from "@lumino/coreutils";
 import { IDisposable } from "@lumino/disposable";
 import { INotification } from "jupyterlab_toastify";
 import semver from "semver";
-import { IEnvironmentManager } from "./tokens";
+import { Conda, IEnvironmentManager } from "@mamba-org/common";
 
-export const companionID = "jupyterlab_conda:companion";
+export const companionID = "@mamba-org/conda-lab:companion";
 
 export const ICompanionValidator = new Token<ICompanionValidator>(
-  "jupyterlab_conda:ICompanionValidator"
+  "@mamba-org/conda-lab:ICompanionValidator"
 );
 
 /**
@@ -189,7 +189,7 @@ export class CompanionValidator implements ICompanionValidator {
                         autoClose: 5000
                       });
                     })
-                    .catch(reason => {
+                    .catch((reason: Error) => {
                       console.error(reason);
                       INotification.update({
                         toastId,
@@ -226,7 +226,7 @@ export class CompanionValidator implements ICompanionValidator {
             .refresh(false, environment);
           const companions = Object.keys(this._companions);
           const updates: string[] = [];
-          packages.forEach(pkg => {
+          packages.forEach((pkg: Conda.IPackage) => {
             if (
               companions.indexOf(pkg.name) >= 0 &&
               !semver.satisfies(

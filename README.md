@@ -35,7 +35,7 @@ conda install -c conda-forge jupyterlab jupyter_conda
 jupyter labextension install jupyterlab_conda
 ```
 
-> Optionally, you could install [`jupyterlab-tour`](https://github.com/fcollonval/jupyterlab-tour) to
+> Optionally, you could install [`jupyterlab-tour`](https://github.com/mamba-org/jupyterlab-tour) to
 > add a help tour for the conda packages manager.
 
 ## Classical Jupyter Notebook

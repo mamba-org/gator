@@ -11,7 +11,7 @@ import {
 } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { style } from "typestyle";
-import { ENVIRONMENT_TOOLBAR_CLASS } from "../constants";
+import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from "../constants";
 
 //Toolbar height to align with package toolbar
 export const ENVIRONMENT_TOOLBAR_HEIGHT = 40;
@@ -72,7 +72,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           />
         </Button>
       </div>
-      <div className={`lm-Widget jp-Toolbar ${ENVIRONMENT_TOOLBAR_CLASS}`}>
+      <div className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}>
         <ToolbarButtonComponent
           icon={addIcon}
           tooltip="Create"

@@ -1,5 +1,5 @@
 {
-  "jupyter.lab.setting-icon": "jupyterlab_conda:conda",
+  "jupyter.lab.setting-icon": "@mamba-org/conda-lab:conda",
   "jupyter.lab.setting-icon-label": "Conda Manager",
   "title": "Conda",
   "description": "Environments and packages manager settings.",

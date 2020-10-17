@@ -8,7 +8,7 @@ import { HTMLSelect } from "@jupyterlab/ui-components";
 import * as React from "react";
 import { AutoSizer, Column, Table } from "react-virtualized";
 import { classes, style } from "typestyle";
-import { PACKAGES_PANEL_ID, PACKAGE_SELECT_CLASS } from "../constants";
+import { CONDA_PACKAGES_PANEL_ID, CONDA_PACKAGE_SELECT_CLASS } from "../constants";
 import { Conda } from "../tokens";
 
 /**
@@ -143,7 +143,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     const changeRender = ({ rowData }: ICellRender): JSX.Element => (
       <div className={"lm-Widget"}>
         <HTMLSelect
-          className={classes(Style.VersionSelection, PACKAGE_SELECT_CLASS)}
+          className={classes(Style.VersionSelection, CONDA_PACKAGE_SELECT_CLASS)}
           value={rowData.version_selected}
           onClick={(evt: React.MouseEvent): void => {
             evt.stopPropagation();
@@ -176,7 +176,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     );
 
     return (
-      <div id={PACKAGES_PANEL_ID} className={Style.TableContainer}>
+      <div id={CONDA_PACKAGES_PANEL_ID} className={Style.TableContainer}>
         <AutoSizer disableHeight>
           {({ width }): JSX.Element => (
             <Table

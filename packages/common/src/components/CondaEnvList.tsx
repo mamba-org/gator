@@ -1,6 +1,6 @@
 import * as React from "react";
 import { style } from "typestyle";
-import { ENVIRONMENT_PANEL_ID } from "../constants";
+import { CONDA_ENVIRONMENT_PANEL_ID } from "../constants";
 import { Conda } from "../tokens";
 import { CondaEnvItem } from "./CondaEnvItem";
 import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from "./CondaEnvToolBar";
@@ -94,7 +94,7 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         onRemove={props.onRemove}
       />
       <div
-        id={ENVIRONMENT_PANEL_ID}
+        id={CONDA_ENVIRONMENT_PANEL_ID}
         className={Style.ListEnvs(
           props.height - ENVIRONMENT_TOOLBAR_HEIGHT - 32
         )}

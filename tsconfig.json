@@ -1,0 +1,9 @@
+{
+    "files": [],
+    "include": [],
+    "references": [
+      { "path": "./packages/common" },
+      { "path": "./packages/labextension" },
+      { "path": "./packages/navigator" }
+    ]
+  }
