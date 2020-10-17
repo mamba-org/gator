@@ -5,18 +5,18 @@ import {
 
 import { PageConfig } from '@jupyterlab/coreutils';
 
-import { Shell } from './shell';
+import { IGatorShell, GatorShell } from './shell';
 
 /**
- * App is the main application class. It is instantiated once and shared.
+ * Gator is the main application class. It is instantiated once and shared.
  */
-export class App extends JupyterFrontEnd<Shell> {
+export class Gator extends JupyterFrontEnd<IGatorShell> {
   /**
    * Construct a new App object.
    *
-   * @param options The instantiation options for an App.
+   * @param options The instantiation options for an Gator application.
    */
-  constructor(options: App.IOptions = { shell: new Shell() }) {
+  constructor(options: Gator.IOptions = { shell: new GatorShell() }) {
     super({
       shell: options.shell
     });
@@ -74,7 +74,7 @@ export class App extends JupyterFrontEnd<Shell> {
    *
    * @param mod - The plugin module to register.
    */
-  registerPluginModule(mod: App.IPluginModule): void {
+  registerPluginModule(mod: Gator.IPluginModule): void {
     let data = mod.default;
     // Handle commonjs exports.
     if (!Object.prototype.hasOwnProperty.call(mod, '__esModule')) {
@@ -97,7 +97,7 @@ export class App extends JupyterFrontEnd<Shell> {
    *
    * @param mods - The plugin modules to register.
    */
-  registerPluginModules(mods: App.IPluginModule[]): void {
+  registerPluginModules(mods: Gator.IPluginModule[]): void {
     mods.forEach(mod => {
       this.registerPluginModule(mod);
     });
@@ -105,13 +105,13 @@ export class App extends JupyterFrontEnd<Shell> {
 }
 
 /**
- * A namespace for App statics.
+ * A namespace for Gator statics.
  */
-export namespace App {
+export namespace Gator {
   /**
-   * The instantiation options for an App.
+   * The instantiation options for an Gator application.
    */
-  export type IOptions = JupyterFrontEnd.IOptions<Shell>;
+  export type IOptions = JupyterFrontEnd.IOptions<IGatorShell>;
 
   /**
    * The interface for a module that exports a plugin or plugins as

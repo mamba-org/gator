@@ -1,8 +1,0 @@
-name: mamba-navigator
-channels:
-- conda-forge
-dependencies:
-- yarn
-- nodejs
-- jupyterlab_server
-- jupyter_conda

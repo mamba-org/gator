@@ -3,9 +3,9 @@ import { KernelSpecAPI, KernelSpecManager } from "@jupyterlab/services";
 import { ISettingRegistry } from "@jupyterlab/settingregistry";
 import { Token } from "@lumino/coreutils";
 import { IDisposable } from "@lumino/disposable";
+import { Conda, IEnvironmentManager } from "@mamba-org/common";
 import { INotification } from "jupyterlab_toastify";
 import semver from "semver";
-import { Conda, IEnvironmentManager } from "@mamba-org/common";
 
 export const companionID = "@mamba-org/conda-lab:companion";
 
@@ -133,7 +133,7 @@ export class CompanionValidator implements ICompanionValidator {
     if (range) {
       return range
         .split("||")
-        .map(r => r.split(" ").join(","))
+        .map((r) => r.split(" ").join(","))
         .join("|");
     }
 
@@ -156,7 +156,7 @@ export class CompanionValidator implements ICompanionValidator {
 
     const environments = await this._envManager.environments;
     const normalizedNames: { [key: string]: string } = {};
-    environments.forEach(env => {
+    environments.forEach((env) => {
       // Normalization need to match as closely as possible nb_conda_kernels conversion
       const normalized = env.name
         .normalize("NFKD")
@@ -177,7 +177,7 @@ export class CompanionValidator implements ICompanionValidator {
             caption: "Correct installed packages",
             callback: (): void => {
               INotification.inProgress("Correct the environment.").then(
-                toastId => {
+                (toastId) => {
                   manager
                     .getPackageManager()
                     .install(updates, name)
@@ -186,7 +186,7 @@ export class CompanionValidator implements ICompanionValidator {
                         toastId,
                         message: "Environment corrected",
                         type: "success",
-                        autoClose: 5000
+                        autoClose: 5000,
                       });
                     })
                     .catch((reason: Error) => {
@@ -194,14 +194,14 @@ export class CompanionValidator implements ICompanionValidator {
                       INotification.update({
                         toastId,
                         message: "Fail to correct the environment.",
-                        type: "error"
+                        type: "error",
                       });
                     });
                 }
               );
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
     }
 

@@ -1,9 +1,10 @@
 {
-    "files": [],
-    "include": [],
-    "references": [
-      { "path": "./packages/common" },
-      { "path": "./packages/labextension" },
-      { "path": "./packages/navigator" }
-    ]
-  }
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "files": [],
+  "include": [],
+  "references": [
+    { "path": "./packages/common" },
+    { "path": "./packages/labextension" },
+    { "path": "./packages/navigator" }
+  ]
+}

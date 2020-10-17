@@ -6,10 +6,22 @@ import { IIterator, iter, toArray } from '@lumino/algorithm';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
+export interface IGatorShell extends GatorShell {}
+
+/**
+ * A namespace for Shell statics
+ */
+export namespace IGatorShell {
+  /**
+   * The areas of the application shell where widgets can reside.
+   */
+  export type Area = 'main' | 'top';
+}
+
 /**
  * The application shell.
  */
-export class Shell extends Widget implements JupyterFrontEnd.IShell {
+export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
   constructor() {
     super();
     this.id = 'main';
@@ -47,7 +59,7 @@ export class Shell extends Widget implements JupyterFrontEnd.IShell {
    * be added.
    *
    */
-  add(widget: Widget, area?: Shell.Area): void {
+  add(widget: Widget, area?: IGatorShell.Area): void {
     if (area === 'top') {
       return this._top.addWidget(widget);
     }
@@ -62,7 +74,7 @@ export class Shell extends Widget implements JupyterFrontEnd.IShell {
     return toArray(this._main.widgets())[0];
   }
 
-  widgets(area: Shell.Area): IIterator<Widget> {
+  widgets(area: IGatorShell.Area): IIterator<Widget> {
     if (area === 'top') {
       return iter(this._top.widgets);
     }
@@ -104,14 +116,4 @@ export class Shell extends Widget implements JupyterFrontEnd.IShell {
 
   private _main: DockPanelSvg;
   private _top: Panel;
-}
-
-/**
- * A namespace for Shell statics
- */
-export namespace Shell {
-  /**
-   * The areas of the application shell where widgets can reside.
-   */
-  export type Area = 'main' | 'top';
 }

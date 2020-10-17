@@ -24,7 +24,8 @@
   "workspaces": {
     "packages": [
       "packages/common",
-      "packages/labextension"
+      "packages/labextension",
+      "packages/navigator"
     ],
     "nohoist": [
       "**/@types/jest",

@@ -26,7 +26,7 @@ namespace CommandIDs {
  * The main menu plugin.
  */
 const plugin: JupyterFrontEndPlugin<IMainMenu> = {
-  id: 'mamba-navigator:menu',
+  id: '@mamba-org/navigator:menu',
   autoStart: true,
   provides: IMainMenu,
   activate: (app: JupyterFrontEnd): IMainMenu => {
@@ -52,8 +52,7 @@ const plugin: JupyterFrontEndPlugin<IMainMenu> = {
           </span>
         );
 
-        const mambaNavigatorUrl =
-          'https://github.com/TheSnakePit/mamba-navigator';
+        const mambaNavigatorUrl = 'https://github.com/mamba-org/jupyter_conda';
         const externalLinks = (
           <span>
             <a

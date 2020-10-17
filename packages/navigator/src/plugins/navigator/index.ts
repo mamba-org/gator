@@ -2,35 +2,29 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-
 import { DOMUtils, MainAreaWidget } from '@jupyterlab/apputils';
-
 import { Widget } from '@lumino/widgets';
-
-import { CondaEnvWidget } from 'jupyterlab_conda/lib/CondaEnvWidget';
-
-import { CondaEnvironments } from 'jupyterlab_conda/lib/services';
-
-import { condaIcon } from 'jupyterlab_conda/lib/icon';
-
-import { WIDGET_CLASS as CONDA_WIDGET_CLASS } from 'jupyterlab_conda/lib/constants';
-
-import { IMainMenu } from '../top/tokens';
-
+import {
+  CondaEnvironments,
+  CondaEnvWidget,
+  condaIcon,
+  CONDA_WIDGET_CLASS
+} from '@mamba-org/common';
 import { mambaIcon } from '../../icons';
+import { IMainMenu } from '../top/tokens';
 
 /**
  * The command ids used by the main navigator plugin.
  */
 export namespace CommandIDs {
-  export const open = 'mamba-navigator:open';
+  export const open = '@mamba-org/navigator:open';
 }
 
 /**
  * The main navigator plugin.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'mamba-navigator:main',
+  id: '@mamba-org/navigator:main',
   autoStart: true,
   optional: [IMainMenu],
   activate: (app: JupyterFrontEnd, menu: IMainMenu | null): void => {

@@ -1,29 +1,35 @@
 // Copyright (c) Jupyter Development Team.
 // Distributed under the terms of the Modified BSD License.
-const data = require('./package.json');
+const path = require('path');
+// const data = require('./package.json');
 const webpack = require('webpack');
-const Build = require('@jupyterlab/buildutils').Build;
+// const Build = require('@jupyterlab/buildutils').Build;
 
-const names = Object.keys(data.dependencies).filter(function(name) {
-  const packageData = require(name + '/package.json');
-  return packageData.jupyterlab !== undefined;
-});
+// const names = Object.keys(data.dependencies).filter(function(name) {
+//   const packageData = require(name + '/package.json');
+//   return packageData.jupyterlab !== undefined;
+// });
 
-const extras = Build.ensureAssets({
-  packageNames: names,
-  output: './build'
-});
+// const extras = Build.ensureAssets({
+//   packageNames: names,
+//   output: './build'
+// });
 
 module.exports = [
   {
     entry: ['whatwg-fetch', './lib/index.js'],
     output: {
-      path: __dirname + '/build',
-      filename: 'bundle.js'
+      path: path.resolve(
+        __dirname,
+        '..',
+        '..',
+        'jupyter_conda',
+        'navigator',
+        'static'
+      ),
+      filename: 'bundle.js',
+      publicPath: './static/'
     },
-    // node: {
-    //   fs: 'empty'
-    // },
     bail: true,
     devtool: 'source-map',
     mode: 'development',
@@ -74,4 +80,4 @@ module.exports = [
       })
     ]
   }
-].concat(extras);
+];

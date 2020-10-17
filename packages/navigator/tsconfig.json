@@ -1,24 +1,10 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig-base",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "esModuleInterop": true,
-    "incremental": true,
-    "jsx": "react",
     "module": "esnext",
-    "moduleResolution": "node",
-    "noEmitOnError": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "outDir": "lib",
     "rootDir": "src",
-    "preserveWatchOutput": true,
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "strictNullChecks": true,
-    "target": "es2017",
-    "types": ["node"]
+    "outDir": "lib"
   },
-  "include": ["src/**/*"]
+  "references": [{ "path": "../common" }],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

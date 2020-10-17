@@ -1645,13 +1645,17 @@
         "version": "f25b92ddd9f547c014be7332bd7c1aff9be05dd68042ef32fbc5be7f8fd6e4a9",
         "signature": "432ff64fc88336525c1cd3e95eda6846de76ab61556c236ce951640234762b91"
       },
+      "./src/CondaEnvWidget.tsx": {
+        "version": "8026c1a160efc0175e941728a8826e4c775d2fc5688a2ed210ad693071caa3ba",
+        "signature": "57d380f654d306a829cdda00a05952a8732ae0b6e81e2cbb689fb93e902d731f"
+      },
       "./src/services.ts": {
         "version": "36b38d96dfaf338f4aa5e6ae688c80163e1c9ab6cecbecdd75ace8672463f8e1",
         "signature": "6f5dc1de6f78687ee8995ecc2c17ff4b320635848de6fe5b9cabb711768d4f35"
       },
       "./src/index.ts": {
-        "version": "2a016285741e5bca382cde5a2c5b9a5f27710963a26923fa6e226285052a6e0c",
-        "signature": "eaa6a40279cc52ccbc46a1890a944afc9a27db7e8ccdf2a5144da9021a03edcf"
+        "version": "8b5713b1eadb3437e6ae64a28eb3d248d7c47e4b13e09d8f3e13ecfc4f1eeb73",
+        "signature": "04b29a7f2a7a573226d868826ebc88afc26be1afb180b84a396a172ada14daeb"
       },
       "./src/svg.d.ts": {
         "version": "9cb314df9aa166f4a994e58104cd0211572adc06000b3f2d4b5f23102954cac9",
@@ -3552,6 +3556,13 @@
         "./src/components/CondaEnvList.tsx",
         "./src/components/CondaPkgPanel.tsx"
       ],
+      "./src/CondaEnvWidget.tsx": [
+        "../../node_modules/@jupyterlab/apputils/lib/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts",
+        "./src/components/NbConda.tsx",
+        "./src/tokens.ts"
+      ],
       "./src/services.ts": [
         "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
         "../../node_modules/@jupyterlab/services/lib/index.d.ts",
@@ -3561,7 +3572,7 @@
         "./src/tokens.ts"
       ],
       "./src/index.ts": [
-        "./src/components/NbConda.tsx",
+        "./src/CondaEnvWidget.tsx",
         "./src/constants.ts",
         "./src/icon.ts",
         "./src/services.ts",
@@ -3593,319 +3604,809 @@
       ]
     },
     "exportedModulesMap": {
-      "./src/index.ts": [
-        "./src/components/NbConda.tsx",
-        "./src/constants.ts",
-        "./src/icon.ts",
-        "./src/services.ts",
-        "./src/tokens.ts"
-      ],
-      "./src/components/CondaPkgToolBar.tsx": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "./src/components/CondaPkgPanel.tsx": [
-        "./src/tokens.ts",
-        "./src/components/CondaPkgToolBar.tsx",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "./src/components/NbConda.tsx": [
-        "./src/tokens.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "./src/components/CondaPkgList.tsx": [
-        "./src/tokens.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "./src/components/CondaEnvList.tsx": [
-        "./src/tokens.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
       "../../node_modules/@types/react/index.d.ts": [
         "../../node_modules/csstype/index.d.ts",
         "../../node_modules/@types/prop-types/index.d.ts",
         "../../node_modules/@types/react/global.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/WindowScroller.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/chain.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/index.d.ts": [
-        "../../node_modules/@types/react-virtualized/dist/es/ArrowKeyStepper.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/AutoSizer.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Collection.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/ColumnSizer.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/InfiniteLoader.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/List.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Masonry.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/MultiGrid.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/ScrollSync.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Table.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/WindowScroller.d.ts"
+      "../../node_modules/@lumino/algorithm/types/empty.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/Masonry.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
-        "../../node_modules/@types/react-virtualized/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/enumerate.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/InfiniteLoader.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/filter.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/Collection.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/find.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/List.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Table.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
-        "../../node_modules/@types/react-virtualized/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/map.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/MultiGrid.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts"
+      "../../node_modules/@lumino/algorithm/types/range.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/ArrowKeyStepper.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/prop-types/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts"
+      "../../node_modules/@lumino/algorithm/types/reduce.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/Table.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
-        "../../node_modules/@types/react-virtualized/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts"
+      "../../node_modules/@lumino/algorithm/types/repeat.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/List.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
-        "../../node_modules/@types/react-virtualized/index.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
-        "../../node_modules/@types/react-virtualized/dist/es/ScrollSync.d.ts"
+      "../../node_modules/@lumino/algorithm/types/retro.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/ColumnSizer.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/sort.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/AutoSizer.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@types/prop-types/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/stride.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/ScrollSync.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/take.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/zip.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
       ],
-      "../../node_modules/@fortawesome/react-fontawesome/index.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@fortawesome/fontawesome-svg-core/index.d.ts"
+      "../../node_modules/@lumino/algorithm/types/index.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/array.d.ts",
+        "../../node_modules/@lumino/algorithm/types/chain.d.ts",
+        "../../node_modules/@lumino/algorithm/types/empty.d.ts",
+        "../../node_modules/@lumino/algorithm/types/enumerate.d.ts",
+        "../../node_modules/@lumino/algorithm/types/filter.d.ts",
+        "../../node_modules/@lumino/algorithm/types/find.d.ts",
+        "../../node_modules/@lumino/algorithm/types/iter.d.ts",
+        "../../node_modules/@lumino/algorithm/types/map.d.ts",
+        "../../node_modules/@lumino/algorithm/types/range.d.ts",
+        "../../node_modules/@lumino/algorithm/types/reduce.d.ts",
+        "../../node_modules/@lumino/algorithm/types/repeat.d.ts",
+        "../../node_modules/@lumino/algorithm/types/retro.d.ts",
+        "../../node_modules/@lumino/algorithm/types/sort.d.ts",
+        "../../node_modules/@lumino/algorithm/types/stride.d.ts",
+        "../../node_modules/@lumino/algorithm/types/string.d.ts",
+        "../../node_modules/@lumino/algorithm/types/take.d.ts",
+        "../../node_modules/@lumino/algorithm/types/zip.d.ts"
       ],
-      "./src/components/CondaEnvItem.tsx": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/jupyterlab_toastify/lib/ToastJupyterLab.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/index.d.ts"
-      ],
-      "../../node_modules/jupyterlab_toastify/lib/index.d.ts": [
-        "../../node_modules/jupyterlab_toastify/lib/ToastJupyterLab.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/core/toast.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/core/eventManager.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/core/index.d.ts": [
-        "../../node_modules/react-toastify/dist/core/eventManager.d.ts",
-        "../../node_modules/react-toastify/dist/core/toast.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/index.d.ts": [
-        "../../node_modules/react-toastify/dist/hooks/index.d.ts",
-        "../../node_modules/react-toastify/dist/utils/index.d.ts",
-        "../../node_modules/react-toastify/dist/components/index.d.ts",
-        "../../node_modules/react-toastify/dist/core/index.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/components/Transitions.d.ts": [
-        "../../node_modules/react-toastify/dist/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/components/index.d.ts": [
-        "../../node_modules/react-toastify/dist/components/CloseButton.d.ts",
-        "../../node_modules/react-toastify/dist/components/ProgressBar.d.ts",
-        "../../node_modules/react-toastify/dist/components/ToastContainer.d.ts",
-        "../../node_modules/react-toastify/dist/components/Transitions.d.ts",
-        "../../node_modules/react-toastify/dist/components/Toast.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/core/eventManager.d.ts": [
-        "../../node_modules/react-toastify/dist/types/index.d.ts",
-        "../../node_modules/react-toastify/dist/hooks/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/components/Toast.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/components/ToastContainer.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/components/ProgressBar.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/components/CloseButton.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/utils/cssTransition.d.ts": [
-        "../../node_modules/react-toastify/dist/types/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/utils/index.d.ts": [
-        "../../node_modules/react-toastify/dist/utils/propValidator.d.ts",
-        "../../node_modules/react-toastify/dist/utils/constant.d.ts",
-        "../../node_modules/react-toastify/dist/utils/cssTransition.d.ts",
-        "../../node_modules/react-toastify/dist/utils/collapseToast.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/hooks/useToast.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/hooks/index.d.ts": [
-        "../../node_modules/react-toastify/dist/hooks/useToastContainer.d.ts",
-        "../../node_modules/react-toastify/dist/hooks/useToast.d.ts",
-        "../../node_modules/react-toastify/dist/hooks/useKeeper.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/hooks/useToastContainer.d.ts": [
-        "../../node_modules/react-toastify/dist/types/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/types/index.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/utils/constant.d.ts": [
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/utils/collapseToast.d.ts": [
-        "../../node_modules/react-toastify/dist/utils/constant.d.ts"
-      ],
-      "../../node_modules/react-toastify/dist/utils/propValidator.d.ts": [
-        "../../node_modules/react-toastify/dist/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/toolbar.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/index.d.ts",
+      "../../node_modules/@lumino/disposable/types/index.d.ts": [
         "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/commands/types/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/vdom.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
+        "../../node_modules/@lumino/signaling/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/index.d.ts": [
-        "../../node_modules/@jupyterlab/apputils/lib/clipboard.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/collapse.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/commandlinker.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/commandpalette.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/dialog.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/domutils.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/hoverbox.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/iframe.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/inputdialog.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/mainareawidget.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/printing.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/sanitizer.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/spinner.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/splash.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/styling.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/thememanager.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/tokens.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/toolbar.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/vdom.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/widgettracker.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/windowresolver.d.ts"
+      "../../node_modules/@lumino/widgets/types/title.d.ts": [
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/mainareawidget.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/toolbar.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/printing.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/vdom.d.ts": [
+      "../../node_modules/@lumino/widgets/types/widget.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
         "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/messaging/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/layout.d.ts",
+        "../../node_modules/@lumino/widgets/types/title.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/layout.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/panellayout.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/layout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/boxlayout.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/panel.d.ts": [
+        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/boxpanel.d.ts": [
+        "../../node_modules/@lumino/widgets/types/boxlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/panel.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/coreutils/types/index.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/json.d.ts",
+        "../../node_modules/@lumino/coreutils/types/mime.d.ts",
+        "../../node_modules/@lumino/coreutils/types/promise.d.ts",
+        "../../node_modules/@lumino/coreutils/types/random.d.ts",
+        "../../node_modules/@lumino/coreutils/types/token.d.ts",
+        "../../node_modules/@lumino/coreutils/types/uuid.d.ts"
+      ],
+      "../../node_modules/@lumino/commands/types/index.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/commandpalette.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/commands/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/menu.d.ts": [
+        "../../node_modules/@lumino/commands/types/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/contextmenu.d.ts": [
+        "../../node_modules/@lumino/commands/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/menu.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/tabbar.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/title.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/docklayout.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/layout.d.ts",
+        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/dockpanel.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/docklayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/focustracker.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/gridlayout.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/layout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/menubar.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/menu.d.ts",
+        "../../node_modules/@lumino/widgets/types/title.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/scrollbar.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/singletonlayout.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/layout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/splitlayout.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/splitpanel.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/panel.d.ts",
+        "../../node_modules/@lumino/widgets/types/splitlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/stackedlayout.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/stackedpanel.d.ts": [
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/panel.d.ts",
+        "../../node_modules/@lumino/widgets/types/stackedlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/tabpanel.d.ts": [
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/stackedpanel.d.ts",
+        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@lumino/widgets/types/index.d.ts": [
+        "../../node_modules/@lumino/widgets/types/boxengine.d.ts",
+        "../../node_modules/@lumino/widgets/types/boxlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/boxpanel.d.ts",
+        "../../node_modules/@lumino/widgets/types/commandpalette.d.ts",
+        "../../node_modules/@lumino/widgets/types/contextmenu.d.ts",
+        "../../node_modules/@lumino/widgets/types/docklayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/dockpanel.d.ts",
+        "../../node_modules/@lumino/widgets/types/focustracker.d.ts",
+        "../../node_modules/@lumino/widgets/types/gridlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/layout.d.ts",
+        "../../node_modules/@lumino/widgets/types/menu.d.ts",
+        "../../node_modules/@lumino/widgets/types/menubar.d.ts",
+        "../../node_modules/@lumino/widgets/types/panel.d.ts",
+        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/scrollbar.d.ts",
+        "../../node_modules/@lumino/widgets/types/singletonlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/splitlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/splitpanel.d.ts",
+        "../../node_modules/@lumino/widgets/types/stackedlayout.d.ts",
+        "../../node_modules/@lumino/widgets/types/stackedpanel.d.ts",
+        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
+        "../../node_modules/@lumino/widgets/types/tabpanel.d.ts",
+        "../../node_modules/@lumino/widgets/types/title.d.ts",
+        "../../node_modules/@lumino/widgets/types/widget.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/commandpalettesvg.d.ts": [
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/menusvg.d.ts": [
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/tabbarsvg.d.ts": [
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/index.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/commandpalettesvg.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/menusvg.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/tabbarsvg.d.ts"
+      ],
+      "../../node_modules/typestyle/lib/types.d.ts": [
+        "../../node_modules/typestyle/node_modules/csstype/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/style/icon.d.ts": [
+        "../../node_modules/typestyle/lib/types.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/style/index.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/style/icon.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/labicon.d.ts": [
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/style/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/iconimports.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/labicon.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/icon/index.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/index.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/iconimports.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/labicon.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/components/htmlselect.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/icon/index.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/components/interface.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/ui-components/lib/components/index.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/components/htmlselect.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/components/interface.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent.d.ts": [
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/dialog.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts",
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent2.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent2.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/icons/lib/esm/iconName.d.ts": [
+        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconNames.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconSvgPaths.d.ts": [
+        "../../node_modules/@blueprintjs/icons/lib/esm/iconName.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts": [
+        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconContents.d.ts",
+        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconNames.d.ts",
+        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconSvgPaths.d.ts",
+        "../../node_modules/@blueprintjs/icons/lib/esm/iconName.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts": [
         "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/widgettracker.d.ts"
+        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/inputdialog.d.ts": [
-        "../../node_modules/@jupyterlab/apputils/lib/dialog.d.ts"
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/classes.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/alignment.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/elevation.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/position.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/blueprint.d.ts": [
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/domUtils.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/reactUtils.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/index.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/compareUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/domUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/functionUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/jsUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/reactUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/safeInvokeMember.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent2.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent2.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/alignment.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/boundary.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/colors.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/constructor.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/elevation.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/position.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/classes.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/keys.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts": [
         "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/button/buttons.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/collapse/collapse.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/inputGroup.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/components/select/select.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/controls.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts"
+        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/index.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/components/index.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/index.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/blueprint.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/tokens.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/utils.d.ts"
+      "../../node_modules/@blueprintjs/core/lib/cjs/components/button/abstractButton.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts"
       ],
-      "./src/icon.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/index.d.ts"
+      "../../node_modules/@blueprintjs/core/lib/cjs/components/button/buttons.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/button/abstractButton.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/controls.d.ts": [
+      "../../node_modules/@blueprintjs/core/lib/cjs/components/collapse/collapse.d.ts": [
         "../../node_modules/@types/react/index.d.ts",
         "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts",
         "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts"
       ],
-      "../../node_modules/@blueprintjs/select/lib/cjs/components/select/select.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/index.d.ts",
+      "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/inputGroup.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts",
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsProps.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemListRenderer.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemRenderer.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsUtils.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/predicate.d.ts",
+      "../../node_modules/@blueprintjs/core/lib/esm/accessibility/index.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/accessibility/focusStyleManager.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent.d.ts": [
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/select/lib/cjs/common/index.d.ts": [
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/classes.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemListRenderer.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemRenderer.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsProps.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsUtils.d.ts",
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/predicate.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/select/lib/cjs/common/itemRenderer.d.ts": [
+      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent2.d.ts": [
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/select/lib/cjs/common/itemListRenderer.d.ts": [
-        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsUtils.d.ts",
+      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.d.ts": [
         "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent2.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/intent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/classes.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/alignment.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/elevation.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/intent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/position.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/utils/domUtils.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/utils/reactUtils.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/utils/index.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/compareUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/domUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/functionUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/jsUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/reactUtils.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/safeInvokeMember.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent2.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent2.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/alignment.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/boundary.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/colors.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/constructor.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/elevation.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/intent.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/position.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/classes.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/keys.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/context-menu/contextMenu.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/alert/alert.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/breadcrumbs/breadcrumb.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/overflow-list/overflowList.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/boundary.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popoverSharedProps.d.ts": [
+        "../../node_modules/popper.js/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popoverSharedProps.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/breadcrumbs/breadcrumbs.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/overflow-list/overflowList.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/breadcrumbs/breadcrumb.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/button/abstractButton.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/button/buttons.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/button/abstractButton.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/button/buttonGroup.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/callout/callout.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/card/card.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/collapse/collapse.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuItem.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/collapsible-list/collapsibleList.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/boundary.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuItem.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/context-menu/contextMenuTarget.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/constructor.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/dialog/dialog.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/divider/divider.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/drawer/drawer.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/position.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/editable-text/editableText.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/controlGroup.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/controls.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/fileInput.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/formGroup.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/inputGroup.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/numericInput.d.ts": [
+        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/radioGroup.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/textArea.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/html/html.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/html-select/htmlSelect.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/html-table/htmlTable.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyCombo.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysEvents.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTarget.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/constructor.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysEvents.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/components/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/index.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyCombo.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTarget.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuDivider.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menu.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuDivider.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuItem.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarDivider.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarGroup.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarHeading.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbar.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarDivider.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarGroup.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarHeading.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/non-ideal-state/nonIdealState.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/text/text.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/panel-stack/panelProps.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/panel-stack/panelStack.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/panel-stack/panelProps.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/portal/portal.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/context.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/progress-bar/progressBar.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/resize-sensor/resizeSensor.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/resize-sensor/resizeObserverTypes.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/handleProps.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/multiSlider.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/slider/handleProps.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/rangeSlider.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/slider/multiSlider.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/slider.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/slider/multiSlider.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/tabs/tab.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/tabs/tabs.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/tabs/tab.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/tag/tag.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/tag-input/tagInput.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/tag/tag.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/toast/toast.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/toast/toaster.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/toast/toast.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/tooltip/tooltip.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popoverSharedProps.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/core/lib/esm/components/tree/treeNode.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
       ],
       "../../node_modules/@blueprintjs/core/lib/esm/components/tree/tree.d.ts": [
         "../../node_modules/@types/react/index.d.ts",
@@ -3980,511 +4481,69 @@
         "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
         "../../node_modules/@blueprintjs/core/lib/esm/components/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/components/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/index.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyCombo.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTarget.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysDialog.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/tree/treeNode.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/tooltip/tooltip.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popoverSharedProps.d.ts",
+      "../../node_modules/@blueprintjs/select/lib/cjs/common/itemListRenderer.d.ts": [
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsUtils.d.ts",
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/toast/toaster.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/toast/toast.d.ts",
+      "../../node_modules/@blueprintjs/select/lib/cjs/common/itemRenderer.d.ts": [
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/toast/toast.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/tag-input/tagInput.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/tag/tag.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/tag/tag.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/tabs/tabs.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/tabs/tab.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/tabs/tab.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/spinner/spinner.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/slider.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/slider/multiSlider.d.ts",
+      "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsProps.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemListRenderer.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemRenderer.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsUtils.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/predicate.d.ts",
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/rangeSlider.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/slider/multiSlider.d.ts",
+      "../../node_modules/@blueprintjs/select/lib/cjs/common/index.d.ts": [
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/classes.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemListRenderer.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/itemRenderer.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsProps.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/listItemsUtils.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/predicate.d.ts"
+      ],
+      "../../node_modules/@blueprintjs/select/lib/cjs/components/select/select.d.ts": [
+        "../../node_modules/@blueprintjs/core/lib/esm/index.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/common/index.d.ts",
         "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/multiSlider.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/slider/handleProps.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/slider/handleProps.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/resize-sensor/resizeSensor.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/resize-sensor/resizeObserverTypes.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/progress-bar/progressBar.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/portal/portal.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/context.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/panel-stack/panelStack.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/panel-stack/panelProps.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/panel-stack/panelProps.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/text/text.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/non-ideal-state/nonIdealState.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbar.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarDivider.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarGroup.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarHeading.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarHeading.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarGroup.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/navbar/navbarDivider.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menu.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuDivider.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuItem.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuDivider.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTarget.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/constructor.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysEvents.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysEvents.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeyParser.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/keyCombo.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkey.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeys.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/html-table/htmlTable.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/html-select/htmlSelect.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/html/html.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/textArea.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/radioGroup.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/numericInput.d.ts": [
-        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/inputGroup.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/formGroup.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/fileInput.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/controls.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/forms/controlGroup.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/editable-text/editableText.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/drawer/drawer.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/position.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/divider/divider.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/dialog/dialog.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/context-menu/contextMenuTarget.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/constructor.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/collapsible-list/collapsibleList.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/boundary.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuItem.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/menu/menuItem.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/collapse/collapse.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/card/card.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/callout/callout.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/button/buttonGroup.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/button/buttons.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/button/abstractButton.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/button/abstractButton.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/breadcrumbs/breadcrumbs.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/overflow-list/overflowList.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/breadcrumbs/breadcrumb.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popover.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popoverSharedProps.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/popover/popoverSharedProps.d.ts": [
-        "../../node_modules/popper.js/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/overflow-list/overflowList.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/boundary.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/breadcrumbs/breadcrumb.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/alert/alert.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/overlay/overlay.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/icon/icon.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/context-menu/contextMenu.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/utils/reactUtils.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/utils/index.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/compareUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/domUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/functionUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/jsUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/reactUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/safeInvokeMember.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent2.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent2.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/alignment.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/boundary.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/colors.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/constructor.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/elevation.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/intent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/position.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/classes.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/keys.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/utils/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/components/hotkeys/hotkeysTypes.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/utils/domUtils.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/props.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/intent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/refs.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent2.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractPureComponent.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent2.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/abstractComponent.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/inputGroup.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts",
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/components/collapse/collapse.d.ts": [
+      "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/controls.d.ts": [
         "../../node_modules/@types/react/index.d.ts",
         "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts",
         "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/components/button/buttons.d.ts": [
+      "../../node_modules/@jupyterlab/ui-components/lib/blueprint.d.ts": [
         "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/button/abstractButton.d.ts"
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/button/buttons.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/collapse/collapse.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/inputGroup.d.ts",
+        "../../node_modules/@blueprintjs/select/lib/cjs/components/select/select.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/components/forms/controls.d.ts",
+        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/components/button/abstractButton.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts"
+      "../../node_modules/@jupyterlab/ui-components/lib/tokens.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts"
       ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/components/icon/icon.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/reactUtils.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/index.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/compareUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/domUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/functionUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/jsUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/reactUtils.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/safeInvokeMember.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/index.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent2.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent2.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/alignment.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/boundary.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/colors.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/constructor.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/elevation.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/position.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/classes.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/keys.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/utils/domUtils.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/props.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/refs.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent2.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractPureComponent.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent2.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/abstractComponent.d.ts": [
-        "../../node_modules/@types/react/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/components/htmlselect.d.ts": [
-        "../../node_modules/@types/react/index.d.ts",
+      "../../node_modules/@jupyterlab/ui-components/lib/index.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/components/index.d.ts",
         "../../node_modules/@jupyterlab/ui-components/lib/icon/index.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/components/interface.d.ts"
+        "../../node_modules/@jupyterlab/ui-components/lib/blueprint.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/tokens.d.ts",
+        "../../node_modules/@jupyterlab/ui-components/lib/utils.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/components/index.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/components/htmlselect.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/components/interface.d.ts"
+      "./src/icon.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/labicon.d.ts": [
+      "../../node_modules/@jupyterlab/apputils/lib/clipboard.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/apputils/lib/collapse.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@types/react/index.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/style/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/index.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/index.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/iconimports.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/labicon.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/iconimports.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/labicon.d.ts"
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
       ],
       "../../node_modules/@jupyterlab/apputils/lib/commandlinker.d.ts": [
         "../../node_modules/@lumino/coreutils/types/index.d.ts",
@@ -4492,150 +4551,34 @@
         "../../node_modules/@lumino/commands/types/index.d.ts",
         "../../node_modules/@lumino/virtualdom/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/tabbarsvg.d.ts": [
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/index.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/commandpalettesvg.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/menusvg.d.ts",
-        "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/tabbarsvg.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/menusvg.d.ts": [
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/icon/widgets/commandpalettesvg.d.ts": [
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/menubar.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/menu.d.ts",
-        "../../node_modules/@lumino/widgets/types/title.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/index.d.ts": [
-        "../../node_modules/@lumino/widgets/types/boxengine.d.ts",
-        "../../node_modules/@lumino/widgets/types/boxlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/boxpanel.d.ts",
-        "../../node_modules/@lumino/widgets/types/commandpalette.d.ts",
-        "../../node_modules/@lumino/widgets/types/contextmenu.d.ts",
-        "../../node_modules/@lumino/widgets/types/docklayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/dockpanel.d.ts",
-        "../../node_modules/@lumino/widgets/types/focustracker.d.ts",
-        "../../node_modules/@lumino/widgets/types/gridlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/layout.d.ts",
-        "../../node_modules/@lumino/widgets/types/menu.d.ts",
-        "../../node_modules/@lumino/widgets/types/menubar.d.ts",
-        "../../node_modules/@lumino/widgets/types/panel.d.ts",
-        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/scrollbar.d.ts",
-        "../../node_modules/@lumino/widgets/types/singletonlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/splitlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/splitpanel.d.ts",
-        "../../node_modules/@lumino/widgets/types/stackedlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/stackedpanel.d.ts",
-        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
-        "../../node_modules/@lumino/widgets/types/tabpanel.d.ts",
-        "../../node_modules/@lumino/widgets/types/title.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/thememanager.d.ts": [
-        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/splash.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/tokens.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/spinner.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/printing.d.ts": [
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/iframe.d.ts": [
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/widgettracker.d.ts": [
-        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
       "../../node_modules/@jupyterlab/apputils/lib/commandpalette.d.ts": [
         "../../node_modules/@lumino/coreutils/types/index.d.ts",
         "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/apputils/lib/collapse.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/index.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/tabbar.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/title.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/tabpanel.d.ts": [
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/stackedpanel.d.ts",
-        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/dockpanel.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/docklayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/docklayout.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/layout.d.ts",
-        "../../node_modules/@lumino/widgets/types/tabbar.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/menu.d.ts": [
-        "../../node_modules/@lumino/commands/types/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/contextmenu.d.ts": [
-        "../../node_modules/@lumino/commands/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/menu.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/commandpalette.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/commands/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/commands/types/index.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts"
       ],
       "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts": [
         "../../node_modules/@lumino/commands/types/index.d.ts",
         "../../node_modules/@lumino/coreutils/types/index.d.ts",
         "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/statedb/lib/dataconnector.d.ts": [
+        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/statedb/lib/restorablepool.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/statedb/lib/tokens.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/statedb/lib/statedb.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/tokens.d.ts"
       ],
       "../../node_modules/@jupyterlab/statedb/lib/index.d.ts": [
         "../../node_modules/@jupyterlab/statedb/lib/dataconnector.d.ts",
@@ -4644,313 +4587,59 @@
         "../../node_modules/@jupyterlab/statedb/lib/statedb.d.ts",
         "../../node_modules/@jupyterlab/statedb/lib/tokens.d.ts"
       ],
-      "../../node_modules/@jupyterlab/services/lib/workspace/index.d.ts": [
+      "../../node_modules/@jupyterlab/apputils/lib/widgettracker.d.ts": [
         "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/services/lib/index.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/config/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/contents/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernelspec/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/manager.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/session/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/setting/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/terminal/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/workspace/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/nbconvert/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/builder/index.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/dialog.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/widgettracker.d.ts"
       ],
-      "./src/services.ts": [
-        "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts",
-        "./src/tokens.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/iframe.d.ts": [
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts": [
-        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+      "../../node_modules/@jupyterlab/apputils/lib/inputdialog.d.ts": [
+        "../../node_modules/@jupyterlab/apputils/lib/dialog.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/coreutils/lib/activitymonitor.d.ts": [
         "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/tokens.d.ts": [
-        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts"
+      "../../node_modules/@jupyterlab/coreutils/lib/url.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/services/lib/terminal/manager.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/terminal/terminal.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/terminal/index.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/terminal/terminal.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/terminal/restapi.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/terminal/manager.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/manager.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/builder/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/nbconvert/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/contents/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernelspec/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/session/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/setting/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/terminal/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/workspace/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/terminal/terminal.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/terminal/restapi.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/session/session.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/session/index.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/session/session.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/session/restapi.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/session/manager.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/session/restapi.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/session/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/session/manager.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/session/session.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/kernel/manager.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/kernel.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/kernel/kernel.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/messages.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/manager.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/kernel/kernel.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/messages.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernelspec/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/contents/index.d.ts": [
-        "../../node_modules/@jupyterlab/observables/lib/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/index.d.ts"
+      "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts": [
+        "../../node_modules/@jupyterlab/coreutils/lib/activitymonitor.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/interfaces.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/markdowncodeblocks.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/pageconfig.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/path.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/text.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/time.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/url.d.ts"
       ],
       "../../node_modules/@jupyterlab/services/lib/config/index.d.ts": [
         "../../node_modules/@lumino/coreutils/types/index.d.ts",
         "../../node_modules/@jupyterlab/services/lib/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/setting/index.d.ts": [
-        "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/settingregistry/lib/settingregistry.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/settingregistry/lib/tokens.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts": [
-        "../../node_modules/@jupyterlab/settingregistry/lib/settingregistry.d.ts",
-        "../../node_modules/@jupyterlab/settingregistry/lib/tokens.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/settingregistry/lib/tokens.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
-        "../../node_modules/@jupyterlab/settingregistry/lib/settingregistry.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/statedb/lib/statedb.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/tokens.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/statedb/lib/tokens.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/statedb/lib/restorablepool.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/statedb/lib/dataconnector.d.ts": [
-        "../../node_modules/@jupyterlab/statedb/lib/interfaces.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/title.d.ts": [
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/virtualdom/types/index.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/widget.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/layout.d.ts",
-        "../../node_modules/@lumino/widgets/types/title.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/stackedpanel.d.ts": [
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/panel.d.ts",
-        "../../node_modules/@lumino/widgets/types/stackedlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/stackedlayout.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/splitpanel.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/panel.d.ts",
-        "../../node_modules/@lumino/widgets/types/splitlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/splitlayout.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/singletonlayout.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/layout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/scrollbar.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/gridlayout.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/layout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/focustracker.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/boxpanel.d.ts": [
-        "../../node_modules/@lumino/widgets/types/boxlayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/panel.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/panel.d.ts": [
-        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/boxlayout.d.ts": [
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/panellayout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/panellayout.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/layout.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@lumino/widgets/types/layout.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@lumino/widgets/types/widget.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/observables/lib/observablejson.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/messaging/types/index.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/observables/lib/index.d.ts": [
-        "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablejson.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablelist.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablestring.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/undoablelist.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablejson.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablestring.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/undoablelist.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/observables/lib/observablestring.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts"
       ],
       "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts": [
         "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts",
         "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/index.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/array.d.ts",
-        "../../node_modules/@lumino/algorithm/types/chain.d.ts",
-        "../../node_modules/@lumino/algorithm/types/empty.d.ts",
-        "../../node_modules/@lumino/algorithm/types/enumerate.d.ts",
-        "../../node_modules/@lumino/algorithm/types/filter.d.ts",
-        "../../node_modules/@lumino/algorithm/types/find.d.ts",
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts",
-        "../../node_modules/@lumino/algorithm/types/map.d.ts",
-        "../../node_modules/@lumino/algorithm/types/range.d.ts",
-        "../../node_modules/@lumino/algorithm/types/reduce.d.ts",
-        "../../node_modules/@lumino/algorithm/types/repeat.d.ts",
-        "../../node_modules/@lumino/algorithm/types/retro.d.ts",
-        "../../node_modules/@lumino/algorithm/types/sort.d.ts",
-        "../../node_modules/@lumino/algorithm/types/stride.d.ts",
-        "../../node_modules/@lumino/algorithm/types/string.d.ts",
-        "../../node_modules/@lumino/algorithm/types/take.d.ts",
-        "../../node_modules/@lumino/algorithm/types/zip.d.ts"
+      "../../node_modules/@jupyterlab/observables/lib/observablejson.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/observables/lib/observablestring.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts"
       ],
       "../../node_modules/@jupyterlab/observables/lib/observablelist.d.ts": [
         "../../node_modules/@lumino/algorithm/types/index.d.ts",
@@ -4961,18 +4650,59 @@
         "../../node_modules/@lumino/coreutils/types/index.d.ts",
         "../../node_modules/@jupyterlab/observables/lib/observablelist.d.ts"
       ],
-      "../../node_modules/@lumino/disposable/types/index.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts"
-      ],
-      "./src/tokens.ts": [
+      "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
         "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts"
+        "../../node_modules/@jupyterlab/observables/lib/observablejson.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablestring.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/undoablelist.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/splash.d.ts": [
+      "../../node_modules/@jupyterlab/observables/lib/index.d.ts": [
+        "../../node_modules/@jupyterlab/observables/lib/modeldb.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablejson.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablelist.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablemap.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/observablestring.d.ts",
+        "../../node_modules/@jupyterlab/observables/lib/undoablelist.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/contents/index.d.ts": [
+        "../../node_modules/@jupyterlab/observables/lib/index.d.ts",
         "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/nbformat/lib/index.d.ts": [
         "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/kernel/messages.d.ts": [
+        "../../node_modules/@jupyterlab/nbformat/lib/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/kernelspec/restapi.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/kernelspec/kernelspec.d.ts": [
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernelspec/restapi.d.ts"
+      ],
+      "../../node_modules/@lumino/polling/types/poll.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/index.d.ts"
+      ],
+      "../../node_modules/@lumino/polling/types/ratelimiter.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/poll.d.ts"
       ],
       "../../node_modules/@lumino/polling/types/index.d.ts": [
         "../../node_modules/@lumino/disposable/types/index.d.ts",
@@ -4993,117 +4723,327 @@
         "../../node_modules/@jupyterlab/services/lib/kernelspec/restapi.d.ts",
         "../../node_modules/@jupyterlab/services/lib/kernelspec/manager.d.ts"
       ],
-      "../../node_modules/@lumino/polling/types/ratelimiter.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/poll.d.ts"
-      ],
-      "../../node_modules/@lumino/polling/types/poll.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
-        "../../node_modules/@lumino/polling/types/index.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts": [
-        "../../node_modules/@lumino/disposable/types/index.d.ts",
-        "../../node_modules/@lumino/signaling/types/index.d.ts",
+      "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts": [
         "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
       ],
-      "../../node_modules/@jupyterlab/services/lib/kernelspec/kernelspec.d.ts": [
+      "../../node_modules/@jupyterlab/services/lib/kernel/kernel.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/messages.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernelspec/index.d.ts",
         "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
-        "../../node_modules/@jupyterlab/services/lib/kernelspec/restapi.d.ts"
+        "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts"
       ],
-      "../../node_modules/@jupyterlab/coreutils/lib/activitymonitor.d.ts": [
+      "../../node_modules/@jupyterlab/services/lib/kernel/manager.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/kernel.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/kernel/kernel.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/messages.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/manager.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/builder/index.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/nbconvert/index.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/session/session.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/session/restapi.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/session/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/session/manager.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/session/session.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/session/index.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/session/session.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/session/restapi.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/session/manager.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/settingregistry/lib/tokens.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/settingregistry/lib/settingregistry.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/settingregistry/lib/settingregistry.d.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/settingregistry/lib/tokens.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts": [
+        "../../node_modules/@jupyterlab/settingregistry/lib/settingregistry.d.ts",
+        "../../node_modules/@jupyterlab/settingregistry/lib/tokens.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/setting/index.d.ts": [
+        "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/terminal/restapi.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/terminal/terminal.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/terminal/restapi.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/terminal/manager.d.ts": [
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/terminal/terminal.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/basemanager.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/terminal/index.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/terminal/terminal.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/terminal/restapi.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/terminal/manager.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/workspace/index.d.ts": [
+        "../../node_modules/@jupyterlab/statedb/lib/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/manager.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/polling/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/builder/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/nbconvert/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/contents/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernelspec/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/session/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/setting/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/terminal/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/workspace/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/services/lib/index.d.ts": [
+        "../../node_modules/@jupyterlab/services/lib/config/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/contents/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernel/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/kernelspec/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/manager.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/session/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/setting/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/terminal/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/workspace/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/nbconvert/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/builder/index.d.ts"
+      ],
+      "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts": [
+        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/services/lib/index.d.ts",
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
         "../../node_modules/@lumino/disposable/types/index.d.ts",
         "../../node_modules/@lumino/signaling/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts": [
-        "../../node_modules/@jupyterlab/coreutils/lib/activitymonitor.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/interfaces.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/markdowncodeblocks.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/pageconfig.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/path.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/text.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/time.d.ts",
-        "../../node_modules/@jupyterlab/coreutils/lib/url.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/vdom.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/zip.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/toolbar.d.ts": [
+        "../../node_modules/@jupyterlab/ui-components/lib/index.d.ts",
+        "../../node_modules/@lumino/algorithm/types/index.d.ts",
+        "../../node_modules/@lumino/commands/types/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/vdom.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/take.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/printing.d.ts": [
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/stride.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/mainareawidget.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/toolbar.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/printing.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/sort.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/spinner.d.ts": [
+        "../../node_modules/@lumino/messaging/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/retro.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/splash.d.ts": [
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/repeat.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/tokens.d.ts": [
+        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts"
       ],
-      "../../node_modules/@lumino/algorithm/types/reduce.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/range.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/map.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/find.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/filter.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/enumerate.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/empty.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/algorithm/types/chain.d.ts": [
-        "../../node_modules/@lumino/algorithm/types/iter.d.ts"
-      ],
-      "../../node_modules/@lumino/coreutils/types/index.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/json.d.ts",
-        "../../node_modules/@lumino/coreutils/types/mime.d.ts",
-        "../../node_modules/@lumino/coreutils/types/promise.d.ts",
-        "../../node_modules/@lumino/coreutils/types/random.d.ts",
-        "../../node_modules/@lumino/coreutils/types/token.d.ts",
-        "../../node_modules/@lumino/coreutils/types/uuid.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/thememanager.d.ts": [
+        "../../node_modules/@jupyterlab/coreutils/lib/index.d.ts",
+        "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/splash.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/tokens.d.ts"
       ],
       "../../node_modules/@jupyterlab/apputils/lib/windowresolver.d.ts": [
         "../../node_modules/@lumino/coreutils/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/services/lib/kernelspec/restapi.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      "../../node_modules/@jupyterlab/apputils/lib/index.d.ts": [
+        "../../node_modules/@jupyterlab/apputils/lib/clipboard.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/collapse.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/commandlinker.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/commandpalette.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/dialog.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/domutils.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/hoverbox.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/iframe.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/inputdialog.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/mainareawidget.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/printing.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/sanitizer.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/sessioncontext.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/spinner.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/splash.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/styling.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/thememanager.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/tokens.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/toolbar.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/vdom.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/widgettracker.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/windowresolver.d.ts"
       ],
-      "../../node_modules/@jupyterlab/services/lib/kernel/messages.d.ts": [
-        "../../node_modules/@jupyterlab/nbformat/lib/index.d.ts",
-        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      "../../node_modules/react-toastify/dist/types/index.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/nbformat/lib/index.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      "../../node_modules/react-toastify/dist/hooks/useToastContainer.d.ts": [
+        "../../node_modules/react-toastify/dist/types/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/coreutils/lib/url.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      "../../node_modules/react-toastify/dist/hooks/useToast.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/apputils/lib/clipboard.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      "../../node_modules/react-toastify/dist/hooks/index.d.ts": [
+        "../../node_modules/react-toastify/dist/hooks/useToastContainer.d.ts",
+        "../../node_modules/react-toastify/dist/hooks/useToast.d.ts",
+        "../../node_modules/react-toastify/dist/hooks/useKeeper.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/tokens.d.ts": [
-        "../../node_modules/@lumino/coreutils/types/index.d.ts"
+      "../../node_modules/react-toastify/dist/utils/propValidator.d.ts": [
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
       ],
-      "../../node_modules/typestyle/lib/types.d.ts": [
-        "../../node_modules/typestyle/node_modules/csstype/index.d.ts"
+      "../../node_modules/react-toastify/dist/utils/constant.d.ts": [
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
       ],
-      "./src/components/globalStyles.ts": [
+      "../../node_modules/react-toastify/dist/utils/cssTransition.d.ts": [
+        "../../node_modules/react-toastify/dist/types/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/utils/collapseToast.d.ts": [
+        "../../node_modules/react-toastify/dist/utils/constant.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/utils/index.d.ts": [
+        "../../node_modules/react-toastify/dist/utils/propValidator.d.ts",
+        "../../node_modules/react-toastify/dist/utils/constant.d.ts",
+        "../../node_modules/react-toastify/dist/utils/cssTransition.d.ts",
+        "../../node_modules/react-toastify/dist/utils/collapseToast.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/components/CloseButton.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/components/ProgressBar.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/components/ToastContainer.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/components/Transitions.d.ts": [
+        "../../node_modules/react-toastify/dist/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/components/Toast.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/components/index.d.ts": [
+        "../../node_modules/react-toastify/dist/components/CloseButton.d.ts",
+        "../../node_modules/react-toastify/dist/components/ProgressBar.d.ts",
+        "../../node_modules/react-toastify/dist/components/ToastContainer.d.ts",
+        "../../node_modules/react-toastify/dist/components/Transitions.d.ts",
+        "../../node_modules/react-toastify/dist/components/Toast.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/core/eventManager.d.ts": [
+        "../../node_modules/react-toastify/dist/types/index.d.ts",
+        "../../node_modules/react-toastify/dist/hooks/index.d.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/core/toast.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/core/eventManager.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/core/index.d.ts": [
+        "../../node_modules/react-toastify/dist/core/eventManager.d.ts",
+        "../../node_modules/react-toastify/dist/core/toast.d.ts"
+      ],
+      "../../node_modules/react-toastify/dist/index.d.ts": [
+        "../../node_modules/react-toastify/dist/hooks/index.d.ts",
+        "../../node_modules/react-toastify/dist/utils/index.d.ts",
+        "../../node_modules/react-toastify/dist/components/index.d.ts",
+        "../../node_modules/react-toastify/dist/core/index.d.ts",
+        "../../node_modules/react-toastify/dist/types/index.d.ts"
+      ],
+      "../../node_modules/jupyterlab_toastify/lib/ToastJupyterLab.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/react-toastify/dist/index.d.ts"
+      ],
+      "../../node_modules/jupyterlab_toastify/lib/index.d.ts": [
+        "../../node_modules/jupyterlab_toastify/lib/ToastJupyterLab.d.ts"
+      ],
+      "../../node_modules/typestyle/lib/internal/typestyle.d.ts": [
+        "../../node_modules/typestyle/lib/types.d.ts"
+      ],
+      "../../node_modules/typestyle/lib/internal/utilities.d.ts": [
         "../../node_modules/typestyle/lib/types.d.ts"
       ],
       "../../node_modules/typestyle/lib/index.d.ts": [
@@ -5111,85 +5051,188 @@
         "../../node_modules/typestyle/lib/types.d.ts",
         "../../node_modules/typestyle/lib/internal/utilities.d.ts"
       ],
-      "../../node_modules/typestyle/lib/internal/utilities.d.ts": [
+      "./src/tokens.ts": [
+        "../../node_modules/@lumino/coreutils/types/index.d.ts",
+        "../../node_modules/@lumino/disposable/types/index.d.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts"
+      ],
+      "./src/components/globalStyles.ts": [
         "../../node_modules/typestyle/lib/types.d.ts"
       ],
-      "../../node_modules/typestyle/lib/internal/typestyle.d.ts": [
-        "../../node_modules/typestyle/lib/types.d.ts"
+      "./src/components/CondaEnvItem.tsx": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@jupyterlab/ui-components/lib/style/icon.d.ts": [
-        "../../node_modules/typestyle/lib/types.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/ui-components/lib/style/index.d.ts": [
-        "../../node_modules/@jupyterlab/ui-components/lib/style/icon.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/cjs/common/classes.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/alignment.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/elevation.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/intent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/cjs/common/position.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/icons/lib/esm/index.d.ts": [
-        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconContents.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconNames.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconSvgPaths.d.ts",
-        "../../node_modules/@blueprintjs/icons/lib/esm/iconName.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/icons/lib/esm/iconName.d.ts": [
-        "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconNames.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/icons/lib/esm/generated/iconSvgPaths.d.ts": [
-        "../../node_modules/@blueprintjs/icons/lib/esm/iconName.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/accessibility/index.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/accessibility/focusStyleManager.d.ts"
-      ],
-      "../../node_modules/@blueprintjs/core/lib/esm/common/classes.d.ts": [
-        "../../node_modules/@blueprintjs/core/lib/esm/common/alignment.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/elevation.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/intent.d.ts",
-        "../../node_modules/@blueprintjs/core/lib/esm/common/position.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/terminal/restapi.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/nbconvert/index.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/builder/index.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
-      ],
-      "../../node_modules/@jupyterlab/services/lib/kernel/restapi.d.ts": [
-        "../../node_modules/@jupyterlab/services/lib/serverconnection.d.ts"
-      ],
-      "../../node_modules/@fortawesome/free-solid-svg-icons/index.d.ts": [
-        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
-      ],
-      "../../node_modules/@fortawesome/free-solid-svg-icons/faMinusSquare.d.ts": [
-        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
-      ],
-      "../../node_modules/@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt.d.ts": [
-        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
-      ],
-      "../../node_modules/@fortawesome/free-solid-svg-icons/faExternalLinkAlt.d.ts": [
-        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
-      ],
-      "../../node_modules/@fortawesome/free-solid-svg-icons/faCheckSquare.d.ts": [
-        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
-      ],
-      "../../node_modules/@fortawesome/free-regular-svg-icons/faSquare.d.ts": [
-        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
-      ],
-      "../../node_modules/@fortawesome/fontawesome-svg-core/index.d.ts": [
+      "../../node_modules/@fortawesome/free-regular-svg-icons/faClone.d.ts": [
         "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
       "../../node_modules/@fortawesome/free-solid-svg-icons/faSyncAlt.d.ts": [
         "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@fortawesome/free-regular-svg-icons/faClone.d.ts": [
+      "../../node_modules/@fortawesome/fontawesome-svg-core/index.d.ts": [
         "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
+      "../../node_modules/@fortawesome/react-fontawesome/index.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@fortawesome/fontawesome-svg-core/index.d.ts"
+      ],
+      "./src/components/CondaEnvList.tsx": [
+        "./src/tokens.ts",
+        "../../node_modules/@types/react/index.d.ts"
+      ],
       "../../node_modules/@types/semver/classes/semver.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/parse.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/valid.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/clean.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/inc.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/diff.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/major.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/minor.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/patch.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/prerelease.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/compare.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/rcompare.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/compare-loose.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/compare-build.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/sort.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/rsort.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/gt.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/lt.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/eq.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/neq.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/gte.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/lte.d.ts": [
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/cmp.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/coerce.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/classes/comparator.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/classes/range.d.ts": [
+        "../../node_modules/@types/semver/index.d.ts",
+        "../../node_modules/@types/semver/classes/comparator.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts"
+      ],
+      "../../node_modules/@types/semver/functions/satisfies.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/max-satisfying.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/min-satisfying.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/to-comparators.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/min-version.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/valid.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/outside.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/gtr.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/ltr.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/classes/semver.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/intersects.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/simplify.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
+        "../../node_modules/@types/semver/index.d.ts"
+      ],
+      "../../node_modules/@types/semver/ranges/subset.d.ts": [
+        "../../node_modules/@types/semver/classes/range.d.ts",
         "../../node_modules/@types/semver/index.d.ts"
       ],
       "../../node_modules/@types/semver/index.d.ts": [
@@ -5233,158 +5276,139 @@
         "../../node_modules/@types/semver/classes/comparator.d.ts",
         "../../node_modules/@types/semver/internals/identifiers.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/subset.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@fortawesome/free-regular-svg-icons/faSquare.d.ts": [
+        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/simplify.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@fortawesome/free-solid-svg-icons/faCheckSquare.d.ts": [
+        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/intersects.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@fortawesome/free-solid-svg-icons/faExternalLinkAlt.d.ts": [
+        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/ltr.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt.d.ts": [
+        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/gtr.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@fortawesome/free-solid-svg-icons/faMinusSquare.d.ts": [
+        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/outside.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/valid.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/ScrollSync.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/min-version.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/List.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
+        "../../node_modules/@types/react-virtualized/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/ScrollSync.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/to-comparators.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/Table.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
+        "../../node_modules/@types/react-virtualized/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/min-satisfying.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/List.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Table.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
+        "../../node_modules/@types/react-virtualized/index.d.ts"
       ],
-      "../../node_modules/@types/semver/ranges/max-satisfying.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/ArrowKeyStepper.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/prop-types/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/satisfies.d.ts": [
-        "../../node_modules/@types/semver/classes/range.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/AutoSizer.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/prop-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/classes/range.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/comparator.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/Collection.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/index.d.ts"
       ],
-      "../../node_modules/@types/semver/classes/comparator.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/ColumnSizer.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/coerce.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/InfiniteLoader.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/cmp.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/Masonry.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
+        "../../node_modules/@types/react-virtualized/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/lte.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/MultiGrid.d.ts": [
+        "../../node_modules/@types/react/index.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/gte.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/dist/es/WindowScroller.d.ts": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/neq.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@types/react-virtualized/index.d.ts": [
+        "../../node_modules/@types/react-virtualized/dist/es/ArrowKeyStepper.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/AutoSizer.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/CellMeasurer.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Collection.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/ColumnSizer.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Grid.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/InfiniteLoader.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/List.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Masonry.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/MultiGrid.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/ScrollSync.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/Table.d.ts",
+        "../../node_modules/@types/react-virtualized/dist/es/WindowScroller.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/eq.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./src/components/CondaPkgList.tsx": [
+        "./src/tokens.ts",
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/lt.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "../../node_modules/@fortawesome/free-solid-svg-icons/index.d.ts": [
+        "../../node_modules/@fortawesome/fontawesome-common-types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/gt.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./src/components/CondaPkgToolBar.tsx": [
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/rsort.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./src/components/CondaPkgPanel.tsx": [
+        "./src/tokens.ts",
+        "./src/components/CondaPkgToolBar.tsx",
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/sort.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./src/components/NbConda.tsx": [
+        "./src/tokens.ts",
+        "../../node_modules/@types/react/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/rcompare.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./src/CondaEnvWidget.tsx": [
+        "./src/tokens.ts",
+        "../../node_modules/@lumino/widgets/types/index.d.ts",
+        "../../node_modules/@jupyterlab/apputils/lib/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/compare.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
+      "./src/services.ts": [
+        "../../node_modules/@jupyterlab/settingregistry/lib/index.d.ts",
+        "./src/tokens.ts",
+        "../../node_modules/@lumino/signaling/types/index.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/prerelease.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./src/index.ts": [
+        "./src/CondaEnvWidget.tsx",
+        "./src/constants.ts",
+        "./src/icon.ts",
+        "./src/services.ts",
+        "./src/tokens.ts"
       ],
-      "../../node_modules/@types/semver/functions/patch.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
+      "./node_modules/jest-diff/build/ts3.4/diffLines.d.ts": [
+        "./node_modules/jest-diff/build/ts3.4/cleanupSemantic.d.ts",
+        "./node_modules/jest-diff/build/ts3.4/types.d.ts"
       ],
-      "../../node_modules/@types/semver/functions/minor.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/major.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/diff.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/inc.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/clean.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/valid.d.ts": [
-        "../../node_modules/@types/semver/index.d.ts",
-        "../../node_modules/@types/semver/classes/semver.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/parse.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts",
-        "../../node_modules/@types/semver/index.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/compare-build.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts"
-      ],
-      "../../node_modules/@types/semver/functions/compare-loose.d.ts": [
-        "../../node_modules/@types/semver/classes/semver.d.ts"
+      "./node_modules/jest-diff/build/ts3.4/printDiffs.d.ts": [
+        "./node_modules/jest-diff/build/ts3.4/cleanupSemantic.d.ts",
+        "./node_modules/jest-diff/build/ts3.4/types.d.ts"
       ],
       "./node_modules/jest-diff/build/ts3.4/index.d.ts": [
         "./node_modules/jest-diff/build/ts3.4/cleanupSemantic.d.ts",
@@ -5392,26 +5416,30 @@
         "./node_modules/jest-diff/build/ts3.4/printDiffs.d.ts",
         "./node_modules/jest-diff/build/ts3.4/types.d.ts"
       ],
+      "./node_modules/pretty-format/build/ts3.4/index.d.ts": [
+        "./node_modules/pretty-format/build/ts3.4/types.d.ts"
+      ],
       "./node_modules/@types/jest/index.d.ts": [
         "./node_modules/jest-diff/build/ts3.4/index.d.ts",
         "./node_modules/pretty-format/build/ts3.4/index.d.ts"
       ],
       "./node_modules/@types/jest/ts3.2/index.d.ts": [
         "./node_modules/@types/jest/index.d.ts"
-      ],
-      "./node_modules/jest-diff/build/ts3.4/printDiffs.d.ts": [
-        "./node_modules/jest-diff/build/ts3.4/cleanupSemantic.d.ts",
-        "./node_modules/jest-diff/build/ts3.4/types.d.ts"
-      ],
-      "./node_modules/jest-diff/build/ts3.4/diffLines.d.ts": [
-        "./node_modules/jest-diff/build/ts3.4/cleanupSemantic.d.ts",
-        "./node_modules/jest-diff/build/ts3.4/types.d.ts"
-      ],
-      "./node_modules/pretty-format/build/ts3.4/index.d.ts": [
-        "./node_modules/pretty-format/build/ts3.4/types.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
+      "../../node_modules/typescript/lib/lib.es5.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.d.ts",
+      "../../node_modules/typescript/lib/lib.dom.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.core.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.collection.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.generator.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.promise.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.proxy.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.reflect.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.symbol.d.ts",
+      "../../node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
       "./src/constants.ts",
       "../../node_modules/@types/react/global.d.ts",
       "../../node_modules/csstype/index.d.ts",
@@ -5812,7 +5840,6 @@
       "./src/components/CondaPkgPanel.tsx",
       "./src/components/NbConda.tsx",
       "./src/services.ts",
-      "./src/index.ts",
       "./src/svg.d.ts",
       "./node_modules/jest-diff/build/ts3.4/cleanupSemantic.d.ts",
       "./node_modules/jest-diff/build/ts3.4/types.d.ts",
@@ -5823,18 +5850,8 @@
       "./node_modules/pretty-format/build/ts3.4/index.d.ts",
       "./node_modules/@types/jest/index.d.ts",
       "./node_modules/@types/jest/ts3.2/index.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.d.ts",
-      "../../node_modules/typescript/lib/lib.es5.d.ts",
-      "../../node_modules/typescript/lib/lib.dom.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.core.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.collection.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.generator.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.iterable.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.promise.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.proxy.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.reflect.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.symbol.d.ts",
-      "../../node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts"
+      "./src/CondaEnvWidget.tsx",
+      "./src/index.ts"
     ]
   },
   "version": "3.7.5"

@@ -7,7 +7,9 @@ import { Menu } from '@lumino/widgets';
 /**
  * The main menu token.
  */
-export const IMainMenu = new Token<IMainMenu>('mamba-navigator/menu:IMainMenu');
+export const IMainMenu = new Token<IMainMenu>(
+  '@mamba-org/navigator/menu:IMainMenu'
+);
 
 /**
  * The main menu interface.

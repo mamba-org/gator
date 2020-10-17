@@ -1,14 +1,11 @@
 import { ReactWidget } from "@jupyterlab/apputils";
 import { Widget } from "@lumino/widgets";
 import * as React from "react";
-
-import { NbConda } from "@mamba-org/common";
-import { IEnvironmentManager } from "@mamba-org/common";
-
-export const condaEnvId = "@mamba-org/conda-lab:plugin";
+import { NbConda } from "./components/NbConda";
+import { IEnvironmentManager } from "./tokens";
 
 /**
- * Phosphor Widget encapsulating the Conda Environments & Packages Manager
+ * Widget encapsulating the Conda Environments & Packages Manager
  */
 export class CondaEnvWidget extends ReactWidget {
   /**

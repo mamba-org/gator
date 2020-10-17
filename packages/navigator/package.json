@@ -1,6 +1,6 @@
 {
-  "name": "mamba-navigator",
-  "version": "0.1.0",
+  "name": "@mamba-org/navigator",
+  "version": "0.2.0",
   "private": true,
   "files": [
     "lib/**/*.d.ts",
@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsc && webpack",
     "build:prod": "tsc && webpack --mode=production",
-    "clean": "rimraf build && rimraf lib && rimraf tsconfig.tsbuildinfo",
+    "clean": "rimraf lib tsconfig.tsbuildinfo ../../jupyter_conda/navigator/static/*.*",
     "prepublishOnly": "npm run build",
     "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}'",
     "prettier:check": "prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
@@ -33,14 +33,14 @@
     "watch": "npm-run-all --parallel watch:ts watch:webpack"
   },
   "dependencies": {
-    "@jupyterlab/application": "^3.0.0-alpha.4",
-    "@jupyterlab/apputils": "^3.0.0-alpha.4",
-    "@jupyterlab/buildutils": "^3.0.0-alpha.4",
-    "@jupyterlab/mainmenu": "^3.0.0-alpha.4",
-    "@jupyterlab/theme-light-extension": "^3.0.0-alpha.4",
-    "@jupyterlab/ui-components": "^3.0.0-alpha.4",
+    "@jupyterlab/application": "^2.0.0",
+    "@jupyterlab/apputils": "^2.0.0",
+    "@jupyterlab/buildutils": "^2.0.0",
+    "@jupyterlab/mainmenu": "^2.0.0",
+    "@jupyterlab/theme-light-extension": "^2.0.0",
+    "@jupyterlab/ui-components": "^2.0.0",
     "@lumino/widgets": "^1.13.2",
-    "jupyterlab_conda": "^2.2.3",
+    "@mamba-org/common": "^1.0.0",
     "es6-promise": "~4.2.8",
     "react": "~16.9.0",
     "react-dom": "~16.9.0"

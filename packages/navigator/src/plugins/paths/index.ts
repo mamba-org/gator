@@ -3,15 +3,17 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import { App } from '../../app/app';
+import { Gator } from '../../app/app';
 
 /**
  * The default paths.
  */
 const paths: JupyterFrontEndPlugin<JupyterFrontEnd.IPaths> = {
-  id: 'mamba-navigator:paths',
-  activate: (app: App): JupyterFrontEnd.IPaths => {
-    return app.paths;
+  id: '@mamba-org/navigator:paths',
+  activate: (
+    app: JupyterFrontEnd<JupyterFrontEnd.IShell>
+  ): JupyterFrontEnd.IPaths => {
+    return (app as Gator).paths;
   },
   autoStart: true,
   provides: JupyterFrontEnd.IPaths

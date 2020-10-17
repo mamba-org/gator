@@ -1,11 +1,5 @@
 import { PageConfig, URLExt } from '@jupyterlab/coreutils';
-
-import { App } from './app/app';
-
-import '@jupyterlab/application/style/index.css';
-import '@jupyterlab/theme-light-extension/style/index.css';
-import '@jupyterlab/theme-light-extension/style/variables.css';
-import 'jupyterlab_conda/style/index.css';
+import { Gator } from './app/app';
 
 import '../style/index.css';
 
@@ -18,12 +12,11 @@ import '../style/index.css';
  * The main function
  */
 async function main(): Promise<void> {
-  const app = new App();
+  const app = new Gator();
   const mods = [
     require('./plugins/paths'),
     require('./plugins/navigator'),
     require('./plugins/top')
-    // require('@jupyterlab/theme-light-extension'),
   ];
 
   app.registerPluginModules(mods);
