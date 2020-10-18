@@ -63,7 +63,7 @@ jobs:
           conda install -n test_jupyter_conda --file requirements_dev.txt
           conda install -n test_jupyter_conda coveralls jupyterlab=2
           yarn install
-          yarn global add casperjs
+          npm install -g casperjs
           pip install .
           jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
@@ -171,7 +171,7 @@ jobs:
           conda install -n test_jupyter_conda --file requirements_dev.txt
           conda install -n test_jupyter_conda coveralls jupyterlab=2
           yarn install
-          yarn global add casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
+          npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
           pip install .
 
           yarn install
@@ -232,7 +232,7 @@ jobs:
           conda activate test_jupyter_conda
           mamba install -n test_jupyter_conda --file requirements_dev.txt
           yarn install
-          yarn global add casperjs
+          npm install -g casperjs
           pip install .
         shell: bash -l {0}
 
