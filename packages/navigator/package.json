@@ -69,6 +69,7 @@
     "url-loader": "~3.0.0",
     "watch": "~1.0.2",
     "webpack": "^5.0.0",
+    "webpack-bundle-analyzer": "^3.9.0",
     "webpack-cli": "^3.3.10",
     "whatwg-fetch": "^3.0.0"
   },

@@ -4,6 +4,8 @@ const path = require('path');
 // const data = require('./package.json');
 const webpack = require('webpack');
 // const Build = require('@jupyterlab/buildutils').Build;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
 
 // const names = Object.keys(data.dependencies).filter(function(name) {
 //   const packageData = require(name + '/package.json');
@@ -77,6 +79,9 @@ module.exports = [
       new webpack.DefinePlugin({
         'process.env': '{}',
         process: {}
+      }),
+      new BundleAnalyzerPlugin({
+        analyzerMode: 'static'
       })
     ]
   }
