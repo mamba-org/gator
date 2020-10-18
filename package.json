@@ -11,11 +11,13 @@
   "homepage": "https://github.com/mamba-org/jupyter_conda",
   "scripts": {
     "build": "lerna run build",
-    "build:dev": "tsc --build",
+    "build:dev": "lerna run build:dev",
     "clean": "lerna run clean",
+    "eslint": "lerna run eslint",
+    "eslint:check": "lerna run eslint:check",
     "install": "lerna bootstrap",
     "publish": "yarn run clean && yarn run build && lerna publish -m \"Publish npm packages\"",
-    "test": "yarn run lint && coverage run -m pytest jupyter_conda && coverage report && cd labextension && npm run eslint:check && npm run test",
+    "test": "yarn run eslint:check && yarn run test && yarn run lint && coverage run -m pytest jupyter_conda && coverage report",
     "lint": "flake8 setup.py jupyter_conda"
   },
   "devDependencies": {
@@ -23,19 +25,7 @@
   },  
   "workspaces": {
     "packages": [
-      "packages/common",
-      "packages/labextension",
-      "packages/navigator"
-    ],
-    "nohoist": [
-      "**/@types/jest",
-      "**/@types/jest/**",
-      "**/@types/mocha/",
-      "**/@types/mocha/**",
-      "**/@types/expect/",
-      "**/@types/expect/**",
-      "**/@types/sinon/",
-      "**/@types/sinon/**"
+      "packages/*"
     ]
   },
   "private": true

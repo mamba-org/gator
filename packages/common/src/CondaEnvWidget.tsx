@@ -1,8 +1,8 @@
-import { ReactWidget } from "@jupyterlab/apputils";
-import { Widget } from "@lumino/widgets";
-import * as React from "react";
-import { NbConda } from "./components/NbConda";
-import { IEnvironmentManager } from "./tokens";
+import { ReactWidget } from '@jupyterlab/apputils';
+import { Widget } from '@lumino/widgets';
+import * as React from 'react';
+import { NbConda } from './components/NbConda';
+import { IEnvironmentManager } from './tokens';
 
 /**
  * Widget encapsulating the Conda Environments & Packages Manager

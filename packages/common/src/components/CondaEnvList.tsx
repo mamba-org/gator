@@ -1,9 +1,9 @@
-import * as React from "react";
-import { style } from "typestyle";
-import { CONDA_ENVIRONMENT_PANEL_ID } from "../constants";
-import { Conda } from "../tokens";
-import { CondaEnvItem } from "./CondaEnvItem";
-import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from "./CondaEnvToolBar";
+import * as React from 'react';
+import { style } from 'typestyle';
+import { CONDA_ENVIRONMENT_PANEL_ID } from '../constants';
+import { Conda } from '../tokens';
+import { CondaEnvItem } from './CondaEnvItem';
+import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from './CondaEnvToolBar';
 
 export const ENVIRONMENT_PANEL_WIDTH = 250;
 
@@ -69,7 +69,7 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
     if (selected) {
       // Forbid clone and removing the environment named "base" (base conda environment)
       // and the default one (i.e. the one containing JupyterLab)
-      isDefault = env.is_default || env.name === "base";
+      isDefault = env.is_default || env.name === 'base';
     }
     return (
       <CondaEnvItem
@@ -109,17 +109,17 @@ namespace Style {
   export const Panel = style({
     flexGrow: 0,
     flexShrink: 0,
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
     width: ENVIRONMENT_PANEL_WIDTH
   });
 
   export const ListEnvs = (height: number): string =>
     style({
       height: height,
-      overflowY: "auto",
-      display: "flex",
-      flexDirection: "column"
+      overflowY: 'auto',
+      display: 'flex',
+      flexDirection: 'column'
     });
 }

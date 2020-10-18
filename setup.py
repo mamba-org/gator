@@ -7,7 +7,7 @@ __version__ = None
 with open(os.path.join("jupyter_conda", "_version.py")) as version:
     exec(version.read())
 
-static_folder = "jupyter_conda/static"
+static_folder = "jupyter_conda/nbextension"
 
 long_description = ""
 with open("README.md") as rd:
@@ -50,6 +50,7 @@ setuptools.setup(
     zip_safe=False,
     install_requires=[
         # "conda>=4.5",  # Required conda not available through PyPi anymore
+        "jupyterlab_server",
         "notebook>=4.3.1",
         "packaging",
         "typing;python_version<'3.7'",
@@ -57,4 +58,9 @@ setuptools.setup(
     extras_require={
         "test": ["coverage", "flake8", "nb_conda_kernels>=2.2.0", "pytest", "pytest-asyncio", "requests"]
     },
+    entry_points={
+        "console_scripts": [
+            'navigator = jupyter_conda.navigator.main:main'
+        ]
+    }
 )

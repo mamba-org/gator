@@ -3,31 +3,28 @@
   "version": "0.2.0",
   "private": true,
   "files": [
-    "lib/**/*.d.ts",
-    "lib/**/*.js.map",
-    "lib/**/*.js",
-    "schema/*.json",
-    "style/**/*.css",
-    "style/**/*.svg"
+    "lib/**/*.{d.ts,js.map,js}",
+    "style/**/*.{css,svg}",
+    "schema/*.json"
   ],
   "sideEffects": [
     "style/**/*.css"
   ],
-  "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "style": "style/index.css",
   "directories": {
     "lib": "lib/"
   },
   "scripts": {
-    "build": "tsc && webpack",
-    "build:prod": "tsc && webpack --mode=production",
+    "build": "tsc && webpack --mode=production",
+    "build:dev": "tsc && webpack -d",
     "clean": "rimraf lib tsconfig.tsbuildinfo ../../jupyter_conda/navigator/static/*.*",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "yarn run build",
     "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}'",
     "prettier:check": "prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "eslint": "eslint . --ext .ts,.tsx --fix",
     "eslint:check": "eslint . --ext .ts,.tsx",
+    "test": "",
     "watch:ts": "tsc -w --listEmittedFiles",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:ts watch:webpack"
@@ -42,6 +39,7 @@
     "@lumino/widgets": "^1.13.2",
     "@mamba-org/common": "^1.0.0",
     "es6-promise": "~4.2.8",
+    "jupyterlab_toastify": "^4.1.2",
     "react": "~16.9.0",
     "react-dom": "~16.9.0"
   },
@@ -56,9 +54,9 @@
     "eslint-plugin-react": "^7.18.3",
     "file-loader": "~5.0.2",
     "fs-extra": "^8.1.0",
+    "glob": "~7.1.6",
     "husky": "^3.0.9",
     "lint-staged": "^9.4.3",
-    "glob": "~7.1.6",
     "mini-css-extract-plugin": "~0.9.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
@@ -70,7 +68,7 @@
     "typescript": "~3.9.0",
     "url-loader": "~3.0.0",
     "watch": "~1.0.2",
-    "webpack": "5.0.0-beta.21",
+    "webpack": "^5.0.0",
     "webpack-cli": "^3.3.10",
     "whatwg-fetch": "^3.0.0"
   },

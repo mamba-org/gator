@@ -1,6 +1,6 @@
-import * as React from "react";
-import { style } from "typestyle";
-import { GlobalStyle } from "./globalStyles";
+import * as React from 'react';
+import { style } from 'typestyle';
+import { GlobalStyle } from './globalStyles';
 
 /**
  * Environment item properties
@@ -38,36 +38,36 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
 
 namespace Style {
   export const Item = style(GlobalStyle.ListItem, {
-    padding: "2px 0 5px 5px",
+    padding: '2px 0 5px 5px',
 
     $nest: {
-      "&:hover": {
-        backgroundColor: "var(--jp-layout-color2)",
-        border: "1px solid var(--jp-border-color2)"
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color2)',
+        border: '1px solid var(--jp-border-color2)'
       }
     }
   });
 
   export const SelectedItem = style(GlobalStyle.ListItem, {
-    padding: "2px 0 5px 5px",
-    backgroundColor: "var(--jp-brand-color1)",
-    color: "var(--jp-ui-inverse-font-color1)",
-    border: "1px solid var(--jp-brand-color1)",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    padding: '2px 0 5px 5px',
+    backgroundColor: 'var(--jp-brand-color1)',
+    color: 'var(--jp-ui-inverse-font-color1)',
+    border: '1px solid var(--jp-brand-color1)',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
 
     $nest: {
-      "&::after": {
+      '&::after': {
         content: "' '",
-        display: "inline-block",
-        padding: "0 5px",
+        display: 'inline-block',
+        padding: '0 5px',
         width: 0,
         height: 0,
-        borderTop: "calc(var(--jp-ui-font-size1) / 2) solid transparent",
-        borderBottom: "calc(var(--jp-ui-font-size1) / 2) solid transparent",
+        borderTop: 'calc(var(--jp-ui-font-size1) / 2) solid transparent',
+        borderBottom: 'calc(var(--jp-ui-font-size1) / 2) solid transparent',
         borderLeft:
-          "calc(var(--jp-ui-font-size1) / 2) solid var(--jp-ui-inverse-font-color1)"
+          'calc(var(--jp-ui-font-size1) / 2) solid var(--jp-ui-inverse-font-color1)'
       }
     }
   });

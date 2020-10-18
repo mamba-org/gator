@@ -1,31 +1,31 @@
 import {
   ILayoutRestorer,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin,
-} from "@jupyterlab/application";
+  JupyterFrontEndPlugin
+} from '@jupyterlab/application';
 import {
   ICommandPalette,
   MainAreaWidget,
-  WidgetTracker,
-} from "@jupyterlab/apputils";
-import { IMainMenu } from "@jupyterlab/mainmenu";
-import { ISettingRegistry } from "@jupyterlab/settingregistry";
+  WidgetTracker
+} from '@jupyterlab/apputils';
+import { IMainMenu } from '@jupyterlab/mainmenu';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import {
   CondaEnvironments,
   CondaEnvWidget,
   condaIcon,
   CONDA_WIDGET_CLASS,
-  IEnvironmentManager,
-} from "@mamba-org/common";
-import { INotification } from "jupyterlab_toastify";
-import { managerTour } from "./tour";
+  IEnvironmentManager
+} from '@mamba-org/common';
+import { INotification } from 'jupyterlab_toastify';
+import { managerTour } from './tour';
 import {
   companionID,
   CompanionValidator,
-  ICompanionValidator,
-} from "./validator";
+  ICompanionValidator
+} from './validator';
 
-const CONDAENVID = "@mamba-org/conda-lab:plugin";
+const CONDAENVID = '@mamba-org/conda-lab:plugin';
 const TOUR_DELAY = 1000;
 const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
 
@@ -38,8 +38,8 @@ async function activateCondaEnv(
 ): Promise<IEnvironmentManager> {
   let tour: any;
   const { commands, shell } = app;
-  const pluginNamespace = "conda-env";
-  const command = "jupyter_conda:open-ui";
+  const pluginNamespace = 'conda-env';
+  const command = 'jupyter_conda:open-ui';
 
   const settings = await settingsRegistry?.load(CONDAENVID);
   const model = new CondaEnvironments(settings);
@@ -49,12 +49,12 @@ async function activateCondaEnv(
 
   // Track and restore the widget state
   const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
-    namespace: pluginNamespace,
+    namespace: pluginNamespace
   });
   let content: CondaEnvWidget;
 
   commands.addCommand(command, {
-    label: "Conda Packages Manager",
+    label: 'Conda Packages Manager',
     execute: () => {
       app.restored.then(() => {
         let timeout = 0;
@@ -63,9 +63,9 @@ async function activateCondaEnv(
           setTimeout(() => {
             timeout += TOUR_DELAY;
             if (content.isVisible && tour) {
-              commands.execute("jupyterlab-tour:launch", {
+              commands.execute('jupyterlab-tour:launch', {
                 id: tour.id,
-                force: false,
+                force: false
               });
             } else if (timeout < TOUR_TIMEOUT) {
               delayTour();
@@ -73,13 +73,13 @@ async function activateCondaEnv(
           }, 1000);
         };
 
-        if (commands.hasCommand("jupyterlab-tour:add")) {
+        if (commands.hasCommand('jupyterlab-tour:add')) {
           if (!tour) {
             commands
-              .execute("jupyterlab-tour:add", {
-                tour: managerTour as any,
+              .execute('jupyterlab-tour:add', {
+                tour: managerTour as any
               })
-              .then((result) => {
+              .then(result => {
                 tour = result;
               });
           }
@@ -96,26 +96,26 @@ async function activateCondaEnv(
       content = new CondaEnvWidget(-1, -1, model);
       content.addClass(CONDA_WIDGET_CLASS);
       content.id = pluginNamespace;
-      content.title.label = "Packages";
-      content.title.caption = "Conda Packages Manager";
+      content.title.label = 'Packages';
+      content.title.caption = 'Conda Packages Manager';
       content.title.icon = condaIcon;
       const widget = new MainAreaWidget({ content });
 
       void tracker.add(widget);
-      shell.add(widget, "main");
-    },
+      shell.add(widget, 'main');
+    }
   });
 
   // Add command to command palette
   if (palette) {
-    palette.addItem({ command, category: "Settings" });
+    palette.addItem({ command, category: 'Settings' });
   }
 
   // Handle state restoration.
   if (restorer) {
     restorer.restore(tracker, {
       command,
-      name: () => pluginNamespace,
+      name: () => pluginNamespace
     });
   }
 
@@ -134,7 +134,7 @@ async function activateCompanions(
   palette: ICommandPalette | null
 ): Promise<ICompanionValidator> {
   const { commands, serviceManager } = app;
-  const command = "jupyter_conda:companions";
+  const command = 'jupyter_conda:companions';
   const settings = await settingsRegistry.load(CONDAENVID);
 
   const validator = new CompanionValidator(
@@ -144,15 +144,15 @@ async function activateCompanions(
   );
 
   commands.addCommand(command, {
-    label: "Validate kernels compatibility",
+    label: 'Validate kernels compatibility',
     execute: () => {
       validator.validate(serviceManager.kernelspecs.specs);
-    },
+    }
   });
 
   // Add command to command palette
   if (palette) {
-    palette.addItem({ command, category: "Troubleshooting" });
+    palette.addItem({ command, category: 'Troubleshooting' });
   }
 
   return validator;
@@ -166,7 +166,7 @@ const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   autoStart: true,
   activate: activateCondaEnv,
   optional: [ISettingRegistry, ICommandPalette, IMainMenu, ILayoutRestorer],
-  provides: IEnvironmentManager,
+  provides: IEnvironmentManager
 };
 
 /**
@@ -178,7 +178,7 @@ const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
   activate: activateCompanions,
   requires: [IEnvironmentManager, ISettingRegistry],
   optional: [ICommandPalette],
-  provides: ICompanionValidator,
+  provides: ICompanionValidator
 };
 
 const extensions = [condaManager, companions];
@@ -191,10 +191,10 @@ namespace Private {
     let packageFound = false;
     let toastId: React.ReactText;
     const messages = [
-      "I know you want to give up, but wait a bit longer...",
-      "Why is conda so popular, still loading that gigantic packages list...",
-      "Take a break, available packages list are still loading...",
-      "Available packages list still loading...",
+      'I know you want to give up, but wait a bit longer...',
+      'Why is conda so popular, still loading that gigantic packages list...',
+      'Take a break, available packages list are still loading...',
+      'Available packages list still loading...'
     ];
 
     function displayMessage(message: React.ReactNode): void {
@@ -202,7 +202,7 @@ namespace Private {
         if (!packageFound) {
           INotification.update({
             message,
-            toastId,
+            toastId
           });
           if (messages.length > 0) {
             displayMessage(messages.pop());
@@ -221,7 +221,7 @@ namespace Private {
         }
       })
       .catch((reason: Error) => {
-        console.debug("Fail to cache available packages list.", reason);
+        console.debug('Fail to cache available packages list.', reason);
         if (toastId) {
           INotification.dismiss(toastId);
         }
@@ -232,8 +232,8 @@ namespace Private {
     setTimeout(() => {
       if (!packageFound) {
         INotification.inProgress(
-          "Loading the available packages list in background..."
-        ).then((id) => {
+          'Loading the available packages list in background...'
+        ).then(id => {
           toastId = id;
         });
         displayMessage(messages.pop());

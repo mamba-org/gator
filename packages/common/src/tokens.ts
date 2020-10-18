@@ -1,9 +1,9 @@
-import { Token } from "@lumino/coreutils";
-import { IDisposable } from "@lumino/disposable";
-import { ISignal } from "@lumino/signaling";
+import { Token } from '@lumino/coreutils';
+import { IDisposable } from '@lumino/disposable';
+import { ISignal } from '@lumino/signaling';
 
 export const IEnvironmentManager = new Token<IEnvironmentManager>(
-  "jupyterlab_conda:IEnvironmentManager"
+  'jupyterlab_conda:IEnvironmentManager'
 );
 
 /**
@@ -105,7 +105,7 @@ export namespace Conda {
     /**
      * Method of environment creation
      */
-    type: "clone" | "create" | "import" | "remove" | "update";
+    type: 'clone' | 'create' | 'import' | 'remove' | 'update';
     /**
      * Source used for the environment action
      *   'create' -> Initial package list
@@ -202,17 +202,17 @@ export namespace Conda {
    * Available platforms subpackages
    */
   export const PkgSubDirs = [
-    "linux-64",
-    "linux-32",
-    "linux-ppc64le",
-    "linux-armv6l",
-    "linux-armv7l",
-    "linux-aarch64",
-    "win-64",
-    "win-32",
-    "osx-64",
-    "zos-z",
-    "noarch"
+    'linux-64',
+    'linux-32',
+    'linux-ppc64le',
+    'linux-armv6l',
+    'linux-armv7l',
+    'linux-aarch64',
+    'win-64',
+    'win-32',
+    'osx-64',
+    'zos-z',
+    'noarch'
   ];
 
   /**
@@ -242,7 +242,7 @@ export namespace Conda {
     /**
      * Package action
      */
-    type: "develop" | "install" | "update" | "remove";
+    type: 'develop' | 'install' | 'update' | 'remove';
     /**
      * Packages modified
      */

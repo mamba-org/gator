@@ -27,7 +27,7 @@ module.exports = [
         'navigator',
         'static'
       ),
-      filename: 'bundle.js',
+      filename: 'navigator.bundle.js',
       publicPath: './static/'
     },
     bail: true,

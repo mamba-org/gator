@@ -3,21 +3,21 @@ import {
   faExternalLinkSquareAlt,
   faSyncAlt,
   faUndoAlt
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, HTMLSelect, InputGroup } from "@jupyterlab/ui-components";
-import * as React from "react";
-import { classes, style } from "typestyle/lib";
-import { CONDA_PACKAGES_TOOLBAR_CLASS } from "../constants";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
+import * as React from 'react';
+import { classes, style } from 'typestyle/lib';
+import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
 export enum PkgFilters {
-  All = "ALL",
-  Installed = "INSTALLED",
-  Available = "AVAILABLE",
-  Updatable = "UPDATABLE",
-  Selected = "SELECTED"
+  All = 'ALL',
+  Installed = 'INSTALLED',
+  Available = 'AVAILABLE',
+  Updatable = 'UPDATABLE',
+  Selected = 'SELECTED'
 }
 
 export interface ICondaPkgToolBarProps {
@@ -84,7 +84,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         </HTMLSelect>
       </div>
       <div className="lm-Widget jp-Toolbar-item">
-        <div className={classes("jp-NbConda-search-wrapper", Style.Search)}>
+        <div className={classes('jp-NbConda-search-wrapper', Style.Search)}>
           <InputGroup
             className={Style.SearchInput}
             type="text"
@@ -107,8 +107,8 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           icon={faExternalLinkSquareAlt}
           style={{
             color: props.hasUpdate
-              ? "var(--jp-accent-color0)"
-              : "var(--jp-inverse-layout-color3)"
+              ? 'var(--jp-accent-color0)'
+              : 'var(--jp-inverse-layout-color3)'
           }}
         />
       </Button>
@@ -123,8 +123,8 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           icon={faCartArrowDown}
           style={{
             color: props.hasSelection
-              ? "var(--jp-brand-color0)"
-              : "var(--jp-inverse-layout-color3)"
+              ? 'var(--jp-brand-color0)'
+              : 'var(--jp-inverse-layout-color3)'
           }}
         />
       </Button>
@@ -137,7 +137,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
       >
         <FontAwesomeIcon
           icon={faUndoAlt}
-          style={{ color: "var(--jp-inverse-layout-color3)" }}
+          style={{ color: 'var(--jp-inverse-layout-color3)' }}
         />
       </Button>
       <Button
@@ -150,7 +150,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         <FontAwesomeIcon
           icon={faSyncAlt}
           spin={props.isPending}
-          style={{ color: "var(--jp-inverse-layout-color3)" }}
+          style={{ color: 'var(--jp-inverse-layout-color3)' }}
         />
       </Button>
     </div>
@@ -159,15 +159,15 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
 
 namespace Style {
   export const Toolbar = style({
-    alignItems: "center",
+    alignItems: 'center',
     height: PACKAGE_TOOLBAR_HEIGHT
   });
 
   export const SearchInput = style({
-    lineHeight: "normal"
+    lineHeight: 'normal'
   });
 
   export const Search = style({
-    padding: "4px"
+    padding: '4px'
   });
 }

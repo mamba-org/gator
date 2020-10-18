@@ -27,11 +27,11 @@
   },
   "scripts": {
     "build": "tsc --project .",
+    "build:dev": "yarn run build",
     "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint": "eslint . --fix --ext .ts,.tsx",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "lab:link": "jupyter labextension link . --no-build",
-    "precommit": "pretty-quick --staged",
     "prepare": "yarn run clean && yarn run build",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "test": "jest --coverage",
@@ -88,5 +88,10 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

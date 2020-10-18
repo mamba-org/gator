@@ -6,7 +6,7 @@ import { IIterator, iter, toArray } from '@lumino/algorithm';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
-export interface IGatorShell extends GatorShell {}
+export type IGatorShell = GatorShell;
 
 /**
  * A namespace for Shell statics

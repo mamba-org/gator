@@ -1,17 +1,17 @@
-import { faClone } from "@fortawesome/free-regular-svg-icons/faClone";
-import { faSyncAlt } from "@fortawesome/free-solid-svg-icons/faSyncAlt";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ToolbarButtonComponent } from "@jupyterlab/apputils";
+import { faClone } from '@fortawesome/free-regular-svg-icons/faClone';
+import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import {
   addIcon,
   Button,
   closeIcon,
   downloadIcon,
   fileUploadIcon
-} from "@jupyterlab/ui-components";
-import * as React from "react";
-import { style } from "typestyle";
-import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from "../constants";
+} from '@jupyterlab/ui-components';
+import * as React from 'react';
+import { style } from 'typestyle';
+import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from '../constants';
 
 //Toolbar height to align with package toolbar
 export const ENVIRONMENT_TOOLBAR_HEIGHT = 40;
@@ -68,11 +68,13 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           <FontAwesomeIcon
             icon={faSyncAlt}
             spin={props.isPending}
-            style={{ color: "var(--jp-inverse-layout-color3)" }}
+            style={{ color: 'var(--jp-inverse-layout-color3)' }}
           />
         </Button>
       </div>
-      <div className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}>
+      <div
+        className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}
+      >
         <ToolbarButtonComponent
           icon={addIcon}
           tooltip="Create"
@@ -87,7 +89,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
         >
           <FontAwesomeIcon
             icon={faClone}
-            style={{ color: "var(--jp-inverse-layout-color3)" }}
+            style={{ color: 'var(--jp-inverse-layout-color3)' }}
           />
         </Button>
         <ToolbarButtonComponent
@@ -123,13 +125,13 @@ namespace Style {
   });
 
   export const Title = style({
-    color: "var(--jp-ui-font-color1)",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: "var(--jp-ui-font-size2)",
+    color: 'var(--jp-ui-font-color1)',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 'var(--jp-ui-font-size2)',
     height: ENVIRONMENT_TOOLBAR_HEIGHT,
-    display: "flex",
-    flex: "0 0 auto",
-    flexDirection: "row"
+    display: 'flex',
+    flex: '0 0 auto',
+    flexDirection: 'row'
   });
 }

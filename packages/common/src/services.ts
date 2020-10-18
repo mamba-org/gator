@@ -1,9 +1,9 @@
-import { URLExt } from "@jupyterlab/coreutils";
-import { ServerConnection } from "@jupyterlab/services";
-import { ISettingRegistry } from "@jupyterlab/settingregistry";
-import { JSONObject, PromiseDelegate } from "@lumino/coreutils";
-import { ISignal, Signal } from "@lumino/signaling";
-import { Conda, IEnvironmentManager } from "./tokens";
+import { URLExt } from '@jupyterlab/coreutils';
+import { ServerConnection } from '@jupyterlab/services';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { JSONObject, PromiseDelegate } from '@lumino/coreutils';
+import { ISignal, Signal } from '@lumino/signaling';
+import { Conda, IEnvironmentManager } from './tokens';
 
 /**
  * Type of environment that can be created.
@@ -114,7 +114,7 @@ export class CondaEnvironments implements IEnvironmentManager {
     if (type in this._environmentTypes) {
       return this._environmentTypes[type];
     }
-    return type.split(" ");
+    return type.split(' ');
   }
 
   /**
@@ -130,9 +130,9 @@ export class CondaEnvironments implements IEnvironmentManager {
    * @param settings User settings
    */
   private _updateSettings(settings: ISettingRegistry.ISettings): void {
-    this._environmentTypes = settings.get("types").composite as IType;
-    this._fromHistory = settings.get("fromHistory").composite as boolean;
-    this._whitelist = settings.get("whitelist").composite as boolean;
+    this._environmentTypes = settings.get('types').composite as IType;
+    this._fromHistory = settings.get('fromHistory').composite as boolean;
+    this._whitelist = settings.get('whitelist').composite as boolean;
   }
 
   /**
@@ -151,20 +151,20 @@ export class CondaEnvironments implements IEnvironmentManager {
   async getChannels(name: string): Promise<Conda.IChannels> {
     try {
       const request = {
-        method: "GET"
+        method: 'GET'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "channels"),
+        URLExt.join('conda', 'channels'),
         request
       );
       const response = await promise;
       if (response.ok) {
         const data = await response.json();
-        return data["channels"] as Conda.IChannels;
+        return data['channels'] as Conda.IChannels;
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `Fail to get the channels for environment ${name}.`;
       }
@@ -176,10 +176,10 @@ export class CondaEnvironments implements IEnvironmentManager {
     try {
       const request: RequestInit = {
         body: JSON.stringify({ name, twin: target }),
-        method: "POST"
+        method: 'POST'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments"),
+        URLExt.join('conda', 'environments'),
         request
       );
       const response = await promise;
@@ -188,12 +188,12 @@ export class CondaEnvironments implements IEnvironmentManager {
         this._environmentChanged.emit({
           name: name,
           source: target,
-          type: "clone"
+          type: 'clone'
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while cloning environment "${target}".`;
       }
@@ -203,14 +203,14 @@ export class CondaEnvironments implements IEnvironmentManager {
 
   async create(name: string, type?: string): Promise<void> {
     try {
-      const packages: Array<string> = this.getEnvironmentFromType(type || "");
+      const packages: Array<string> = this.getEnvironmentFromType(type || '');
 
       const request: RequestInit = {
         body: JSON.stringify({ name, packages }),
-        method: "POST"
+        method: 'POST'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments"),
+        URLExt.join('conda', 'environments'),
         request
       );
       const response = await promise;
@@ -218,12 +218,12 @@ export class CondaEnvironments implements IEnvironmentManager {
         this._environmentChanged.emit({
           name: name,
           source: packages,
-          type: "create"
+          type: 'create'
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while creating environment "${name}".`;
       }
@@ -237,20 +237,20 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
     try {
       const request: RequestInit = {
-        method: "GET"
+        method: 'GET'
       };
       const args = URLExt.objectToQueryString({
         download: 1,
         history: fromHistory ? 1 : 0
       });
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments", name) + args,
+        URLExt.join('conda', 'environments', name) + args,
         request
       );
       return promise;
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while exporting environment "${name}".`;
       }
@@ -266,14 +266,14 @@ export class CondaEnvironments implements IEnvironmentManager {
     try {
       const data: JSONObject = { name, file: fileContent };
       if (fileName) {
-        data["filename"] = fileName;
+        data['filename'] = fileName;
       }
       const request: RequestInit = {
         body: JSON.stringify(data),
-        method: "POST"
+        method: 'POST'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments"),
+        URLExt.join('conda', 'environments'),
         request
       );
       const response = await promise;
@@ -281,12 +281,12 @@ export class CondaEnvironments implements IEnvironmentManager {
         this._environmentChanged.emit({
           name: name,
           source: fileContent,
-          type: "import"
+          type: 'import'
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while importing "${name}".`;
       }
@@ -297,13 +297,13 @@ export class CondaEnvironments implements IEnvironmentManager {
   async refresh(): Promise<Array<Conda.IEnvironment>> {
     try {
       const request: RequestInit = {
-        method: "GET"
+        method: 'GET'
       };
       const queryArgs = {
         whitelist: this._whitelist ? 1 : 0
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments") +
+        URLExt.join('conda', 'environments') +
           URLExt.objectToQueryString(queryArgs),
         request
       );
@@ -313,9 +313,9 @@ export class CondaEnvironments implements IEnvironmentManager {
       return data.environments;
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
-        message = "An error occurred while listing Conda environments.";
+        message = 'An error occurred while listing Conda environments.';
       }
       throw new Error(message);
     }
@@ -324,10 +324,10 @@ export class CondaEnvironments implements IEnvironmentManager {
   async remove(name: string): Promise<void> {
     try {
       const request: RequestInit = {
-        method: "DELETE"
+        method: 'DELETE'
       };
       const { promise } = await Private.requestServer(
-        URLExt.join("conda", "environments", name),
+        URLExt.join('conda', 'environments', name),
         request
       );
       const response = await promise;
@@ -335,12 +335,12 @@ export class CondaEnvironments implements IEnvironmentManager {
         this._environmentChanged.emit({
           name: name,
           source: null,
-          type: "remove"
+          type: 'remove'
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while removing "${name}".`;
       }
@@ -356,14 +356,14 @@ export class CondaEnvironments implements IEnvironmentManager {
     try {
       const data: JSONObject = { file: fileContent };
       if (fileName) {
-        data["filename"] = fileName;
+        data['filename'] = fileName;
       }
       const request: RequestInit = {
         body: JSON.stringify(data),
-        method: "PATCH"
+        method: 'PATCH'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments", name),
+        URLExt.join('conda', 'environments', name),
         request
       );
       const response = await promise;
@@ -371,12 +371,12 @@ export class CondaEnvironments implements IEnvironmentManager {
         this._environmentChanged.emit({
           name: name,
           source: fileContent,
-          type: "update"
+          type: 'update'
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while updating "${name}".`;
       }
@@ -436,12 +436,12 @@ export class CondaPackage implements Conda.IPackageManager {
 
     try {
       const request: RequestInit = {
-        method: "GET"
+        method: 'GET'
       };
 
       // Get installed packages
       const { promise, cancel } = Private.requestServer(
-        URLExt.join("conda", "environments", theEnvironment),
+        URLExt.join('conda', 'environments', theEnvironment),
         request
       );
       const idx = this._cancellableStack.push(cancel) - 1;
@@ -475,17 +475,17 @@ export class CondaPackage implements Conda.IPackageManager {
           version: [installed.version],
           build_number: [installed.build_number],
           build_string: [installed.build_string],
-          summary: "",
-          home: "",
-          keywords: "",
-          tags: ""
+          summary: '',
+          home: '',
+          keywords: '',
+          tags: ''
         };
-        pkg.summary = pkg.summary || "";
+        pkg.summary = pkg.summary || '';
         // Stringify keywords and tags
-        pkg.keywords = (pkg.keywords || "").toString().toLowerCase();
-        pkg.tags = (pkg.tags || "").toString().toLowerCase();
-        pkg.version_installed = "";
-        pkg.version_selected = "none";
+        pkg.keywords = (pkg.keywords || '').toString().toLowerCase();
+        pkg.tags = (pkg.tags || '').toString().toLowerCase();
+        pkg.version_installed = '';
+        pkg.version_selected = 'none';
         pkg.updatable = false;
 
         if (installed !== undefined) {
@@ -496,10 +496,10 @@ export class CondaPackage implements Conda.IPackageManager {
               version: [installed.version],
               build_number: [installed.build_number],
               build_string: [installed.build_string],
-              summary: "",
-              home: "",
-              keywords: "",
-              tags: ""
+              summary: '',
+              home: '',
+              keywords: '',
+              tags: ''
             };
             availableIdx -= 1;
           }
@@ -514,11 +514,11 @@ export class CondaPackage implements Conda.IPackageManager {
         }
 
         // Simplify the package channel name
-        const splitUrl = pkg.channel.split("/");
+        const splitUrl = pkg.channel.split('/');
         if (splitUrl.length > 2) {
           let firstNotEmpty = 0;
           if (
-            ["http:", "https:", "file:"].indexOf(splitUrl[firstNotEmpty]) >= 0
+            ['http:', 'https:', 'file:'].indexOf(splitUrl[firstNotEmpty]) >= 0
           ) {
             firstNotEmpty = 1; // Skip the scheme http, https or file
           }
@@ -534,9 +534,9 @@ export class CondaPackage implements Conda.IPackageManager {
             pos -= 1;
           }
           if (pos > firstNotEmpty) {
-            pkg.channel += "/...";
+            pkg.channel += '/...';
           }
-          pkg.channel += "/" + splitUrl[pos];
+          pkg.channel += '/' + splitUrl[pos];
         }
 
         finalList.push(pkg);
@@ -546,9 +546,9 @@ export class CondaPackage implements Conda.IPackageManager {
       return finalList;
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
-        message = "An error occurred while retrieving available packages.";
+        message = 'An error occurred while retrieving available packages.';
       }
       throw new Error(message);
     }
@@ -563,25 +563,25 @@ export class CondaPackage implements Conda.IPackageManager {
     try {
       const request: RequestInit = {
         body: JSON.stringify({ packages }),
-        method: "POST"
+        method: 'POST'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments", theEnvironment, "packages"),
+        URLExt.join('conda', 'environments', theEnvironment, 'packages'),
         request
       );
       const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
-          type: "install",
+          type: 'install',
           packages
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
-        message = "An error occurred while installing packages.";
+        message = 'An error occurred while installing packages.';
       }
       throw new Error(message);
     }
@@ -596,10 +596,10 @@ export class CondaPackage implements Conda.IPackageManager {
     try {
       const request: RequestInit = {
         body: JSON.stringify({ packages: [path] }),
-        method: "POST"
+        method: 'POST'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments", theEnvironment, "packages") +
+        URLExt.join('conda', 'environments', theEnvironment, 'packages') +
           URLExt.objectToQueryString({ develop: 1 }),
         request
       );
@@ -607,13 +607,13 @@ export class CondaPackage implements Conda.IPackageManager {
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
-          type: "develop",
+          type: 'develop',
           packages: [path]
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while installing in development mode package in ${path}.`;
       }
@@ -631,11 +631,11 @@ export class CondaPackage implements Conda.IPackageManager {
 
     try {
       const request: RequestInit = {
-        method: "GET"
+        method: 'GET'
       };
       const { promise, cancel } = Private.requestServer(
-        URLExt.join("conda", "environments", theEnvironment) +
-          URLExt.objectToQueryString({ status: "has_update" }),
+        URLExt.join('conda', 'environments', theEnvironment) +
+          URLExt.objectToQueryString({ status: 'has_update' }),
         request
       );
       const idx = this._cancellableStack.push(cancel) - 1;
@@ -647,9 +647,9 @@ export class CondaPackage implements Conda.IPackageManager {
       return data.updates.map(pkg => pkg.name);
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
-        message = "An error occurred while checking for package updates.";
+        message = 'An error occurred while checking for package updates.';
       }
       throw new Error(message);
     }
@@ -664,25 +664,25 @@ export class CondaPackage implements Conda.IPackageManager {
     try {
       const request: RequestInit = {
         body: JSON.stringify({ packages }),
-        method: "PATCH"
+        method: 'PATCH'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments", theEnvironment, "packages"),
+        URLExt.join('conda', 'environments', theEnvironment, 'packages'),
         request
       );
       const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
-          type: "update",
+          type: 'update',
           packages
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
-        message = "An error occurred while updating packages.";
+        message = 'An error occurred while updating packages.';
       }
       throw new Error(message);
     }
@@ -697,25 +697,25 @@ export class CondaPackage implements Conda.IPackageManager {
     try {
       const request: RequestInit = {
         body: JSON.stringify({ packages }),
-        method: "DELETE"
+        method: 'DELETE'
       };
       const { promise } = Private.requestServer(
-        URLExt.join("conda", "environments", theEnvironment, "packages"),
+        URLExt.join('conda', 'environments', theEnvironment, 'packages'),
         request
       );
       const response = await promise;
       if (response.ok) {
         this._packageChanged.emit({
           environment: theEnvironment,
-          type: "remove",
+          type: 'remove',
           packages
         });
       }
     } catch (error) {
       let message: string = error.message || error.toString();
-      if (message !== "cancelled") {
+      if (message !== 'cancelled') {
         console.error(message);
-        message = "An error occurred while removing packages.";
+        message = 'An error occurred while removing packages.';
       }
       throw new Error(message);
     }
@@ -748,11 +748,11 @@ export class CondaPackage implements Conda.IPackageManager {
 
     if (CondaPackage._availablePackages === null || force) {
       const request: RequestInit = {
-        method: "GET"
+        method: 'GET'
       };
 
       const { promise, cancel } = Private.requestServer(
-        URLExt.join("conda", "packages"),
+        URLExt.join('conda', 'packages'),
         request
       );
       let idx: number;
@@ -838,20 +838,20 @@ namespace Private {
             )
             .catch(reason => {
               console.error(
-                "Fail to read JSON response for request",
+                'Fail to read JSON response for request',
                 request,
                 reason
               );
             });
         } else if (response.status === 202) {
-          const redirectUrl = response.headers.get("Location") || url;
+          const redirectUrl = response.headers.get('Location') || url;
 
           setTimeout(
             (url: string, settings: RequestInit) => {
               if (cancelled) {
                 // If cancelled, tell the backend to delete the task.
                 console.debug(`Request cancelled ${url}.`);
-                settings = { ...settings, method: "DELETE" };
+                settings = { ...settings, method: 'DELETE' };
               }
               answer = requestServer(url, settings);
               answer.promise
@@ -860,7 +860,7 @@ namespace Private {
             },
             POLLING_INTERVAL,
             redirectUrl,
-            { method: "GET" }
+            { method: 'GET' }
           );
         } else {
           promise.resolve(response);
@@ -877,7 +877,7 @@ namespace Private {
         if (answer) {
           answer.cancel();
         }
-        promise.reject("cancelled");
+        promise.reject('cancelled');
       }
     };
   };

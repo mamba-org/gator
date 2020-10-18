@@ -28,15 +28,16 @@
     "url": "https://github.com/mamba-org/jupyter_conda.git"
   },
   "scripts": {
-    "build": "tsc",
-    "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "build:dev": "tsc",
+    "build": "jlpm run clean && mkdirp ../../jupyter_conda/labextension && cd ../../jupyter_conda/labextension && npm pack ../../packages/labextension",
+    "clean:dev": "rimraf lib tsconfig.tsbuildinfo",
+    "clean": "jlpm run clean:dev && rimraf ../../jupyter_conda/labextension",
+    "eslint": "eslint . --fix --ext .ts,.tsx",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "lab:link": "jupyter labextension link . --no-build",
-    "precommit": "pretty-quick --staged",
-    "prepare": "jlpm run clean && jlpm run build",
+    "prepare": "jlpm run clean:dev && jlpm run build:dev",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
-    "test": "jest --coverage",
+    "test": "",
     "watch": "tsc -w"
   },
   "dependencies": {
@@ -98,5 +99,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

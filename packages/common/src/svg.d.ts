@@ -7,7 +7,7 @@
 // for use with raw-loader in Webpack.
 // The svg will be imported as a raw string
 
-declare module "*.svg" {
+declare module '*.svg' {
   const value: string;
   export default value;
 }

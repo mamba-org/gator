@@ -1,15 +1,18 @@
-import { faSquare } from "@fortawesome/free-regular-svg-icons/faSquare";
-import { faCheckSquare } from "@fortawesome/free-solid-svg-icons/faCheckSquare";
-import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons/faExternalLinkAlt";
-import { faExternalLinkSquareAlt } from "@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt";
-import { faMinusSquare } from "@fortawesome/free-solid-svg-icons/faMinusSquare";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { HTMLSelect } from "@jupyterlab/ui-components";
-import * as React from "react";
-import { AutoSizer, Column, Table } from "react-virtualized";
-import { classes, style } from "typestyle";
-import { CONDA_PACKAGES_PANEL_ID, CONDA_PACKAGE_SELECT_CLASS } from "../constants";
-import { Conda } from "../tokens";
+import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
+import { faCheckSquare } from '@fortawesome/free-solid-svg-icons/faCheckSquare';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
+import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt';
+import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { HTMLSelect } from '@jupyterlab/ui-components';
+import * as React from 'react';
+import { AutoSizer, Column, Table } from 'react-virtualized';
+import { classes, style } from 'typestyle';
+import {
+  CONDA_PACKAGES_PANEL_ID,
+  CONDA_PACKAGE_SELECT_CLASS
+} from '../constants';
+import { Conda } from '../tokens';
 
 /**
  * Package list component properties
@@ -69,32 +72,32 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
     const iconRender = ({ rowData }: ICellRender): JSX.Element => {
       if (rowData.version_installed) {
-        if (rowData.version_selected === "none") {
+        if (rowData.version_selected === 'none') {
           return (
             <FontAwesomeIcon
               icon={faMinusSquare}
-              style={{ color: "var(--jp-error-color1)" }}
+              style={{ color: 'var(--jp-error-color1)' }}
             />
           );
         } else if (rowData.version_selected !== rowData.version_installed) {
           return (
             <FontAwesomeIcon
               icon={faExternalLinkSquareAlt}
-              style={{ color: "var(--jp-accent-color1)" }}
+              style={{ color: 'var(--jp-accent-color1)' }}
             />
           );
         }
         return (
           <FontAwesomeIcon
             icon={faCheckSquare}
-            style={{ color: "var(--jp-brand-color1)" }}
+            style={{ color: 'var(--jp-brand-color1)' }}
           />
         );
-      } else if (rowData.version_selected !== "none") {
+      } else if (rowData.version_selected !== 'none') {
         return (
           <FontAwesomeIcon
             icon={faCheckSquare}
-            style={{ color: "var(--jp-brand-color1)" }}
+            style={{ color: 'var(--jp-brand-color1)' }}
           />
         );
       }
@@ -102,7 +105,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       return (
         <FontAwesomeIcon
           icon={faSquare}
-          style={{ color: "var(--jp-ui-font-color2)" }}
+          style={{ color: 'var(--jp-ui-font-color2)' }}
         />
       );
     };
@@ -111,12 +114,12 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       const rowData = this.props.packages[index];
 
       if (rowData.version_installed) {
-        if (rowData.version_selected === "none") {
+        if (rowData.version_selected === 'none') {
           return true;
         } else if (rowData.version_selected !== rowData.version_installed) {
           return true;
         }
-      } else if (rowData.version_selected !== "none") {
+      } else if (rowData.version_selected !== 'none') {
         return true;
       }
       return false;
@@ -141,9 +144,12 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     };
 
     const changeRender = ({ rowData }: ICellRender): JSX.Element => (
-      <div className={"lm-Widget"}>
+      <div className={'lm-Widget'}>
         <HTMLSelect
-          className={classes(Style.VersionSelection, CONDA_PACKAGE_SELECT_CLASS)}
+          className={classes(
+            Style.VersionSelection,
+            CONDA_PACKAGE_SELECT_CLASS
+          )}
           value={rowData.version_selected}
           onClick={(evt: React.MouseEvent): void => {
             evt.stopPropagation();
@@ -153,16 +159,16 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           }
           aria-label="Package versions"
         >
-          <option key="-3" value={"none"}>
+          <option key="-3" value={'none'}>
             Remove
           </option>
           {!rowData.version_installed && (
-            <option key="-2" value={""}>
+            <option key="-2" value={''}>
               Install
             </option>
           )}
           {rowData.updatable && (
-            <option key="-1" value={""}>
+            <option key="-1" value={''}>
               Update
             </option>
           )}
@@ -278,18 +284,18 @@ namespace Style {
   export const Table = style({});
 
   export const Header = style({
-    color: "var(--jp-ui-font-color1)",
-    fontWeight: "bold",
-    fontSize: "var(--jp-ui-font-size2)",
-    textAlign: "left"
+    color: 'var(--jp-ui-font-color1)',
+    fontWeight: 'bold',
+    fontSize: 'var(--jp-ui-font-size2)',
+    textAlign: 'left'
   });
 
   export const RowEven = (selected: boolean): string =>
     style({
-      background: selected ? "var(--jp-brand-color3)" : "unset",
+      background: selected ? 'var(--jp-brand-color3)' : 'unset',
       $nest: {
-        "&:hover": {
-          backgroundColor: "var(--jp-layout-color3)"
+        '&:hover': {
+          backgroundColor: 'var(--jp-layout-color3)'
         }
       }
     });
@@ -297,52 +303,52 @@ namespace Style {
   export const RowOdd = (selected: boolean): string =>
     style({
       background: selected
-        ? "var(--jp-brand-color3)"
-        : "var(--jp-layout-color2)",
+        ? 'var(--jp-brand-color3)'
+        : 'var(--jp-layout-color2)',
       $nest: {
-        "&:hover": {
-          backgroundColor: "var(--jp-layout-color3)"
+        '&:hover': {
+          backgroundColor: 'var(--jp-layout-color3)'
         }
       }
     });
 
   export const CellStatus = style({
-    padding: "0px 2px"
+    padding: '0px 2px'
   });
 
-  export const CellName = style({ whiteSpace: "nowrap" });
+  export const CellName = style({ whiteSpace: 'nowrap' });
 
   export const CellSummary = style({
-    alignSelf: "flex-start",
-    whiteSpace: "normal"
+    alignSelf: 'flex-start',
+    whiteSpace: 'normal'
   });
 
   export const Cell = style({
-    whiteSpace: "nowrap"
+    whiteSpace: 'nowrap'
   });
 
   export const SortButton = style({
-    transform: "rotate(180deg)",
-    marginLeft: "10px",
-    color: "var(--jp-ui-font-color2)",
-    border: "none",
-    backgroundColor: "var(--jp-layout-color0)",
-    fontSize: "var(--jp-ui-font-size1)"
+    transform: 'rotate(180deg)',
+    marginLeft: '10px',
+    color: 'var(--jp-ui-font-color2)',
+    border: 'none',
+    backgroundColor: 'var(--jp-layout-color0)',
+    fontSize: 'var(--jp-ui-font-size1)'
   });
 
   export const Link = style({
     $nest: {
-      "&:hover": {
-        textDecoration: "underline"
+      '&:hover': {
+        textDecoration: 'underline'
       }
     }
   });
 
   export const Updatable = style({
-    color: "var(--jp-brand-color0)",
+    color: 'var(--jp-brand-color0)',
 
     $nest: {
-      "&::before": {
+      '&::before': {
         content: "'↗️'",
         paddingRight: 2
       }
@@ -350,6 +356,6 @@ namespace Style {
   });
 
   export const VersionSelection = style({
-    width: "100%"
+    width: '100%'
   });
 }

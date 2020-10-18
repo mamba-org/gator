@@ -64,4 +64,6 @@ node_modules/
 */tsconfig.tsbuildinfo
 .pytest_cache/
 labextension/coverage/
-jupyter_conda/navigator/static/
+jupyter_conda/navigator/static/**
+!jupyter_conda/navigator/static/.gitkeep
+packages/**/coverage/**

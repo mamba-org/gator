@@ -1,16 +1,16 @@
-import { PathExt } from "@jupyterlab/coreutils";
-import { KernelSpecAPI, KernelSpecManager } from "@jupyterlab/services";
-import { ISettingRegistry } from "@jupyterlab/settingregistry";
-import { Token } from "@lumino/coreutils";
-import { IDisposable } from "@lumino/disposable";
-import { Conda, IEnvironmentManager } from "@mamba-org/common";
-import { INotification } from "jupyterlab_toastify";
-import semver from "semver";
+import { PathExt } from '@jupyterlab/coreutils';
+import { KernelSpecAPI, KernelSpecManager } from '@jupyterlab/services';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { Token } from '@lumino/coreutils';
+import { IDisposable } from '@lumino/disposable';
+import { Conda, IEnvironmentManager } from '@mamba-org/common';
+import { INotification } from 'jupyterlab_toastify';
+import semver from 'semver';
 
-export const companionID = "@mamba-org/conda-lab:companion";
+export const companionID = '@mamba-org/conda-lab:companion';
 
 export const ICompanionValidator = new Token<ICompanionValidator>(
-  "@mamba-org/conda-lab:ICompanionValidator"
+  '@mamba-org/conda-lab:ICompanionValidator'
 );
 
 /**
@@ -100,7 +100,7 @@ export class CompanionValidator implements ICompanionValidator {
    * @param settings Plugin user settings
    */
   private _updateCompanions(settings: ISettingRegistry.ISettings): void {
-    this._companions = settings.get("companions").composite as Companions;
+    this._companions = settings.get('companions').composite as Companions;
   }
 
   /**
@@ -111,13 +111,13 @@ export class CompanionValidator implements ICompanionValidator {
    * @returns null if this is not a valid conda environment otherwise the name
    */
   static kernelNameToEnvironment(name: string): string | null {
-    const splitted = name.split("-");
-    if (splitted[0] === "conda") {
+    const splitted = name.split('-');
+    if (splitted[0] === 'conda') {
       if (splitted.length >= 4) {
         return splitted[2];
-      } else if (splitted.length === 3 && splitted[2] === "root") {
+      } else if (splitted.length === 3 && splitted[2] === 'root') {
         // This is the root
-        return "base";
+        return 'base';
       }
     }
 
@@ -132,9 +132,9 @@ export class CompanionValidator implements ICompanionValidator {
   private static _semverToPython(range: string | null): string | null {
     if (range) {
       return range
-        .split("||")
-        .map((r) => r.split(" ").join(","))
-        .join("|");
+        .split('||')
+        .map(r => r.split(' ').join(','))
+        .join('|');
     }
 
     return null;
@@ -156,12 +156,12 @@ export class CompanionValidator implements ICompanionValidator {
 
     const environments = await this._envManager.environments;
     const normalizedNames: { [key: string]: string } = {};
-    environments.forEach((env) => {
+    environments.forEach(env => {
       // Normalization need to match as closely as possible nb_conda_kernels conversion
       const normalized = env.name
-        .normalize("NFKD")
-        .replace(COMBINING, "")
-        .replace(/[^a-zA-Z0-9._-]/g, "_");
+        .normalize('NFKD')
+        .replace(COMBINING, '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_');
       normalizedNames[normalized] = env.name;
     });
 
@@ -173,35 +173,35 @@ export class CompanionValidator implements ICompanionValidator {
       INotification.warning(`Environment "${name}" has some inconsistencies.`, {
         buttons: [
           {
-            label: "Correct",
-            caption: "Correct installed packages",
+            label: 'Correct',
+            caption: 'Correct installed packages',
             callback: (): void => {
-              INotification.inProgress("Correct the environment.").then(
-                (toastId) => {
+              INotification.inProgress('Correct the environment.').then(
+                toastId => {
                   manager
                     .getPackageManager()
                     .install(updates, name)
                     .then(() => {
                       INotification.update({
                         toastId,
-                        message: "Environment corrected",
-                        type: "success",
-                        autoClose: 5000,
+                        message: 'Environment corrected',
+                        type: 'success',
+                        autoClose: 5000
                       });
                     })
                     .catch((reason: Error) => {
                       console.error(reason);
                       INotification.update({
                         toastId,
-                        message: "Fail to correct the environment.",
-                        type: "error",
+                        message: 'Fail to correct the environment.',
+                        type: 'error'
                       });
                     });
                 }
               );
-            },
-          },
-        ],
+            }
+          }
+        ]
       });
     }
 
@@ -213,7 +213,7 @@ export class CompanionValidator implements ICompanionValidator {
 
       if (conda_env_path) {
         environment =
-          conda_env_name === "root" ? "base" : PathExt.basename(conda_env_path);
+          conda_env_name === 'root' ? 'base' : PathExt.basename(conda_env_path);
       } else {
         const name = CompanionValidator.kernelNameToEnvironment(spec);
         environment = normalizedNames[name];
@@ -239,8 +239,8 @@ export class CompanionValidator implements ICompanionValidator {
               );
 
               if (pythonVersion) {
-                if ("<>=".indexOf(pythonVersion[0]) < 0) {
-                  pythonVersion = "=" + pythonVersion; // prefix with '=' if nothing
+                if ('<>='.indexOf(pythonVersion[0]) < 0) {
+                  pythonVersion = '=' + pythonVersion; // prefix with '=' if nothing
                 }
                 updates.push(pkg.name + pythonVersion);
               }

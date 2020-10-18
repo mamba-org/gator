@@ -6,6 +6,6 @@
     "sourceRoot": "./@mamba-org/common/src",
     "types": ["jest"]
   },
-  "include": ["src/**/*.ts","src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["src/**/*.spec.*"]
 }
