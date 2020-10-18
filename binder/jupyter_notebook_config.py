@@ -4,7 +4,8 @@ c.ServerProxy.servers = {
     "mamba": {
         "command": [
             sys.executable,
-            "navigator/main.py",
+            "-m",
+            "jupyter_conda",
             "--no-browser",
             '--port={port}',
             "--ip=0.0.0.0",
