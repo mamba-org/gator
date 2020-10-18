@@ -96,7 +96,9 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           gem install coveralls-lcov
-          coveralls-lcov -v -n packages/common/coverage/lcov.info > common-jscoverage.json
+          cd packages/common/
+          coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
+          cd ../../
           python -m coveralls --merge=common-jscoverage.json
         shell: bash -l {0}
 
