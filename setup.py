@@ -8,6 +8,7 @@ with open(os.path.join("jupyter_conda", "_version.py")) as version:
     exec(version.read())
 
 static_folder = "jupyter_conda/nbextension"
+lab_folder = "jupyter_conda/labextension"
 
 long_description = ""
 with open("README.md") as rd:
@@ -30,6 +31,7 @@ setuptools.setup(
             [
                 os.path.join(static_folder, a_file)
                 for a_file in os.listdir(static_folder)
+                if os.path.isfile(os.path.join(static_folder, a_file))
             ],
         ),
         # like `jupyter nbextension enable --sys-prefix`
@@ -40,6 +42,14 @@ setuptools.setup(
         (
             "etc/jupyter/nbconfig/tree.d",
             ["jupyter-config/nbconfig/tree.d/jupyter_conda.json"],
+        ),
+        (
+            "share/jupyter/lab/extensions",
+            [
+                os.path.join(lab_folder, a_file)
+                for a_file in os.listdir(lab_folder)
+                if a_file.endswith(".tgz")
+            ],
         ),
         # like `jupyter serverextension enable --sys-prefix`
         (
@@ -56,11 +66,14 @@ setuptools.setup(
         "typing;python_version<'3.7'",
     ],
     extras_require={
-        "test": ["coverage", "flake8", "nb_conda_kernels>=2.2.0", "pytest", "pytest-asyncio", "requests"]
-    },
-    entry_points={
-        "console_scripts": [
-            'navigator = jupyter_conda.navigator.main:main'
+        "test": [
+            "coverage",
+            "flake8",
+            "nb_conda_kernels>=2.2.0",
+            "pytest",
+            "pytest-asyncio",
+            "requests",
         ]
-    }
+    },
+    entry_points={"console_scripts": ["navigator = jupyter_conda.navigator.main:main"]},
 )
