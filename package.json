@@ -17,7 +17,7 @@
     "eslint:check": "lerna run eslint:check",
     "install": "lerna bootstrap",
     "publish": "yarn run clean && yarn run build && lerna publish -m \"Publish npm packages\"",
-    "test": "yarn run eslint:check && yarn run test && yarn run lint && coverage run -m pytest jupyter_conda && coverage report",
+    "test": "yarn run eslint:check && lerna run test && yarn run lint && coverage run -m pytest jupyter_conda && coverage report",
     "lint": "flake8 setup.py jupyter_conda"
   },
   "devDependencies": {
