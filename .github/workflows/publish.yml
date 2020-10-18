@@ -25,10 +25,9 @@ jobs:
       - name: Build and publish NPM package
         if: ${{ startsWith(github.ref, 'refs/tags/jupyterlab_conda') }}
         run: |
-          cd labextension
-          jlpm
-          npm publish
-          cd ..
+          npm install -g yarn
+          yarn install
+          yarn run publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Python package
