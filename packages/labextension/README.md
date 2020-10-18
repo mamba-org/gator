@@ -1,11 +1,5 @@
-# jupyter_conda
+# @mamba-org/conda-lab
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=lab)
-[![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
-[![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
-[![Build Status](https://travis-ci.com/mamba-org/jupyter_conda.svg?branch=master)](https://travis-ci.com/mamba-org/jupyter_conda)
-[![Coverage Status](https://coveralls.io/repos/github/mamba-org/jupyter_conda/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
-
-Provides Conda environment and package access extension from within Jupyter Notebook and JupyterLab.
+Provides Conda environments and packages management extension for JupyterLab.
 
 See the [GitHub repository](https://github.com/mamba-org/jupyter_conda) for more information.
