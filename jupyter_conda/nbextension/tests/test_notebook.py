@@ -15,7 +15,7 @@ here = os.path.dirname(__file__)
 # global npm installs are bad, add the local node_modules to the path
 os.environ["PATH"] = os.pathsep.join([
     os.environ["PATH"],
-    os.path.abspath(os.path.join(here, "node_modules", ".bin"))
+    os.path.abspath(os.path.join(here, "..", "..", "..", "node_modules", ".bin"))
 ])
 
 TEST_LOG = ".jupyter.jstest.log"
@@ -28,12 +28,12 @@ class NBCondaTestController(jstest.JSController):
     def __init__(self, section, *args, **kwargs):
         super(NBCondaTestController, self).__init__(section, *args, **kwargs)
 
-        test_cases = glob.glob(os.path.join(here, 'js', 'test_notebook_*.js'))
+        test_cases = glob.glob(os.path.join(here, 'test_notebook_*.js'))
         js_test_dir = jstest.get_js_test_dir()
 
         includes = [
             os.path.join(js_test_dir, 'util.js')
-        ] + glob.glob(os.path.join(here, 'js', '_*.js'))
+        ] + glob.glob(os.path.join(here, '_*.js'))
 
         self.cmd = [
             'casperjs', 'test',
