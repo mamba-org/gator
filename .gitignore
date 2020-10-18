@@ -67,3 +67,4 @@ jupyter_conda/navigator/static/**
 !jupyter_conda/navigator/static/.gitkeep
 packages/**/coverage/**
 jupyter_conda/labextension/**
+!jupyter_conda/labextension/.gitkeep
