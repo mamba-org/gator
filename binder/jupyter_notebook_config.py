@@ -17,7 +17,7 @@ c.ServerProxy.servers = {
         "absolute_url": True,
         "launcher_entry": {
             "enabled": True,
-            "icon_path": "/home/jovyan/navigator/style/mamba.svg",
+            "icon_path": "/home/jovyan/packages/navigator/style/mamba.svg",
             "title": "Mamba Navigator",
         },
     },
