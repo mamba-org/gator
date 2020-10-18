@@ -1,9 +1,7 @@
-import {
-  faCartArrowDown,
-  faExternalLinkSquareAlt,
-  faSyncAlt,
-  faUndoAlt
-} from '@fortawesome/free-solid-svg-icons';
+import { faCartArrowDown } from '@fortawesome/free-solid-svg-icons/faCartArrowDown';
+import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt';
+import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
+import { faUndoAlt } from '@fortawesome/free-solid-svg-icons/faUndoAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
 import * as React from 'react';
