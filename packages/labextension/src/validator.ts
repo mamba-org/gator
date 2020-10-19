@@ -7,10 +7,10 @@ import { Conda, IEnvironmentManager } from '@mamba-org/common';
 import { INotification } from 'jupyterlab_toastify';
 import semver from 'semver';
 
-export const companionID = '@mamba-org/conda-lab:companion';
+export const companionID = 'jupyterlab_conda:companion';
 
 export const ICompanionValidator = new Token<ICompanionValidator>(
-  '@mamba-org/conda-lab:ICompanionValidator'
+  'jupyterlab_conda:ICompanionValidator'
 );
 
 /**

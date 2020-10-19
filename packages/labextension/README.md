@@ -1,4 +1,4 @@
-# @mamba-org/conda-lab
+# jupyterlab_conda
 
 Provides Conda environments and packages management extension for JupyterLab.
 

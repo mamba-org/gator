@@ -25,7 +25,7 @@ import {
   ICompanionValidator
 } from './validator';
 
-const CONDAENVID = '@mamba-org/conda-lab:plugin';
+const CONDAENVID = 'jupyterlab_conda:plugin';
 const TOUR_DELAY = 1000;
 const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
 
@@ -159,7 +159,7 @@ async function activateCompanions(
 }
 
 /**
- * Initialization data for the @mamba-org/conda-lab extension.
+ * Initialization data for the jupyterlab_conda extension.
  */
 const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: CONDAENVID,

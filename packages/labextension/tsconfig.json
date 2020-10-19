@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "lib",
     "rootDir": "src",
-    "sourceRoot": "./@mamba-org/conda-lab/src",
+    "sourceRoot": "./jupyterlab_conda/src",
     "types": ["jest"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
