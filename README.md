@@ -37,7 +37,7 @@ jupyter labextension install jupyterlab_conda
 
 ## JupyterLab
 
-This extension add a new entry _Conda Packages Manager_ in the _Settings_ menu.
+This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
 
 > The first time, it can take quite some time to build the available packages list. But once it is obtained,
 > it will be cached and updated to the background to have a smoother user experience.
@@ -110,7 +110,7 @@ There are three ways to create an environment:
 
 ```shell
 conda create -c conda-forge -y -n jupyter_conda python jupyterlab=2
-conda install-c conda-forge -y -n jupyter_conda --file requirements_dev.txt 
+conda install -c conda-forge -y -n jupyter_conda --file requirements_dev.txt 
 source activate jupyter_conda
 pip install -e .
 jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
