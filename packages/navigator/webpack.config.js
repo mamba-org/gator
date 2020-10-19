@@ -81,7 +81,8 @@ module.exports = [
         process: {}
       }),
       new BundleAnalyzerPlugin({
-        analyzerMode: 'static'
+        analyzerMode: 'static',
+        reportFilename: path.resolve(__dirname, 'webpack-report.html')
       })
     ]
   }

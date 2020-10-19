@@ -4,11 +4,16 @@ import os
 # should be loaded below
 __version__ = None
 
+HERE = os.path.dirname(__file__)
+
 with open(os.path.join("jupyter_conda", "_version.py")) as version:
     exec(version.read())
 
-static_folder = "jupyter_conda/nbextension"
-lab_folder = "jupyter_conda/labextension"
+static_folder = os.path.join(HERE, "jupyter_conda/nbextension")
+lab_folder = os.path.join(HERE, "jupyter_conda/labextension")
+
+if not os.path.exists(lab_folder):
+    os.mkdir(lab_folder)
 
 long_description = ""
 with open("README.md") as rd:

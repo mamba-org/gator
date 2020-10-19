@@ -1,6 +1,6 @@
 {
-  "name": "@mamba-org/conda-lab",
-  "version": "3.0.0",
+  "name": "jupyterlab_conda",
+  "version": "2.2.4",
   "description": "Manage your conda environments from JupyterLab",
   "keywords": [
     "jupyter",
