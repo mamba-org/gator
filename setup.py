@@ -4,13 +4,11 @@ import os
 # should be loaded below
 __version__ = None
 
-HERE = os.path.dirname(__file__)
-
 with open(os.path.join("jupyter_conda", "_version.py")) as version:
     exec(version.read())
 
-static_folder = os.path.join(HERE, "jupyter_conda/nbextension")
-lab_folder = os.path.join(HERE, "jupyter_conda/labextension")
+static_folder = "jupyter_conda/nbextension"
+lab_folder = "jupyter_conda/labextension"
 
 if not os.path.exists(lab_folder):
     os.mkdir(lab_folder)
@@ -23,7 +21,7 @@ setuptools.setup(
     name="jupyter_conda",
     version=__version__,
     url="https://github.com/mamba-org/jupyter_conda",
-    author="Continuum Analytics, Frederic Collonval",
+    author="Continuum Analytics, Jupyter Development Team",
     description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
     long_description=long_description,
     long_description_content_type="text/markdown",
