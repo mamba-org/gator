@@ -92,9 +92,6 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
       return;
     }
 
-    // make the widget closable
-    widget.title.closable = true;
-
     const dock = this._main;
 
     const { title } = widget;

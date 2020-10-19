@@ -43,6 +43,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     content.title.caption = 'Conda Packages Manager';
     content.title.icon = condaIcon;
     const widget = new MainAreaWidget({ content });
+    widget.title.closable = false;
     app.shell.add(widget, 'main');
 
     commands.addCommand(CommandIDs.open, {
