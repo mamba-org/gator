@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v2
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 2
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -37,7 +37,7 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 2
+          CACHE_NUMBER: 3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -61,14 +61,11 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
-          npm install
+          conda install -n test_jupyter_conda coveralls jupyterlab=2
+          yarn install
           npm install -g casperjs
           pip install .
-          cd labextension
-          jlpm install
-          jupyter labextension install .
-          cd ..
+          jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
 
       - name: Test the extension
@@ -76,11 +73,10 @@ jobs:
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
           coverage run -m pytest jupyter_conda
-          coverage report 
-          cd labextension 
-          npm run eslint:check
-          npm run test
-          cd ..
+          coverage report
+          yarn run eslint:check
+          yarn run test
+
           jupyter serverextension list 1>serverextensions 2>&1
           cat serverextensions | grep "jupyter_conda.*OK"
           jupyter labextension list 1>labextensions 2>&1
@@ -100,10 +96,10 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           gem install coveralls-lcov
-          cd labextension
-          coveralls-lcov -v -n coverage/lcov.info > jscoverage.json
-          cd ..
-          python -m coveralls --merge=labextension/jscoverage.json
+          cd packages/common/
+          coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
+          cd ../../
+          python -m coveralls --merge=common-jscoverage.json
         shell: bash -l {0}
 
   coveralls:
@@ -135,7 +131,7 @@ jobs:
         uses: actions/cache@v2
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 2
         with:
           path: ~/conda_pkgs_dir
           key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -151,7 +147,7 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 2
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -175,14 +171,13 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab~=2.0
-          npm install
+          conda install -n test_jupyter_conda coveralls jupyterlab=2
+          yarn install
           npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
           pip install .
-          cd labextension
-          jlpm install
-          jupyter labextension install .
-          cd ..
+
+          yarn install
+          jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
 
       - name: Test the extension
@@ -191,12 +186,11 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda 
-          coverage report 
-          cd labextension 
-          npm run eslint:check
-          npm run test
-          cd ..
+          coverage run -m pytest jupyter_conda
+          coverage report
+          yarn run eslint:check
+          yarn run test
+
           jupyter serverextension list
           jupyter labextension list
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
@@ -239,7 +233,7 @@ jobs:
         run: |
           conda activate test_jupyter_conda
           mamba install -n test_jupyter_conda --file requirements_dev.txt
-          npm install
+          yarn install
           npm install -g casperjs
           pip install .
         shell: bash -l {0}

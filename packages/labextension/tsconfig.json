@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "src",
+    "sourceRoot": "./jupyterlab_conda/src",
+    "types": ["jest"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.spec.*"],
+  "references": [{ "path": "../common" }]
+}

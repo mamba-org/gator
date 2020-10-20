@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "This is the REST API introduce by the Jupyter server extension `jupyter_conda`; see [GitHub repository](https://github.com/fcollonval/jupyter_conda) for more information."
+  description: "This is the REST API introduce by the Jupyter server extension `jupyter_conda`; see [GitHub repository](https://github.com/mamba-org/jupyter_conda) for more information."
   version: "3.3.0"
   title: "jupyter_conda API"
   license:
@@ -255,4 +255,4 @@ definitions:
     type: "object"
 externalDocs:
   description: "Find out more about jupyter_conda"
-  url: "https://github.com/fcollonval/jupyter_conda"
+  url: "https://github.com/mamba-org/jupyter_conda"

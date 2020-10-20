@@ -1,33 +1,36 @@
 {
-  "name": "jupyter_conda",
-  "version": "3.2.0",
-  "description": "Development tools for jupyter_conda",
-  "main": "index.js",
-  "scripts": {
-    "test": "npm run lint && coverage run -m pytest jupyter_conda && coverage report && cd labextension && npm run eslint:check && npm run test",
-    "lint": "flake8 setup.py jupyter_conda"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fcollonval/jupyter_conda.git"
+    "url": "git+https://github.com/mamba-org/jupyter_conda.git"
   },
-  "author": "Continuum Analytics",
-  "license": "BSD-2-Clause",
+  "author": "Jupyter Development Team",
+  "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/fcollonval/jupyter_conda/issues"
+    "url": "https://github.com/mamba-org/jupyter_conda/issues"
   },
-  "homepage": "https://github.com/fcollonval/jupyter_conda",
+  "homepage": "https://github.com/mamba-org/jupyter_conda",
+  "scripts": {
+    "build": "lerna run build",
+    "build:dev": "lerna run build:dev",
+    "clean": "lerna run clean",
+    "eslint": "lerna run eslint",
+    "eslint:check": "lerna run eslint:check",
+    "install": "lerna bootstrap",
+    "publish": "yarn run clean && yarn run build && lerna publish -m \"Publish npm packages\"",
+    "test": "yarn run eslint:check && lerna run test && yarn run lint && coverage run -m pytest jupyter_conda && coverage report",
+    "lint": "flake8 setup.py jupyter_conda"
+  },
   "devDependencies": {
     "casperjs": "^1.1.1",
     "eslint": "^6.8.0",
+    "lerna": "^3.22.1",
     "phantomjs-prebuilt": "^2.1.7",
     "watch": "^0.17.1"
+  },  
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
   },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true,
-      "phantomjs": true
-    }
-  }
+  "private": true
 }

@@ -4,7 +4,8 @@ c.ServerProxy.servers = {
     "mamba": {
         "command": [
             sys.executable,
-            "navigator/main.py",
+            "-m",
+            "jupyter_conda",
             "--no-browser",
             '--port={port}',
             "--ip=0.0.0.0",
@@ -16,7 +17,7 @@ c.ServerProxy.servers = {
         "absolute_url": True,
         "launcher_entry": {
             "enabled": True,
-            "icon_path": "/home/jovyan/navigator/style/mamba.svg",
+            "icon_path": "/home/jovyan/packages/navigator/style/mamba.svg",
             "title": "Mamba Navigator",
         },
     },

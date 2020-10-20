@@ -1,6 +1,7 @@
 coverage
 flake8
 nodejs
+yarn
 pytest
 pytest-asyncio
 requests

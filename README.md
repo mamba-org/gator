@@ -7,10 +7,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/mamba-org/jupyter_conda/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
 [![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fjupyter_conda%2Fmaster%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/jupyter_conda/master/jupyter_conda/rest_api.yml)
 
-Provides Conda environment and package access extension from within Jupyter Notebook and JupyterLab.
-
-This is a fork of the Anaconda [nb_conda package](https://github.com/Anaconda-Platform/nb_conda). The decision to fork it came due
-to apparently dead status of the previous package and a need to integrate it within JupyterLab.
+Provides Conda environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
 
 ## Install
 
@@ -20,7 +17,7 @@ _Requirements_
 - notebook >= 4.3
 - JupyterLab 1.x or 2.x (for the jupyterlab extension only)
 
-> Starting from 3.4, this extension will use [mamba](https://github.com/TheSnakePit/mamba) instead of `conda` if it finds it.
+> Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
 
 To install in the classical notebook:
 
@@ -38,11 +35,40 @@ jupyter labextension install jupyterlab_conda
 > Optionally, you could install [`jupyterlab-tour`](https://github.com/fcollonval/jupyterlab-tour) to
 > add a help tour for the conda packages manager.
 
+## JupyterLab
+
+This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
+
+> The first time, it can take quite some time to build the available packages list. But once it is obtained,
+> it will be cached and updated to the background to have a smoother user experience.
+
+![jupyterlab_conda_extension](packages/labextension/jupyterlab_conda.gif)
+
+## Navigator
+
+This project contains an experimental standalone navigator application based
+on the JupyterLab extension.
+
+### Try it online
+
+Open Mamba Navigator:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=mamba/navigator)
+
+Open JupyterLab:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=lab)
+
+![lab-launcher](packages/navigator/navigator_as_service.png)
+
 ## Classical Jupyter Notebook
+
+> This part of the code should be considered as legacy. No new development will be
+> done.
 
 ### Conda tab in the Jupyter file browser
 
-This extensions adds a Conda tab to the Jupyter file browser. Selecting the Conda tab
+This extension adds a Conda tab to the Jupyter file browser. Selecting the Conda tab
 will display:
 
 - A list of the Conda environments that current exist
@@ -64,15 +90,6 @@ the list of Conda packages in the environment associated with the running kernel
 list of available packages. You can perform the same actions as in the Conda tab, but only
 against the current environment.
 
-## JupyterLab
-
-This extension add a new entry _Conda Packages Manager_ in the _Settings_ menu.
-
-> The first time, it can take quite some time to build the available packages list. But once it is obtained,
-> it will be cached and updated to the background to have a smoother user experience.
-
-![jupyterlab_conda_extension](labextension/jupyterlab_conda.gif)
-
 ## Creating New Environments
 
 There are three ways to create an environment:
@@ -92,70 +109,34 @@ There are three ways to create an environment:
 ## Development
 
 ```shell
-conda create -y -n jupyter_conda python jupyterlab~=2.1
-conda install -y -n jupyter_conda --file requirements_dev.txt -c conda-forge
+conda create -c conda-forge -y -n jupyter_conda python jupyterlab=2
+conda install -c conda-forge -y -n jupyter_conda --file requirements_dev.txt 
 source activate jupyter_conda
-python setup.py develop
+pip install -e .
 jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
 jupyter nbextension enable jupyter_conda --py --sys-prefix
 jupyter serverextension enable jupyter_conda --py --sys-prefix
 
-cd labextension
-jupyter labextension install .
+yarn install
+yarn run build:dev
+jupyter labextension link packages/common/ packages/labextension/
 ```
 
-## Navigator
+## Acknowledgements
 
-The `navigator/` subfolder contains an experimental standalone navigator application.
+This work started as a fork by [@fcollonval](https://github.com/fcollonval/) of the Anaconda [nb_conda package](https://github.com/Anaconda-Platform/nb_conda). The decision to fork it came due
+to apparently dead status of the previous package and a need to integrate it within JupyterLab.
 
-### Try it online
-
-Open Mamba Navigator:
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=mamba/navigator)
-
-Open JupyterLab:
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=lab)
-
-![lab-launcher](https://user-images.githubusercontent.com/591645/92235600-3d687000-eeb4-11ea-8f8a-c4d4f14a4d4b.png)
-
-### Development
-
-```bash
-# activate the environment created above
-conda activate jupyter_conda
-
-# go to the navigator folder
-cd navigator/
-
-# install the dependencies
-jlpm
-
-# build the application
-jlpm run build
-
-# start the app
-python main.py
-
-# or with the --no-browser option
-python main.py --no-browser
-```
-
-The app will open in the browser at http://localhost:8888.
-
-There is also a watch script to automatically rebuild the application when there is a new change:
-
-```bash
-jlpm run watch
-```
-
+Then with the [mamba initiative](https://medium.com/@QuantStack/open-software-packaging-for-science-61cecee7fc23) pushed by QuantStack it made
+sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
 ### Upcoming
 
 - Features
+  - Moving to mamba-org
+    - Integrate a standalone application
   - Depend optionally on `nb_conda_kernels`
 
 ### 3.4.1
@@ -168,11 +149,11 @@ jlpm run watch
 ### 3.4.0
 
 - Features
-  - Use `mamba` if available. Otherwise use `conda` [#48](https://github.com/fcollonval/jupyter_conda/issues/48)
+  - Use `mamba` if available. Otherwise use `conda` [#46](https://github.com/mamba-org/jupyter_conda/issues/46)
   - Move to GitHub workflow (extend coverage to JupyterLab code)
 - Bugs
-  - Fix wrong redirection url in classic notebook [#46](https://github.com/fcollonval/jupyter_conda/issues/46)
-  - Fix channel given by full URL not properly handle [#55](https://github.com/fcollonval/jupyter_conda/issues/55)
+  - Fix wrong redirection url in classic notebook [#47](https://github.com/mamba-org/jupyter_conda/issues/47)
+  - Fix channel given by full URL not properly handle [#55](https://github.com/mamba-org/jupyter_conda/issues/55)
 
 ### 3.3.1
 
@@ -182,17 +163,17 @@ jlpm run watch
 ### 3.3.0
 
 - Features
-  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/fcollonval/jupyter_conda/pull/39)
+  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/mamba-org/jupyter_conda/pull/39)
 - Bugs
-  - Fixes absent `channeldata.json` file [#36](https://github.com/fcollonval/jupyter_conda/issues/36)
-  - Fixes environment update absent from public API [#37](https://github.com/fcollonval/jupyter_conda/pull/37)
+  - Fixes absent `channeldata.json` file [#36](https://github.com/mamba-org/jupyter_conda/issues/36)
+  - Fixes environment update absent from public API [#37](https://github.com/mamba-org/jupyter_conda/pull/37)
 - Documentation
   - Start REST API description with Swagger
 
 ### 3.2.0
 
-- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/fcollonval/jupyter_conda/pull/25)
-- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/fcollonval/jupyter_conda/pull/26)
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/mamba-org/jupyter_conda/pull/25)
+- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/mamba-org/jupyter_conda/pull/26)
 - Switch to newer Python syntax async-await
 - To improve UI reactivity in Jupyterlab:
 

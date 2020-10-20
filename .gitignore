@@ -61,6 +61,10 @@ screenshots/
 node_modules/
 
 .vscode/
-*/tsconfig.tsbuildinfo
+**/tsconfig.tsbuildinfo
 .pytest_cache/
-labextension/coverage/
+jupyter_conda/navigator/static/**
+!jupyter_conda/navigator/static/.gitkeep
+packages/**/coverage/**
+jupyter_conda/labextension/**
+packages/navigator/webpack-report.html

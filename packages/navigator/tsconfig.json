@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "module": "esnext",
+    "rootDir": "src",
+    "outDir": "lib"
+  },
+  "references": [{ "path": "../common" }],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

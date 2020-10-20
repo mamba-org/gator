@@ -1,18 +1,21 @@
 include LICENSE
 include README.md
-include setup.py
-include requirements.txt
 include requirements_dev.txt
 
 recursive-include jupyter-config *.json
 recursive-include jupyter_conda *
 
 include package.json
-graft labextension
-prune labextension/coverage
-prune labextension/lib
-prune labextension/build
-prune labextension/node_modules
+include lerna.json
+include yarn.lock
+include tsconfig.json
+include tsconfig-base.json
+include eslint-base.js
+graft packages
+prune packages/**/coverage
+prune packages/**/lib
+prune packages/**/build
+prune packages/**/node_modules
 prune **/.ipynb_checkpoints
 prune **/.vscode
 
