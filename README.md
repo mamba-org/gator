@@ -1,19 +1,21 @@
-# jupyter_conda
+# Gator
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=lab)
+The Mamba Navigator, a Web UI for managing conda environments
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
 [![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
 [![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
-[![Github Actions Status](https://github.com/mamba-org/jupyter_conda/workflows/Test/badge.svg)](https://github.com/mamba-org/jupyter_conda/actions?query=workflow%3ATest)
-[![Coverage Status](https://coveralls.io/repos/github/mamba-org/jupyter_conda/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
-[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fjupyter_conda%2Fmaster%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/jupyter_conda/master/jupyter_conda/rest_api.yml)
+[![Github Actions Status](https://github.com/mamba-org/gator/workflows/Test/badge.svg)](https://github.com/mamba-org/gator/actions?query=workflow%3ATest)
+[![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
+[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fgator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/jupyter_conda/rest_api.yml)
 
-Provides Conda environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
+Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
 
 ## Install
 
 _Requirements_
 
-- conda >= 4.5
+- conda >= 4.5 or mamba >=0.5
 - notebook >= 4.3
 - JupyterLab 1.x or 2.x (for the jupyterlab extension only)
 
@@ -53,11 +55,11 @@ on the JupyterLab extension.
 
 Open Mamba Navigator:
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=mamba/navigator)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
 
 Open JupyterLab:
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/jupyter_conda/master?urlpath=lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
 
 ![lab-launcher](packages/navigator/navigator_as_service.png)
 
@@ -109,9 +111,9 @@ There are three ways to create an environment:
 ## Development
 
 ```shell
-conda create -c conda-forge -y -n jupyter_conda python jupyterlab=2
-conda install -c conda-forge -y -n jupyter_conda --file requirements_dev.txt 
-source activate jupyter_conda
+conda create -c conda-forge -y -n gator python jupyterlab=2
+conda install -c conda-forge -y -n gator --file requirements_dev.txt 
+source activate gator
 pip install -e .
 jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
 jupyter nbextension enable jupyter_conda --py --sys-prefix
@@ -149,11 +151,11 @@ sense to move the project in the `mamba-org` organization.
 ### 3.4.0
 
 - Features
-  - Use `mamba` if available. Otherwise use `conda` [#46](https://github.com/mamba-org/jupyter_conda/issues/46)
+  - Use `mamba` if available. Otherwise use `conda` [#46](https://github.com/mamba-org/gator/issues/46)
   - Move to GitHub workflow (extend coverage to JupyterLab code)
 - Bugs
-  - Fix wrong redirection url in classic notebook [#47](https://github.com/mamba-org/jupyter_conda/issues/47)
-  - Fix channel given by full URL not properly handle [#55](https://github.com/mamba-org/jupyter_conda/issues/55)
+  - Fix wrong redirection url in classic notebook [#47](https://github.com/mamba-org/gator/issues/47)
+  - Fix channel given by full URL not properly handle [#55](https://github.com/mamba-org/gator/issues/55)
 
 ### 3.3.1
 
@@ -163,17 +165,17 @@ sense to move the project in the `mamba-org` organization.
 ### 3.3.0
 
 - Features
-  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/mamba-org/jupyter_conda/pull/39)
+  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/mamba-org/gator/pull/39)
 - Bugs
-  - Fixes absent `channeldata.json` file [#36](https://github.com/mamba-org/jupyter_conda/issues/36)
-  - Fixes environment update absent from public API [#37](https://github.com/mamba-org/jupyter_conda/pull/37)
+  - Fixes absent `channeldata.json` file [#36](https://github.com/mamba-org/gator/issues/36)
+  - Fixes environment update absent from public API [#37](https://github.com/mamba-org/gator/pull/37)
 - Documentation
   - Start REST API description with Swagger
 
 ### 3.2.0
 
-- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/mamba-org/jupyter_conda/pull/25)
-- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/mamba-org/jupyter_conda/pull/26)
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/mamba-org/gator/pull/25)
+- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/mamba-org/gator/pull/26)
 - Switch to newer Python syntax async-await
 - To improve UI reactivity in Jupyterlab:
 
