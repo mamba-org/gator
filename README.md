@@ -115,9 +115,9 @@ conda create -c conda-forge -y -n gator python jupyterlab=2
 conda install -c conda-forge -y -n gator --file requirements_dev.txt
 source activate gator
 pip install -e .
-jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
-jupyter nbextension enable jupyter_conda --py --sys-prefix
-jupyter serverextension enable jupyter_conda --py --sys-prefix
+jupyter nbextension install mamba_gator --py --sys-prefix --symlink
+jupyter nbextension enable mamba_gator --py --sys-prefix
+jupyter serverextension enable mamba_gator --py --sys-prefix
 
 yarn install
 yarn run build:dev
