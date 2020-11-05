@@ -63,8 +63,8 @@ node_modules/
 .vscode/
 **/tsconfig.tsbuildinfo
 .pytest_cache/
-jupyter_conda/navigator/static/**
-!jupyter_conda/navigator/static/.gitkeep
+mamba_gator/navigator/static/**
+!mamba_gator/navigator/static/.gitkeep
 packages/**/coverage/**
-jupyter_conda/labextension/**
+mamba_gator/labextension/**
 packages/navigator/webpack-report.html

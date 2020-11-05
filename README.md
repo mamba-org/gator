@@ -7,7 +7,7 @@ The Mamba Navigator, a Web UI for managing conda environments
 [![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
 [![Github Actions Status](https://github.com/mamba-org/gator/workflows/Test/badge.svg)](https://github.com/mamba-org/gator/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
-[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/jupyter_conda/rest_api.yml)
+[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fmamba_gator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/mamba_gator/rest_api.yml)
 
 Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
 
@@ -24,13 +24,13 @@ _Requirements_
 To install in the classical notebook:
 
 ```shell
-conda install -c conda-forge jupyter_conda
+conda install -c conda-forge mamba_gator
 ```
 
 To install in the JupyterLab:
 
 ```shell
-conda install -c conda-forge jupyterlab jupyter_conda
+conda install -c conda-forge jupyterlab mamba_gator
 jupyter labextension install jupyterlab_conda
 ```
 
@@ -112,7 +112,7 @@ There are three ways to create an environment:
 
 ```shell
 conda create -c conda-forge -y -n gator python jupyterlab=2
-conda install -c conda-forge -y -n gator --file requirements_dev.txt 
+conda install -c conda-forge -y -n gator --file requirements_dev.txt
 source activate gator
 pip install -e .
 jupyter nbextension install jupyter_conda --py --sys-prefix --symlink

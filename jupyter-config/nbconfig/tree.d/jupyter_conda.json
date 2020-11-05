@@ -1,5 +1,5 @@
 {
   "load_extensions": {
-    "jupyter_conda/tree": true
+    "mamba_gator/tree": true
   }
 }

@@ -7,7 +7,7 @@ from unittest import TestCase
 
 import pytest
 import tornado
-from jupyter_conda.handlers import ActionsStack
+from mamba_gator.handlers import ActionsStack
 
 
 @pytest.mark.asyncio
@@ -69,7 +69,7 @@ async def test_ActionsStack_cancel_subprocess():
     i = a.put(dummy_action)
     await asyncio.sleep(3.0 * dt)  # Give time to the processus to start
     a.cancel(i)
-    
+
     r = None
     elapsed = 0.0
     with pytest.raises(asyncio.CancelledError):

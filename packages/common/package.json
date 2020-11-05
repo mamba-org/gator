@@ -8,9 +8,9 @@
     "jupyterlab",
     "mamba"
   ],
-  "homepage": "https://github.com/mamba-org/jupyter_conda",
+  "homepage": "https://github.com/mamba-org/gator",
   "bugs": {
-    "url": "https://github.com/mamba-org/jupyter_conda/issues"
+    "url": "https://github.com/mamba-org/gator/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Jupyter Development Team",
@@ -23,7 +23,7 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mamba-org/jupyter_conda.git"
+    "url": "https://github.com/mamba-org/gator.git"
   },
   "scripts": {
     "build": "tsc --project .",

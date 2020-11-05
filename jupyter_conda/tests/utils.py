@@ -16,7 +16,7 @@ from ipython_genutils.tempdir import TemporaryDirectory
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
 
-from jupyter_conda.handlers import NS
+from mamba_gator.handlers import NS
 
 # Shim for notebook server or jupyter_server
 #
@@ -94,7 +94,7 @@ class JupyterCondaAPI(APITester):
 class ServerTest(ServerTestBase):
 
     # Force extension enabling - Disabled by parent class otherwise
-    config = Config({"NotebookApp": {"nbserver_extensions": {"jupyter_conda": True}}})
+    config = Config({"NotebookApp": {"nbserver_extensions": {"mamba_gator": True}}})
 
     @classmethod
     def setup_class(cls):

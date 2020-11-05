@@ -1,5 +1,5 @@
 {
   "load_extensions": {
-    "jupyter_conda/main": true
+    "mamba_gator/main": true
   }
 }

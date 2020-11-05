@@ -17,9 +17,9 @@ from nb_conda_kernels import CondaKernelSpecManager
 import tornado
 from traitlets.config import Config
 
-from jupyter_conda.envmanager import EnvManager
-from jupyter_conda.handlers import AVAILABLE_CACHE, PackagesHandler
-from jupyter_conda.tests.utils import ServerTest, assert_http_error
+from mamba_gator.envmanager import EnvManager
+from mamba_gator.handlers import AVAILABLE_CACHE, PackagesHandler
+from mamba_gator.tests.utils import ServerTest, assert_http_error
 
 
 def generate_name() -> str:
@@ -72,7 +72,7 @@ class TestChannelsHandler(JupyterCondaAPITest):
         self.assertIsInstance(data["channels"], dict)
 
     def test_fail_get(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
             error_msg = "Fail to get channels"
             r = {"error": True, "message": error_msg}
             rvalue = (1, json.dumps(r))
@@ -83,7 +83,7 @@ class TestChannelsHandler(JupyterCondaAPITest):
                 self.conda_api.get(["channels"])
 
     def test_deployment(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
             local_channel = (
                 "C:/Users/Public/conda-channel"
                 if sys.platform == "win32"
@@ -184,7 +184,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
         self.assertFalse(env["is_default"])
 
     def test_failed_get(self):
-        with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
             msg = "Fail to get environments"
             err = {"error": True, "message": msg}
             rvalue = (1, json.dumps(err))
@@ -786,8 +786,8 @@ class TestPackagesHandler(JupyterCondaAPITest):
         self.assertIsNotNone(v)
 
     def test_package_list_available(self):
-        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -1005,8 +1005,8 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
     @unittest.skipIf(sys.platform.startswith("win"), "TODO test not enough reliability")
     def test_package_list_available_local_channel(self):
-        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -1223,8 +1223,8 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
     @unittest.skipIf(sys.platform.startswith("win"), "not reliable on Windows")
     def test_package_list_available_no_description(self):
-        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -1435,8 +1435,8 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
     def test_package_list_available_caching(self):
         cache_name = generate_name()
-        with mock.patch("jupyter_conda.handlers.AVAILABLE_CACHE", cache_name):
-            with mock.patch("jupyter_conda.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", cache_name):
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
                 dummy = {
                     "numpy_sugar": [
                         {

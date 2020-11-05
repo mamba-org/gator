@@ -3,7 +3,7 @@ include README.md
 include requirements_dev.txt
 
 recursive-include jupyter-config *.json
-recursive-include jupyter_conda *
+recursive-include mamba_gator *
 
 include package.json
 include lerna.json
