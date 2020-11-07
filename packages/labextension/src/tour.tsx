@@ -16,7 +16,7 @@ export const managerTour = {
     {
       content: (
         <p>
-          Thanks for installing <em>jupyter_conda</em>.<br />
+          Thanks for installing <em>Gator</em>.<br />
           Let&apos;s have a tour of the UI.
         </p>
       ),

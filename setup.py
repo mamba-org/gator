@@ -78,5 +78,5 @@ setuptools.setup(
             "requests",
         ]
     },
-    entry_points={"console_scripts": ["navigator = mamba_gator.navigator.main:main"]},
+    entry_points={"console_scripts": ["gator = mamba_gator.navigator.main:main"]},
 )
