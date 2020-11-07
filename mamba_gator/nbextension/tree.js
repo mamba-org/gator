@@ -1,5 +1,6 @@
 define(function(require) {
   var $ = require("jquery");
+  var dialog = require("base/js/dialog");
   var Jupyter = require("base/js/namespace");
   var utils = require("base/js/utils");
   var models = require("./models");
@@ -30,6 +31,23 @@ define(function(require) {
               .text("Conda")
               .click(function(e) {
                 window.history.pushState(null, null, "#conda");
+
+                // Warn user this extension is gonna retired soon
+                dialog.modal({
+                  title: "Deprecation warning",
+          
+                  body: $("<div/>")
+                    .addClass("alert alert-warning")
+                    .html(
+                      "<p>This is the last version of jupyter_conda supporting the classical notebook.<br />You will still be able to manage your Conda environment by using the standalone <b>gator</b> application.<br />To start it, execute in a terminal <pre>gator</pre>.</p>"
+                    ),
+          
+                  buttons: {
+                    OK: {
+                      class: "btn-primary",
+                    },
+                  }
+                });
 
                 models.environments.load();
                 models.available.load();

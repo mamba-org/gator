@@ -35,7 +35,7 @@ define(function(require) {
       open: function() {
         $("#searchbox").focus();
       },
-      keyboard_manager: Jupyter.notebook.keyboard_manager
+      keyboard_manager: Jupyter.notebook.keyboard_manager,
     });
     d.on("hide.bs.modal", function() {
       // detach the conda view so it isn't destroyed with the dialog box
@@ -45,45 +45,64 @@ define(function(require) {
   }
 
   function load_conda_view() {
-    if ($view.length === 0) {
-      // Not loaded yet
-      utils.ajax(urls.static_url + "tab.html", {
-        dataType: "html",
-        success: function(tab_html, status, xhr) {
-          // Load the 'conda tab', hide the Environments portion
-          $view = $(tab_html);
-          $view
-            .find("#conda")
-            .removeClass("tab-pane")
-            .hide();
-          $view.find("#environments").hide();
-          $("body").append($view);
+    // Warn user this extension is gonna retired soon
+    const d = dialog.modal({
+      title: "Deprecation warning",
 
-          views.AvailView.init();
-          views.InstalledView.init();
+      body: $("<div/>")
+        .addClass("alert alert-warning")
+        .html(
+          "<p>This is the last version of jupyter_conda supporting the classical notebook.<br />You will still be able to manage your Conda environment by using the standalone <b>gator</b> application.<br />To start it, execute in a terminal <pre>gator</pre>.</p>"
+        ),
 
-          models.available.view = views.AvailView;
-          models.installed.view = views.InstalledView;
+      buttons: {
+        OK: {
+          class: "btn-primary",
+        },
+      },
+    });
 
-          // Load the list of available packages.
-          // This is slow, so do it only the first time this is shown.
-          models.available.load();
+    d.on("hide.bs.modal", function() {
+      if ($view.length === 0) {
+        // Not loaded yet
+        utils.ajax(urls.static_url + "tab.html", {
+          dataType: "html",
+          success: function(tab_html, status, xhr) {
+            // Load the 'conda tab', hide the Environments portion
+            $view = $(tab_html);
+            $view
+              .find("#conda")
+              .removeClass("tab-pane")
+              .hide();
+            $view.find("#environments").hide();
+            $("body").append($view);
 
-          // Also load environment list. Only need to do this once,
-          // then we'll know the current environment and it will
-          // also trigger a load of the installed packages.
+            views.AvailView.init();
+            views.InstalledView.init();
 
-          models.environments.load().then(select_notebook_kernel_env);
-          show_conda_view($view);
-        }
-      });
-    } else {
-      // Refresh list of installed packages.
-      // This is fast, and more likely to change,
-      // so do it every time the menu is shown.
-      select_notebook_kernel_env().then(models.installed.load);
-      show_conda_view($view);
-    }
+            models.available.view = views.AvailView;
+            models.installed.view = views.InstalledView;
+
+            // Load the list of available packages.
+            // This is slow, so do it only the first time this is shown.
+            models.available.load();
+
+            // Also load environment list. Only need to do this once,
+            // then we'll know the current environment and it will
+            // also trigger a load of the installed packages.
+
+            models.environments.load().then(select_notebook_kernel_env);
+            show_conda_view($view);
+          },
+        });
+      } else {
+        // Refresh list of installed packages.
+        // This is fast, and more likely to change,
+        // so do it every time the menu is shown.
+        select_notebook_kernel_env().then(models.installed.load);
+        show_conda_view($view);
+      }
+    });
   }
 
   function select_notebook_kernel_env() {
@@ -127,10 +146,10 @@ define(function(require) {
         // Configure Conda items in Kernel menu
         $("#kernel_menu").append($(menu_html));
         $("#conda_menu_item").click(load_conda_view);
-      }
+      },
     });
   }
   return {
-    load_ipython_extension: load
+    load_ipython_extension: load,
   };
 });
