@@ -178,31 +178,34 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         }}
         role="row"
       >
-        <div style={{ flex: '0 0 20px', padding: '0px 2px' }} role="cell">
+        <div className={classes(Style.Cell, Style.StatusSize)} role="gridcell">
           {this.iconRender(pkg)}
         </div>
-        <div style={{ flex: '1 1 200px' }} role="cell">
+        <div className={classes(Style.Cell, Style.NameSize)} role="gridcell">
           {this.nameRender(pkg)}
         </div>
         {this.props.hasDescription && (
           <div
-            className={Style.CellSummary}
-            style={{ flex: '5 5 250px' }}
-            role="cell"
+            className={classes(Style.CellSummary, Style.DescriptionSize)}
+            role="gridcell"
             title={pkg.summary}
           >
             {pkg.summary}
           </div>
         )}
-        <div style={{ flex: '0 0 90px' }} role="cell">
+        <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
           <span className={pkg.updatable ? Style.Updatable : undefined}>
             {pkg.version_installed}
           </span>
         </div>
-        <div style={{ flex: '0 0 120px' }} role="cell">
+        <div className={classes(Style.Cell, Style.ChangeSize)} role="gridcell">
           {this.changeRender(pkg)}
         </div>
-        <div style={{ flex: '1 1 120px' }} role="cell" title={pkg.channel}>
+        <div
+          className={classes(Style.Cell, Style.ChannelSize)}
+          role="gridcell"
+          title={pkg.channel}
+        >
           {pkg.channel}
         </div>
       </div>
@@ -211,7 +214,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
   render(): JSX.Element {
     return (
-      <div id={CONDA_PACKAGES_PANEL_ID} role="table">
+      <div id={CONDA_PACKAGES_PANEL_ID} role="grid">
         <AutoSizer disableHeight>
           {({ width }): JSX.Element => {
             return (
@@ -221,22 +224,40 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   style={{ width: width }}
                   role="row"
                 >
-                  <div style={{ flex: '0 0 20px' }} role="columnheader"></div>
-                  <div style={{ flex: '1 1 200px' }} role="columnheader">
+                  <div
+                    className={classes(Style.Cell, Style.StatusSize)}
+                    role="columnheader"
+                  ></div>
+                  <div
+                    className={classes(Style.Cell, Style.NameSize)}
+                    role="columnheader"
+                  >
                     Name
                   </div>
                   {this.props.hasDescription && (
-                    <div style={{ flex: '5 5 250px' }} role="columnheader">
+                    <div
+                      className={classes(Style.Cell, Style.DescriptionSize)}
+                      role="columnheader"
+                    >
                       Description
                     </div>
                   )}
-                  <div style={{ flex: '0 0 90px' }} role="columnheader">
+                  <div
+                    className={classes(Style.Cell, Style.VersionSize)}
+                    role="columnheader"
+                  >
                     Version
                   </div>
-                  <div style={{ flex: '0 0 120px' }} role="columnheader">
+                  <div
+                    className={classes(Style.Cell, Style.ChangeSize)}
+                    role="columnheader"
+                  >
                     Change To
                   </div>
-                  <div style={{ flex: '1 1 120px' }} role="columnheader">
+                  <div
+                    className={classes(Style.Cell, Style.ChannelSize)}
+                    role="columnheader"
+                  >
                     Channel
                   </div>
                 </div>
@@ -264,12 +285,7 @@ namespace Style {
   const row: NestedCSSProperties = {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
-    $nest: {
-      '& > *': {
-        margin: '0px 2px'
-      }
-    }
+    alignItems: 'center'
   };
 
   export const RowHeader = style(row, {
@@ -285,9 +301,6 @@ namespace Style {
     fontSize: 'var(--jp-ui-font-size1)',
     color: 'var(--jp-ui-font-color0)',
     lineHeight: 'normal',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
     $nest: {
       '&:hover': {
         backgroundColor: 'var(--jp-layout-color3)'
@@ -307,7 +320,22 @@ namespace Style {
         : 'var(--jp-layout-color2)'
     });
 
+  export const Cell = style({
+    margin: '0px 2px',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden'
+  });
+
+  export const StatusSize = style({ flex: '0 0 12px', padding: '0px 2px' });
+  export const NameSize = style({ flex: '1 1 200px' });
+  export const DescriptionSize = style({ flex: '5 5 250px' });
+  export const VersionSize = style({ flex: '0 0 90px' });
+  export const ChangeSize = style({ flex: '0 0 120px' });
+  export const ChannelSize = style({ flex: '1 1 120px' });
+
   export const CellSummary = style({
+    margin: '0px 2px',
     alignSelf: 'flex-start',
     whiteSpace: 'normal',
     height: '100%',
