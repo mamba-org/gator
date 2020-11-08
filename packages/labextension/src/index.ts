@@ -93,7 +93,7 @@ async function activateCondaEnv(
         return;
       }
 
-      content = new CondaEnvWidget(-1, -1, model);
+      content = new CondaEnvWidget(model);
       content.addClass(CONDA_WIDGET_CLASS);
       content.id = pluginNamespace;
       content.title.label = 'Packages';
