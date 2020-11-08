@@ -36,7 +36,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Request listing available package as quickly as possible
     Private.loadPackages(model);
 
-    const content = new CondaEnvWidget(-1, -1, model);
+    const content = new CondaEnvWidget(model);
     content.addClass(CONDA_WIDGET_CLASS);
     content.id = DOMUtils.createDomID();
     content.title.label = 'Packages';
