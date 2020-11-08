@@ -7,7 +7,7 @@ __version__ = None
 with open(os.path.join("mamba_gator", "_version.py")) as version:
     exec(version.read())
 
-static_folder = "mamba_gator/nbextension"
+classic_folder = "mamba_gator/navigator"
 lab_folder = "mamba_gator/labextension"
 
 if not os.path.exists(lab_folder):
@@ -32,9 +32,9 @@ setuptools.setup(
         (
             "share/jupyter/nbextensions/mamba_gator",
             [
-                os.path.join(static_folder, a_file)
-                for a_file in os.listdir(static_folder)
-                if os.path.isfile(os.path.join(static_folder, a_file))
+                os.path.join(classic_folder, a_file)
+                for a_file in os.listdir(classic_folder)
+                if os.path.isfile(os.path.join(classic_folder, a_file)) and not a_file.endswith(".py")
             ],
         ),
         # like `jupyter nbextension enable --sys-prefix`

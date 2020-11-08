@@ -21,10 +21,8 @@
     "lint": "flake8 setup.py mamba_gator"
   },
   "devDependencies": {
-    "casperjs": "^1.1.1",
     "eslint": "^6.8.0",
     "lerna": "^3.22.1",
-    "phantomjs-prebuilt": "^2.1.7",
     "watch": "^0.17.1"
   },
   "workspaces": {

@@ -15,7 +15,9 @@
         {{ page_config_full | tojson }}
       </script>
 
-  <script src="{{page_config['fullStaticUrl'] | e}}/navigator.bundle.js" main="index"></script>
+  <script src="{{page_config['fullStaticUrl'] | e}}/vendors~gator~notebook.bundle.js" main="index"></script>
+  <script src="{{page_config['fullStaticUrl'] | e}}/gator~notebook.bundle.js" main="index"></script>
+  <script src="{{page_config['fullStaticUrl'] | e}}/gator.bundle.js" main="index"></script>
 
   <script type="text/javascript">
     /* Remove token from URL. */

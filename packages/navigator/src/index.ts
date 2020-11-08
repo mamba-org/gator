@@ -1,12 +1,8 @@
-import { PageConfig, URLExt } from '@jupyterlab/coreutils';
+import 'whatwg-fetch';
+
 import { Gator } from './app/app';
 
 import '../style/index.css';
-
-(window as any).__webpack_public_path__ = URLExt.join(
-  PageConfig.getBaseUrl(),
-  'gator/'
-);
 
 /**
  * The main function

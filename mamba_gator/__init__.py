@@ -6,9 +6,17 @@ from .handlers import load_jupyter_server_extension
 def _jupyter_nbextension_paths():
     return [
         dict(
-            section="notebook", src="nbextension", dest="mamba_gator", require="mamba_gator/main"
+            section="notebook",
+            src="navigator",
+            dest="mamba_gator",
+            require="mamba_gator/main",
         ),
-        dict(section="tree", src="nbextension", dest="mamba_gator", require="mamba_gator/tree"),
+        dict(
+            section="tree",
+            src="navigator",
+            dest="mamba_gator",
+            require="mamba_gator/tree",
+        ),
     ]
 
 
