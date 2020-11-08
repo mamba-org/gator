@@ -5,7 +5,7 @@ import '../style/index.css';
 
 (window as any).__webpack_public_path__ = URLExt.join(
   PageConfig.getBaseUrl(),
-  'navigator/'
+  'gator/'
 );
 
 /**
@@ -22,7 +22,6 @@ async function main(): Promise<void> {
   app.registerPluginModules(mods);
 
   await app.start();
-  await app.restored;
 }
 
 window.addEventListener('load', main);
