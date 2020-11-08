@@ -241,7 +241,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   </div>
                 </div>
                 <FixedSizeList
-                  height={this.props.height}
+                  height={Math.max(0, this.props.height - HEADER_HEIGHT)}
                   overscanCount={3}
                   itemCount={this.props.packages.length}
                   itemData={this.props.packages}
