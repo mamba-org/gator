@@ -9,13 +9,15 @@ import {
   WidgetTracker
 } from '@jupyterlab/apputils';
 import { IMainMenu } from '@jupyterlab/mainmenu';
+import { buildIcon } from '@jupyterlab/ui-components';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import {
   CondaEnvironments,
   CondaEnvWidget,
   condaIcon,
   CONDA_WIDGET_CLASS,
-  IEnvironmentManager
+  IEnvironmentManager,
+  GraphContainer
 } from '@mamba-org/common';
 import { INotification } from 'jupyterlab_toastify';
 import { managerTour } from './tour';
@@ -106,9 +108,23 @@ async function activateCondaEnv(
     }
   });
 
+  const commandGraph = 'conda-packages-graph:open';
+  commands.addCommand(commandGraph, {
+    label: 'Conda Packages Graph',
+    caption: 'Open the conda packages graph',
+    execute: () => {
+      const widget = new GraphContainer(model);
+      widget.title.label = 'Packages Graph';
+      widget.title.icon = buildIcon;
+      shell.add(widget, 'main');
+      widget.content.update();
+    }
+  });
+
   // Add command to command palette
   if (palette) {
     palette.addItem({ command, category: 'Settings' });
+    palette.addItem({ command: commandGraph, category: 'Settings' });
   }
 
   // Handle state restoration.
@@ -117,11 +133,16 @@ async function activateCondaEnv(
       command,
       name: () => pluginNamespace
     });
+    restorer.restore(tracker, {
+      command: commandGraph,
+      name: () => pluginNamespace
+    });
   }
 
   // Add command to settings menu
   if (menu) {
     menu.settingsMenu.addGroup([{ command: command }], 999);
+    menu.settingsMenu.addGroup([{ command: commandGraph }], 999);
   }
 
   return model;
