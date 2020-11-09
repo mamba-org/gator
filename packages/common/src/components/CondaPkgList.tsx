@@ -6,13 +6,17 @@ import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';
-import { AutoSizer, Column, Table } from 'react-virtualized';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { classes, style } from 'typestyle';
+import { NestedCSSProperties } from 'typestyle/lib/types';
 import {
   CONDA_PACKAGES_PANEL_ID,
   CONDA_PACKAGE_SELECT_CLASS
 } from '../constants';
 import { Conda } from '../tokens';
+
+const HEADER_HEIGHT = 29;
 
 /**
  * Package list component properties
@@ -40,21 +44,6 @@ export interface IPkgListProps {
   onPkgChange: (pkg: Conda.IPackage, version: string) => void;
 }
 
-/**
- * react-virtualized interfaces
- */
-interface ICellRender {
-  cellData?: any;
-  columnData?: any;
-  dataKey: string;
-  rowData: any;
-  rowIndex: number;
-}
-
-interface IIndex {
-  index: number;
-}
-
 /** React component for the package list */
 export class CondaPkgList extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
@@ -62,216 +51,230 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     packages: []
   };
 
-  constructor(props: IPkgListProps) {
-    super(props);
-  }
-
-  render(): JSX.Element {
-    const rowGetter = ({ index }: IIndex): Conda.IPackage =>
-      this.props.packages[index];
-
-    const iconRender = ({ rowData }: ICellRender): JSX.Element => {
-      if (rowData.version_installed) {
-        if (rowData.version_selected === 'none') {
-          return (
-            <FontAwesomeIcon
-              icon={faMinusSquare}
-              style={{ color: 'var(--jp-error-color1)' }}
-            />
-          );
-        } else if (rowData.version_selected !== rowData.version_installed) {
-          return (
-            <FontAwesomeIcon
-              icon={faExternalLinkSquareAlt}
-              style={{ color: 'var(--jp-accent-color1)' }}
-            />
-          );
+  protected changeRender = (pkg: Conda.IPackage): JSX.Element => (
+    <div className={'lm-Widget'}>
+      <HTMLSelect
+        className={classes(Style.VersionSelection, CONDA_PACKAGE_SELECT_CLASS)}
+        value={pkg.version_selected}
+        onClick={(evt: React.MouseEvent): void => {
+          evt.stopPropagation();
+        }}
+        onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
+          this.props.onPkgChange(pkg, evt.target.value)
         }
+        aria-label="Package versions"
+      >
+        <option key="-3" value={'none'}>
+          Remove
+        </option>
+        {!pkg.version_installed && (
+          <option key="-2" value={''}>
+            Install
+          </option>
+        )}
+        {pkg.updatable && (
+          <option key="-1" value={''}>
+            Update
+          </option>
+        )}
+        {pkg.version.map((v: string) => (
+          <option key={v} value={v}>
+            {v}
+          </option>
+        ))}
+      </HTMLSelect>
+    </div>
+  );
+
+  protected iconRender = (pkg: Conda.IPackage): JSX.Element => {
+    if (pkg.version_installed) {
+      if (pkg.version_selected === 'none') {
         return (
           <FontAwesomeIcon
-            icon={faCheckSquare}
-            style={{ color: 'var(--jp-brand-color1)' }}
+            icon={faMinusSquare}
+            style={{ color: 'var(--jp-error-color1)' }}
           />
         );
-      } else if (rowData.version_selected !== 'none') {
+      } else if (pkg.version_selected !== pkg.version_installed) {
         return (
           <FontAwesomeIcon
-            icon={faCheckSquare}
-            style={{ color: 'var(--jp-brand-color1)' }}
+            icon={faExternalLinkSquareAlt}
+            style={{ color: 'var(--jp-accent-color1)' }}
           />
         );
       }
-
       return (
         <FontAwesomeIcon
-          icon={faSquare}
-          style={{ color: 'var(--jp-ui-font-color2)' }}
+          icon={faCheckSquare}
+          style={{ color: 'var(--jp-brand-color1)' }}
         />
       );
-    };
-
-    const isSelected = (index: number): boolean => {
-      const rowData = this.props.packages[index];
-
-      if (rowData.version_installed) {
-        if (rowData.version_selected === 'none') {
-          return true;
-        } else if (rowData.version_selected !== rowData.version_installed) {
-          return true;
-        }
-      } else if (rowData.version_selected !== 'none') {
-        return true;
-      }
-      return false;
-    };
-
-    const nameRender = ({ rowData }: ICellRender): JSX.Element => {
-      if (rowData.home && rowData.home.length > 0) {
-        // TODO possible enhancement - open in a JupyterLab Panel
-        return (
-          <a
-            className={Style.Link}
-            href={rowData.home}
-            onClick={(evt): void => evt.stopPropagation()}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {rowData.name} <FontAwesomeIcon icon={faExternalLinkAlt} />
-          </a>
-        );
-      }
-      return <span>{rowData.name}</span>;
-    };
-
-    const changeRender = ({ rowData }: ICellRender): JSX.Element => (
-      <div className={'lm-Widget'}>
-        <HTMLSelect
-          className={classes(
-            Style.VersionSelection,
-            CONDA_PACKAGE_SELECT_CLASS
-          )}
-          value={rowData.version_selected}
-          onClick={(evt: React.MouseEvent): void => {
-            evt.stopPropagation();
-          }}
-          onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
-            this.props.onPkgChange(rowData, evt.target.value)
-          }
-          aria-label="Package versions"
-        >
-          <option key="-3" value={'none'}>
-            Remove
-          </option>
-          {!rowData.version_installed && (
-            <option key="-2" value={''}>
-              Install
-            </option>
-          )}
-          {rowData.updatable && (
-            <option key="-1" value={''}>
-              Update
-            </option>
-          )}
-          {rowData.version.map((v: string) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </HTMLSelect>
-      </div>
-    );
+    } else if (pkg.version_selected !== 'none') {
+      return (
+        <FontAwesomeIcon
+          icon={faCheckSquare}
+          style={{ color: 'var(--jp-brand-color1)' }}
+        />
+      );
+    }
 
     return (
-      <div id={CONDA_PACKAGES_PANEL_ID} className={Style.TableContainer}>
+      <FontAwesomeIcon
+        icon={faSquare}
+        style={{ color: 'var(--jp-ui-font-color2)' }}
+      />
+    );
+  };
+
+  protected isSelected(pkg: Conda.IPackage): boolean {
+    if (pkg.version_installed) {
+      if (pkg.version_selected === 'none') {
+        return true;
+      } else if (pkg.version_selected !== pkg.version_installed) {
+        return true;
+      }
+    } else if (pkg.version_selected !== 'none') {
+      return true;
+    }
+    return false;
+  }
+
+  protected nameRender = (pkg: Conda.IPackage): JSX.Element => {
+    if (pkg.home?.length > 0) {
+      // TODO possible enhancement - open in a JupyterLab Panel
+      return (
+        <a
+          className={Style.Link}
+          href={pkg.home}
+          onClick={(evt): void => evt.stopPropagation()}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {pkg.name} <FontAwesomeIcon icon={faExternalLinkAlt} />
+        </a>
+      );
+    }
+    return <span>{pkg.name}</span>;
+  };
+
+  protected rowClassName = (index: number, pkg: Conda.IPackage): string => {
+    if (index >= 0) {
+      const isSelected = this.isSelected(pkg);
+      return index % 2 === 0
+        ? Style.RowEven(isSelected)
+        : Style.RowOdd(isSelected);
+    }
+  };
+
+  protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
+    const { data, index, style } = props;
+    const pkg = data[index] as Conda.IPackage;
+    return (
+      <div
+        className={this.rowClassName(index, pkg)}
+        style={style}
+        onClick={(): void => {
+          this.props.onPkgClick(pkg);
+        }}
+        role="row"
+      >
+        <div className={classes(Style.Cell, Style.StatusSize)} role="gridcell">
+          {this.iconRender(pkg)}
+        </div>
+        <div className={classes(Style.Cell, Style.NameSize)} role="gridcell">
+          {this.nameRender(pkg)}
+        </div>
+        {this.props.hasDescription && (
+          <div
+            className={classes(Style.CellSummary, Style.DescriptionSize)}
+            role="gridcell"
+            title={pkg.summary}
+          >
+            {pkg.summary}
+          </div>
+        )}
+        <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
+          <span className={pkg.updatable ? Style.Updatable : undefined}>
+            {pkg.version_installed}
+          </span>
+        </div>
+        <div className={classes(Style.Cell, Style.ChangeSize)} role="gridcell">
+          {this.changeRender(pkg)}
+        </div>
+        <div
+          className={classes(Style.Cell, Style.ChannelSize)}
+          role="gridcell"
+          title={pkg.channel}
+        >
+          {pkg.channel}
+        </div>
+      </div>
+    );
+  };
+
+  render(): JSX.Element {
+    return (
+      <div id={CONDA_PACKAGES_PANEL_ID} role="grid">
         <AutoSizer disableHeight>
-          {({ width }): JSX.Element => (
-            <Table
-              className={Style.Table}
-              headerClassName={Style.Header}
-              headerHeight={29}
-              height={this.props.height}
-              onRowClick={({ rowData }): void => this.props.onPkgClick(rowData)}
-              overscanRowCount={3}
-              rowClassName={({ index }): string => {
-                if (index >= 0) {
-                  return index % 2 === 0
-                    ? Style.RowEven(isSelected(index))
-                    : Style.RowOdd(isSelected(index));
-                }
-              }}
-              rowCount={this.props.packages.length}
-              rowGetter={rowGetter}
-              rowHeight={40}
-              width={width}
-            >
-              <Column
-                className={Style.CellStatus}
-                dataKey="status"
-                cellRenderer={iconRender}
-                disableSort
-                label=""
-                flexShrink={0}
-                width={20}
-              />
-              <Column
-                className={Style.CellName}
-                dataKey="name"
-                cellRenderer={nameRender}
-                disableSort
-                label="Name"
-                width={200}
-                flexGrow={1}
-                flexShrink={1}
-              />
-              {this.props.hasDescription && (
-                <Column
-                  className={Style.CellSummary}
-                  dataKey="summary"
-                  disableSort
-                  label="Description"
-                  width={250}
-                  flexGrow={5}
-                  flexShrink={5}
-                />
-              )}
-              <Column
-                cellRenderer={({ rowData }: ICellRender): JSX.Element => (
-                  <span
-                    className={
-                      rowData.updatable
-                        ? classes(Style.Updatable, Style.Cell)
-                        : Style.Cell
-                    }
+          {({ width }): JSX.Element => {
+            return (
+              <>
+                <div
+                  className={Style.RowHeader}
+                  style={{ width: width }}
+                  role="row"
+                >
+                  <div
+                    className={classes(Style.Cell, Style.StatusSize)}
+                    role="columnheader"
+                  ></div>
+                  <div
+                    className={classes(Style.Cell, Style.NameSize)}
+                    role="columnheader"
                   >
-                    {rowData.version_installed}
-                  </span>
-                )}
-                dataKey="version_installed"
-                disableSort
-                label="Version"
-                flexShrink={0}
-                width={90}
-              />
-              <Column
-                className={Style.Cell}
-                dataKey="version_selected"
-                cellRenderer={changeRender}
-                disableSort
-                label="Change to"
-                flexShrink={0}
-                width={120}
-              />
-              <Column
-                className={Style.Cell}
-                dataKey="channel"
-                disableSort
-                flexGrow={1}
-                label="Channel"
-                flexShrink={1}
-                width={120}
-              />
-            </Table>
-          )}
+                    Name
+                  </div>
+                  {this.props.hasDescription && (
+                    <div
+                      className={classes(Style.Cell, Style.DescriptionSize)}
+                      role="columnheader"
+                    >
+                      Description
+                    </div>
+                  )}
+                  <div
+                    className={classes(Style.Cell, Style.VersionSize)}
+                    role="columnheader"
+                  >
+                    Version
+                  </div>
+                  <div
+                    className={classes(Style.Cell, Style.ChangeSize)}
+                    role="columnheader"
+                  >
+                    Change To
+                  </div>
+                  <div
+                    className={classes(Style.Cell, Style.ChannelSize)}
+                    role="columnheader"
+                  >
+                    Channel
+                  </div>
+                </div>
+                <FixedSizeList
+                  height={Math.max(0, this.props.height - HEADER_HEIGHT)}
+                  overscanCount={3}
+                  itemCount={this.props.packages.length}
+                  itemData={this.props.packages}
+                  itemKey={(index, data): React.Key => data[index].name}
+                  itemSize={40}
+                  width={width}
+                >
+                  {this.rowRenderer}
+                </FixedSizeList>
+              </>
+            );
+          }}
         </AutoSizer>
       </div>
     );
@@ -279,52 +282,64 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 }
 
 namespace Style {
-  export const TableContainer = style({});
+  const row: NestedCSSProperties = {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  };
 
-  export const Table = style({});
-
-  export const Header = style({
+  export const RowHeader = style(row, {
     color: 'var(--jp-ui-font-color1)',
     fontWeight: 'bold',
     fontSize: 'var(--jp-ui-font-size2)',
-    textAlign: 'left'
+    height: HEADER_HEIGHT,
+    boxSizing: 'border-box',
+    paddingRight: 17 // Take into account the package list scrollbar width
   });
 
-  export const RowEven = (selected: boolean): string =>
-    style({
-      background: selected ? 'var(--jp-brand-color3)' : 'unset',
-      $nest: {
-        '&:hover': {
-          backgroundColor: 'var(--jp-layout-color3)'
-        }
+  const rowContent: NestedCSSProperties = {
+    fontSize: 'var(--jp-ui-font-size1)',
+    color: 'var(--jp-ui-font-color0)',
+    lineHeight: 'normal',
+    $nest: {
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color3)'
       }
+    }
+  };
+
+  export const RowEven = (selected: boolean): string =>
+    style(row, rowContent, {
+      background: selected ? 'var(--jp-brand-color3)' : 'unset'
     });
 
   export const RowOdd = (selected: boolean): string =>
-    style({
+    style(row, rowContent, {
       background: selected
         ? 'var(--jp-brand-color3)'
-        : 'var(--jp-layout-color2)',
-      $nest: {
-        '&:hover': {
-          backgroundColor: 'var(--jp-layout-color3)'
-        }
-      }
+        : 'var(--jp-layout-color2)'
     });
 
-  export const CellStatus = style({
-    padding: '0px 2px'
+  export const Cell = style({
+    margin: '0px 2px',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden'
   });
 
-  export const CellName = style({ whiteSpace: 'nowrap' });
+  export const StatusSize = style({ flex: '0 0 12px', padding: '0px 2px' });
+  export const NameSize = style({ flex: '1 1 200px' });
+  export const DescriptionSize = style({ flex: '5 5 250px' });
+  export const VersionSize = style({ flex: '0 0 90px' });
+  export const ChangeSize = style({ flex: '0 0 120px' });
+  export const ChannelSize = style({ flex: '1 1 120px' });
 
   export const CellSummary = style({
+    margin: '0px 2px',
     alignSelf: 'flex-start',
-    whiteSpace: 'normal'
-  });
-
-  export const Cell = style({
-    whiteSpace: 'nowrap'
+    whiteSpace: 'normal',
+    height: '100%',
+    overflow: 'hidden'
   });
 
   export const SortButton = style({
