@@ -7,7 +7,7 @@ The Mamba Navigator, a Web UI for managing conda environments
 [![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
 [![Github Actions Status](https://github.com/mamba-org/gator/workflows/Test/badge.svg)](https://github.com/mamba-org/gator/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
-[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fgator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/jupyter_conda/rest_api.yml)
+[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fjupyter_conda%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/jupyter_conda/rest_api.yml)
 
 Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
 
