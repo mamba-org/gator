@@ -138,7 +138,8 @@ sense to move the project in the `mamba-org` organization.
 
 - Features
   - Moving to mamba-org
-    - Integrate a standalone application
+  - Integrate a standalone application
+  - Common frontend for JupyterLab, classical Notebook and Gator
   - Depend optionally on `nb_conda_kernels`
 
 ### 3.4.1
