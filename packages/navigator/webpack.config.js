@@ -1,21 +1,9 @@
 // Copyright (c) Jupyter Development Team.
 // Distributed under the terms of the Modified BSD License.
 const path = require('path');
-// const data = require('./package.json');
 const webpack = require('webpack');
-// const Build = require('@jupyterlab/buildutils').Build;
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
-
-// const names = Object.keys(data.dependencies).filter(function(name) {
-//   const packageData = require(name + '/package.json');
-//   return packageData.jupyterlab !== undefined;
-// });
-
-// const extras = Build.ensureAssets({
-//   packageNames: names,
-//   output: './build'
-// });
 
 module.exports = [
   {

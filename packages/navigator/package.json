@@ -32,7 +32,6 @@
   "dependencies": {
     "@jupyterlab/application": "^2.0.0",
     "@jupyterlab/apputils": "^2.0.0",
-    "@jupyterlab/buildutils": "^2.0.0",
     "@jupyterlab/mainmenu": "^2.0.0",
     "@jupyterlab/theme-light-extension": "^2.0.0",
     "@jupyterlab/ui-components": "^2.0.0",

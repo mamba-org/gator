@@ -16,13 +16,13 @@ HERE = os.path.dirname(__file__)
 
 
 class MambaNavigator(LabServerApp):
-    default_url = Unicode("/navigator", help="The default URL to redirect to from `/`")
+    default_url = Unicode("/gator", help="The default URL to redirect to from `/`")
 
     lab_config = LabConfig(
         app_name="Mamba Navigator",
         app_settings_dir=os.path.join(HERE, "application_settings"),
         app_version=__version__,
-        app_url="/navigator",
+        app_url="/gator",
         schemas_dir=os.path.join(HERE, "schemas"),
         static_dir=os.path.join(HERE, "static"),
         templates_dir=os.path.join(HERE, "templates"),
