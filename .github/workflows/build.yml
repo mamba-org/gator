@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-conda-${{ matrix.python-version }}
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
@@ -97,7 +97,7 @@ jobs:
             ${{ runner.os }}-yarn
 
       - name: Setup Python 3.8
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_jupyter_conda
           miniconda-version: "latest"
@@ -176,7 +176,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_jupyter_conda
           auto-update-conda: true
