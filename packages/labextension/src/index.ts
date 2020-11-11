@@ -39,7 +39,7 @@ async function activateCondaEnv(
   let tour: any;
   const { commands, shell } = app;
   const pluginNamespace = 'conda-env';
-  const command = 'gator:open-ui';
+  const command = 'jupyter_conda:open-ui';
 
   const settings = await settingsRegistry?.load(CONDAENVID);
   const model = new CondaEnvironments(settings);
@@ -134,7 +134,7 @@ async function activateCompanions(
   palette: ICommandPalette | null
 ): Promise<ICompanionValidator> {
   const { commands, serviceManager } = app;
-  const command = 'gator:companions';
+  const command = 'jupyter_conda:companions';
   const settings = await settingsRegistry.load(CONDAENVID);
 
   const validator = new CompanionValidator(
