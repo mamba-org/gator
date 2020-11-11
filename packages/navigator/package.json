@@ -43,7 +43,6 @@
     "react-dom": "~16.9.0"
   },
   "devDependencies": {
-    "@jupyterlab/buildutils": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
     "css-loader": "~3.2.0",
