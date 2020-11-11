@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-conda-${{ matrix.python-version }}
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_gator
           auto-update-conda: true
@@ -55,13 +55,15 @@ jobs:
         shell: bash -l {0}
 
   test-conda-os:
-    name: Test Conda Python 3.8 on ${{ matrix.os }}
+    name: Test Conda Python 3.7 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        os: ["macos-latest", "windows-latest"]
+        os: 
+          - "macos-latest"
+          - "windows-latest"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -73,10 +75,10 @@ jobs:
           CACHE_NUMBER: 2
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ matrix.os }}-conda-3.8
+            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.7
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -96,13 +98,13 @@ jobs:
             ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-yarn
 
-      - name: Setup Python 3.8
-        uses: goanpeca/setup-miniconda@v1
+      - name: Setup Python 3.7
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_gator
           miniconda-version: "latest"
           channels: conda-forge
-          python-version: "3.8"
+          python-version: "3.7"
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -176,7 +178,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_gator
           auto-update-conda: true
