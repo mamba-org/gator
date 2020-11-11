@@ -18,7 +18,7 @@ module.exports = [
         'static'
       ),
       filename: 'navigator.bundle.js',
-      publicPath: './static/'
+      publicPath: './static/gator/'
     },
     bail: true,
     devtool: 'source-map',
