@@ -1,8 +1,8 @@
 swagger: "2.0"
 info:
-  description: "This is the REST API introduce by the Jupyter server extension `jupyter_conda`; see [GitHub repository](https://github.com/mamba-org/jupyter_conda) for more information."
+  description: "This is the REST API introduce by the Jupyter server extension `mamba_gator`; see [GitHub repository](https://github.com/mamba-org/mamba_gator) for more information."
   version: "3.3.0"
-  title: "jupyter_conda API"
+  title: "mamba_gator API"
   license:
     name: "BSD-3-Clause"
     url: "https://opensource.org/licenses/BSD-3-Clause"
@@ -254,5 +254,5 @@ definitions:
   Package:
     type: "object"
 externalDocs:
-  description: "Find out more about jupyter_conda"
-  url: "https://github.com/mamba-org/jupyter_conda"
+  description: "Find out more about mamba_gator"
+  url: "https://github.com/mamba-org/mamba_gator"

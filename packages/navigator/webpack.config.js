@@ -25,7 +25,7 @@ module.exports = [
         __dirname,
         '..',
         '..',
-        'jupyter_conda',
+        'mamba_gator',
         'navigator',
         'static'
       ),

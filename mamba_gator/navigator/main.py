@@ -9,8 +9,8 @@ from notebook.utils import url_path_join as ujoin
 from traitlets import Unicode
 from tornado import web
 
-from jupyter_conda.handlers import load_jupyter_server_extension
-from jupyter_conda._version import __version__
+from mamba_gator.handlers import load_jupyter_server_extension
+from mamba_gator._version import __version__
 
 HERE = os.path.dirname(__file__)
 

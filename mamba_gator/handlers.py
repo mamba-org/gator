@@ -25,14 +25,14 @@ from .server import APIHandler, url_path_join
 
 NS = r"conda"
 # Filename for the available conda packages list cache in temp folder
-AVAILABLE_CACHE = "jupyter_conda_packages"
+AVAILABLE_CACHE = "mamba_gator_packages"
 
 
 class ActionsStack:
     """Process long asynchronous task.
 
     The task result can only be queried once.
-    
+
     Note: The task start immediately => may bring trouble if the user is not careful,
     this assumes 'conda' handle lockers when appropriate.
     """
@@ -44,7 +44,7 @@ class ActionsStack:
 
     def cancel(self, idx: int) -> NoReturn:
         """Cancel the task `idx`.
-        
+
         Args:
             idx (int): Task index
         """
@@ -56,10 +56,10 @@ class ActionsStack:
 
     def get(self, idx: int) -> Any:
         """Get the task `idx` results or None.
-        
+
         Args:
             idx (int): Task index
-        
+
         Returns:
             Any: None if the task is pending else its result
 
@@ -78,7 +78,7 @@ class ActionsStack:
 
     def put(self, task: Callable, *args) -> int:
         """Add a asynchronous task into the queue.
-        
+
         Args:
             task (Callable): Asynchronous task
             *args : arguments of the task
@@ -178,7 +178,7 @@ class EnvironmentsHandler(EnvBaseHandler):
         """`POST /environments` creates an environment.
 
         Method of creation depends on the request data (first find is used):
-        
+
         * packages: Create from a list of packages
         * twin: Clone the environment given by its name
         * file: Import from the given file content
@@ -226,7 +226,7 @@ class EnvironmentHandler(EnvBaseHandler):
     @tornado.web.authenticated
     async def get(self, env: str):
         """`GET /environments/<env>` List or export the environment packages.
-        
+
         Query arguments:
             status: "installed" (default) or "has_update"
             download: 0 (default) or 1
@@ -286,7 +286,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
     @tornado.web.authenticated
     def delete(self, env: str):
         """`DELETE /environments/<env>/packages` delete some packages.
-        
+
         Request json body:
         {
             packages (List[str]): list of packages to delete
@@ -300,7 +300,7 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
     @tornado.web.authenticated
     def patch(self, env: str):
         """`PATCH /environments/<env>/packages` update some packages.
-        
+
         If no packages are provided, update all possible packages.
 
         Request json body:
@@ -316,13 +316,13 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
     @tornado.web.authenticated
     def post(self, env: str):
         """`POST /environments/<env>/packages` install some packages.
-        
+
         Packages can be installed in development mode. In that case,
         the fullpath to the package directory should be provided.
 
         Query arguments:
             develop: 0 (default) or 1
-        
+
         Request json body:
         {
             packages (List[str]): list of packages to install
@@ -347,7 +347,7 @@ class PackagesHandler(EnvBaseHandler):
     @tornado.web.authenticated
     async def get(self):
         """`GET /packages` Search for packages.
-        
+
         Query arguments:
             query (str): optional string query
         """
@@ -423,12 +423,12 @@ class TaskHandler(EnvBaseHandler):
         * 200: Task result is returned
         * 202: Task is pending
         * 500: Task ends with errors
-        
+
         Args:
             index (int): Task index
 
         Raises:
-            404 if task `index` does not exist            
+            404 if task `index` does not exist
         """
         try:
             r = self._stack.get(int(index))
@@ -457,7 +457,7 @@ class TaskHandler(EnvBaseHandler):
             index (int): Task index
 
         Raises:
-            404 if task `index` does not exist       
+            404 if task `index` does not exist
         """
         try:
             self._stack.cancel(int(index))

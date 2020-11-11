@@ -32,7 +32,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: goanpeca/setup-miniconda@v1
         with:
-          activate-environment: test_jupyter_conda
+          activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
           python-version: ${{ matrix.python-version }}
@@ -41,8 +41,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_jupyter_conda
-          conda install -n test_jupyter_conda --file requirements_dev.txt
+          conda activate test_gator
+          conda install -n test_gator --file requirements_dev.txt
           yarn install
           npm install -g casperjs
           pip install .
@@ -50,8 +50,8 @@ jobs:
 
       - name: Test the extension
         run: |
-          conda activate test_jupyter_conda
-          python -m pytest jupyter_conda
+          conda activate test_gator
+          python -m pytest mamba_gator
         shell: bash -l {0}
 
   test-conda-os:
@@ -99,7 +99,7 @@ jobs:
       - name: Setup Python 3.8
         uses: goanpeca/setup-miniconda@v1
         with:
-          activate-environment: test_jupyter_conda
+          activate-environment: test_gator
           miniconda-version: "latest"
           channels: conda-forge
           python-version: "3.8"
@@ -108,9 +108,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_jupyter_conda
-          conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab=2
+          conda activate test_gator
+          conda install -n test_gator --file requirements_dev.txt
+          conda install -n test_gator coveralls jupyterlab=2
           yarn install
           npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
           pip install .
@@ -123,9 +123,9 @@ jobs:
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
-          conda activate test_jupyter_conda
-          flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda
+          conda activate test_gator
+          flake8 setup.py mamba_gator
+          coverage run -m pytest mamba_gator
           coverage report
           yarn run eslint:check
           yarn run test
@@ -178,7 +178,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: goanpeca/setup-miniconda@v1
         with:
-          activate-environment: test_jupyter_conda
+          activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
           mamba-version: "*"
@@ -188,9 +188,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_jupyter_conda
-          mamba install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab=2
+          conda activate test_gator
+          mamba install -n test_gator --file requirements_dev.txt
+          conda install -n test_gator coveralls jupyterlab=2
           yarn install
           npm install -g casperjs
           pip install .
@@ -199,15 +199,15 @@ jobs:
 
       - name: Test the extension
         run: |
-          conda activate test_jupyter_conda
-          flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda
+          conda activate test_gator
+          flake8 setup.py mamba_gator
+          coverage run -m pytest mamba_gator
           coverage report
           yarn run eslint:check
           yarn run test
 
           jupyter serverextension list 1>serverextensions 2>&1
-          cat serverextensions | grep "jupyter_conda.*OK"
+          cat serverextensions | grep "mamba_gator.*OK"
           jupyter labextension list 1>labextensions 2>&1
           cat labextensions | grep "jupyterlab_conda.*OK"
           python -m jupyterlab.browser_check
@@ -223,7 +223,7 @@ jobs:
           COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
           COVERALLS_PARALLEL: true
         run: |
-          conda activate test_jupyter_conda
+          conda activate test_gator
           gem install coveralls-lcov
           cd packages/common/
           coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json

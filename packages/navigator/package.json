@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc && webpack --mode=production",
     "build:dev": "tsc && webpack -d",
-    "clean": "rimraf lib tsconfig.tsbuildinfo ../../jupyter_conda/navigator/static/*.*",
+    "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.*",
     "prepublishOnly": "yarn run build",
     "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}'",
     "prettier:check": "prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",

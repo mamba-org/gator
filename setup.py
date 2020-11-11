@@ -4,11 +4,11 @@ import os
 # should be loaded below
 __version__ = None
 
-with open(os.path.join("jupyter_conda", "_version.py")) as version:
+with open(os.path.join("mamba_gator", "_version.py")) as version:
     exec(version.read())
 
-static_folder = "jupyter_conda/nbextension"
-lab_folder = "jupyter_conda/labextension"
+static_folder = "mamba_gator/nbextension"
+lab_folder = "mamba_gator/labextension"
 
 if not os.path.exists(lab_folder):
     os.mkdir(lab_folder)
@@ -18,9 +18,9 @@ with open("README.md") as rd:
     long_description = rd.read()
 
 setuptools.setup(
-    name="jupyter_conda",
+    name="mamba_gator",
     version=__version__,
-    url="https://github.com/mamba-org/jupyter_conda",
+    url="https://github.com/mamba-org/mamba_gator",
     author="Continuum Analytics, Jupyter Development Team",
     description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
     long_description=long_description,
@@ -30,7 +30,7 @@ setuptools.setup(
     data_files=[
         # like `jupyter nbextension install --sys-prefix`
         (
-            "share/jupyter/nbextensions/jupyter_conda",
+            "share/jupyter/nbextensions/mamba_gator",
             [
                 os.path.join(static_folder, a_file)
                 for a_file in os.listdir(static_folder)
@@ -40,11 +40,11 @@ setuptools.setup(
         # like `jupyter nbextension enable --sys-prefix`
         (
             "etc/jupyter/nbconfig/notebook.d",
-            ["jupyter-config/nbconfig/notebook.d/jupyter_conda.json"],
+            ["jupyter-config/nbconfig/notebook.d/mamba_gator.json"],
         ),
         (
             "etc/jupyter/nbconfig/tree.d",
-            ["jupyter-config/nbconfig/tree.d/jupyter_conda.json"],
+            ["jupyter-config/nbconfig/tree.d/mamba_gator.json"],
         ),
         (
             "share/jupyter/lab/extensions",
@@ -57,7 +57,7 @@ setuptools.setup(
         # like `jupyter serverextension enable --sys-prefix`
         (
             "etc/jupyter/jupyter_notebook_config.d",
-            ["jupyter-config/jupyter_notebook_config.d/jupyter_conda.json"],
+            ["jupyter-config/jupyter_notebook_config.d/mamba_gator.json"],
         ),
     ],
     zip_safe=False,
@@ -78,5 +78,5 @@ setuptools.setup(
             "requests",
         ]
     },
-    entry_points={"console_scripts": ["navigator = jupyter_conda.navigator.main:main"]},
+    entry_points={"console_scripts": ["gator = mamba_gator.navigator.main:main"]},
 )

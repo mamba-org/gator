@@ -52,7 +52,7 @@ const plugin: JupyterFrontEndPlugin<IMainMenu> = {
           </span>
         );
 
-        const mambaNavigatorUrl = 'https://github.com/mamba-org/jupyter_conda';
+        const mambaNavigatorUrl = 'https://github.com/mamba-org/gator';
         const externalLinks = (
           <span>
             <a

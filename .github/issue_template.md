@@ -9,7 +9,7 @@ Welcome! Before creating a new issue:
 * Check that you have updated both the jupyterlab extension and the python package:
 
   ```
-  conda update -c conda-forge jupyter_conda
+  conda update -c conda-forge mamba_gator
   jupyter labextension update jupyterlab_conda
   ```
 -->
@@ -36,7 +36,7 @@ Welcome! Before creating a new issue:
 <!--Complete the following for context, and add any other relevant context-->
 
 - Python package version:
-  <!-- Results of `conda list jupyter_conda` -->
+  <!-- Results of `conda list mamba_gator` -->
 - Extension version:
   <!-- Results of `jupyter labextension list` -->
 - General information:

@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from jupyter_conda.envmanager import RUNNER_COMMAND, get_env_path
+from mamba_gator.envmanager import RUNNER_COMMAND, get_env_path
 
 
 @pytest.mark.parametrize(
