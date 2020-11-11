@@ -223,7 +223,7 @@ jobs:
           COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
           COVERALLS_PARALLEL: true
         run: |
-          conda activate test_jupyter_conda
+          conda activate test_gator
           gem install coveralls-lcov
           cd packages/common/
           coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
