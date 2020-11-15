@@ -7,7 +7,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 
 module.exports = [
   {
-    entry: ['whatwg-fetch', './lib/index.js'],
+    entry: { gator: './lib/gator.js', notebook: './lib/notebook.js' },
     output: {
       path: path.resolve(
         __dirname,
@@ -17,12 +17,10 @@ module.exports = [
         'navigator',
         'static'
       ),
-      filename: 'navigator.bundle.js',
-      publicPath: './static/gator/'
+      filename: '[name].bundle.js'
     },
     bail: true,
     devtool: 'source-map',
-    mode: 'development',
     module: {
       rules: [
         { test: /\.css$/, use: ['style-loader', 'css-loader'] },
@@ -62,6 +60,11 @@ module.exports = [
           }
         }
       ]
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all'
+      }
     },
     plugins: [
       new webpack.DefinePlugin({

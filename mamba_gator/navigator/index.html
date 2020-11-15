@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gator</title>
+  <link id="favicon" rel="icon" type="image/svg+xml" href="./static/favicon.svg">
+</head>
+<body>
+  <script id="jupyter-config-data" type="application/json">
+    {
+      "baseUrl": "/",
+      "terminalsAvailable": false
+    }
+  </script>
+  <script src="./static/vendors~gator~notebook.bundle.js" main="index"></script>
+  <script src="./static/gator~notebook.bundle.js" main="index"></script>
+  <script src="./static/notebook.bundle.js" main="index"></script>
+
+  <script type="text/javascript">
+    /* Remove token from URL. */
+    (function () {
+      var parsedUrl = new URL(window.location.href);
+      if (parsedUrl.searchParams.get('token')) {
+        parsedUrl.searchParams.delete('token');
+        window.history.replaceState({ }, '', parsedUrl.href);
+      }
+    })();
+  </script>
+</body>
+</html>

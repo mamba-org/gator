@@ -26,6 +26,7 @@ class MambaNavigator(LabServerApp):
         schemas_dir=os.path.join(HERE, "schemas"),
         static_dir=os.path.join(HERE, "static"),
         templates_dir=os.path.join(HERE, "templates"),
+        terminals=False,
         themes_dir=os.path.join(HERE, "themes"),
         user_settings_dir=os.path.join(HERE, "user_settings"),
         workspaces_dir=os.path.join(HERE, "workspaces"),

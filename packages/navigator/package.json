@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc && webpack --mode=production",
     "build:dev": "tsc && webpack -d",
-    "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.*",
+    "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.* ../../mamba_gator/nbextension/static/*.*",
     "prepublishOnly": "yarn run build",
     "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}'",
     "prettier:check": "prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
@@ -40,7 +40,8 @@
     "es6-promise": "~4.2.8",
     "jupyterlab_toastify": "^4.1.2",
     "react": "~16.9.0",
-    "react-dom": "~16.9.0"
+    "react-dom": "~16.9.0",
+    "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.25.0",
@@ -69,8 +70,7 @@
     "watch": "~1.0.2",
     "webpack": "^4.0.0",
     "webpack-bundle-analyzer": "^3.9.0",
-    "webpack-cli": "^3.3.10",
-    "whatwg-fetch": "^3.0.0"
+    "webpack-cli": "^3.3.10"
   },
   "husky": {
     "hooks": {
