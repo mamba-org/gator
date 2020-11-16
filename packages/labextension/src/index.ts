@@ -41,6 +41,7 @@ async function activateCondaEnv(
   let tour: any;
   const { commands, shell } = app;
   const pluginNamespace = 'conda-env';
+  const graphNamespace = 'graph-deps';
   const command = 'jupyter_conda:open-ui';
 
   const settings = await settingsRegistry?.load(CONDAENVID);
@@ -52,6 +53,9 @@ async function activateCondaEnv(
   // Track and restore the widget state
   const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
     namespace: pluginNamespace
+  });
+  const trackerGraph = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
+    namespace: graphNamespace
   });
   let content: CondaEnvWidget;
 
@@ -133,9 +137,9 @@ async function activateCondaEnv(
       command,
       name: () => pluginNamespace
     });
-    restorer.restore(tracker, {
+    restorer.restore(trackerGraph, {
       command: commandGraph,
-      name: () => pluginNamespace
+      name: () => graphNamespace
     });
   }
 

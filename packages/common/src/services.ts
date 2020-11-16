@@ -721,6 +721,34 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
+  async getDependencies(
+    pkg: string,
+    cancellable = true
+  ): Promise<Conda.IPackageDeps> {
+    this._cancelTasks();
+    const request: RequestInit = {
+      method: 'GET'
+    };
+
+    const { promise, cancel } = Private.requestServer(
+      URLExt.join('conda', 'packages') +
+      URLExt.objectToQueryString({ package: pkg }),
+      request
+    );
+
+    let idx: number;
+    if (cancellable) {
+      idx = this._cancellableStack.push(cancel) - 1;
+    }
+
+    const response = await promise;
+    if (idx) {
+      this._cancellableStack.splice(idx, 1);
+    }
+    const data = (await response.json()) as Conda.IPackageDeps;
+    return Promise.resolve(data);
+  }
+
   async refreshAvailablePackages(cancellable = true): Promise<void> {
     await this._getAvailablePackages(true, cancellable);
   }
