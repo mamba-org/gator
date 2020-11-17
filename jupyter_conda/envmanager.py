@@ -536,7 +536,6 @@ class EnvManager:
         resp = {}
         ans = await self._execute(self.manager, "repoquery", "depends", "--json", pkg)
         _, output = ans
-        print(output)
         query = self._clean_conda_json(output)
         
         if "error" not in query:

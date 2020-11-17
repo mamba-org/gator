@@ -38,6 +38,10 @@ export interface IPkgListProps {
    * Package item version selection handler
    */
   onPkgChange: (pkg: Conda.IPackage, version: string) => void;
+  /**
+   * Package item graph dependencies handler
+   */
+  onPkgGraph: (pkg: Conda.IPackage) => void;
 }
 
 /**
@@ -143,6 +147,23 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       return <span>{rowData.name}</span>;
     };
 
+    const versionRender = ({ rowData }: ICellRender): JSX.Element => (
+      <a
+        className={
+          rowData.updatable
+            ? classes(Style.Updatable, Style.Link)
+            : Style.Link
+        }
+        href="#"
+        onClick={(evt): void => {
+          this.props.onPkgGraph(rowData);
+        }}
+        rel="noopener noreferrer"
+      >
+        {rowData.version_installed}
+      </a>
+    );
+
     const changeRender = ({ rowData }: ICellRender): JSX.Element => (
       <div className={'lm-Widget'}>
         <HTMLSelect
@@ -235,17 +256,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 />
               )}
               <Column
-                cellRenderer={({ rowData }: ICellRender): JSX.Element => (
-                  <span
-                    className={
-                      rowData.updatable
-                        ? classes(Style.Updatable, Style.Cell)
-                        : Style.Cell
-                    }
-                  >
-                    {rowData.version_installed}
-                  </span>
-                )}
+                cellRenderer={versionRender}
                 dataKey="version_installed"
                 disableSort
                 label="Version"
