@@ -9,9 +9,9 @@
     "conda",
     "mamba"
   ],
-  "homepage": "https://github.com/mamba-org/jupyter_conda",
+  "homepage": "https://github.com/mamba-org/gator",
   "bugs": {
-    "url": "https://github.com/mamba-org/jupyter_conda/issues"
+    "url": "https://github.com/mamba-org/gator/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Jupyter Development Team",
@@ -25,13 +25,13 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mamba-org/jupyter_conda.git"
+    "url": "https://github.com/mamba-org/gator.git"
   },
   "scripts": {
     "build:dev": "tsc",
-    "build": "jlpm run clean && mkdirp ../../jupyter_conda/labextension && cd ../../jupyter_conda/labextension && npm pack ../../packages/labextension",
+    "build": "jlpm run clean && mkdirp ../../mamba_gator/labextension && cd ../../mamba_gator/labextension && npm pack ../../packages/labextension",
     "clean:dev": "rimraf lib tsconfig.tsbuildinfo",
-    "clean": "jlpm run clean:dev && rimraf ../../jupyter_conda/labextension",
+    "clean": "jlpm run clean:dev && rimraf ../../mamba_gator/labextension",
     "eslint": "eslint . --fix --ext .ts,.tsx",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "lab:link": "jupyter labextension link . --no-build",
@@ -89,7 +89,7 @@
     "discovery": {
       "server": {
         "base": {
-          "name": "jupyter_conda"
+          "name": "mamba_gator"
         },
         "managers": [
           "conda"

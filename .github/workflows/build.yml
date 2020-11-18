@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.9]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -37,7 +37,7 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 3
+          CACHE_NUMBER: 4
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -48,9 +48,9 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: test_jupyter_conda
+          activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
           python-version: ${{ matrix.python-version }}
@@ -59,61 +59,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_jupyter_conda
-          conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab=2
+          conda activate test_gator
+          conda install -n test_gator --file requirements_dev.txt
           yarn install
-          npm install -g casperjs
           pip install .
-          jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
 
       - name: Test the extension
         run: |
-          conda activate test_jupyter_conda
-          flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda
-          coverage report
-          yarn run eslint:check
-          yarn run test
-
-          jupyter serverextension list 1>serverextensions 2>&1
-          cat serverextensions | grep "jupyter_conda.*OK"
-          jupyter labextension list 1>labextensions 2>&1
-          cat labextensions | grep "jupyterlab_conda.*OK"
-          python -m jupyterlab.browser_check
+          conda activate test_gator
+          python -m pytest mamba_gator
         shell: bash -l {0}
-
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.6
-      - name: Upload coverage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
-          COVERALLS_PARALLEL: true
-        run: |
-          conda activate test_jupyter_conda
-          gem install coveralls-lcov
-          cd packages/common/
-          coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
-          cd ../../
-          python -m coveralls --merge=common-jscoverage.json
-        shell: bash -l {0}
-
-  coveralls:
-    name: Finish Coveralls
-    needs: test-conda-3x
-    runs-on: ubuntu-latest
-    container: python:3-slim
-    steps:
-      - name: Finished
-        run: |
-          pip3 install --upgrade coveralls
-          coveralls --finish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   test-conda-os:
     name: Test Conda Python 3.7 on ${{ matrix.os }}
@@ -122,7 +78,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["macos-latest", "windows-latest"]
+        os: 
+          - "macos-latest"
+          - "windows-latest"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -147,7 +105,7 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 2
+          CACHE_NUMBER: 4
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -158,9 +116,9 @@ jobs:
             ${{ runner.os }}-yarn
 
       - name: Setup Python 3.7
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: test_jupyter_conda
+          activate-environment: test_gator
           miniconda-version: "latest"
           channels: conda-forge
           python-version: "3.7"
@@ -169,11 +127,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_jupyter_conda
-          conda install -n test_jupyter_conda --file requirements_dev.txt
-          conda install -n test_jupyter_conda coveralls jupyterlab=2
+          conda activate test_gator
+          conda install -n test_gator --file requirements_dev.txt
+          conda install -n test_gator jupyterlab=2
           yarn install
-          npm install -g casperjs@^1.1.1 phantomjs-prebuilt@^2.1.7
           pip install .
 
           yarn install
@@ -184,11 +141,8 @@ jobs:
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
-          conda activate test_jupyter_conda
-          flake8 setup.py jupyter_conda
-          coverage run -m pytest jupyter_conda
-          coverage report
-          yarn run eslint:check
+          conda activate test_gator
+          python -m pytest mamba_gator
           yarn run test
 
           jupyter serverextension list
@@ -201,7 +155,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -218,10 +172,28 @@ jobs:
             ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
             ${{ runner.os }}-mamba-${{ matrix.python-version }}
 
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: goanpeca/setup-miniconda@v1
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Setup yarn cache
+        uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        env:
+          # Increase this value to reset cache
+          CACHE_NUMBER: 4
         with:
-          activate-environment: test_jupyter_conda
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
+            ${{ runner.os }}-yarn-
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
           mamba-version: "*"
@@ -231,15 +203,57 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_jupyter_conda
-          mamba install -n test_jupyter_conda --file requirements_dev.txt
+          conda activate test_gator
+          mamba install -n test_gator --file requirements_dev.txt
+          conda install -n test_gator coveralls jupyterlab=2
           yarn install
-          npm install -g casperjs
           pip install .
+          jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
 
       - name: Test the extension
         run: |
-          conda activate test_jupyter_conda
-          python -m pytest jupyter_conda
+          conda activate test_gator
+          flake8 setup.py mamba_gator
+          coverage run -m pytest mamba_gator
+          coverage report
+          yarn run eslint:check
+          yarn run test
+
+          jupyter serverextension list 1>serverextensions 2>&1
+          cat serverextensions | grep "mamba_gator.*OK"
+          jupyter labextension list 1>labextensions 2>&1
+          cat labextensions | grep "jupyterlab_conda.*OK"
+          python -m jupyterlab.browser_check
         shell: bash -l {0}
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - name: Upload coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
+          COVERALLS_PARALLEL: true
+        run: |
+          conda activate test_gator
+          gem install coveralls-lcov
+          cd packages/common/
+          coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
+          cd ../../
+          python -m coveralls --merge=common-jscoverage.json
+        shell: bash -l {0}
+
+  coveralls:
+    name: Finish Coveralls
+    needs: test-mamba-3x
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+      - name: Finished
+        run: |
+          pip3 install --upgrade coveralls
+          coveralls --finish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

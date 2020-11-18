@@ -1,14 +1,14 @@
 {
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mamba-org/jupyter_conda.git"
+    "url": "git+https://github.com/mamba-org/gator.git"
   },
   "author": "Jupyter Development Team",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/mamba-org/jupyter_conda/issues"
+    "url": "https://github.com/mamba-org/gator/issues"
   },
-  "homepage": "https://github.com/mamba-org/jupyter_conda",
+  "homepage": "https://github.com/mamba-org/gator",
   "scripts": {
     "build": "lerna run build",
     "build:dev": "lerna run build:dev",
@@ -17,16 +17,14 @@
     "eslint:check": "lerna run eslint:check",
     "install": "lerna bootstrap",
     "publish": "yarn run clean && yarn run build && lerna publish -m \"Publish npm packages\"",
-    "test": "yarn run eslint:check && lerna run test && yarn run lint && coverage run -m pytest jupyter_conda && coverage report",
-    "lint": "flake8 setup.py jupyter_conda"
+    "test": "yarn run eslint:check && lerna run test && yarn run lint && coverage run -m pytest mamba_gator && coverage report",
+    "lint": "flake8 setup.py mamba_gator"
   },
   "devDependencies": {
-    "casperjs": "^1.1.1",
     "eslint": "^6.8.0",
     "lerna": "^3.22.1",
-    "phantomjs-prebuilt": "^2.1.7",
     "watch": "^0.17.1"
-  },  
+  },
   "workspaces": {
     "packages": [
       "packages/*"

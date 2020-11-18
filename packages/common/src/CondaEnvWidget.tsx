@@ -1,43 +1,62 @@
-import { ReactWidget } from '@jupyterlab/apputils';
+import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
+import { Signal } from '@lumino/signaling';
 import { Widget } from '@lumino/widgets';
 import * as React from 'react';
 import { NbConda } from './components/NbConda';
 import { IEnvironmentManager } from './tokens';
 
 /**
- * Widget encapsulating the Conda Environments & Packages Manager
+ * Widget size interface
  */
-export class CondaEnvWidget extends ReactWidget {
+interface ISize {
   /**
-   * Widget height
+   * Widget heigth
    */
-  private height: number;
+  height: number;
   /**
    * Widget width
    */
-  private width: number;
-  /**
-   * Conda environment Manager
-   */
-  private envModel: IEnvironmentManager;
+  width: number;
+}
 
-  constructor(height: number, width: number, envModel: IEnvironmentManager) {
+/**
+ * Widget encapsulating the Conda Environments & Packages Manager
+ */
+export class CondaEnvWidget extends ReactWidget {
+  constructor(envModel: IEnvironmentManager) {
     super();
-
-    this.height = height;
-    this.width = width;
-    this.envModel = envModel;
+    this._envModel = envModel;
   }
 
   protected onResize(msg: Widget.ResizeMessage): void {
-    this.height = msg.height;
-    this.width = msg.width;
+    const { height, width } = msg;
+    this._resizeSignal.emit({ height, width });
     super.onResize(msg);
   }
 
   render(): JSX.Element {
     return (
-      <NbConda height={this.height} width={this.width} model={this.envModel} />
+      <UseSignal
+        signal={this._resizeSignal}
+        initialArgs={{ height: 0, width: 0 }}
+      >
+        {(_, size): JSX.Element => (
+          <NbConda
+            height={size.height}
+            width={size.width}
+            model={this._envModel}
+          />
+        )}
+      </UseSignal>
     );
   }
+
+  /**
+   * Conda environment Manager
+   */
+  private _envModel: IEnvironmentManager;
+  /**
+   * Signal triggering a React rendering if widget is resized
+   */
+  private _resizeSignal = new Signal<CondaEnvWidget, ISize>(this);
 }

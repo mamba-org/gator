@@ -3,7 +3,6 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { DOMUtils, MainAreaWidget } from '@jupyterlab/apputils';
-import { Widget } from '@lumino/widgets';
 import {
   CondaEnvironments,
   CondaEnvWidget,
@@ -11,8 +10,6 @@ import {
   CONDA_WIDGET_CLASS
 } from '@mamba-org/common';
 import { INotification } from 'jupyterlab_toastify';
-import { mambaIcon } from '../../icons';
-import { IMainMenu } from '../top/tokens';
 
 /**
  * The command ids used by the main navigator plugin.
@@ -27,44 +24,21 @@ export namespace CommandIDs {
 const plugin: JupyterFrontEndPlugin<void> = {
   id: '@mamba-org/navigator:main',
   autoStart: true,
-  optional: [IMainMenu],
-  activate: (app: JupyterFrontEnd, menu: IMainMenu | null): void => {
-    const { commands } = app;
-
+  activate: (app: JupyterFrontEnd): void => {
     const model = new CondaEnvironments();
 
     // Request listing available package as quickly as possible
     Private.loadPackages(model);
 
-    const content = new CondaEnvWidget(-1, -1, model);
+    const content = new CondaEnvWidget(model);
     content.addClass(CONDA_WIDGET_CLASS);
     content.id = DOMUtils.createDomID();
     content.title.label = 'Packages';
     content.title.caption = 'Conda Packages Manager';
     content.title.icon = condaIcon;
     const widget = new MainAreaWidget({ content });
+    widget.title.closable = false;
     app.shell.add(widget, 'main');
-
-    commands.addCommand(CommandIDs.open, {
-      label: 'Open',
-      execute: () => {
-        const widget = new Widget();
-        mambaIcon.element({
-          container: widget.node,
-          elementPosition: 'center',
-          margin: '5px 5px 5px 5px',
-          height: 'auto',
-          width: 'auto'
-        });
-        widget.id = DOMUtils.createDomID();
-        widget.title.label = 'Mamba Logo';
-        app.shell.add(widget, 'main');
-      }
-    });
-
-    if (menu) {
-      menu.fileMenu.addGroup([{ command: CommandIDs.open }]);
-    }
   }
 };
 

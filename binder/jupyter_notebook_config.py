@@ -5,7 +5,7 @@ c.ServerProxy.servers = {
         "command": [
             sys.executable,
             "-m",
-            "jupyter_conda",
+            "mamba_gator",
             "--no-browser",
             '--port={port}',
             "--ip=0.0.0.0",

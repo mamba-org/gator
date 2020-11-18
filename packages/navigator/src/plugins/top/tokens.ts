@@ -1,5 +1,3 @@
-import { IJupyterLabMenu } from '@jupyterlab/mainmenu';
-
 import { Token } from '@lumino/coreutils';
 
 import { Menu } from '@lumino/widgets';
@@ -19,9 +17,4 @@ export interface IMainMenu {
    * Add a new menu to the main menu bar.
    */
   addMenu(menu: Menu): void;
-
-  /**
-   * The application "File" menu.
-   */
-  readonly fileMenu: IJupyterLabMenu;
 }

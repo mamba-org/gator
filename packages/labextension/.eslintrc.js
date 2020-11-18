@@ -1,3 +1,9 @@
-const eslintBase = require('../../eslint-base')
+const eslintBase = require('../../eslint-base');
 
-module.exports = eslintBase
+module.exports = {
+  ...eslintBase,
+  parserOptions: {
+    project: 'tsconfig.json',
+    sourceType: 'module'
+  }
+};

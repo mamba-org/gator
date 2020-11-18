@@ -4,8 +4,6 @@ import { CommandRegistry } from '@lumino/commands';
 
 import { MenuBar } from '@lumino/widgets';
 
-import { FileMenu } from './file';
-
 import { HelpMenu } from './help';
 
 import { IMainMenu } from './tokens';
@@ -22,18 +20,9 @@ export class MainMenu extends MenuBar implements IMainMenu {
   constructor(options: MainMenu.IOptions) {
     super();
     const { commands } = options;
-    this._fileMenu = new FileMenu({ commands });
     this._helpMenu = new HelpMenu({ commands });
 
-    this.addMenu(this._fileMenu.menu);
     this.addMenu(this._helpMenu.menu);
-  }
-
-  /**
-   * Get the file menu.
-   */
-  get fileMenu(): IJupyterLabMenu {
-    return this._fileMenu;
   }
 
   /**
@@ -43,7 +32,6 @@ export class MainMenu extends MenuBar implements IMainMenu {
     return this._helpMenu;
   }
 
-  private _fileMenu: FileMenu;
   private _helpMenu: HelpMenu;
 }
 

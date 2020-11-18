@@ -395,7 +395,10 @@ export class CondaEnvironments implements IEnvironmentManager {
   >(this);
   private _environments: Array<Conda.IEnvironment>;
   private _environmentsTimer = -1;
-  private _environmentTypes: IType = {};
+  private _environmentTypes: IType = {
+    python3: ['python=3', 'ipykernel'],
+    r: ['r-base', 'r-essentials']
+  };
   private _fromHistory = false;
   private _packageManager = new CondaPackage();
   private _whitelist = false;

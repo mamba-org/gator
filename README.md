@@ -6,8 +6,8 @@ The Mamba Navigator, a Web UI for managing conda environments
 [![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
 [![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
 [![Github Actions Status](https://github.com/mamba-org/gator/workflows/Test/badge.svg)](https://github.com/mamba-org/gator/actions?query=workflow%3ATest)
-[![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/jupyter_conda?branch=master)
-[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fgator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/jupyter_conda/rest_api.yml)
+[![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/gator?branch=master)
+[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fmamba_gator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/mamba_gator/rest_api.yml)
 
 Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
 
@@ -24,13 +24,13 @@ _Requirements_
 To install in the classical notebook:
 
 ```shell
-conda install -c conda-forge jupyter_conda
+conda install -c conda-forge mamba_gator
 ```
 
 To install in the JupyterLab:
 
 ```shell
-conda install -c conda-forge jupyterlab jupyter_conda
+conda install -c conda-forge jupyterlab mamba_gator
 jupyter labextension install jupyterlab_conda
 ```
 
@@ -48,49 +48,24 @@ This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
 
 ## Navigator
 
-This project contains an experimental standalone navigator application based
-on the JupyterLab extension.
+This project contains a standalone navigator application sharing much of the code
+of the JupyterLab extension.
 
 ### Try it online
 
-Open Mamba Navigator:
+Open Mamba Navigator: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
-
-Open JupyterLab:
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
+Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
 
 ![lab-launcher](packages/navigator/navigator_as_service.png)
 
 ## Classical Jupyter Notebook
 
-> This part of the code should be considered as legacy. No new development will be
-> done.
+This extension adds a _Conda_ tab to the Jupyter file browser and a _Conda Packages_ item
+to the _Kernel_ menu.  
+Clicking on either of those elements will open the standalone navigator in a new tab.
 
-### Conda tab in the Jupyter file browser
-
-This extension adds a Conda tab to the Jupyter file browser. Selecting the Conda tab
-will display:
-
-- A list of the Conda environments that current exist
-- The list of Conda packages available in currently configured channels
-  (http://conda.pydata.org/docs/config.html#channel-locations-channels)
-- The list of packages installed in the selected environment.
-
-You can click on the name of an environment to select it. That will allow you to:
-
-- see the packages installed in the environment
-- install new packages from the available package list
-- check for updates on selected (or all) packages
-- update selected (or all) packages in the environment.
-
-### Conda in the Notebook view
-
-This extension adds a Conda Packages item to the Kernel menu. Selecting this item displays
-the list of Conda packages in the environment associated with the running kernel, and the
-list of available packages. You can perform the same actions as in the Conda tab, but only
-against the current environment.
+![Classical Notebook integration](packages/navigator/classical_nb_integration.gif)
 
 ## Creating New Environments
 
@@ -112,12 +87,12 @@ There are three ways to create an environment:
 
 ```shell
 conda create -c conda-forge -y -n gator python jupyterlab=2
-conda install -c conda-forge -y -n gator --file requirements_dev.txt 
-source activate gator
+conda install -c conda-forge -y -n gator --file requirements_dev.txt
+conda activate gator
 pip install -e .
-jupyter nbextension install jupyter_conda --py --sys-prefix --symlink
-jupyter nbextension enable jupyter_conda --py --sys-prefix
-jupyter serverextension enable jupyter_conda --py --sys-prefix
+jupyter nbextension install mamba_gator --py --sys-prefix --symlink
+jupyter nbextension enable mamba_gator --py --sys-prefix
+jupyter serverextension enable mamba_gator --py --sys-prefix
 
 yarn install
 yarn run build:dev
@@ -138,7 +113,8 @@ sense to move the project in the `mamba-org` organization.
 
 - Features
   - Moving to mamba-org
-    - Integrate a standalone application
+  - Integrate a standalone application
+  - Common frontend for JupyterLab, classical Notebook and Gator
   - Depend optionally on `nb_conda_kernels`
 
 ### 3.4.1

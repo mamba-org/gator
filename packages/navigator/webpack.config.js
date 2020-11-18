@@ -1,40 +1,26 @@
 // Copyright (c) Jupyter Development Team.
 // Distributed under the terms of the Modified BSD License.
 const path = require('path');
-// const data = require('./package.json');
 const webpack = require('webpack');
-// const Build = require('@jupyterlab/buildutils').Build;
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
 
-// const names = Object.keys(data.dependencies).filter(function(name) {
-//   const packageData = require(name + '/package.json');
-//   return packageData.jupyterlab !== undefined;
-// });
-
-// const extras = Build.ensureAssets({
-//   packageNames: names,
-//   output: './build'
-// });
-
 module.exports = [
   {
-    entry: ['whatwg-fetch', './lib/index.js'],
+    entry: { gator: './lib/gator.js', notebook: './lib/notebook.js' },
     output: {
       path: path.resolve(
         __dirname,
         '..',
         '..',
-        'jupyter_conda',
+        'mamba_gator',
         'navigator',
         'static'
       ),
-      filename: 'navigator.bundle.js',
-      publicPath: './static/'
+      filename: '[name].bundle.js'
     },
     bail: true,
     devtool: 'source-map',
-    mode: 'development',
     module: {
       rules: [
         { test: /\.css$/, use: ['style-loader', 'css-loader'] },
@@ -74,6 +60,11 @@ module.exports = [
           }
         }
       ]
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all'
+      }
     },
     plugins: [
       new webpack.DefinePlugin({
