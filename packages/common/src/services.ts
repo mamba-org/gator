@@ -55,6 +55,20 @@ namespace RESTAPI {
 }
 
 /**
+ * Cancellable actions
+ */
+export interface ICancellableAction {
+  /**
+   * Type of cancellable action
+   */
+  type: string;
+  /**
+   * Cancellable function
+   */
+  cancel:() => void
+}
+
+/**
  * Conda Environment Manager
  */
 export class CondaEnvironments implements IEnvironmentManager {
@@ -435,7 +449,7 @@ export class CondaPackage implements Conda.IPackageManager {
       return Promise.resolve([]);
     }
 
-    this._cancelTasks();
+    this._cancelTasks('default');
 
     try {
       const request: RequestInit = {
@@ -447,7 +461,7 @@ export class CondaPackage implements Conda.IPackageManager {
         URLExt.join('conda', 'environments', theEnvironment),
         request
       );
-      const idx = this._cancellableStack.push(cancel) - 1;
+      const idx = this._cancellableStack.push({type: 'default', cancel}) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
@@ -630,7 +644,7 @@ export class CondaPackage implements Conda.IPackageManager {
       return Promise.resolve([]);
     }
 
-    this._cancelTasks();
+    this._cancelTasks('default');
 
     try {
       const request: RequestInit = {
@@ -641,7 +655,7 @@ export class CondaPackage implements Conda.IPackageManager {
           URLExt.objectToQueryString({ status: 'has_update' }),
         request
       );
-      const idx = this._cancellableStack.push(cancel) - 1;
+      const idx = this._cancellableStack.push({type: 'default', cancel}) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
@@ -728,7 +742,7 @@ export class CondaPackage implements Conda.IPackageManager {
     pkg: string,
     cancellable = true
   ): Promise<Conda.IPackageDeps> {
-    this._cancelTasks();
+    this._cancelTasks('getDependencies');
 
     const request: RequestInit = {
       method: 'GET'
@@ -742,7 +756,7 @@ export class CondaPackage implements Conda.IPackageManager {
 
     let idx: number;
     if (cancellable) {
-      idx = this._cancellableStack.push(cancel) - 1;
+      idx = this._cancellableStack.push({type: 'getDependencies', cancel}) - 1;
     }
 
     const response = await promise;
@@ -776,7 +790,7 @@ export class CondaPackage implements Conda.IPackageManager {
     force = false,
     cancellable = true
   ): Promise<Array<Conda.IPackage>> {
-    this._cancelTasks();
+    this._cancelTasks('default');
 
     if (CondaPackage._availablePackages === null || force) {
       const request: RequestInit = {
@@ -789,7 +803,7 @@ export class CondaPackage implements Conda.IPackageManager {
       );
       let idx: number;
       if (cancellable) {
-        idx = this._cancellableStack.push(cancel) - 1;
+        idx = this._cancellableStack.push({type: 'default', cancel}) - 1;
       }
       const response = await promise;
       if (idx) {
@@ -808,14 +822,14 @@ export class CondaPackage implements Conda.IPackageManager {
   /**
    * Cancel optional tasks
    */
-  private _cancelTasks(): void {
+  private _cancelTasks(type: string): void {
     if (this._cancellableStack.length > 0) {
       const tasks = this._cancellableStack.splice(
         0,
         this._cancellableStack.length
       );
-      tasks.forEach(task => {
-        task();
+      tasks.forEach( action => {
+        if (action.type === type ) action.cancel();
       });
     }
   }
@@ -824,7 +838,7 @@ export class CondaPackage implements Conda.IPackageManager {
     CondaPackage,
     Conda.IPackageChange
   > = new Signal<this, Conda.IPackageChange>(this);
-  private _cancellableStack: Array<() => void> = [];
+  private _cancellableStack: Array<ICancellableAction> = [];
   private static _availablePackages: Array<Conda.IPackage> = null;
   private static _hasDescription = false;
 }

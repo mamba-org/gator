@@ -42,7 +42,7 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
       directed: true,
       collapsible: true,
       highlightDegree: 1,
-      highlightOpacity: 0.3,
+      highlightOpacity: 0.1,
       nodeHighlightBehavior: true,
       linkHighlightBehavior: true,
       node: {
@@ -64,10 +64,6 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
   }
 
   componentDidMount() {
-    this._updatePackages();
-  }
-
-  componentDidUpdate(prevProps: IPkgGraphProps): void {
     this._updatePackages();
   }
 

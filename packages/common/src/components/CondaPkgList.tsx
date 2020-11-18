@@ -161,22 +161,18 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return <span>{pkg.name}</span>;
   };
 
-  const versionRender = ({ rowData }: ICellRender): JSX.Element => (
+  protected versionRender = (pkg: Conda.IPackage): JSX.Element => (
     <a
-      className={
-        rowData.updatable
-          ? classes(Style.Updatable, Style.Link)
-          : Style.Link
-      }
+      className={pkg.updatable ? Style.Updatable : undefined}
       href="#"
       onClick={(evt): void => {
         evt.stopPropagation();
-        this.props.onPkgGraph(rowData);
+        this.props.onPkgGraph(pkg);
       }}
       rel="noopener noreferrer"
       title="Show dependency graph"
     >
-      {rowData.version_installed}
+      {pkg.version_installed}
     </a>
   );
 
@@ -217,9 +213,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           </div>
         )}
         <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
-          <span className={pkg.updatable ? Style.Updatable : undefined}>
-            {pkg.version_installed}
-          </span>
+          {this.versionRender(pkg)}
         </div>
         <div className={classes(Style.Cell, Style.ChangeSize)} role="gridcell">
           {this.changeRender(pkg)}
