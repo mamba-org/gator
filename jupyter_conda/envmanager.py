@@ -533,6 +533,9 @@ class EnvManager:
         Returns:
             {"package": List[dependencies]}
         """
+        if self.manager == "conda" :
+            return { pkg: None }
+
         resp = {}
         ans = await self._execute(self.manager, "repoquery", "depends", "--json", pkg)
         _, output = ans
@@ -544,6 +547,8 @@ class EnvManager:
                     deps = dep.get('depends', None)
                     if deps :
                         resp[dep['name']] = deps
+                    else :
+                        resp[dep['name']] = []
 
         return resp
 

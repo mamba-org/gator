@@ -10,7 +10,7 @@ import {
   PACKAGE_TOOLBAR_HEIGHT,
   PkgFilters
 } from './CondaPkgToolBar';
-import { PkgGraph } from './PkgGraph';
+import { PkgGraphWidget } from './PkgGraph';
 
 // Minimal panel width to show package description
 const PANEL_SMALL_WIDTH = 500;
@@ -243,7 +243,7 @@ export class CondaPkgPanel extends React.Component<
   handleDependenciesGraph = (pkg: Conda.IPackage): void => {
     showDialog({
       title: pkg.name,
-      body: new PkgGraph(this._model, pkg.name),
+      body: new PkgGraphWidget(this._model, pkg.name),
       buttons: [Dialog.okButton()],
     })
   }

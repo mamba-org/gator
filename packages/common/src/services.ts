@@ -726,13 +726,14 @@ export class CondaPackage implements Conda.IPackageManager {
     cancellable = true
   ): Promise<Conda.IPackageDeps> {
     this._cancelTasks();
+
     const request: RequestInit = {
       method: 'GET'
     };
 
     const { promise, cancel } = Private.requestServer(
       URLExt.join('conda', 'packages') +
-      URLExt.objectToQueryString({ package: pkg }),
+      URLExt.objectToQueryString({ dependencies: 1, package: pkg }),
       request
     );
 

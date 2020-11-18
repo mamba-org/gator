@@ -156,9 +156,11 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         }
         href="#"
         onClick={(evt): void => {
+          evt.stopPropagation();
           this.props.onPkgGraph(rowData);
         }}
         rel="noopener noreferrer"
+        title="Show dependency graph"
       >
         {rowData.version_installed}
       </a>

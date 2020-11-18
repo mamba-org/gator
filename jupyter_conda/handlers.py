@@ -349,14 +349,16 @@ class PackagesHandler(EnvBaseHandler):
         """`GET /packages` Search for packages.
         
         Query arguments:
+            dependencies: 0 (default) or 1
             package (str): optional package name to seach dependencies
             query (str): optional string query
         """
+        dependencies = self.get_query_argument("dependencies", 0)
         pkg = self.get_query_argument("package", "")
         query = self.get_query_argument("query", "")
         
         idx = None
-        if pkg :
+        if dependencies :
             idx = self._stack.put(self.env_manager.pkg_depends, pkg)
         
         elif query:  # Specific search
