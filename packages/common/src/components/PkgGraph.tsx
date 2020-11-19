@@ -1,8 +1,12 @@
-import {
-  ReactWidget
-} from '@jupyterlab/apputils';
+import { ReactWidget } from '@jupyterlab/apputils';
 
-import { Graph, GraphData, GraphNode, GraphLink, GraphConfiguration } from "react-d3-graph";
+import {
+  Graph,
+  GraphData,
+  GraphNode,
+  GraphLink,
+  GraphConfiguration
+} from 'react-d3-graph';
 
 import * as React from 'react';
 
@@ -23,7 +27,7 @@ export interface IPkgGraphProps {
   /**
    * Graph configuration
    */
-  config: GraphConfiguration<GraphNode, GraphLink> | Object;
+  config: GraphConfiguration<GraphNode, GraphLink> | Record<string, any>;
 }
 
 /**
@@ -48,11 +52,11 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
       node: {
         color: 'var(--jp-brand-color1)',
         highlightStrokeColor: 'var(--jp-brand-color2)',
-        fontColor: 'var(--jp-ui-font-color1)',
+        fontColor: 'var(--jp-ui-font-color1)'
       },
-      link: { 
-        highlightColor: 'var(--jp-brand-color2)',
-      },
+      link: {
+        highlightColor: 'var(--jp-brand-color2)'
+      }
     }
   };
 
@@ -60,21 +64,24 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
     super(props);
     this.state = {
       data: null
-    }
+    };
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this._updatePackages();
   }
 
   private async _updatePackages(): Promise<void> {
     try {
-      const available =  await this.props.pkgManager.getDependencies(this.props.package, true);
-      const data: GraphData<GraphNode, GraphLink>  = { nodes: [], links: [] };
-      
-      Object.keys(available).forEach( key => {
+      const available = await this.props.pkgManager.getDependencies(
+        this.props.package,
+        true
+      );
+      const data: GraphData<GraphNode, GraphLink> = { nodes: [], links: [] };
+
+      Object.keys(available).forEach(key => {
         data.nodes.push({ id: key });
-        available[key].forEach( dep => {
+        available[key].forEach(dep => {
           const dependencie = dep.split(' ')[0];
           if (!data.nodes.find(value => value.id === dependencie)) {
             data.nodes.push({ id: dependencie });
@@ -82,7 +89,7 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
           data.links.push({ source: key, target: dependencie });
         });
       });
-      
+
       this.setState({ data });
     } catch (error) {
       if (error.message !== 'cancelled') {
@@ -94,21 +101,21 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
   render(): JSX.Element {
     return (
       <div>
-        {
-          this.state.data === null
-          ?
-            <span>Loading dependencies</span>
-          :
+        {this.state.data === null ? (
+          <span>Loading dependencies</span>
+        ) : (
           <div>
-            {
-              this.state.data.nodes.length !== 0
-              ? 
-                <Graph id="graph-id" data={this.state.data} config={this.props.config}/>
-              :
-                <span>This is a pip package</span>
-            }
+            {this.state.data.nodes.length !== 0 ? (
+              <Graph
+                id="graph-id"
+                data={this.state.data}
+                config={this.props.config}
+              />
+            ) : (
+              <span>This is a pip package</span>
+            )}
           </div>
-        }
+        )}
       </div>
     );
   }

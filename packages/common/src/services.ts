@@ -65,7 +65,7 @@ export interface ICancellableAction {
   /**
    * Cancellable function
    */
-  cancel:() => void
+  cancel: () => void;
 }
 
 /**
@@ -461,7 +461,7 @@ export class CondaPackage implements Conda.IPackageManager {
         URLExt.join('conda', 'environments', theEnvironment),
         request
       );
-      const idx = this._cancellableStack.push({type: 'default', cancel}) - 1;
+      const idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
@@ -655,7 +655,7 @@ export class CondaPackage implements Conda.IPackageManager {
           URLExt.objectToQueryString({ status: 'has_update' }),
         request
       );
-      const idx = this._cancellableStack.push({type: 'default', cancel}) - 1;
+      const idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
@@ -750,13 +750,14 @@ export class CondaPackage implements Conda.IPackageManager {
 
     const { promise, cancel } = Private.requestServer(
       URLExt.join('conda', 'packages') +
-      URLExt.objectToQueryString({ dependencies: 1, package: pkg }),
+        URLExt.objectToQueryString({ dependencies: 1, package: pkg }),
       request
     );
 
     let idx: number;
     if (cancellable) {
-      idx = this._cancellableStack.push({type: 'getDependencies', cancel}) - 1;
+      idx =
+        this._cancellableStack.push({ type: 'getDependencies', cancel }) - 1;
     }
 
     const response = await promise;
@@ -803,7 +804,7 @@ export class CondaPackage implements Conda.IPackageManager {
       );
       let idx: number;
       if (cancellable) {
-        idx = this._cancellableStack.push({type: 'default', cancel}) - 1;
+        idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
       }
       const response = await promise;
       if (idx) {
@@ -828,8 +829,10 @@ export class CondaPackage implements Conda.IPackageManager {
         0,
         this._cancellableStack.length
       );
-      tasks.forEach( action => {
-        if (action.type === type ) action.cancel();
+      tasks.forEach(action => {
+        if (action.type === type) {
+          action.cancel();
+        }
       });
     }
   }

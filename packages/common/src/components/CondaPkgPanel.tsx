@@ -244,9 +244,9 @@ export class CondaPkgPanel extends React.Component<
     showDialog({
       title: pkg.name,
       body: new PkgGraphWidget(this._model, pkg.name),
-      buttons: [Dialog.okButton()],
-    })
-  }
+      buttons: [Dialog.okButton()]
+    });
+  };
 
   handleSearch(event: any): void {
     if (this.state.isApplyingChanges) {

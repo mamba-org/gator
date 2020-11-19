@@ -201,7 +201,10 @@ export namespace Conda {
      *
      * @returns The package list
      */
-    getDependencies(pkg: string, cancellable: boolean): Promise<Conda.IPackageDeps> 
+    getDependencies(
+      pkg: string,
+      cancellable: boolean
+    ): Promise<Conda.IPackageDeps>;
     /**
      * Signal emitted when some package actions are executed.
      */
@@ -244,7 +247,7 @@ export namespace Conda {
     updatable?: boolean;
   }
   export interface IPackageDeps {
-    [key: string]: string[]
+    [key: string]: string[];
   }
 
   export interface IPackageChange {
