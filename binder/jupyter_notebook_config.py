@@ -10,7 +10,7 @@ c.ServerProxy.servers = {
             '--port={port}',
             "--ip=0.0.0.0",
             "--NotebookApp.token=''",
-            "--NotebookApp.base_url={base_url}mamba",
+            "--NotebookApp.base_url={base_url}gator",
             "--NotebookApp.allow_remote_access=True",
         ],
         "timeout": 120,
