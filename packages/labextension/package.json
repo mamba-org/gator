@@ -1,6 +1,6 @@
 {
-  "name": "jupyterlab_conda",
-  "version": "2.2.4",
+  "name": "@mamba-org/gator-lab",
+  "version": "2.0.0-rc.0",
   "description": "Manage your conda environments from JupyterLab",
   "keywords": [
     "jupyter",
@@ -49,9 +49,9 @@
     "@jupyterlab/settingregistry": "^2.0.1",
     "@lumino/coreutils": "^1.3.0",
     "@lumino/widgets": "^1.6.0",
+    "@mamba-org/gator-common": "^2.0.0-rc.0",
     "jupyterlab_toastify": "^4.1.2",
-    "semver": "^6.0.0||^7.0.0",
-    "@mamba-org/common": "^1.0.0"
+    "semver": "^6.0.0||^7.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

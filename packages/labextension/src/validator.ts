@@ -3,14 +3,14 @@ import { KernelSpecAPI, KernelSpecManager } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
-import { Conda, IEnvironmentManager } from '@mamba-org/common';
+import { Conda, IEnvironmentManager } from '@mamba-org/gator-common';
 import { INotification } from 'jupyterlab_toastify';
 import semver from 'semver';
 
-export const companionID = 'jupyterlab_conda:companion';
+export const companionID = '@mamba-org/gator-lab:companion';
 
 export const ICompanionValidator = new Token<ICompanionValidator>(
-  'jupyterlab_conda:ICompanionValidator'
+  '@mamba-org/gator-lab:ICompanionValidator'
 );
 
 /**

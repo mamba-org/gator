@@ -4,7 +4,7 @@ The Mamba Navigator, a Web UI for managing conda environments
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
 [![Install with conda](https://anaconda.org/conda-forge/jupyter_conda/badges/installer/conda.svg)](https://anaconda.org/conda-forge/jupyter_conda)
-[![npm](https://img.shields.io/npm/v/jupyterlab_conda.svg?style=flat-square)](https://www.npmjs.com/package/jupyterlab_conda)
+[![npm](https://img.shields.io/npm/v/@mamba-org/gator-lab.svg?style=flat-square)](https://www.npmjs.com/package/@mamba-org/gator-lab)
 [![Github Actions Status](https://github.com/mamba-org/gator/workflows/Test/badge.svg)](https://github.com/mamba-org/gator/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/gator?branch=master)
 [![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fmamba_gator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/mamba_gator/rest_api.yml)
@@ -31,7 +31,7 @@ To install in the JupyterLab:
 
 ```shell
 conda install -c conda-forge jupyterlab mamba_gator
-jupyter labextension install jupyterlab_conda
+jupyter labextension install @mamba-org/gator-lab
 ```
 
 > Optionally, you could install [`jupyterlab-tour`](https://github.com/fcollonval/jupyterlab-tour) to
@@ -109,7 +109,7 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
-### Upcoming
+### 4.0.0
 
 - Features
   - Moving to mamba-org

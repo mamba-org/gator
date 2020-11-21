@@ -18,7 +18,7 @@ jest.mock('@jupyterlab/services', () => {
 });
 jest.mock('@jupyterlab/settingregistry');
 
-describe('jupyterlab_conda/services', () => {
+describe('@mamba-org/gator-lab/services', () => {
   const settings = { baseUrl: 'foo/' };
 
   beforeEach(() => {

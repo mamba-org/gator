@@ -5,7 +5,7 @@ import {
   CONDA_PACKAGES_TOOLBAR_CLASS,
   CONDA_PACKAGE_SELECT_CLASS,
   CONDA_WIDGET_CLASS
-} from '@mamba-org/common';
+} from '@mamba-org/gator-common';
 import * as React from 'react';
 
 export const managerTour = {

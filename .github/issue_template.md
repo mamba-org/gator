@@ -10,7 +10,7 @@ Welcome! Before creating a new issue:
 
   ```
   conda update -c conda-forge mamba_gator
-  jupyter labextension update jupyterlab_conda
+  jupyter labextension update @mamba-org/gator-lab
   ```
 -->
 
