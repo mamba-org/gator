@@ -40,5 +40,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
+          npm install -g yarn
+          yarn install
+          yarn build
           python setup.py sdist bdist_wheel
           twine upload dist/*
