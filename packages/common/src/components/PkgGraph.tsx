@@ -52,6 +52,7 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
       node: {
         color: 'var(--jp-brand-color1)',
         highlightStrokeColor: 'var(--jp-brand-color2)',
+        fontSize: '--jp-ui-font-size0',
         fontColor: 'var(--jp-ui-font-color1)'
       },
       link: {
@@ -80,7 +81,12 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
       const data: GraphData<GraphNode, GraphLink> = { nodes: [], links: [] };
 
       Object.keys(available).forEach(key => {
-        data.nodes.push({ id: key });
+        if (key === this.props.package) {
+          data.nodes.push({ id: key, color: 'orange' });
+        } else {
+          data.nodes.push({ id: key });
+        }
+        
         available[key].forEach(dep => {
           const dependencie = dep.split(' ')[0];
           if (!data.nodes.find(value => value.id === dependencie)) {
