@@ -1,6 +1,7 @@
 channels:
   - conda-forge
 dependencies:
+  - python >=3.6,<3.9
   - jupyterlab =2
   - jupyter-server-proxy
   - mamba
