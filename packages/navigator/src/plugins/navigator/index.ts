@@ -8,7 +8,7 @@ import {
   CondaEnvWidget,
   condaIcon,
   CONDA_WIDGET_CLASS
-} from '@mamba-org/common';
+} from '@mamba-org/gator-common';
 import { INotification } from 'jupyterlab_toastify';
 
 /**

@@ -16,7 +16,7 @@ import {
   condaIcon,
   CONDA_WIDGET_CLASS,
   IEnvironmentManager
-} from '@mamba-org/common';
+} from '@mamba-org/gator-common';
 import { INotification } from 'jupyterlab_toastify';
 import { managerTour } from './tour';
 import {
@@ -25,7 +25,7 @@ import {
   ICompanionValidator
 } from './validator';
 
-const CONDAENVID = 'jupyterlab_conda:plugin';
+const CONDAENVID = '@mamba-org/gator-lab:plugin';
 const TOUR_DELAY = 1000;
 const TOUR_TIMEOUT = 5 * TOUR_DELAY + 1;
 
@@ -159,7 +159,7 @@ async function activateCompanions(
 }
 
 /**
- * Initialization data for the jupyterlab_conda extension.
+ * Initialization data for the @mamba-org/gator-lab extension.
  */
 const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: CONDAENVID,

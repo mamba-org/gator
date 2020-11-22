@@ -1,4 +1,4 @@
-# jupyterlab_conda
+# @mamba-org/gator-lab
 
 Provides Conda environments and packages management extension for JupyterLab.
 

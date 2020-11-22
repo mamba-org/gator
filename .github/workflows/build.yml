@@ -223,7 +223,7 @@ jobs:
           jupyter serverextension list 1>serverextensions 2>&1
           cat serverextensions | grep "mamba_gator.*OK"
           jupyter labextension list 1>labextensions 2>&1
-          cat labextensions | grep "jupyterlab_conda.*OK"
+          cat labextensions | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
 

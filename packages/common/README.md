@@ -1,4 +1,4 @@
-# @mamba-org/common
+# @mamba-org/gator-common
 
 Provides common components and code to manage Conda environments and packages.
 

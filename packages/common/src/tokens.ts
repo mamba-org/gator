@@ -3,7 +3,7 @@ import { IDisposable } from '@lumino/disposable';
 import { ISignal } from '@lumino/signaling';
 
 export const IEnvironmentManager = new Token<IEnvironmentManager>(
-  'jupyterlab_conda:IEnvironmentManager'
+  '@mamba-org/gator-lab:IEnvironmentManager'
 );
 
 /**

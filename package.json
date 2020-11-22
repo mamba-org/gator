@@ -16,7 +16,7 @@
     "eslint": "lerna run eslint",
     "eslint:check": "lerna run eslint:check",
     "install": "lerna bootstrap",
-    "publish": "yarn run clean && yarn run build && lerna publish -m \"Publish npm packages\"",
+    "publish": "yarn run clean && yarn run build && lerna publish",
     "test": "yarn run eslint:check && lerna run test && yarn run lint && coverage run -m pytest mamba_gator && coverage report",
     "lint": "flake8 setup.py mamba_gator"
   },
