@@ -62,15 +62,12 @@ module.exports = [
       ]
     },
     optimization: {
+      sideEffects: false,
       splitChunks: {
         chunks: 'all'
       }
     },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env': '{}',
-        process: {}
-      }),
       new BundleAnalyzerPlugin({
         analyzerMode: 'static',
         reportFilename: path.resolve(__dirname, 'webpack-report.html')
