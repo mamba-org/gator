@@ -23,19 +23,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel twine jupyterlab
       - name: Build and publish NPM package
-        if: ${{ startsWith(github.event.release.name, 'npm') }}
+        if: ${{ startsWith(github.event.release.tag_name, 'npm') }}
         run: |
           if [[ ${PRE_RELEASE} == "true" ]]; then export TAG="next"; else export TAG="latest"; fi
-          echo Publishing ${VERSION} with distribution tag ${PRE_RELEASE}
+          echo Publishing ${VERSION} with distribution tag ${TAG}
           npm install -g yarn
           yarn install
           yarn run publish ${VERSION} --yes --no-git-tag-version --dist-tag ${TAG}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PRE_RELEASE: ${{ github.event.release.prerelease }}
-          VERSION: ${{ github.event.release.tag_name }}
+          VERSION: ${{ github.event.release.name }}
       - name: Publish Python package
-        if: ${{ !startsWith(github.event.release.name, 'npm') }}
+        if: ${{ !startsWith(github.event.release.tag_name, 'npm') }}
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
