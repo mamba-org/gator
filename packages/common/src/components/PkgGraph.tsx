@@ -86,7 +86,7 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
         } else {
           data.nodes.push({ id: key });
         }
-        
+
         available[key].forEach(dep => {
           const dependencie = dep.split(' ')[0];
           if (!data.nodes.find(value => value.id === dependencie)) {
