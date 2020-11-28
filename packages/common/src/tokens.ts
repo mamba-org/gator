@@ -195,7 +195,6 @@ export namespace Conda {
     /**
      * Get packages dependencies list.
      *
-     * @param environment Environment name
      * @param package Package name
      * @param cancellable Can this asynchronous action be cancelled?
      *
@@ -246,8 +245,11 @@ export namespace Conda {
     version_selected?: string;
     updatable?: boolean;
   }
+  /**
+   * Packages dependencies
+   */
   export interface IPackageDeps {
-    [key: string]: string[];
+    [package_name: string]: string[];
   }
 
   export interface IPackageChange {

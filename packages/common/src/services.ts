@@ -750,7 +750,7 @@ export class CondaPackage implements Conda.IPackageManager {
 
     const { promise, cancel } = Private.requestServer(
       URLExt.join('conda', 'packages') +
-        URLExt.objectToQueryString({ dependencies: 1, package: pkg }),
+        URLExt.objectToQueryString({ dependencies: 1, query: pkg }),
       request
     );
 

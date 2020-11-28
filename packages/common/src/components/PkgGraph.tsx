@@ -51,7 +51,9 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
       linkHighlightBehavior: true,
       node: {
         color: 'var(--jp-brand-color1)',
+        highlightColor: 'var(--jp-brand-color2)',
         highlightStrokeColor: 'var(--jp-brand-color2)',
+        highlightFontSize: 'var(--jp-ui-font-size0)',
         fontSize: '--jp-ui-font-size0',
         fontColor: 'var(--jp-ui-font-color1)'
       },
@@ -70,6 +72,12 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
 
   componentDidMount(): void {
     this._updatePackages();
+  }
+
+  componentDidUpdate(prevProps: IPkgGraphProps): void {
+    if (this.props.package !== prevProps.package) {
+      this._updatePackages();
+    }
   }
 
   private async _updatePackages(): Promise<void> {
