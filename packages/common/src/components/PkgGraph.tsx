@@ -101,6 +101,7 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
             <a
               style={{ textDecoration: 'underline' }}
               href="https://github.com/mamba-org/mamba"
+              rel="noreferrer"
               target="_blank"
             >
               mamba
