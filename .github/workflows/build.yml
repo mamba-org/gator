@@ -208,6 +208,8 @@ jobs:
           conda install -n test_gator coveralls jupyterlab=2
           yarn install
           pip install .
+          # Check pip dependencies
+          pip check
           jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
 
