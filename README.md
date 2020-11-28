@@ -17,7 +17,7 @@ _Requirements_
 
 - conda >= 4.5 or mamba >=0.5
 - notebook >= 4.3
-- JupyterLab 1.x or 2.x (for the jupyterlab extension only)
+- JupyterLab 2.x (for the jupyterlab extension only)
 
 > Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
 
