@@ -533,7 +533,8 @@ class EnvManager:
         Returns:
             {"package": List[dependencies]}
         """
-        if self.manager == "conda" :
+        if self.manager != "mamba" :
+            self.log.warning("Package manager '{}' does not support dependency query.".format(self.manager))
             return { pkg: None }
 
         resp = {}

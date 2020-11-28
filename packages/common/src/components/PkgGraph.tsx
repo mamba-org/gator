@@ -38,6 +38,10 @@ export interface IPkgGraphState {
    * Graph data
    */
   data: GraphData<GraphNode, GraphLink> | null;
+  /**
+   * Error message
+   */
+  error: React.ReactNode;
 }
 
 export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
@@ -66,7 +70,8 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
   constructor(props: IPkgGraphProps) {
     super(props);
     this.state = {
-      data: null
+      data: null,
+      error: null
     };
   }
 
@@ -87,24 +92,43 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
         true
       );
       const data: GraphData<GraphNode, GraphLink> = { nodes: [], links: [] };
-
-      Object.keys(available).forEach(key => {
-        if (key === this.props.package) {
-          data.nodes.push({ id: key, color: 'orange' });
-        } else {
-          data.nodes.push({ id: key });
-        }
-
-        available[key].forEach(dep => {
-          const dependencie = dep.split(' ')[0];
-          if (!data.nodes.find(value => value.id === dependencie)) {
-            data.nodes.push({ id: dependencie });
+      let error: React.ReactNode = null;
+      if (available[this.props.package] === null) {
+        // Manager does not support dependency query
+        error = (
+          <span>
+            Please install{' '}
+            <a
+              style={{ textDecoration: 'underline' }}
+              href="https://github.com/mamba-org/mamba"
+              target="_blank"
+            >
+              mamba
+            </a>{' '}
+            manager to resolve dependencies.
+          </span>
+        );
+      } else {
+        Object.keys(available).forEach(key => {
+          if (key === this.props.package) {
+            data.nodes.push({ id: key, color: 'orange' });
+          } else {
+            data.nodes.push({ id: key });
           }
-          data.links.push({ source: key, target: dependencie });
-        });
-      });
 
-      this.setState({ data });
+          available[key].forEach(dep => {
+            const dependencie = dep.split(' ')[0];
+            if (!data.nodes.find(value => value.id === dependencie)) {
+              data.nodes.push({ id: dependencie });
+            }
+            data.links.push({ source: key, target: dependencie });
+          });
+        });
+        if (data.nodes.length === 0) {
+          error = <span>This is a pip package</span>;
+        }
+      }
+      this.setState({ data, error });
     } catch (error) {
       if (error.message !== 'cancelled') {
         console.error('Error when looking for dependencies.', error);
@@ -119,14 +143,12 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
           <span>Loading dependencies</span>
         ) : (
           <div>
-            {this.state.data.nodes.length !== 0 ? (
+            {this.state.error || (
               <Graph
                 id="graph-id"
                 data={this.state.data}
                 config={this.props.config}
               />
-            ) : (
-              <span>This is a pip package</span>
             )}
           </div>
         )}
