@@ -193,6 +193,18 @@ export namespace Conda {
      */
     remove(packages: Array<string>, environment?: string): Promise<void>;
     /**
+     * Get packages dependencies list.
+     *
+     * @param package Package name
+     * @param cancellable Can this asynchronous action be cancelled?
+     *
+     * @returns The package list
+     */
+    getDependencies(
+      pkg: string,
+      cancellable: boolean
+    ): Promise<Conda.IPackageDeps>;
+    /**
      * Signal emitted when some package actions are executed.
      */
     packageChanged: ISignal<IPackageManager, Conda.IPackageChange>;
@@ -232,6 +244,12 @@ export namespace Conda {
     version_installed?: string;
     version_selected?: string;
     updatable?: boolean;
+  }
+  /**
+   * Packages dependencies
+   */
+  export interface IPackageDeps {
+    [package_name: string]: string[];
   }
 
   export interface IPackageChange {

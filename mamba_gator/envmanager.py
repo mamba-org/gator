@@ -524,6 +524,35 @@ class EnvManager:
 
         return {"packages": [normalize_pkg_info(package) for package in data]}
 
+    async def pkg_depends(self, pkg: str) -> Dict[str, List[str]]:
+        """List environment packages dependencies.
+
+        Args:
+            pkg (str): Package name
+
+        Returns:
+            {"package": List[dependencies]}
+        """
+        if self.manager != "mamba" :
+            self.log.warning("Package manager '{}' does not support dependency query.".format(self.manager))
+            return { pkg: None }
+
+        resp = {}
+        ans = await self._execute(self.manager, "repoquery", "depends", "--json", pkg)
+        _, output = ans
+        query = self._clean_conda_json(output)
+        
+        if "error" not in query:
+            for dep in query['result']['pkgs'] :
+                if type(dep) is dict :
+                    deps = dep.get('depends', None)
+                    if deps :
+                        resp[dep['name']] = deps
+                    else :
+                        resp[dep['name']] = []
+
+        return resp
+
     async def list_available(self) -> Dict[str, List[Dict[str, str]]]:
         """List all available packages
 

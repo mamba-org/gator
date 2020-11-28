@@ -1,4 +1,4 @@
-import { showDialog } from '@jupyterlab/apputils';
+import { showDialog, Dialog } from '@jupyterlab/apputils';
 import { INotification } from 'jupyterlab_toastify';
 import * as React from 'react';
 import semver from 'semver';
@@ -10,6 +10,7 @@ import {
   PACKAGE_TOOLBAR_HEIGHT,
   PkgFilters
 } from './CondaPkgToolBar';
+import { PkgGraphWidget } from './PkgGraph';
 
 // Minimal panel width to show package description
 const PANEL_SMALL_WIDTH = 500;
@@ -238,6 +239,14 @@ export class CondaPkgPanel extends React.Component<
       selected: selection
     });
   }
+
+  handleDependenciesGraph = (pkg: Conda.IPackage): void => {
+    showDialog({
+      title: pkg.name,
+      body: new PkgGraphWidget(this._model, pkg.name),
+      buttons: [Dialog.okButton()]
+    });
+  };
 
   handleSearch(event: any): void {
     if (this.state.isApplyingChanges) {
@@ -505,6 +514,7 @@ export class CondaPkgPanel extends React.Component<
           packages={searchPkgs}
           onPkgClick={this.handleClick}
           onPkgChange={this.handleVersionSelection}
+          onPkgGraph={this.handleDependenciesGraph}
         />
       </div>
     );

@@ -349,13 +349,19 @@ class PackagesHandler(EnvBaseHandler):
         """`GET /packages` Search for packages.
 
         Query arguments:
+            dependencies: 0 (default) or 1
             query (str): optional string query
         """
+        dependencies = self.get_query_argument("dependencies", 0)
         query = self.get_query_argument("query", "")
-
+        
         idx = None
-        if query:  # Specific search
-            idx = self._stack.put(self.env_manager.package_search, query)
+        if query:
+            if dependencies :
+                idx = self._stack.put(self.env_manager.pkg_depends, query)
+            
+            else:  # Specific search
+                idx = self._stack.put(self.env_manager.package_search, query)
 
         else:  # List all available
             cache_file = os.path.join(tempfile.gettempdir(), AVAILABLE_CACHE + ".json")
