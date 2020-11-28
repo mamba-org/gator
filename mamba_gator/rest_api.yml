@@ -201,11 +201,11 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "package"
+        - name: "dependencies"
           in: "query"
-          description: "Package name to search for dependencies"
-          type: "string"
-          default: ""
+          description: "Whether to return the package dependencies or doing a generic search"
+          type: "number"
+          default: "0"
         - name: "query"
           in: "query"
           description: "Query string to pass to conda search"
