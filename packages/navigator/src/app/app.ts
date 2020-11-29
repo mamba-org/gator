@@ -1,22 +1,26 @@
-import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-
-import { PageConfig } from '@jupyterlab/coreutils';
+import { Application, IPlugin } from '@lumino/application';
 
 import { IGatorShell, GatorShell } from './shell';
 
 /**
+ * The type for all JupyterFrontEnd application plugins.
+ *
+ * @typeparam T - The type that the plugin `provides` upon being activated.
+ */
+export type GatorFrontEndPlugin<T> = IPlugin<Gator, T>;
+
+/**
  * Gator is the main application class. It is instantiated once and shared.
  */
-export class Gator extends JupyterFrontEnd<IGatorShell> {
+export class Gator extends Application<IGatorShell> {
   /**
    * Construct a new App object.
    *
    * @param options The instantiation options for an Gator application.
    */
-  constructor(options: Gator.IOptions = { shell: new GatorShell() }) {
+  constructor(
+    options: Application.IOptions<IGatorShell> = { shell: new GatorShell() }
+  ) {
     super({
       shell: options.shell
     });
@@ -36,38 +40,6 @@ export class Gator extends JupyterFrontEnd<IGatorShell> {
    * The version of the application.
    */
   readonly version = 'unknown';
-
-  /**
-   * The JupyterLab application paths dictionary.
-   */
-  get paths(): JupyterFrontEnd.IPaths {
-    return {
-      urls: {
-        base: PageConfig.getOption('baseUrl'),
-        notFound: PageConfig.getOption('notFoundUrl'),
-        app: PageConfig.getOption('appUrl'),
-        static: PageConfig.getOption('staticUrl'),
-        settings: PageConfig.getOption('settingsUrl'),
-        themes: PageConfig.getOption('themesUrl'),
-        tree: PageConfig.getOption('treeUrl'),
-        workspaces: PageConfig.getOption('workspacesUrl'),
-        hubHost: PageConfig.getOption('hubHost') || undefined,
-        hubPrefix: PageConfig.getOption('hubPrefix') || undefined,
-        hubUser: PageConfig.getOption('hubUser') || undefined,
-        hubServerName: PageConfig.getOption('hubServerName') || undefined
-      },
-      directories: {
-        appSettings: PageConfig.getOption('appSettingsDir'),
-        schemas: PageConfig.getOption('schemasDir'),
-        static: PageConfig.getOption('staticDir'),
-        templates: PageConfig.getOption('templatesDir'),
-        themes: PageConfig.getOption('themesDir'),
-        userSettings: PageConfig.getOption('userSettingsDir'),
-        serverRoot: PageConfig.getOption('serverRoot'),
-        workspaces: PageConfig.getOption('workspacesDir')
-      }
-    };
-  }
 
   /**
    * Register plugins from a plugin module.
@@ -109,11 +81,6 @@ export class Gator extends JupyterFrontEnd<IGatorShell> {
  */
 export namespace Gator {
   /**
-   * The instantiation options for an Gator application.
-   */
-  export type IOptions = JupyterFrontEnd.IOptions<IGatorShell>;
-
-  /**
    * The interface for a module that exports a plugin or plugins as
    * the default value.
    */
@@ -121,6 +88,6 @@ export namespace Gator {
     /**
      * The default export.
      */
-    default: JupyterFrontEndPlugin<any> | JupyterFrontEndPlugin<any>[];
+    default: IPlugin<Gator, any> | IPlugin<Gator, any>[];
   }
 }

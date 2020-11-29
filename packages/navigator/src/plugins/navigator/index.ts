@@ -1,7 +1,3 @@
-import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
 import { DOMUtils, MainAreaWidget } from '@jupyterlab/apputils';
 import {
   CondaEnvironments,
@@ -10,21 +6,15 @@ import {
   CONDA_WIDGET_CLASS
 } from '@mamba-org/gator-common';
 import { INotification } from 'jupyterlab_toastify';
-
-/**
- * The command ids used by the main navigator plugin.
- */
-export namespace CommandIDs {
-  export const open = '@mamba-org/navigator:open';
-}
+import { Gator, GatorFrontEndPlugin } from '../../app/app';
 
 /**
  * The main navigator plugin.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
+const plugin: GatorFrontEndPlugin<void> = {
   id: '@mamba-org/navigator:main',
   autoStart: true,
-  activate: (app: JupyterFrontEnd): void => {
+  activate: (app: Gator): void => {
     const model = new CondaEnvironments();
 
     // Request listing available package as quickly as possible

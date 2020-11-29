@@ -1,5 +1,3 @@
-import { JupyterFrontEnd } from '@jupyterlab/application';
-
 import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
 import { IIterator, iter, toArray } from '@lumino/algorithm';
@@ -21,7 +19,7 @@ export namespace IGatorShell {
 /**
  * The application shell.
  */
-export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
+export class GatorShell extends Widget {
   constructor() {
     super();
     this.id = 'main';

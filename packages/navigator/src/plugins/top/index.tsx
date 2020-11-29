@@ -1,19 +1,10 @@
-import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-
-import { showDialog, Dialog } from '@jupyterlab/apputils';
-
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-
-import { MainMenu } from './menu';
-
-import { IMainMenu } from './tokens';
-
-import { mambaIcon } from '../../icons';
-
 import * as React from 'react';
+import { Gator, GatorFrontEndPlugin } from '../../app/app';
+import { mambaIcon } from '../../icons';
+import { MainMenu } from './menu';
+import { IMainMenu } from './tokens';
 
 /**
  * The command IDs used by the top plugin.
@@ -25,11 +16,11 @@ namespace CommandIDs {
 /**
  * The main menu plugin.
  */
-const plugin: JupyterFrontEndPlugin<IMainMenu> = {
+const plugin: GatorFrontEndPlugin<IMainMenu> = {
   id: '@mamba-org/navigator:menu',
   autoStart: true,
   provides: IMainMenu,
-  activate: (app: JupyterFrontEnd): IMainMenu => {
+  activate: (app: Gator): IMainMenu => {
     const logo = new Widget();
     mambaIcon.element({
       container: logo.node,
