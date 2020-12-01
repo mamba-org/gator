@@ -34,7 +34,17 @@ setuptools.setup(
             [
                 os.path.join(classic_folder, a_file)
                 for a_file in os.listdir(classic_folder)
-                if os.path.isfile(os.path.join(classic_folder, a_file)) and not a_file.endswith(".py")
+                if os.path.isfile(os.path.join(classic_folder, a_file))
+                and not a_file.endswith(".py")
+            ]
+        ),
+        (
+            "share/jupyter/nbextensions/mamba_gator/static",
+            [
+                os.path.join(classic_folder, "static", a_file)
+                for a_file in os.listdir(os.path.join(classic_folder, "static"))
+                if os.path.isfile(os.path.join(classic_folder, "static", a_file))
+                and not a_file.endswith(".py")
             ],
         ),
         # like `jupyter nbextension enable --sys-prefix`
@@ -46,6 +56,7 @@ setuptools.setup(
             "etc/jupyter/nbconfig/tree.d",
             ["jupyter-config/nbconfig/tree.d/mamba_gator.json"],
         ),
+        # place JupyterLab extension where it can be found
         (
             "share/jupyter/lab/extensions",
             [

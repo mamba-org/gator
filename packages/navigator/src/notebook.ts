@@ -1,3 +1,4 @@
 import './nb-public-path';
+import main from './index';
 
-export * from './index';
+window.addEventListener('load', main);
