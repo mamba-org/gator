@@ -1,5 +1,5 @@
 {
   "load_extensions": {
-    "mamba_gator/static/tree": true
+    "mamba_gator/tree": true
   }
 }

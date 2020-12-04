@@ -7,7 +7,7 @@ import '../style/index.css';
 /**
  * The main function
  */
-async function main(): Promise<void> {
+export default async function main(): Promise<void> {
   const app = new Gator();
   const mods = [
     require('./plugins/paths'),
@@ -19,5 +19,3 @@ async function main(): Promise<void> {
 
   await app.start();
 }
-
-window.addEventListener('load', main);
