@@ -150,6 +150,9 @@ jobs:
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
         shell: bash -l {0}
 
+      - name: Integration tests
+        run: docker-compose run e2e ./e2e-tests/run_e2e.sh
+
   test-mamba-3x:
     name: Test Mamba Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
