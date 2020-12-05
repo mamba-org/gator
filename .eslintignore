@@ -4,3 +4,4 @@ coverage
 **/*.d.ts
 package.json
 **/__tests__/
+lib

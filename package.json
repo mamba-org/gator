@@ -13,9 +13,11 @@
     "build": "lerna run build",
     "build:dev": "lerna run build:dev",
     "clean": "lerna run clean",
-    "eslint": "lerna run eslint",
-    "eslint:check": "lerna run eslint:check",
+    "eslint": "eslint . --fix --ext .ts,.tsx",
+    "eslint:check": "eslint . --ext .ts,.tsx",
     "install": "lerna bootstrap",
+    "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "prettier:check": "npx prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "publish": "yarn run clean && yarn run build && lerna publish",
     "test": "yarn run eslint:check && lerna run test && yarn run lint && coverage run -m pytest mamba_gator && coverage report",
     "lint": "flake8 setup.py mamba_gator"

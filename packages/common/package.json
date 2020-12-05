@@ -29,11 +29,8 @@
     "build": "tsc --project .",
     "build:dev": "yarn run build",
     "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "eslint": "eslint . --fix --ext .ts,.tsx",
-    "eslint:check": "eslint . --ext .ts,.tsx",
     "lab:link": "jupyter labextension link . --no-build",
     "prepare": "yarn run clean && yarn run build",
-    "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "test": "jest --coverage",
     "watch": "tsc -w"
   },

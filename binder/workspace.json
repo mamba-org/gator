@@ -1,1 +1,33 @@
-{"data":{"layout-restorer:data":{"main":{"dock":{"type":"tab-area","currentIndex":1,"widgets":["conda-env:conda-env"]},"mode":"multiple-document","current":"conda-env:conda-env"},"left":{"collapsed":true,"widgets":["filebrowser","running-sessions","command-palette","jp-property-inspector","tab-manager","extensionmanager.main-view"]},"right":{"collapsed":true,"widgets":[]}},"jupyterlab-tour:state":{"tutorialsDone":["jupyterlab-tour:welcome"],"version":"2.1.1"},"conda-env:conda-env":{"data":{}}},"metadata":{"id":"/lab"}}
+{
+  "data": {
+    "layout-restorer:data": {
+      "main": {
+        "dock": {
+          "type": "tab-area",
+          "currentIndex": 1,
+          "widgets": ["conda-env:conda-env"]
+        },
+        "mode": "multiple-document",
+        "current": "conda-env:conda-env"
+      },
+      "left": {
+        "collapsed": true,
+        "widgets": [
+          "filebrowser",
+          "running-sessions",
+          "command-palette",
+          "jp-property-inspector",
+          "tab-manager",
+          "extensionmanager.main-view"
+        ]
+      },
+      "right": { "collapsed": true, "widgets": [] }
+    },
+    "jupyterlab-tour:state": {
+      "tutorialsDone": ["jupyterlab-tour:welcome"],
+      "version": "2.1.1"
+    },
+    "conda-env:conda-env": { "data": {} }
+  },
+  "metadata": { "id": "/lab" }
+}

@@ -32,11 +32,8 @@
     "build": "jlpm run clean && mkdirp ../../mamba_gator/labextension && cd ../../mamba_gator/labextension && npm pack ../../packages/labextension",
     "clean:dev": "rimraf lib tsconfig.tsbuildinfo",
     "clean": "jlpm run clean:dev && rimraf ../../mamba_gator/labextension",
-    "eslint": "eslint . --fix --ext .ts,.tsx",
-    "eslint:check": "eslint . --ext .ts,.tsx",
     "lab:link": "jupyter labextension link . --no-build",
     "prepare": "jlpm run clean:dev && jlpm run build:dev",
-    "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "test": "",
     "watch": "tsc -w"
   },
