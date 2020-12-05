@@ -46,11 +46,11 @@ class JupyterCondaAPITest(ServerTest):
         self.assertRegex(location, r"^/conda/tasks/\d+$")
         return self.wait_task(location)
 
-    def mk_env(self, name=None, packages=None):
+    def mk_env(self, name=None, packages=None, remove_if_exists=True):
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])
         new_name = name or generate_name()
-        if new_name in env_names:
+        if remove_if_exists and new_name in env_names:
             self.wait_for_task(self.rm_env)
         self.env_names.append(new_name)
 
@@ -215,7 +215,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
         env_names = map(lambda env: env["name"], envs["environments"])
         self.assertNotIn(n, env_names)
 
-        response = self.wait_for_task(self.mk_env, n)
+        response = self.wait_for_task(self.mk_env, n, remove_if_exists=True)
         self.assertEqual(response.status_code, 200)
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])

@@ -216,10 +216,13 @@ jobs:
       - name: Test the extension
         run: |
           conda activate test_gator
+          # Run linter
           flake8 setup.py mamba_gator
-          coverage run -m pytest mamba_gator
-          coverage report
           yarn run eslint:check
+
+          # Run test
+          coverage run -m pytest
+          coverage report
           yarn run test
 
           jupyter serverextension list 1>serverextensions 2>&1

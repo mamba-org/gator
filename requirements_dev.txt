@@ -2,6 +2,9 @@ coverage
 flake8
 nodejs
 yarn
+# For e2e - only available on pypi
+# playwright
+# pytest-playwright
 pytest
 pytest-asyncio
 requests
