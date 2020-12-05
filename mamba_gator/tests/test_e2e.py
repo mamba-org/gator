@@ -1,11 +1,8 @@
-from __future__ import annotations
-
 import pytest
-from playwright.sync_api import Page
 
 
 @pytest.mark.e2e
-def test_notebook_tree(page: Page):
+def test_notebook_tree(page):
     # Go to http://localhost:8888/tree
     page.goto("http://localhost:8888/tree")
 
@@ -19,7 +16,7 @@ def test_notebook_tree(page: Page):
 
 
 @pytest.mark.e2e
-def test_notebook_main(page: Page):
+def test_notebook_main(page):
     # Go to http://localhost:8888/tree
     page.goto("http://localhost:8888/tree")
 
