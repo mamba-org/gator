@@ -36,6 +36,7 @@ class JupyterCondaAPITest(ServerTest):
     def tearDown(self):
         # Remove created environment
         for n in self.env_names:
+            print(self.env_names, self.conda_api.envs())
             self.wait_for_task(self.rm_env, n)
         super(JupyterCondaAPITest, self).tearDown()
 
@@ -60,7 +61,10 @@ class JupyterCondaAPITest(ServerTest):
         )
 
     def rm_env(self, name):
-        return self.conda_api.delete(["environments", name])
+        answer = self.conda_api.delete(["environments", name])
+        if name in self.env_names:
+            self.env_names.pop(name)
+        return answer
 
 
 class TestChannelsHandler(JupyterCondaAPITest):
