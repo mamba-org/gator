@@ -2,9 +2,9 @@ import pytest
 
 
 @pytest.mark.e2e
-def test_notebook_tree(page):
+def test_notebook_tree(page, base_url):
     # Go to http://localhost:8888/tree
-    page.goto("/tree")
+    page.goto(base_url + "/tree")
 
     # Click text="Conda"
     with page.expect_popup() as popup_info:
@@ -16,9 +16,9 @@ def test_notebook_tree(page):
 
 
 @pytest.mark.e2e
-def test_notebook_main(page):
+def test_notebook_main(page, base_url):
     # Go to http://localhost:8888/tree
-    page.goto("/tree")
+    page.goto(base_url + "/tree")
 
     # Click text="New"
     page.click('text="New"')
