@@ -63,7 +63,7 @@ class JupyterCondaAPITest(ServerTest):
     def rm_env(self, name):
         answer = self.conda_api.delete(["environments", name])
         if name in self.env_names:
-            self.env_names.pop(name)
+            self.env_names.remove(name)
         return answer
 
 
