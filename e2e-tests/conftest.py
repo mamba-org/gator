@@ -18,9 +18,6 @@ def pytest_runtest_makereport(item, call) -> None:
             if "context" in item.funcargs:
                 for idx, page in enumerate(item.funcargs["context"].pages):
                     take_screenshot(page, "-".join((slugify(item.nodeid), str(idx))))
-            if "capturing_context" in item.funcargs:
-                for idx, page in enumerate(item.funcargs["capturing_context"].pages):
-                    take_screenshot(page, "-".join((slugify(item.nodeid), str(idx))))
             if "browser" in item.funcargs:
                 for cidx, context in enumerate(item.funcargs["browser"].contexts):
                     for idx, page in enumerate(context.pages):

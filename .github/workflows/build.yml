@@ -241,7 +241,7 @@ jobs:
           yarn run eslint:check
 
           # Run test
-          coverage run -m pytest
+          coverage run -m pytest mamba_gator
           coverage report
           yarn run test
 
