@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-backend-conda:
-    name: Test Conda Python ${{ matrix.python-version }}
+    name: Test server with Conda Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -49,7 +49,7 @@ jobs:
         shell: bash -l {0}
 
   test-backend-mamba:
-    name: Test Mamba Python ${{ matrix.python-version }}
+    name: Test server with Mamba Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -174,10 +174,8 @@ jobs:
         shell: bash -l {0}
 
   test-integration:
-    name: Coverage
-    # needs: test-mamba-3x
+    name: All tests on Ubuntu Mamba Python 3.7
     runs-on: ubuntu-latest
-    # container: python:3-slim
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -252,10 +250,13 @@ jobs:
           python -m jupyterlab.browser_check
         shell: bash -l {0}
       - name: Integration tests
-        run: docker-compose  -f "docker-compose.yml" run e2e ./e2e-tests/run_e2e.sh
+        run: |
+          ls -l ./e2e-tests
+          chmod -R a+rx ./e2e-tests
+          docker-compose -f "docker-compose.yml" run e2e ./e2e-tests/run_e2e.sh
       - name: Stop containers
         if: always()
-        run: docker-compose  -f "docker-compose.yml" down
+        run: docker-compose -f "docker-compose.yml" down
 
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
