@@ -28,12 +28,6 @@ def test_notebook_main(page):
         page.click('a[aria-label="python3"]')
     page1 = popup_info.value
 
-    print(dir(popup_info), popup_info)
-    print(dir(page1), page1, page.url, page1.url)
-
-    # Go to http://localhost:8888/notebooks/Untitled.ipynb?kernel_name=python3
-    # page1.goto("/notebooks/Untitled.ipynb?kernel_name=python3")
-
     # Click text="Kernel"
     page1.click('a[id="kernellink"]')
 

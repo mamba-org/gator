@@ -4,6 +4,9 @@ set -e
 apt-get update
 apt install -y python3-distutils
 python3 ./e2e-tests/get-pip.py
-python3 -m pip install playwright pytest-asyncio pytest-playwright jupyter_server pytest_tornasync
+python3 -m pip install playwright pytest-playwright
 python3 -m playwright install
-python3 -m pytest -m e2e mamba_gator/tests/test_e2e.py --base-url http://notebook:8888
+# End to end tests are stored in a separate folder
+# so that pytest does not try to import dependencies of gator
+# Therefore the image controlling the frontend actions only requires playwright stack
+python3 -m pytest -m e2e e2e-tests/test_e2e.py --base-url http://notebook:8888

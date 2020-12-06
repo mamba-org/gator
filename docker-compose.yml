@@ -12,6 +12,7 @@ services:
       - 8888:8888
   
   e2e:
+    # FIXME when https://github.com/microsoft/playwright-python/issues/338 is fixed, use official python-playwright image
     image: mcr.microsoft.com/playwright:focal
     entrypoint: ["./e2e-tests/wait-for-it.sh", "notebook:8888", "--strict", "--timeout=10", "--"]
     command: './e2e-tests/run_e2e.sh'
