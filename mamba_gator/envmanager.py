@@ -204,24 +204,24 @@ class EnvManager:
                 if process.returncode != 0:
                     raise RuntimeError(error)
 
-                mamba_exe = output.strip()
-                if mamba_exe:
-                    process = Popen(
-                        [mamba_exe, "--version"],
-                        stdout=PIPE,
-                        stderr=PIPE,
-                        encoding="utf-8",
-                    )
-                    output, error = process.communicate()
+                mamba_exe = output.strip() or "mamba"
+                
+                process = Popen(
+                    [mamba_exe, "--version"],
+                    stdout=PIPE,
+                    stderr=PIPE,
+                    encoding="utf-8",
+                )
+                output, error = process.communicate()
 
-                    if process.returncode != 0:
-                        raise RuntimeError(error)
+                if process.returncode != 0:
+                    raise RuntimeError(error)
 
-                    versions = list(map(lambda l: l.split(), output.splitlines()))
-                    if versions[0][0] == "mamba" and versions[1][0] == "conda":
-                        EnvManager._conda_version = versions[1][1]
-                        EnvManager._mamba_version = versions[0][1]
-                        EnvManager._manager_exe = mamba_exe
+                versions = list(map(lambda l: l.split(), output.splitlines()))
+                if versions[0][0] == "mamba" and versions[1][0] == "conda":
+                    EnvManager._conda_version = versions[1][1]
+                    EnvManager._mamba_version = versions[0][1]
+                    EnvManager._manager_exe = mamba_exe
 
             except BaseException:
                 self.log.debug(
