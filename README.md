@@ -109,6 +109,13 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
+### 4.1.0
+
+- Features
+  - Dependencies graph (by clicking on the installed version for now)
+- Bug fix
+  - Fix missing classical notebook extension
+
 ### 4.0.0
 
 - Features
