@@ -112,9 +112,10 @@ sense to move the project in the `mamba-org` organization.
 ### 4.1.0
 
 - Features
-  - Dependencies graph (by clicking on the installed version for now)
+  - Dependencies graph (by clicking on the installed version for now)  [#83](https://github.com/mamba-org/gator/issues/83)
 - Bug fix
-  - Fix missing classical notebook extension
+  - Fix missing classical notebook extension [#115](https://github.com/mamba-org/gator/issues/115)
+  - Fix mamba not detected on Windows [#119](https://github.com/mamba-org/gator/issues/119)
 
 ### 4.0.0
 

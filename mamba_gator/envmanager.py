@@ -9,6 +9,7 @@ import ssl
 import sys
 import tempfile
 from functools import partial
+from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -70,10 +71,10 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
 
 def get_env_path(kernel_spec: Dict[str, Any]) -> Optional[str]:
     """Get the conda environment path.
-    
+
     Args:
         kernel_spec (dict): Kernel spec
-    
+
     Returns:
         str: Best guess for the environment path
     """
@@ -183,32 +184,50 @@ class EnvManager:
         """Conda package manager name.
 
         For now, use mamba if it is installed. Otherwise, fallback to conda.
-        
+
         Returns:
             str: Package manager
         """
         if EnvManager._manager_exe is None:
+            # Set conda by default
+            EnvManager._manager_exe = CONDA_EXE
             try:
-                process = Popen(["mamba", "--version"], stdout=PIPE, stderr=PIPE)
+                which = "which"
+                if sys.platform == "win32":
+                    which = "where"
+
+                process = Popen(
+                    [which, "mamba"], stdout=PIPE, stderr=PIPE, encoding="utf-8"
+                )
                 output, error = process.communicate()
 
                 if process.returncode != 0:
-                    raise RuntimeError(error.decode("utf-8"))
+                    raise RuntimeError(error)
 
-                versions = list(
-                    map(lambda l: l.split(), output.decode("utf-8").splitlines())
-                )
-                if versions[0][0] == "mamba" and versions[1][0] == "conda":
-                    EnvManager._conda_version = versions[1][1]
-                    EnvManager._mamba_version = versions[0][1]
-                    EnvManager._manager_exe = "mamba"
+                mamba_exe = output.strip()
+                if mamba_exe:
+                    process = Popen(
+                        [mamba_exe, "--version"],
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        encoding="utf-8",
+                    )
+                    output, error = process.communicate()
+
+                    if process.returncode != 0:
+                        raise RuntimeError(error)
+
+                    versions = list(map(lambda l: l.split(), output.splitlines()))
+                    if versions[0][0] == "mamba" and versions[1][0] == "conda":
+                        EnvManager._conda_version = versions[1][1]
+                        EnvManager._mamba_version = versions[0][1]
+                        EnvManager._manager_exe = mamba_exe
 
             except BaseException:
                 self.log.debug(
                     "Fail to get mamba version, falling back to conda",
                     exc_info=sys.exc_info(),
                 )
-                EnvManager._manager_exe = CONDA_EXE
 
             self.log.debug("Package manager: {}".format(EnvManager._manager_exe))
 
@@ -533,23 +552,27 @@ class EnvManager:
         Returns:
             {"package": List[dependencies]}
         """
-        if self.manager != "mamba" :
-            self.log.warning("Package manager '{}' does not support dependency query.".format(self.manager))
-            return { pkg: None }
+        if Path(self.manager).stem != "mamba":
+            self.log.warning(
+                "Package manager '{}' does not support dependency query.".format(
+                    self.manager
+                )
+            )
+            return {pkg: None}
 
         resp = {}
         ans = await self._execute(self.manager, "repoquery", "depends", "--json", pkg)
         _, output = ans
         query = self._clean_conda_json(output)
-        
+
         if "error" not in query:
-            for dep in query['result']['pkgs'] :
-                if type(dep) is dict :
-                    deps = dep.get('depends', None)
-                    if deps :
-                        resp[dep['name']] = deps
-                    else :
-                        resp[dep['name']] = []
+            for dep in query["result"]["pkgs"]:
+                if type(dep) is dict:
+                    deps = dep.get("depends", None)
+                    if deps:
+                        resp[dep["name"]] = deps
+                    else:
+                        resp[dep["name"]] = []
 
         return resp
 
