@@ -276,7 +276,8 @@ jobs:
         shell: bash -l {0}
       - name: Coverage finished
         run: |
-          pip3 install --upgrade coveralls
+          conda activate test_gator
+          pip install --upgrade coveralls
           coveralls --finish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
