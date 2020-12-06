@@ -36,6 +36,7 @@ class JupyterCondaAPITest(ServerTest):
     def tearDown(self):
         # Remove created environment
         for n in self.env_names:
+            print(self.env_names, self.conda_api.envs())
             self.wait_for_task(self.rm_env, n)
         super(JupyterCondaAPITest, self).tearDown()
 
@@ -46,11 +47,11 @@ class JupyterCondaAPITest(ServerTest):
         self.assertRegex(location, r"^/conda/tasks/\d+$")
         return self.wait_task(location)
 
-    def mk_env(self, name=None, packages=None):
+    def mk_env(self, name=None, packages=None, remove_if_exists=True):
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])
         new_name = name or generate_name()
-        if new_name in env_names:
+        if remove_if_exists and new_name in env_names:
             self.wait_for_task(self.rm_env)
         self.env_names.append(new_name)
 
@@ -60,7 +61,10 @@ class JupyterCondaAPITest(ServerTest):
         )
 
     def rm_env(self, name):
-        return self.conda_api.delete(["environments", name])
+        answer = self.conda_api.delete(["environments", name])
+        if name in self.env_names:
+            self.env_names.remove(name)
+        return answer
 
 
 class TestChannelsHandler(JupyterCondaAPITest):
@@ -215,7 +219,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
         env_names = map(lambda env: env["name"], envs["environments"])
         self.assertNotIn(n, env_names)
 
-        response = self.wait_for_task(self.mk_env, n)
+        response = self.wait_for_task(self.mk_env, n, remove_if_exists=True)
         self.assertEqual(response.status_code, 200)
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])

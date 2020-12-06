@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  notebook:
+    build:
+      context: .
+      dockerfile: ./e2e-tests/Dockerfile
+    command: ["start-notebook.sh", "--no-browser", "--ip=0.0.0.0", "--port=8888", "--NotebookApp.token=''", "--NotebookApp.allow_remote_access=True"]
+    networks:
+      - frontend
+    ports:
+      - 8888:8888
+  
+  e2e:
+    # FIXME when https://github.com/microsoft/playwright-python/issues/338 is fixed, use official python-playwright image
+    image: mcr.microsoft.com/playwright:focal
+    entrypoint: ["./e2e-tests/wait-for-it.sh", "notebook:8888", "--strict", "--timeout=10", "--"]
+    command: './e2e-tests/run_e2e.sh'
+    networks:
+      - frontend
+    depends_on:
+      - notebook
+    volumes:
+      - $PWD:/tmp/mamba_gator
+    working_dir: /tmp/mamba_gator
+
+networks:
+  frontend:
