@@ -11,4 +11,4 @@ umask a+w
 # End to end tests are stored in a separate folder
 # so that pytest does not try to import dependencies of gator
 # Therefore the image controlling the frontend actions only requires playwright stack
-python3 -m pytest -m e2e e2e-tests/test_e2e.py --base-url http://notebook:8888
+python3 -m pytest -m e2e e2e-tests --base-url http://notebook:8888

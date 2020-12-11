@@ -249,14 +249,19 @@ jobs:
           cat labextensions | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
-      # - name: Integration tests
-      #   run: |
-      #     chmod -R a+rx ./e2e-tests
-      #     docker-compose -f "docker-compose.yml" run e2e ./e2e-tests/run_e2e.sh
-      # - name: Stop containers
-      #   if: always()
-      #   run: docker-compose -f "docker-compose.yml" down
-
+      - name: Integration tests
+        run: |
+          chmod -R a+rx ./e2e-tests
+          docker-compose -f "./e2e-tests/docker-compose.yml" run e2e ./e2e-tests/run_e2e.sh
+      - name: Stop containers
+        if: always()
+        run: docker-compose -f "./e2e-tests/docker-compose.yml" down
+      - name: Upload screenshots and videos
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-tests
+          path: ./.playwright
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:

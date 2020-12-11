@@ -1,7 +1,10 @@
 from pathlib import Path
+from time import sleep
 
 import pytest
 from slugify import slugify
+
+SLOW_MOTION_TIME = 2000  # Time to wait between action in milliseconds
 
 
 def take_screenshot(page, uid):
@@ -12,18 +15,29 @@ def take_screenshot(page, uid):
 
 def pytest_runtest_makereport(item, call) -> None:
     if call.when == "call":
-        if call.excinfo is not None:
-            if "page" in item.funcargs:
-                take_screenshot(item.funcargs["page"], slugify(item.nodeid))
-            if "context" in item.funcargs:
-                for idx, page in enumerate(item.funcargs["context"].pages):
-                    take_screenshot(page, "-".join((slugify(item.nodeid), str(idx))))
-            if "browser" in item.funcargs:
-                for cidx, context in enumerate(item.funcargs["browser"].contexts):
-                    for idx, page in enumerate(context.pages):
-                        take_screenshot(
-                            page, "-".join((slugify(item.nodeid), str(cidx), str(idx)))
-                        )
+        if call.excinfo is not None and "browser" in item.funcargs:
+            for cidx, context in enumerate(item.funcargs["browser"].contexts):
+                for idx, page in enumerate(context.pages):
+                    take_screenshot(
+                        page, "-".join((slugify(item.nodeid), str(cidx), str(idx)))
+                    )
+
+
+@pytest.fixture(scope="session")
+def slow_motion():
+    """Sleep for delay seconds.
+    By default 0.001 * SLOW_MOTION_TIME
+    """
+
+    def pause(delay=SLOW_MOTION_TIME * 0.001):
+        sleep(delay)
+
+    return pause
+
+
+@pytest.fixture(scope="session")
+def browser_type_launch_args(browser_type_launch_args):
+    return {**browser_type_launch_args, "slowMo": SLOW_MOTION_TIME, "timeout": 5000}
 
 
 @pytest.fixture(scope="session")
