@@ -19,7 +19,7 @@
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "prettier:check": "npx prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "publish": "yarn run clean && yarn run build && lerna publish",
-    "test": "lerna run test && coverage run -m pytest mamba_gator && coverage report"
+    "test": "lerna run test"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.21.0",
