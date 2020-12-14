@@ -74,9 +74,12 @@ setuptools.setup(
     zip_safe=False,
     install_requires=[
         # "conda>=4.5",  # Required conda not available through PyPi anymore
+        "jupyter_client",
         "jupyterlab_server",
         "notebook>=4.3.1",
         "packaging",
+        "tornado",
+        "traitlets",
         "typing;python_version<'3.7'",
     ],
     extras_require={
