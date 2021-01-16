@@ -2,4 +2,8 @@ FROM jupyter/minimal-notebook
 
 COPY . /tmp/gator
 
-RUN python -m pip install /tmp/gator
+RUN conda list \
+ && conda install -y yarn \
+ && jlpm \
+ && jlpm build \
+ && python -m pip install /tmp/gator
