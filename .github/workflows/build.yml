@@ -252,10 +252,13 @@ jobs:
       - name: Integration tests
         run: |
           chmod -R a+rx ./e2e-tests
+          docker-compose -f "./e2e-tests/docker-compose.yml" pull
           docker-compose -f "./e2e-tests/docker-compose.yml" run e2e ./e2e-tests/run_e2e.sh
       - name: Stop containers
         if: always()
-        run: docker-compose -f "./e2e-tests/docker-compose.yml" down
+        run: |
+          docker-compose -f "./e2e-tests/docker-compose.yml" logs notebook-server
+          docker-compose -f "./e2e-tests/docker-compose.yml" down
       - name: Upload screenshots and videos
         if: always()
         uses: actions/upload-artifact@v2
