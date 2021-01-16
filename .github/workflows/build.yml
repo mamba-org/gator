@@ -257,7 +257,7 @@ jobs:
       - name: Stop containers
         if: always()
         run: |
-          docker-compose -f "./e2e-tests/docker-compose.yml" logs notebook-server
+          docker logs notebook-server
           docker-compose -f "./e2e-tests/docker-compose.yml" down
       - name: Upload screenshots and videos
         if: always()
