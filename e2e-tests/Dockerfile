@@ -7,5 +7,5 @@ RUN ls /tmp/gator \
  && pushd /tmp/gator \
  && jlpm \
  && jlpm build \
- && python -m pip install .
+ && python -m pip install . \
  && popd
