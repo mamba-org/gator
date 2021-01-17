@@ -1,5 +1,7 @@
 FROM jupyter/minimal-notebook
 
+USER root
+
 COPY . /tmp/gator
 
 RUN ls /tmp/gator \
@@ -10,3 +12,5 @@ RUN ls /tmp/gator \
  && jlpm build \
  && python -m pip install . \
  && popd
+
+USER $NB_UID
