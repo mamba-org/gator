@@ -20,7 +20,7 @@ with open("README.md") as rd:
 setuptools.setup(
     name="mamba_gator",
     version=__version__,
-    url="https://github.com/mamba-org/mamba_gator",
+    url="https://github.com/mamba-org/gator",
     author="Continuum Analytics, Jupyter Development Team",
     description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
     long_description=long_description,
