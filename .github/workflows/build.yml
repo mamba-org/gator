@@ -264,21 +264,12 @@ jobs:
       - name: Upload coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: "Python ${{ matrix.python-version }}"
-          COVERALLS_PARALLEL: true
         run: |
           conda activate test_gator
           gem install coveralls-lcov
-          cd packages/common/
+          pushd packages/common/
           coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
-          cd ../../
+          popd
+          python -m pip install --upgrade coveralls
           python -m coveralls --merge=common-jscoverage.json
-        shell: bash -l {0}
-      - name: Coverage finished
-        run: |
-          conda activate test_gator
-          pip install --upgrade coveralls
-          coveralls --finish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash -l {0}
