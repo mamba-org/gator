@@ -26,18 +26,6 @@ module.exports = {
       { test: /\.html$/, use: 'file-loader' },
       { test: /\.md$/, use: 'raw-loader' },
       { test: /\.js.map$/, use: 'file-loader' },
-      // {
-      //   test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,
-      //   use: 'url-loader?limit=10000&mimetype=application/font-woff'
-      // },
-      // {
-      //   test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-      //   use: 'url-loader?limit=10000&mimetype=application/font-woff'
-      // },
-      // {
-      //   test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-      //   use: 'url-loader?limit=10000&mimetype=application/octet-stream'
-      // },
       {
         // In .css files, svg is loaded as a data URI.
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
@@ -62,12 +50,6 @@ module.exports = {
       }
     ]
   },
-  // optimization: {
-  //   sideEffects: false,
-  //   splitChunks: {
-  //     chunks: 'all'
-  //   }
-  // },
   plugins: [
     new webpack.DefinePlugin({
       // Needed for Blueprint. See https://github.com/palantir/blueprint/issues/4393
