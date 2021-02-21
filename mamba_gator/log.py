@@ -12,6 +12,7 @@ class _ExtensionLogger:
         if cls._LOGGER is None:
             app = Application.instance()
             cls._LOGGER = logging.getLogger("{!s}.mamba_gator".format(app.log.name))
+            app.clear_instance()
 
         return cls._LOGGER
 

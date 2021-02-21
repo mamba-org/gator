@@ -24,7 +24,7 @@ except ImportError:
     nb_conda_kernels = None
 
 from .log import get_logger
-from .server import url2path, url_path_join
+from jupyter_server.utils import url2path, url_path_join
 
 
 CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str

@@ -9,15 +9,14 @@ The Mamba Navigator, a Web UI for managing conda environments
 [![Coverage Status](https://coveralls.io/repos/github/mamba-org/gator/badge.svg?branch=master)](https://coveralls.io/github/mamba-org/gator?branch=master)
 [![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fmamba_gator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/mamba_gator/rest_api.yml)
 
-Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [Jupyter Notebook](#Classical-Jupyter-Notebook) and [JupyterLab](#JupyterLab).
+Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [JupyterLab](#JupyterLab).
 
 ## Install
 
 _Requirements_
 
 - conda >= 4.5 or mamba >=0.5
-- notebook >= 4.3
-- JupyterLab 2.x (for the jupyterlab extension only)
+- JupyterLab 1.x, 2.x or 3.x (for the JupyterLab extension only)
 
 > Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
 
@@ -31,6 +30,11 @@ To install in the JupyterLab:
 
 ```shell
 conda install -c conda-forge jupyterlab mamba_gator
+```
+
+If you use JupyterLab 1.x or 2.x, you can install the extension with the following command:
+
+```shell
 jupyter labextension install @mamba-org/gator-lab
 ```
 
@@ -61,11 +65,7 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 
 ## Classical Jupyter Notebook
 
-This extension adds a _Conda_ tab to the Jupyter file browser and a _Conda Packages_ item
-to the _Kernel_ menu.  
-Clicking on either of those elements will open the standalone navigator in a new tab.
-
-![Classical Notebook integration](packages/navigator/classical_nb_integration.gif)
+The classical Jupyter Notebook is supported only for version prior to 4.1.
 
 ## Creating New Environments
 
@@ -86,12 +86,10 @@ There are three ways to create an environment:
 ## Development
 
 ```shell
-conda create -c conda-forge -y -n gator python jupyterlab=2
+conda create -c conda-forge -y -n gator python jupyterlab=3
 conda install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
 pip install -e .
-jupyter nbextension install mamba_gator --py --sys-prefix --symlink
-jupyter nbextension enable mamba_gator --py --sys-prefix
 jupyter serverextension enable mamba_gator --py --sys-prefix
 
 yarn install

@@ -3,10 +3,8 @@ import functools
 import subprocess
 import sys
 import time
-from unittest import TestCase
 
 import pytest
-import tornado
 from mamba_gator.handlers import ActionsStack
 
 

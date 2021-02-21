@@ -40,7 +40,9 @@ jobs:
         run: |
           conda activate test_gator
           conda install -n test_gator --file requirements_dev.txt
-          pip install .
+          python setup.py develop --skip-npm
+          # Check pip dependencies
+          python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: |
@@ -75,18 +77,16 @@ jobs:
           activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
-          mamba-version: "*"
           python-version: ${{ matrix.python-version }}
           show-channel-urls: true
           use-only-tar-bz2: true
       - name: Install dependencies
         run: |
           conda activate test_gator
-          mamba install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=2
-          pip install .
+          conda install -n test_gator --file requirements_dev.txt
+          python setup.py develop --skip-npm
           # Check pip dependencies
-          pip check
+          python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: |
@@ -152,12 +152,9 @@ jobs:
         run: |
           conda activate test_gator
           conda install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=2
+          conda install -n test_gator jupyterlab=3
           yarn install
-          pip install .
-
-          yarn install
-          jupyter labextension link packages/common/ packages/labextension/
+          python -m pip install -e .
         shell: bash -l {0}
 
       - name: Test the extension
@@ -223,12 +220,11 @@ jobs:
         run: |
           conda activate test_gator
           mamba install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator coveralls jupyterlab=2
+          conda install -n test_gator coveralls jupyterlab=3
           yarn install
-          pip install .
+          python -m pip install -e .
           # Check pip dependencies
           pip check
-          jupyter labextension link packages/common/ packages/labextension/
         shell: bash -l {0}
 
       - name: Test the extension
@@ -249,13 +245,6 @@ jobs:
           cat labextensions | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
-      # - name: Integration tests
-      #   run: |
-      #     chmod -R a+rx ./e2e-tests
-      #     docker-compose -f "docker-compose.yml" run e2e ./e2e-tests/run_e2e.sh
-      # - name: Stop containers
-      #   if: always()
-      #   run: docker-compose -f "docker-compose.yml" down
 
       - name: Install Ruby
         uses: ruby/setup-ruby@v1

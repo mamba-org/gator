@@ -198,7 +198,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   private _readText(file: Blob): Promise<any> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = function(event: any): void {
+      reader.onload = function (event: any): void {
         resolve(event.target.result);
       };
       reader.readAsText(file);

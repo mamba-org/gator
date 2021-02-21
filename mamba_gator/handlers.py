@@ -21,7 +21,8 @@ import tornado
 
 from .envmanager import EnvManager
 from .log import get_logger
-from .server import APIHandler, url_path_join
+from jupyter_server.base.handlers import APIHandler
+from jupyter_server.utils import url_path_join
 
 NS = r"conda"
 # Filename for the available conda packages list cache in temp folder
@@ -354,12 +355,12 @@ class PackagesHandler(EnvBaseHandler):
         """
         dependencies = self.get_query_argument("dependencies", 0)
         query = self.get_query_argument("query", "")
-        
+
         idx = None
         if query:
-            if dependencies :
+            if dependencies:
                 idx = self._stack.put(self.env_manager.pkg_depends, query)
-            
+
             else:  # Specific search
                 idx = self._stack.put(self.env_manager.package_search, query)
 
@@ -494,11 +495,11 @@ default_handlers = [
 ]
 
 
-def load_jupyter_server_extension(nbapp):
+def _load_jupyter_server_extension(server_app):
     """Load the nbserver extension"""
-    webapp = nbapp.web_app
+    webapp = server_app.web_app
     webapp.settings["env_manager"] = EnvManager(
-        nbapp.contents_manager.root_dir, nbapp.kernel_spec_manager
+        server_app.contents_manager.root_dir, server_app.kernel_spec_manager
     )
 
     base_url = webapp.settings["base_url"]

@@ -1,6 +1,5 @@
 node_modules
 **/node_modules
 **/lib
-**/build
-**/static
-mamba_gator/navigator
+**/package.json
+mamba_gator
