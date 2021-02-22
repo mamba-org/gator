@@ -246,19 +246,19 @@ jobs:
           python -m jupyterlab.browser_check
         shell: bash -l {0}
 
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.6
-      - name: Upload coverage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          conda activate test_gator
-          gem install coveralls-lcov
-          pushd packages/common/
-          coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
-          popd
-          python -m pip install --upgrade coveralls
-          python -m coveralls --merge=common-jscoverage.json
-        shell: bash -l {0}
+      # - name: Install Ruby
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: 2.6
+      # - name: Upload coverage
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     conda activate test_gator
+      #     gem install coveralls-lcov
+      #     pushd packages/common/
+      #     coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
+      #     popd
+      #     python -m pip install --upgrade coveralls
+      #     python -m coveralls --merge=common-jscoverage.json
+      #   shell: bash -l {0}
