@@ -248,13 +248,13 @@ export class CondaPkgPanel extends React.Component<
     });
   };
 
-  handleSearch(event: any): void {
+  handleSearch(event: React.FormEvent): void {
     if (this.state.isApplyingChanges) {
       return;
     }
 
     this.setState({
-      searchTerm: event.target.value
+      searchTerm: (event.target as HTMLInputElement).value
     });
   }
 

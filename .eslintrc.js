@@ -1,5 +1,44 @@
-const eslintBase = require('./eslint-base');
-
-// eslintBase.parserOptions.project = 'tsconfig-base.json';
-
-module.exports = eslintBase;
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'plugin:react/recommended'
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json'
+  },
+  plugins: ['@typescript-eslint'],
+  rules: {
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'interface',
+        format: ['PascalCase'],
+        custom: {
+          regex: '^I[A-Z]',
+          match: true
+        }
+      }
+    ],
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-namespace': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],
+    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/quotes': [
+      'error',
+      'single',
+      { avoidEscape: true, allowTemplateLiterals: false }
+    ],
+    curly: ['error', 'all'],
+    eqeqeq: 'error',
+    'prefer-arrow-callback': 'error'
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
+  }
+};
