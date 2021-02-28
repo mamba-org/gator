@@ -5,10 +5,9 @@ set -eux
 yarn install
 yarn run build
 python -m pip install .
+python -m pip install jupyterlab-tour
 
-# !! Be sure the version of jupyterlab-tour matches the one saved in bind/workspace.json
-jupyter labextension install jupyterlab-tour@^2.1.1 @jupyterlab/server-proxy --no-build
-jupyter labextension link packages/common/ packages/labextension --no-build
+jupyter labextension install @jupyterlab/server-proxy --no-build
 jupyter lab build --minimize=False
 
 # Import the workspace into JupyterLab

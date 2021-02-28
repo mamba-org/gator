@@ -12,6 +12,7 @@ include tsconfig.json
 include tsconfig-base.json
 include eslint-base.js
 graft packages
+graft mamba_gator/labextension
 prune packages/**/coverage
 prune packages/**/lib
 prune packages/**/build

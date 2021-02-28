@@ -863,7 +863,7 @@ namespace Private {
    * @param {RequestInit} request : initialization parameters for the request
    * @returns {ICancellablePromise<Response>} : Cancellable response to the request
    */
-  export const requestServer = function(
+  export const requestServer = function (
     url: string,
     request: RequestInit
   ): ICancellablePromise<Response> {

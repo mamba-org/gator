@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "esnext",
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "lib",
+    "skipLibCheck": true
   },
   "references": [{ "path": "../common" }],
   "include": ["src/**/*.ts", "src/**/*.tsx"]

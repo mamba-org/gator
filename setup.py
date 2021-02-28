@@ -1,5 +1,15 @@
-import setuptools
 import os
+
+from jupyter_packaging import (
+    create_cmdclass, install_npm, ensure_targets,
+    combine_commands, get_version,
+)
+import setuptools
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+# The name of the project
+name="mamba_gator"
 
 # should be loaded below
 __version__ = None
@@ -7,11 +17,48 @@ __version__ = None
 with open(os.path.join("mamba_gator", "_version.py")) as version:
     exec(version.read())
 
-classic_folder = "mamba_gator/navigator"
-lab_folder = "mamba_gator/labextension"
+lab_path = os.path.join(HERE, "mamba_gator", "labextension")
+labextension_path = os.path.join(HERE, "packages", "labextension")
 
-if not os.path.exists(lab_folder):
-    os.mkdir(lab_folder)
+# Representative files that should exist after a successful build
+jstargets = [
+    os.path.join(labextension_path, "lib", "index.js"),
+    os.path.join(lab_path, "package.json"),
+]
+
+package_data_spec = {
+    name: [
+        "*"
+    ]
+}
+
+labext_name = "@mamba-org/gator-lab"
+
+data_files_spec = [
+    # like `jupyter server extension enable --sys-prefix`
+    (
+        "etc/jupyter/jupyter_server_config.d",
+        "jupyter-config/jupyter_server_config.d",
+        "mamba_gator.json",
+    ),
+    (
+        "etc/jupyter/jupyter_notebook_config.d",
+        "jupyter-config/jupyter_notebook_config.d",
+        "mamba_gator.json",
+    ),
+    ("share/jupyter/labextensions/%s" % labext_name, lab_path, "**"),
+    ("share/jupyter/labextensions/%s" % labext_name, HERE, "install.json"),
+]
+
+cmdclass = create_cmdclass("jsdeps",
+    package_data_spec=package_data_spec,
+    data_files_spec=data_files_spec
+)
+
+cmdclass["jsdeps"] = combine_commands(
+    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]),
+    ensure_targets(jstargets),
+)
 
 long_description = ""
 with open("README.md") as rd:
@@ -25,58 +72,14 @@ setuptools.setup(
     description="Manage your conda environments from the Jupyter Notebook and JupyterLab",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    cmdclass=cmdclass,
     packages=setuptools.find_packages(),
     include_package_data=True,
-    data_files=[
-        # like `jupyter nbextension install --sys-prefix`
-        (
-            "share/jupyter/nbextensions/mamba_gator",
-            [
-                os.path.join(classic_folder, a_file)
-                for a_file in os.listdir(classic_folder)
-                if os.path.isfile(os.path.join(classic_folder, a_file))
-                and not a_file.endswith(".py")
-            ]
-        ),
-        (
-            "share/jupyter/nbextensions/mamba_gator/static",
-            [
-                os.path.join(classic_folder, "static", a_file)
-                for a_file in os.listdir(os.path.join(classic_folder, "static"))
-                if os.path.isfile(os.path.join(classic_folder, "static", a_file))
-                and not a_file.endswith(".py")
-            ],
-        ),
-        # like `jupyter nbextension enable --sys-prefix`
-        (
-            "etc/jupyter/nbconfig/notebook.d",
-            ["jupyter-config/nbconfig/notebook.d/mamba_gator.json"],
-        ),
-        (
-            "etc/jupyter/nbconfig/tree.d",
-            ["jupyter-config/nbconfig/tree.d/mamba_gator.json"],
-        ),
-        # place JupyterLab extension where it can be found
-        (
-            "share/jupyter/lab/extensions",
-            [
-                os.path.join(lab_folder, a_file)
-                for a_file in os.listdir(lab_folder)
-                if a_file.endswith(".tgz")
-            ],
-        ),
-        # like `jupyter serverextension enable --sys-prefix`
-        (
-            "etc/jupyter/jupyter_notebook_config.d",
-            ["jupyter-config/jupyter_notebook_config.d/mamba_gator.json"],
-        ),
-    ],
     zip_safe=False,
     install_requires=[
         # "conda>=4.5",  # Required conda not available through PyPi anymore
         "jupyter_client",
         "jupyterlab_server",
-        "notebook>=4.3.1",
         "packaging",
         "tornado",
         "traitlets",

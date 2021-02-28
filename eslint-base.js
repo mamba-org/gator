@@ -8,15 +8,20 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.eslint.json',
-    sourceType: 'module'
+    project: 'tsconfig.json'
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    '@typescript-eslint/camelcase': 'off',
-    '@typescript-eslint/interface-name-prefix': [
+    '@typescript-eslint/naming-convention': [
       'error',
-      { prefixWithI: 'always' }
+      {
+        selector: 'interface',
+        format: ['PascalCase'],
+        custom: {
+          regex: '^I[A-Z]',
+          match: true
+        }
+      }
     ],
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-namespace': 'off',

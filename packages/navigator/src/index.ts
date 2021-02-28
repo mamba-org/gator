@@ -1,4 +1,8 @@
-import 'whatwg-fetch';
+import { PageConfig, URLExt } from '@jupyterlab/coreutils';
+(window as any).__webpack_public_path__ = URLExt.join(
+  PageConfig.getBaseUrl(),
+  'static/gator/'
+);
 
 import { Gator } from './app/app';
 
@@ -19,3 +23,5 @@ export default async function main(): Promise<void> {
 
   await app.start();
 }
+
+window.addEventListener('load', main);
