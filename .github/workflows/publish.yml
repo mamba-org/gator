@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine jupyterlab
+          pip install setuptools wheel twine jupyterlab~=3.0 jupyter_packaging~=0.7.9
       - name: Build and publish NPM package
         if: ${{ startsWith(github.event.release.tag_name, 'npm') }}
         run: |
