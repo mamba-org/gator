@@ -55,17 +55,15 @@ This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
 This project contains a standalone navigator application sharing much of the code
 of the JupyterLab extension.
 
-### Try it online
-
-Open Mamba Navigator: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
-
-Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
-
-![lab-launcher](packages/navigator/navigator_as_service.png)
-
 ## Classical Jupyter Notebook
 
-The classical Jupyter Notebook is supported only for version prior to 4.1.
+The classical Jupyter Notebook is supported only for version prior to 5. But you can
+directly manage the conda environments with the standalone navigator tool. For that
+you need to execute the following command in a terminal:
+
+```
+gator
+```
 
 ## Creating New Environments
 
@@ -83,6 +81,14 @@ There are three ways to create an environment:
 
 - Import an exported environment from a YAML file
 
+### Try it online
+
+Open Mamba Navigator: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
+
+Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
+
+![lab-launcher](packages/navigator/navigator_as_service.png)
+
 ## Development
 
 ```shell
@@ -90,7 +96,7 @@ conda create -c conda-forge -y -n gator python jupyterlab=3
 conda install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
 pip install -e .
-jupyter serverextension enable mamba_gator --py --sys-prefix
+jupyter server extension enable mamba_gator --sys-prefix
 
 yarn install
 yarn run build:dev
@@ -106,6 +112,13 @@ Then with the [mamba initiative](https://medium.com/@QuantStack/open-software-pa
 sense to move the project in the `mamba-org` organization.
 
 ## Changelog
+
+### 5.0.0
+
+- Features
+  - Update to JupyterLab 3 and the new Jupyter Server  
+  You don't need to install anything more than the pip or conda package.
+  - Drop support for the classical notebook.
 
 ### 4.1.0
 
