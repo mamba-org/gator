@@ -11,4 +11,4 @@ coverage
 flake8
 pytest
 pytest-asyncio
-notebook >=4.3.1,!=6.1.0
+pytest-tornasync

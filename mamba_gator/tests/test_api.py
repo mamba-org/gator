@@ -1,25 +1,21 @@
 import asyncio
 import json
-import random
 import os
+import random
+import re
 import sys
-import unittest
-import unittest.mock as mock
-
-try:
-    from unittest.mock import AsyncMock
-except ImportError:
-    AsyncMock = None
-import uuid
 import tempfile
+import unittest.mock as mock
+import uuid
+from pathlib import Path
+from subprocess import run
 
-from nb_conda_kernels import CondaKernelSpecManager
+import pytest
 import tornado
-from traitlets.config import Config
-
-from mamba_gator.envmanager import EnvManager
-from mamba_gator.handlers import AVAILABLE_CACHE, PackagesHandler
-from mamba_gator.tests.utils import ServerTest, assert_http_error
+from mamba_gator.envmanager import CONDA_EXE, EnvManager
+from mamba_gator.handlers import AVAILABLE_CACHE, NS, PackagesHandler
+from mamba_gator.tests.utils import assert_http_error, maybe_future
+from nb_conda_kernels import CondaKernelSpecManager
 
 
 def generate_name() -> str:
@@ -27,74 +23,1022 @@ def generate_name() -> str:
     return "_" + uuid.uuid4().hex
 
 
-class JupyterCondaAPITest(ServerTest):
-    def setUp(self):
-        super(JupyterCondaAPITest, self).setUp()
-        self.env_names = []
-        self.pkg_name = "alabaster"
+PKG_NAME = "alabaster"
 
-    def tearDown(self):
-        # Remove created environment
-        for n in self.env_names:
-            print(self.env_names, self.conda_api.envs())
-            self.wait_for_task(self.rm_env, n)
-        super(JupyterCondaAPITest, self).tearDown()
 
-    def wait_for_task(self, call, *args, **kwargs):
-        r = call(*args, **kwargs)
-        self.assertEqual(r.status_code, 202)
-        location = r.headers["Location"]
-        self.assertRegex(location, r"^/conda/tasks/\d+$")
-        return self.wait_task(location)
+@pytest.fixture
+def get_environments(jp_fetch):
+    async def foo():
+        response = await jp_fetch(NS, "environments", method="GET")
+        return json.loads(response.body)
 
-    def mk_env(self, name=None, packages=None, remove_if_exists=True):
-        envs = self.conda_api.envs()
+    return foo
+
+
+@pytest.fixture
+def rm_env(wait_for_task):
+    async def foo(name):
+        return await wait_for_task(NS, "environments", name, method="DELETE")
+
+    return foo
+
+
+@pytest.fixture
+def mk_env(get_environments, wait_for_task):
+
+    new_name = generate_name()
+    
+    async def foo(name=None, packages=None):
+        nonlocal new_name
+        envs = await get_environments()
         env_names = map(lambda env: env["name"], envs["environments"])
-        new_name = name or generate_name()
-        if remove_if_exists and new_name in env_names:
-            self.wait_for_task(self.rm_env)
-        self.env_names.append(new_name)
+        if name is not None:
+            new_name = name
+        if new_name in env_names:
+            await wait_for_task(rm_env, new_name)
 
-        return self.conda_api.post(
-            ["environments"],
-            body={"name": new_name, "packages": packages or ["python"]},
+        return await wait_for_task(
+            NS,
+            "environments",
+            body=json.dumps({"name": new_name, "packages": packages or ["python"]}),
+            method="POST",
+        )
+        
+    yield foo
+
+    try:  # Try to remove the environment if it is still around - the server is done so use subprocess
+        run([CONDA_EXE, "env", "remove", "-y", "-q", "-n", new_name])
+    except:
+        pass
+
+
+async def test_ChannelsHandler_get_list(jp_fetch):
+    answer = await jp_fetch(NS, "channels", method="GET")
+    assert answer.code == 200
+    data = json.loads(answer.body)
+    assert "channels" in data
+    assert isinstance(data["channels"], dict)
+
+
+async def test_ChannelsHandler_fail_get(jp_fetch):
+    with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+        error_msg = "Fail to get channels"
+        r = {"error": True, "message": error_msg}
+        f.return_value = maybe_future((1, json.dumps(r)))
+
+        with assert_http_error(500, error_msg):
+            await jp_fetch(NS, "channels", method="GET")
+
+
+async def test_ChannelsHandler_deployment(jp_fetch):
+    with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+        local_channel = (
+            "C:/Users/Public/conda-channel"
+            if sys.platform == "win32"
+            else "/usr/local/share/conda-channel"
+        )
+        strip_channel = local_channel.strip("/")
+        data = {
+            "channel_alias": {
+                "auth": None,
+                "location": "conda.anaconda.org",
+                "name": None,
+                "package_filename": None,
+                "platform": None,
+                "scheme": "https",
+                "token": None,
+            },
+            "channels": ["defaults", "conda-forge", local_channel],
+            "custom_channels": {
+                strip_channel: {
+                    "auth": None,
+                    "location": "",
+                    "name": strip_channel,
+                    "package_filename": None,
+                    "platform": None,
+                    "scheme": "file",
+                    "token": None,
+                }
+            },
+            "custom_multichannels": {
+                "defaults": [
+                    {
+                        "auth": None,
+                        "location": "repo.anaconda.com",
+                        "name": "pkgs/main",
+                        "package_filename": None,
+                        "platform": None,
+                        "scheme": "https",
+                        "token": None,
+                    },
+                    {
+                        "auth": None,
+                        "location": "repo.anaconda.com",
+                        "name": "pkgs/r",
+                        "package_filename": None,
+                        "platform": None,
+                        "scheme": "https",
+                        "token": None,
+                    },
+                ],
+                "local": [
+                    {
+                        "auth": None,
+                        "location": "",
+                        "name": strip_channel,
+                        "package_filename": None,
+                        "platform": None,
+                        "scheme": "file",
+                        "token": None,
+                    }
+                ],
+            },
+        }
+        f.return_value = maybe_future((0, json.dumps(data)))
+
+        response = await jp_fetch(NS, "channels", method="GET")
+        assert response.code == 200
+
+        body = json.loads(response.body)
+        channels = body["channels"]
+        local = "file:///" if sys.platform == "win32" else "file://"
+        expected = {
+            strip_channel: [local + local_channel],
+            "defaults": [
+                "https://repo.anaconda.com/pkgs/main",
+                "https://repo.anaconda.com/pkgs/r",
+            ],
+            "conda-forge": ["https://conda.anaconda.org/conda-forge"],
+        }
+        assert channels == expected
+
+
+async def test_EnvironmentsHandler_get(get_environments, mk_env):
+    n = generate_name()
+    await mk_env(n)
+
+    envs = await get_environments()
+
+    env = None
+    for e in envs["environments"]:
+        if n == e["name"]:
+            env = e
+            break
+    assert env is not None
+    assert env["name"] == n
+    assert os.path.isdir(env["dir"]) == True
+    assert env["is_default"] == False
+
+async def test_EnvironmentsHandler_failed_get(get_environments):
+    with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+        msg = "Fail to get environments"
+        err = {"error": True, "message": msg}
+        f.return_value = maybe_future((1, json.dumps(err)))
+
+        with assert_http_error(500, msg):
+            await get_environments()
+
+
+async def test_EnvironmentsHandler_root(get_environments, mk_env):
+    await mk_env(generate_name())
+
+    envs = await get_environments()
+
+    root = filter(lambda env: env["name"] == "base", envs["environments"])
+    assert len(list(root)) == 1
+
+
+async def test_EnvironmentsHandler_create_and_destroy(mk_env, rm_env, get_environments):
+    # Creating an existing environment does not induce error
+    n = generate_name()
+    response = await mk_env(n)
+
+    assert response.code == 200
+    envs = await get_environments()
+
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n in env_names
+
+    response = await rm_env(n)
+    assert response.code == 200
+
+    envs = await get_environments()
+
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n not in env_names
+
+    response = await mk_env(n)
+    assert response.code == 200
+    envs = await get_environments()
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n in env_names
+
+    response = await rm_env(n)
+    assert response.code == 200
+    envs = await get_environments()
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n not in env_names
+
+
+async def test_EnvironmentsHandler_empty_environment(wait_for_task, get_environments):
+    n = generate_name()
+
+    response = await wait_for_task(
+        NS, "environments", body=json.dumps({"name": n}), method="POST"
+    )
+    try:
+        assert response.code == 200
+        envs = await get_environments()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        assert n in env_names
+    finally:
+        await wait_for_task(NS, "environments", n, method="DELETE")
+
+
+async def test_EnvironmentsHandler_clone(
+    wait_for_task, mk_env, get_environments, rm_env
+):
+    n = generate_name()
+    await mk_env(n)
+    clone_name = n + "-copy"
+    response = await wait_for_task(
+        NS,
+        "environments",
+        body=json.dumps({"name": clone_name, "twin": n}),
+        method="POST",
+    )
+    try:
+        assert response.code == 200
+        envs = await get_environments()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        assert clone_name in env_names
+    finally:
+        response = await rm_env(clone_name)
+        assert response.code == 200
+
+
+async def test_EnvironmentsHandler_yaml_import(
+    wait_for_task, get_environments, jp_fetch, rm_env
+):
+    n = generate_name()
+    build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
+    build_str = build[sys.platform]
+    content = """name: test_conda
+channels:
+- conda-forge
+- defaults
+dependencies:
+- astroid=2.2.5=py37_0
+- ipykernel=5.1.1=py37h39e3cac_0
+- python=3.7.3={}
+- pip:
+- cycler==0.10.0
+prefix: /home/user/.conda/envs/lab_conda
+    """.format(
+        build_str
+    )
+
+    expected = [
+        ("astroid", "2.2.5", "py37_0"),
+        ("ipykernel", "5.1.1", "py37h39e3cac_0"),
+        ("python", "3.7.3", build_str),
+        ("cycler", "0.10.0", "pypi_0"),
+    ]
+
+    response = await wait_for_task(
+        NS,
+        "environments",
+        body=json.dumps({"name": n, "file": content, "filename": "testenv.yml"}),
+        method="POST",
+    )
+    try:
+        assert response.code == 200
+        envs = await get_environments()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        assert n in env_names
+
+        r = await jp_fetch(NS, "environments", n, method="GET")
+        pkgs = json.loads(r.body).get("packages", [])
+        packages = list(
+            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
+        )
+        for p in expected:
+            assert p, packages in "{} not found.".format(p)
+    finally:
+        await rm_env(n)
+
+
+async def test_EnvironmentsHandler_text_import(
+    jp_fetch, rm_env, wait_for_task, get_environments
+):
+    n = generate_name()
+    build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
+    build_str = build[sys.platform]
+    # pip package are not supported by text export file
+    content = """# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+astroid=2.2.5=py37_0
+ipykernel=5.1.1=py37h39e3cac_0
+python=3.7.3={}
+    """.format(
+        build_str
+    )
+
+    expected = [
+        ("astroid", "2.2.5", "py37_0"),
+        ("ipykernel", "5.1.1", "py37h39e3cac_0"),
+        ("python", "3.7.3", build_str),
+    ]
+
+    response = await wait_for_task(
+        NS,
+        "environments",
+        body=json.dumps({"name": n, "file": content}),
+        method="POST",
+    )
+    try:
+        assert response.code == 200
+        envs = await get_environments()
+        env_names = map(lambda env: env["name"], envs["environments"])
+        assert n in env_names
+
+        r = await jp_fetch(NS, "environments", n, method="GET")
+        pkgs = json.loads(r.body).get("packages", [])
+        packages = list(
+            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
+        )
+        for p in expected:
+            assert p in packages, f"{p} not found."
+    finally:
+        await rm_env(n)
+
+
+async def test_EnvironmentsHandler_update_yaml(
+    mk_env, get_environments, wait_for_task, jp_fetch
+):
+    n = generate_name()
+    response = await mk_env(
+        n,
+        [
+            "python=3.7",
+        ],
+    )
+    assert response.code == 200
+
+    content = """name: test_conda
+channels:
+- conda-forge
+- defaults
+dependencies:
+- astroid=2.2.5=py37_0
+- pip:
+- cycler==0.10.0
+prefix: /home/user/.conda/envs/lab_conda
+    """
+
+    expected = [
+        ("astroid", "2.2.5", "py37_0"),
+        ("cycler", "0.10.0", "pypi_0"),
+    ]
+
+    response = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        body=json.dumps({"file": content, "filename": "testenv.yml"}),
+        method="PATCH",
+    )
+    assert response.code == 200
+    envs = await get_environments()
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n in env_names
+
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body).get("packages", [])
+    packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
+    for p in expected:
+        assert p, packages in "{} not found.".format(p)
+
+
+async def test_EnvironmentsHandler_update_no_filename(
+    jp_fetch, mk_env, get_environments, wait_for_task
+):
+    n = generate_name()
+    response = await mk_env(
+        n,
+        [
+            "python=3.7",
+        ],
+    )
+    assert response.code == 200
+
+    content = """name: test_conda
+channels:
+- conda-forge
+- defaults
+dependencies:
+- astroid=2.2.5=py37_0
+- pip:
+- cycler==0.10.0
+prefix: /home/user/.conda/envs/lab_conda
+    """
+
+    expected = [
+        ("astroid", "2.2.5", "py37_0"),
+        ("cycler", "0.10.0", "pypi_0"),
+    ]
+
+    response = await wait_for_task(
+        NS, "environments", n, body=json.dumps({"file": content}), method="PATCH"
+    )
+    assert response.code == 200
+    envs = await get_environments()
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n in env_names
+
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body).get("packages", [])
+    packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
+    for p in expected:
+        assert p, packages in "{} not found.".format(p)
+
+
+async def test_EnvironmentsHandler_update_txt(
+    jp_fetch, mk_env, get_environments, wait_for_task
+):
+    n = generate_name()
+    response = await mk_env(
+        n,
+        [
+            "python=3.7",
+        ],
+    )
+    assert response.code == 200
+
+    content = """# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+astroid=2.2.5=py37_0
+    """
+
+    expected = [
+        ("astroid", "2.2.5", "py37_0"),
+    ]
+
+    response = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        body=json.dumps({"file": content, "filename": "testenv.txt"}),
+        method="PATCH",
+    )
+    assert response.code == 200
+    envs = await get_environments()
+    env_names = map(lambda env: env["name"], envs["environments"])
+    assert n in env_names
+
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body).get("packages", [])
+    packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
+    for p in expected:
+        assert p, packages in "{} not found.".format(p)
+
+
+@mock.patch("nb_conda_kernels.manager.CACHE_TIMEOUT", 0)
+async def test_EnvironmentsHandler_get_whitelist(jp_web_app, jp_fetch, mk_env):
+    n = "banana"
+    await mk_env(
+        n,
+        packages=[
+            "ipykernel",
+        ],
+    )
+    manager = CondaKernelSpecManager()
+    manager.whitelist = set(
+        [
+            "conda-env-banana-py",
+        ]
+    )
+    env_manager = jp_web_app.settings["env_manager"]
+    env_manager._kernel_spec_manager = manager
+
+    r = await jp_fetch(NS, "environments", params={"whitelist": 1}, method="GET")
+    assert r.code == 200
+    envs = json.loads(r.body)
+    env = None
+    for e in envs["environments"]:
+        if n == e["name"]:
+            env = e
+            break
+    assert env is not None
+    assert env["name"] == n
+    assert os.path.isdir(env["dir"]) == True
+    assert env["is_default"] == False
+    found_env = len(envs["environments"])
+    assert found_env == 2
+
+    n = generate_name()
+    await mk_env(n)
+    r = await jp_fetch(NS, "environments", params={"whitelist": 1}, method="GET")
+    assert r.code == 200
+    envs = json.loads(r.body)
+    assert len(envs["environments"]) == found_env
+
+
+async def test_EnvironmentHandler_delete(mk_env, rm_env):
+    n = generate_name()
+    await mk_env(n)
+
+    r = await rm_env(n)
+    assert r.code == 200
+
+
+async def test_EnvironmentHandler_delete_not_existing(rm_env):
+    # Deleting not existing environment does not raise an error
+    n = generate_name()
+
+    r = await rm_env(n)
+    assert r.code == 200
+
+
+async def test_EnvironmentHandler_get(jp_fetch, mk_env):
+    n = generate_name()
+    await mk_env(n)
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    assert r.code == 200
+    body = json.loads(r.body)
+    assert "packages" in body
+
+
+async def test_EnvironmentHandler_fail_get(jp_fetch):
+    n = generate_name()
+    with assert_http_error(500, "h"):
+        await jp_fetch(NS, "environments", n, method="GET")
+
+
+async def test_EnvironmentHandler_get_has_no_update(wait_for_task, mk_env):
+    n = generate_name()
+
+    await mk_env(n, ["python"])
+
+    r = await wait_for_task(
+        NS, "environments", n, params={"status": "has_update"}, method="GET"
+    )
+    assert r.code == 200
+    body = json.loads(r.body)
+    assert len(body["updates"]) == 0
+
+
+async def test_EnvironmentHandler_get_has_update(wait_for_task, mk_env):
+    n = generate_name()
+
+    await mk_env(
+        n,
+        ["python", "alabaster=0.7.11"],
+    )
+
+    r = await wait_for_task(
+        NS, "environments", n, params={"status": "has_update"}, method="GET"
+    )
+    assert r.code == 200
+    body = json.loads(r.body)
+    assert len(body["updates"]) >= 1
+    names = map(lambda p: p["name"], body["updates"])
+    assert "alabaster" in names
+
+
+async def test_EnvironmentHandler_export(jp_fetch, mk_env):
+    n = generate_name()
+    await mk_env(n)
+    r = await jp_fetch(
+        NS, "environments", n, params={"download": 1, "history": 0}, method="GET"
+    )
+    assert r.code == 200
+
+    content = r.body.decode("utf-8")
+    assert "name: " + n in content
+    assert "channels:" in content
+    assert "dependencies:" in content
+    assert re.search(r"- python=\d\.\d+\.\d+=\w+", content) is not None
+    assert "prefix:" in content
+
+
+async def test_EnvironmentHandler_export_history(jp_fetch, mk_env):
+    n = generate_name()
+    await mk_env(n)
+    r = await jp_fetch(
+        NS, "environments", n, params={"download": 1, "history": 1}, method="GET"
+    )
+    assert r.code == 200
+
+    content = " ".join(r.body.decode("utf-8").splitlines())
+    assert (
+        re.search(
+            r"^name:\s"
+            + n
+            + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python\s+prefix:",
+            content,
+        )
+        is not None
+    )
+
+
+async def test_EnvironmentHandler_export_not_supporting_history(jp_fetch, mk_env):
+    try:
+        n = generate_name()
+        await mk_env(n)
+        EnvManager._conda_version = (4, 6, 0)
+        r = await jp_fetch(
+            NS, "environments", n, params={"download": 1, "history": 1}, method="GET"
+        )
+        assert r.code == 200
+
+        content = r.body.decode("utf-8")
+        assert "name: " + n in content
+        assert "channels:" in content
+        assert "dependencies:" in content
+        assert re.search(r"- python=\d\.\d+\.\d+=\w+", content)
+        assert "prefix:" in content
+    finally:
+        EnvManager._conda_version = None
+
+
+async def test_conda_version(jp_fetch):
+    EnvManager._conda_version = None
+    assert EnvManager._conda_version is None
+    await jp_fetch(NS, "environments", method="GET")
+    assert EnvManager._conda_version is not None
+
+
+async def test_PackagesEnvironmentHandler_install_and_remove(
+    jp_fetch, mk_env, wait_for_task
+):
+    n = generate_name()
+    await mk_env(n)
+
+    r = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        body=json.dumps({"packages": [PKG_NAME]}),
+        method="POST",
+    )
+    assert r.code == 200
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body)["packages"]
+    v = None
+    for p in pkgs:
+        if p["name"] == PKG_NAME:
+            v = p
+            break
+    assert v is not None
+
+    r = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        body=json.dumps({"packages": [PKG_NAME]}),
+        method="DELETE",
+        allow_nonstandard_methods=True,
+    )
+    assert r.code == 200
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body)["packages"]
+    v = None
+    for p in pkgs:
+        if p["name"] == PKG_NAME:
+            v = p
+            break
+    assert v is None
+
+
+async def test_PackagesEnvironmentHandler_install_with_version_constraints_1(
+    jp_fetch, mk_env, wait_for_task
+):
+    test_pkg = "alabaster"
+    n = generate_name()
+    await mk_env(n)
+
+    r = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        body=json.dumps({"packages": [test_pkg + "==0.7.12"]}),
+        method="POST",
+    )
+    assert r.code == 200
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body)["packages"]
+    v = None
+    for p in pkgs:
+        if p["name"] == test_pkg:
+            v = p
+            break
+    assert v["version"] == "0.7.12"
+
+
+async def test_PackagesEnvironmentHandler_install_with_version_constraints_2(
+    jp_fetch, mk_env, wait_for_task
+):
+    test_pkg = "alabaster"
+    n = generate_name()
+    await mk_env(n)
+    r = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        body=json.dumps({"packages": [test_pkg + ">=0.7.10"]}),
+        method="POST",
+    )
+    assert r.code == 200
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body)["packages"]
+    v = None
+    for p in pkgs:
+        if p["name"] == test_pkg:
+            v = tuple(map(int, p["version"].split(".")))
+            break
+    assert v >= (0, 7, 10)
+
+
+async def test_PackagesEnvironmentHandler_install_with_version_constraints_3(
+    jp_fetch, mk_env, wait_for_task
+):
+    test_pkg = "alabaster"
+    n = generate_name()
+    await mk_env(n)
+    r = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        body=json.dumps({"packages": [test_pkg + ">=0.7.10,<0.7.13"]}),
+        method="POST",
+    )
+    assert r.code == 200
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    pkgs = json.loads(r.body)["packages"]
+    v = None
+    for p in pkgs:
+        if p["name"] == test_pkg:
+            v = tuple(map(int, p["version"].split(".")))
+            break
+    assert v >= (0, 7, 10)
+    assert v < (0, 7, 13)
+
+
+async def test_PackagesEnvironmentHandler_install_development_mode(
+    jp_fetch, mk_env, wait_for_task
+):
+    n = generate_name()
+    await mk_env(n)
+
+    pkg_name = "banana"
+    with tempfile.TemporaryDirectory() as folder:
+        folder = Path(folder)
+        (folder / pkg_name).mkdir(parents=True)
+        (folder / pkg_name / "__init__.py").write_text("")
+        (folder / "setup.py").write_text(
+            f"from setuptools import setup\nsetup(name='{pkg_name}')\n"
         )
 
-    def rm_env(self, name):
-        answer = self.conda_api.delete(["environments", name])
-        if name in self.env_names:
-            self.env_names.remove(name)
-        return answer
+        await wait_for_task(
+            NS,
+            "environments",
+            n,
+            "packages",
+            body=json.dumps({"packages": [str(folder)]}),
+            params={"develop": 1},
+            method="POST",
+        )
+
+        r = await jp_fetch(NS, "environments", n, method="GET")
+        body = json.loads(r.body)
+
+        v = None
+        for p in body["packages"]:
+            if p["name"] == pkg_name:
+                v = p
+                break
+        assert v["channel"] == "<develop>"
+        assert v["platform"] == "pypi"
 
 
-class TestChannelsHandler(JupyterCondaAPITest):
-    def test_get_list_channels(self):
-        answer = self.conda_api.get(["channels"])
-        self.assertEqual(answer.status_code, 200)
-        data = answer.json()
-        self.assertIn("channels", data)
-        self.assertIsInstance(data["channels"], dict)
+async def test_PackagesEnvironmentHandler_install_development_mode_url_path(
+    jp_fetch, jp_root_dir, wait_for_task, mk_env
+):
+    n = generate_name()
+    await mk_env(n)
 
-    def test_fail_get(self):
+    pkg_name = generate_name()[1:]
+    folder = jp_root_dir / pkg_name
+    (folder / pkg_name).mkdir(parents=True)
+    (folder / pkg_name / "__init__.py").write_text("")
+    (folder / "setup.py").write_text(
+        f"from setuptools import setup\nsetup(name='{pkg_name}')\n"
+    )
+
+    await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        body=json.dumps({"packages": [pkg_name]}),
+        params={"develop": 1},
+        method="POST",
+    )
+
+    r = await jp_fetch(NS, "environments", n, method="GET")
+    body = json.loads(r.body)
+
+    v = None
+    for p in body["packages"]:
+        if p["name"] == pkg_name:
+            v = p
+            break
+    assert v["channel"] == "<develop>"
+    assert v["platform"] == "pypi"
+
+
+async def test_PackagesEnvironmentHandler_update(wait_for_task, mk_env):
+    n = generate_name()
+    await mk_env(n)
+
+    r = await wait_for_task(
+        NS,
+        "environments",
+        n,
+        "packages",
+        method="PATCH",
+        allow_nonstandard_methods=True,
+    )
+    assert r.code == 200
+
+
+async def test_PackagesHandler_search(wait_for_task):
+    r = await wait_for_task(NS, "packages", params={"query": PKG_NAME}, method="GET")
+    assert r.code == 200
+    body = json.loads(r.body)
+    assert "packages" in body
+    v = None
+    for p in body["packages"]:
+        if p["name"] == PKG_NAME:
+            v = p
+            break
+    assert v is not None
+
+
+async def test_PackagesHandler_list_available(wait_for_task):
+    with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
         with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-            error_msg = "Fail to get channels"
-            r = {"error": True, "message": error_msg}
-            rvalue = (1, json.dumps(r))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
-            with assert_http_error(500, msg=error_msg):
-                self.conda_api.get(["channels"])
-
-    def test_deployment(self):
-        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-            local_channel = (
-                "C:/Users/Public/conda-channel"
-                if sys.platform == "win32"
-                else "/usr/local/share/conda-channel"
-            )
-            strip_channel = local_channel.strip("/")
-            data = {
+            dummy = {
+                "numpy_sugar": [
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "380115a180acf251faaf754ff37cab8f",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                        "size": 46560,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "version": "1.0.6",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                        "size": 46738,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "version": "1.0.8",
+                    },
+                ],
+                "numpydoc": [
+                    {
+                        "arch": None,
+                        "build": "py36_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                        "constrains": [],
+                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "f96891e9071727dfca3ea480408396f6",
+                        "name": "numpydoc",
+                        "platform": None,
+                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                        "size": 43791,
+                        "subdir": "win-64",
+                        "timestamp": 1522687759543,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_1",
+                        "build_number": 1,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                        "size": 21577,
+                        "subdir": "noarch",
+                        "timestamp": 1531243883293,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "081b5590105257246eada8a8bc5dd0aa",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                        "size": 32151,
+                        "subdir": "noarch",
+                        "timestamp": 1555950366084,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                        "version": "0.9.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "de8a98b573872ba539fe7e68e106178a",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                        "size": 29774,
+                        "subdir": "noarch",
+                        "timestamp": 1556022967544,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                        "version": "0.9.1",
+                    },
+                ],
+            }
+            channels = {
                 "channel_alias": {
                     "auth": None,
                     "location": "conda.anaconda.org",
@@ -104,18 +1048,7 @@ class TestChannelsHandler(JupyterCondaAPITest):
                     "scheme": "https",
                     "token": None,
                 },
-                "channels": ["defaults", "conda-forge", local_channel],
-                "custom_channels": {
-                    strip_channel: {
-                        "auth": None,
-                        "location": "",
-                        "name": strip_channel,
-                        "package_filename": None,
-                        "platform": None,
-                        "scheme": "file",
-                        "token": None,
-                    }
-                },
+                "channels": ["defaults"],
                 "custom_multichannels": {
                     "defaults": [
                         {
@@ -126,839 +1059,433 @@ class TestChannelsHandler(JupyterCondaAPITest):
                             "platform": None,
                             "scheme": "https",
                             "token": None,
-                        },
-                        {
-                            "auth": None,
-                            "location": "repo.anaconda.com",
-                            "name": "pkgs/r",
-                            "package_filename": None,
-                            "platform": None,
-                            "scheme": "https",
-                            "token": None,
-                        },
-                    ],
-                    "local": [
-                        {
+                        }
+                    ]
+                },
+                "ssl_verify": False,
+            }
+
+            rvalue = [
+                (0, json.dumps(dummy)),
+                (0, json.dumps(channels)),
+            ]
+            # Use side_effect to have a different return value for each call
+            f.side_effect = map(maybe_future, rvalue)
+
+            r = await wait_for_task(NS, "packages", method="GET")
+            assert r.code == 200
+            body = json.loads(r.body)
+
+            expected = {
+                "packages": [
+                    {
+                        "build_number": [0, 0],
+                        "build_string": ["py35_vc14_0", "py35_vc14_0"],
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "version": ["1.0.6", "1.0.8"],
+                        "summary": "",
+                        "home": "",
+                        "keywords": [],
+                        "tags": [],
+                    },
+                    {
+                        "build_number": [1, 0, 0],
+                        "build_string": ["py_1", "py_0", "py_0"],
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                        "name": "numpydoc",
+                        "platform": None,
+                        "version": ["0.8.0", "0.9.0", "0.9.1"],
+                        "summary": "Numpy's Sphinx extensions",
+                        "home": "https://github.com/numpy/numpydoc",
+                        "keywords": [],
+                        "tags": [],
+                    },
+                ],
+                "with_description": True,
+            }
+            assert body == expected
+
+
+@pytest.mark.skipif(
+    sys.platform.startswith("win"), reason="TODO test not enough reliability"
+)
+async def test_PackagesHandler_list_available_local_channel(wait_for_task):
+    with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+            dummy = {
+                "numpy_sugar": [
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "380115a180acf251faaf754ff37cab8f",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                        "size": 46560,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "version": "1.0.6",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                        "size": 46738,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "version": "1.0.8",
+                    },
+                ],
+                "numpydoc": [
+                    {
+                        "arch": None,
+                        "build": "py36_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                        "constrains": [],
+                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "f96891e9071727dfca3ea480408396f6",
+                        "name": "numpydoc",
+                        "platform": None,
+                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                        "size": 43791,
+                        "subdir": "win-64",
+                        "timestamp": 1522687759543,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_1",
+                        "build_number": 1,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                        "size": 21577,
+                        "subdir": "noarch",
+                        "timestamp": 1531243883293,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "081b5590105257246eada8a8bc5dd0aa",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                        "size": 32151,
+                        "subdir": "noarch",
+                        "timestamp": 1555950366084,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                        "version": "0.9.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "de8a98b573872ba539fe7e68e106178a",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                        "size": 29774,
+                        "subdir": "noarch",
+                        "timestamp": 1556022967544,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                        "version": "0.9.1",
+                    },
+                ],
+            }
+
+            with tempfile.TemporaryDirectory() as local_channel:
+                (Path(local_channel) / "channeldata.json").write_text(
+                    '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Numpy\'s Sphinx extensions", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
+                )
+                local_name = local_channel.strip("/")
+                channels = {
+                    "channel_alias": {},
+                    "channels": [local_channel],
+                    "custom_multichannels": {},
+                    "custom_channels": {
+                        local_name: {
                             "auth": None,
                             "location": "",
-                            "name": strip_channel,
+                            "name": local_name,
                             "package_filename": None,
                             "platform": None,
                             "scheme": "file",
                             "token": None,
                         }
+                    },
+                }
+
+                rvalue = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
+                # Use side_effect to have a different return value for each call
+                f.side_effect = map(maybe_future, rvalue)
+
+                r = await wait_for_task(NS, "packages", method="GET")
+                assert r.code == 200
+                body = json.loads(r.body)
+
+                expected = {
+                    "packages": [
+                        {
+                            "build_number": [0, 0],
+                            "build_string": ["py35_vc14_0", "py35_vc14_0"],
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                            "name": "numpy_sugar",
+                            "platform": None,
+                            "version": ["1.0.6", "1.0.8"],
+                            "summary": "",
+                            "home": "",
+                            "keywords": [],
+                            "tags": [],
+                        },
+                        {
+                            "build_number": [1, 0, 0],
+                            "build_string": ["py_1", "py_0", "py_0"],
+                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                            "name": "numpydoc",
+                            "platform": None,
+                            "version": ["0.8.0", "0.9.0", "0.9.1"],
+                            "summary": "Numpy's Sphinx extensions",
+                            "home": "https://github.com/numpy/numpydoc",
+                            "keywords": [],
+                            "tags": [],
+                        },
                     ],
-                },
-            }
-            rvalue = (0, json.dumps(data))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
-
-            response = self.conda_api.get(["channels"])
-            self.assertEqual(response.status_code, 200)
-
-            body = response.json()
-            channels = body["channels"]
-            local = "file:///" if sys.platform == "win32" else "file://"
-            expected = {
-                strip_channel: [local + local_channel],
-                "defaults": [
-                    "https://repo.anaconda.com/pkgs/main",
-                    "https://repo.anaconda.com/pkgs/r",
-                ],
-                "conda-forge": ["https://conda.anaconda.org/conda-forge"],
-            }
-            self.assertEqual(channels, expected)
+                    "with_description": True,
+                }
+                assert body == expected
 
 
-class TestEnvironmentsHandler(JupyterCondaAPITest):
-    def test_get(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        envs = self.conda_api.envs()
-        env = None
-        for e in envs["environments"]:
-            if n == e["name"]:
-                env = e
-                break
-        self.assertIsNotNone(env)
-        self.assertEqual(env["name"], n)
-        self.assertTrue(os.path.isdir(env["dir"]))
-        self.assertFalse(env["is_default"])
-
-    def test_failed_get(self):
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="not reliable on Windows")
+async def test_PackagesHandler_list_available_no_description(wait_for_task):
+    with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
         with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-            msg = "Fail to get environments"
-            err = {"error": True, "message": msg}
-            rvalue = (1, json.dumps(err))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
-            with assert_http_error(500, msg=msg):
-                self.conda_api.get(["environments"])
-
-    def test_root(self):
-        self.wait_for_task(self.mk_env, generate_name())
-        envs = self.conda_api.envs()
-        root = filter(lambda env: env["name"] == "base", envs["environments"])
-        self.assertEqual(len(list(root)), 1)
-
-    def test_env_create_and_destroy(self):
-        # Creating an existing environment does not induce error
-        n = generate_name()
-        response = self.wait_for_task(self.mk_env, n)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        response = self.wait_for_task(self.rm_env, n)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertNotIn(n, env_names)
-
-        response = self.wait_for_task(self.mk_env, n, remove_if_exists=True)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        response = self.wait_for_task(self.rm_env, n)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertNotIn(n, env_names)
-
-    def test_empty_environment(self):
-        n = generate_name()
-        self.env_names.append(n)
-        response = self.wait_for_task(
-            self.conda_api.post, ["environments"], body={"name": n}
-        )
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-    def cp_env(self, name, new_name):
-        self.env_names.append(new_name)
-        return self.conda_api.post(
-            ["environments"], body={"name": new_name, "twin": name}
-        )
-
-    def test_env_clone(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        clone_name = n + "-copy"
-        response = self.wait_for_task(self.cp_env, n, clone_name)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(clone_name, env_names)
-
-        response = self.wait_for_task(self.rm_env, clone_name)
-        self.assertEqual(response.status_code, 200)
-        self.wait_for_task(self.rm_env, n)
-
-    def test_environment_yaml_import(self):
-        n = generate_name()
-        self.env_names.append(n)
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
-        build_str = build[sys.platform]
-        content = """name: test_conda
-channels:
-- conda-forge
-- defaults
-dependencies:
-- astroid=2.2.5=py37_0
-- ipykernel=5.1.1=py37h39e3cac_0
-- python=3.7.3={}
-- pip:
-    - cycler==0.10.0
-prefix: /home/user/.conda/envs/lab_conda
-        """.format(
-            build_str
-        )
-
-        expected = [
-            ("astroid", "2.2.5", "py37_0"),
-            ("ipykernel", "5.1.1", "py37h39e3cac_0"),
-            ("python", "3.7.3", build_str),
-            ("cycler", "0.10.0", "pypi_0"),
-        ]
-
-        def g():
-            return self.conda_api.post(
-                ["environments"],
-                body={"name": n, "file": content, "filename": "testenv.yml"},
-            )
-
-        response = self.wait_for_task(g)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
-        for p in expected:
-            self.assertIn(p, packages, "{} not found.".format(p))
-
-    def test_environment_text_import(self):
-        n = generate_name()
-        self.env_names.append(n)
-        build = {"linux": "h0371630_0", "win32": "h8c8aaf0_1", "darwin": "h359304d_0"}
-        build_str = build[sys.platform]
-        # pip package are not supported by text export file
-        content = """# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
-# platform: linux-64
-astroid=2.2.5=py37_0
-ipykernel=5.1.1=py37h39e3cac_0
-python=3.7.3={}
-        """.format(
-            build_str
-        )
-
-        expected = [
-            ("astroid", "2.2.5", "py37_0"),
-            ("ipykernel", "5.1.1", "py37h39e3cac_0"),
-            ("python", "3.7.3", build_str),
-        ]
-
-        def g():
-            return self.conda_api.post(
-                ["environments"], body={"name": n, "file": content}
-            )
-
-        response = self.wait_for_task(g)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
-        for p in expected:
-            self.assertIn(p, packages, "{} not found.".format(p))
-
-    def test_update_env_yaml(self):
-        n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
-        self.assertEqual(response.status_code, 200)
-
-        content = """name: test_conda
-channels:
-- conda-forge
-- defaults
-dependencies:
-- astroid=2.2.5=py37_0
-- pip:
-    - cycler==0.10.0
-prefix: /home/user/.conda/envs/lab_conda
-        """
-
-        expected = [
-            ("astroid", "2.2.5", "py37_0"),
-            ("cycler", "0.10.0", "pypi_0"),
-        ]
-
-        def g():
-            return self.conda_api.patch(
-                ["environments", n], body={"file": content, "filename": "testenv.yml"},
-            )
-
-        response = self.wait_for_task(g)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
-        for p in expected:
-            self.assertIn(p, packages, "{} not found.".format(p))
-
-    def test_update_env_no_filename(self):
-        n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
-        self.assertEqual(response.status_code, 200)
-
-        content = """name: test_conda
-channels:
-- conda-forge
-- defaults
-dependencies:
-- astroid=2.2.5=py37_0
-- pip:
-    - cycler==0.10.0
-prefix: /home/user/.conda/envs/lab_conda
-        """
-
-        expected = [
-            ("astroid", "2.2.5", "py37_0"),
-            ("cycler", "0.10.0", "pypi_0"),
-        ]
-
-        def g():
-            return self.conda_api.patch(["environments", n], body={"file": content},)
-
-        response = self.wait_for_task(g)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
-        for p in expected:
-            self.assertIn(p, packages, "{} not found.".format(p))
-
-    def test_update_env_txt(self):
-        n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
-        self.assertEqual(response.status_code, 200)
-
-        content = """# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
-# platform: linux-64
-astroid=2.2.5=py37_0
-        """
-
-        expected = [
-            ("astroid", "2.2.5", "py37_0"),
-        ]
-
-        def g():
-            return self.conda_api.patch(
-                ["environments", n], body={"file": content, "filename": "testenv.txt"},
-            )
-
-        response = self.wait_for_task(g)
-        self.assertEqual(response.status_code, 200)
-        envs = self.conda_api.envs()
-        env_names = map(lambda env: env["name"], envs["environments"])
-        self.assertIn(n, env_names)
-
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
-        for p in expected:
-            self.assertIn(p, packages, "{} not found.".format(p))
-
-
-class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
-    @mock.patch("nb_conda_kernels.manager.CACHE_TIMEOUT", 0)
-    def test_get_whitelist(self):
-        n = "banana"
-        self.wait_for_task(self.mk_env, n, packages=["ipykernel",])
-        manager = CondaKernelSpecManager()
-        manager.whitelist = set(["conda-env-banana-py",])
-        env_manager = TestEnvironmentsHandlerWhiteList.notebook.web_app.settings["env_manager"]
-        env_manager._kernel_spec_manager = manager
-
-        r = self.conda_api.get(["environments",], params={"whitelist": 1})
-        self.assertEqual(r.status_code, 200)
-        envs = r.json()
-        env = None
-        for e in envs["environments"]:
-            if n == e["name"]:
-                env = e
-                break
-        self.assertIsNotNone(env)
-        self.assertEqual(env["name"], n)
-        self.assertTrue(os.path.isdir(env["dir"]))
-        self.assertFalse(env["is_default"])
-        found_env = len(envs["environments"])
-        self.assertEqual(found_env, 2)
-
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(["environments",], params={"whitelist": 1})
-        self.assertEqual(r.status_code, 200)
-        envs = r.json()
-        self.assertEqual(len(envs["environments"]), found_env)
-
-
-class TestEnvironmentHandler(JupyterCondaAPITest):
-    def test_delete(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-
-        r = self.wait_for_task(self.conda_api.delete, ["environments", n])
-        self.assertEqual(r.status_code, 200)
-
-    def test_delete_not_existing(self):
-        # Deleting not existing environment does not raise an error
-        n = generate_name()
-
-        r = self.wait_for_task(self.conda_api.delete, ["environments", n])
-        self.assertEqual(r.status_code, 200)
-
-    def test_get(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(["environments", n])
-        self.assertEqual(r.status_code, 200)
-        body = r.json()
-        self.assertIn("packages", body)
-
-    def test_fail_get(self):
-        n = generate_name()
-        with assert_http_error(500, msg="h"):
-            self.conda_api.get(["environments", n])
-
-    def test_get_has_update(self):
-        n = generate_name()
-        self.env_names.append(n)
-        self.wait_for_task(
-            self.conda_api.post,
-            ["environments"],
-            body={"name": n, "packages": ["python"]},
-        )
-
-        r = self.wait_for_task(
-            self.conda_api.get, ["environments", n], params={"status": "has_update"}
-        )
-        self.assertEqual(r.status_code, 200)
-        body = r.json()
-        self.assertEqual(len(body["updates"]), 0)
-
-        n = generate_name()
-        self.env_names.append(n)
-        self.wait_for_task(
-            self.conda_api.post,
-            ["environments"],
-            body={"name": n, "packages": ["python", "alabaster=0.7.11"]},
-        )
-
-        r = self.wait_for_task(
-            self.conda_api.get, ["environments", n], params={"status": "has_update"}
-        )
-        self.assertEqual(r.status_code, 200)
-        body = r.json()
-        self.assertGreaterEqual(len(body["updates"]), 1)
-        names = map(lambda p: p["name"], body["updates"])
-        self.assertIn("alabaster", names)
-
-    def test_env_export(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(["environments", n], params={"download": 1, "history": 0})
-        self.assertEqual(r.status_code, 200)
-
-        content = r.text
-        self.assertRegex(content, r"name: " + n)
-        self.assertRegex(content, r"channels:")
-        self.assertRegex(content, r"dependencies:")
-        self.assertRegex(content, r"- python=\d\.\d+\.\d+=\w+")
-        self.assertRegex(content, r"prefix:")
-
-    def test_env_export_history(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(
-            ["environments", n], params={"download": 1, "history": 1}
-        )
-        self.assertEqual(r.status_code, 200)
-
-        content = " ".join(r.text.splitlines())
-        self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python\s+prefix:"
-        )
-
-    def test_env_export_not_supporting_history(self):
-        try:
-            n = generate_name()
-            self.wait_for_task(self.mk_env, n)
-            EnvManager._conda_version = (4, 6, 0)
-            r = self.conda_api.get(
-                ["environments", n], params={"download": 1, "history": 1}
-            )
-            self.assertEqual(r.status_code, 200)
-
-            content = r.text
-            self.assertRegex(content, r"name: " + n)
-            self.assertRegex(content, r"channels:")
-            self.assertRegex(content, r"dependencies:")
-            self.assertRegex(content, r"- python=\d\.\d+\.\d+=\w+")
-            self.assertRegex(content, r"prefix:")
-        finally:
-            EnvManager._conda_version = None
-
-
-class TestCondaVersion(JupyterCondaAPITest):
-    def test_version(self):
-        EnvManager._conda_version = None
-        self.assertIsNone(EnvManager._conda_version)
-        self.conda_api.get(
-            ["environments",]
-        )
-        self.assertIsNotNone(EnvManager._conda_version)
-
-
-class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
-    def test_pkg_install_and_remove(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-
-        r = self.wait_for_task(
-            self.conda_api.post,
-            ["environments", n, "packages"],
-            body={"packages": [self.pkg_name]},
-        )
-        self.assertEqual(r.status_code, 200)
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json()["packages"]
-        v = None
-        for p in pkgs:
-            if p["name"] == self.pkg_name:
-                v = p
-                break
-        self.assertIsNotNone(v)
-
-        r = self.wait_for_task(
-            self.conda_api.delete,
-            ["environments", n, "packages"],
-            body={"packages": [self.pkg_name]},
-        )
-        self.assertEqual(r.status_code, 200)
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json()["packages"]
-        v = None
-        for p in pkgs:
-            if p["name"] == self.pkg_name:
-                v = p
-                break
-        self.assertIsNone(v)
-
-    def test_pkg_install_with_version_constraints(self):
-        test_pkg = "alabaster"
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-
-        r = self.wait_for_task(
-            self.conda_api.post,
-            ["environments", n, "packages"],
-            body={"packages": [test_pkg + "==0.7.12"]},
-        )
-        self.assertEqual(r.status_code, 200)
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json()["packages"]
-        v = None
-        for p in pkgs:
-            if p["name"] == test_pkg:
-                v = p
-                break
-        self.assertEqual(v["version"], "0.7.12")
-
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        r = self.wait_for_task(
-            self.conda_api.post,
-            ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=0.7.10"]},
-        )
-        self.assertEqual(r.status_code, 200)
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json()["packages"]
-        v = None
-        for p in pkgs:
-            if p["name"] == test_pkg:
-                v = tuple(map(int, p["version"].split(".")))
-                break
-        self.assertGreaterEqual(v, (0, 7, 10))
-
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-        r = self.wait_for_task(
-            self.conda_api.post,
-            ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=0.7.10,<0.7.13"]},
-        )
-        self.assertEqual(r.status_code, 200)
-        r = self.conda_api.get(["environments", n])
-        pkgs = r.json()["packages"]
-        v = None
-        for p in pkgs:
-            if p["name"] == test_pkg:
-                v = tuple(map(int, p["version"].split(".")))
-                break
-        self.assertGreaterEqual(v, (0, 7, 10))
-        self.assertLess(v, (0, 7, 13))
-
-    def test_package_install_development_mode(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-
-        pkg_name = "banana"
-        with tempfile.TemporaryDirectory() as folder:
-            os.mkdir(os.path.join(folder, pkg_name))
-            with open(os.path.join(folder, pkg_name, "__init__.py"), "w+") as f:
-                f.write("")
-            with open(os.path.join(folder, "setup.py"), "w+") as f:
-                f.write("from setuptools import setup\n")
-                f.write("setup(name='{}')\n".format(pkg_name))
-
-            self.wait_for_task(
-                self.conda_api.post,
-                ["environments", n, "packages"],
-                body={"packages": [folder]},
-                params={"develop": 1},
-            )
-
-            r = self.conda_api.get(["environments", n])
-            body = r.json()
-
-            v = None
-            for p in body["packages"]:
-                if p["name"] == pkg_name:
-                    v = p
-                    break
-            self.assertEqual(v["channel"], "<develop>")
-            self.assertEqual(v["platform"], "pypi")
-
-    def test_package_install_development_mode_url_path(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-
-        pkg_name = generate_name()[1:]
-        folder = os.path.join(self.notebook.contents_manager.root_dir, pkg_name)
-        os.mkdir(folder)
-        os.mkdir(os.path.join(folder, pkg_name))
-        with open(os.path.join(folder, pkg_name, "__init__.py"), "w+") as f:
-            f.write("")
-        with open(os.path.join(folder, "setup.py"), "w+") as f:
-            f.write("from setuptools import setup\n")
-            f.write("setup(name='{}')\n".format(pkg_name))
-
-        self.wait_for_task(
-            self.conda_api.post,
-            ["environments", n, "packages"],
-            body={"packages": [pkg_name]},
-            params={"develop": 1},
-        )
-
-        r = self.conda_api.get(["environments", n])
-        body = r.json()
-
-        v = None
-        for p in body["packages"]:
-            if p["name"] == pkg_name:
-                v = p
-                break
-        self.assertEqual(v["channel"], "<develop>")
-        self.assertEqual(v["platform"], "pypi")
-
-    def test_pkg_update(self):
-        n = generate_name()
-        self.wait_for_task(self.mk_env, n)
-
-        r = self.wait_for_task(self.conda_api.patch, ["environments", n, "packages"])
-        self.assertEqual(r.status_code, 200)
-
-
-class TestPackagesHandler(JupyterCondaAPITest):
-    def test_package_search(self):
-        r = self.wait_for_task(
-            self.conda_api.get, ["packages"], params={"query": self.pkg_name}
-        )
-        self.assertEqual(r.status_code, 200)
-        body = r.json()
-        self.assertIn("packages", body)
-        v = None
-        for p in body["packages"]:
-            if p["name"] == self.pkg_name:
-                v = p
-                break
-        self.assertIsNotNone(v)
-
-    def test_package_list_available(self):
-        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-                dummy = {
-                    "numpy_sugar": [
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "380115a180acf251faaf754ff37cab8f",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                            "size": 46560,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "version": "1.0.6",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                            "size": 46738,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "version": "1.0.8",
-                        },
-                    ],
-                    "numpydoc": [
-                        {
-                            "arch": None,
-                            "build": "py36_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                            "constrains": [],
-                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "f96891e9071727dfca3ea480408396f6",
-                            "name": "numpydoc",
-                            "platform": None,
-                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                            "size": 43791,
-                            "subdir": "win-64",
-                            "timestamp": 1522687759543,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_1",
-                            "build_number": 1,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                            "size": 21577,
-                            "subdir": "noarch",
-                            "timestamp": 1531243883293,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "081b5590105257246eada8a8bc5dd0aa",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                            "size": 32151,
-                            "subdir": "noarch",
-                            "timestamp": 1555950366084,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                            "version": "0.9.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "de8a98b573872ba539fe7e68e106178a",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                            "size": 29774,
-                            "subdir": "noarch",
-                            "timestamp": 1556022967544,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                            "version": "0.9.1",
-                        },
-                    ],
-                }
-                channels = {
-                    "channel_alias": {
-                        "auth": None,
-                        "location": "conda.anaconda.org",
-                        "name": None,
-                        "package_filename": None,
+            dummy = {
+                "numpy_sugar": [
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "380115a180acf251faaf754ff37cab8f",
+                        "name": "numpy_sugar",
                         "platform": None,
-                        "scheme": "https",
-                        "token": None,
+                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                        "size": 46560,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "version": "1.0.6",
                     },
-                    "channels": ["defaults"],
-                    "custom_multichannels": {
-                        "defaults": [
-                            {
-                                "auth": None,
-                                "location": "repo.anaconda.com",
-                                "name": "pkgs/main",
-                                "package_filename": None,
-                                "platform": None,
-                                "scheme": "https",
-                                "token": None,
-                            }
-                        ]
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                        "size": 46738,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "version": "1.0.8",
                     },
-                    "ssl_verify": False,
+                ],
+                "numpydoc": [
+                    {
+                        "arch": None,
+                        "build": "py36_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                        "constrains": [],
+                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "f96891e9071727dfca3ea480408396f6",
+                        "name": "numpydoc",
+                        "platform": None,
+                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                        "size": 43791,
+                        "subdir": "win-64",
+                        "timestamp": 1522687759543,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_1",
+                        "build_number": 1,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                        "size": 21577,
+                        "subdir": "noarch",
+                        "timestamp": 1531243883293,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "081b5590105257246eada8a8bc5dd0aa",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                        "size": 32151,
+                        "subdir": "noarch",
+                        "timestamp": 1555950366084,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                        "version": "0.9.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "de8a98b573872ba539fe7e68e106178a",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                        "size": 29774,
+                        "subdir": "noarch",
+                        "timestamp": 1556022967544,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                        "version": "0.9.1",
+                    },
+                ],
+            }
+
+            with tempfile.TemporaryDirectory() as local_channel:
+                local_name = local_channel.strip("/")
+                channels = {
+                    "channel_alias": {},
+                    "channels": [local_channel],
+                    "custom_multichannels": {},
+                    "custom_channels": {
+                        local_name: {
+                            "auth": None,
+                            "location": "",
+                            "name": local_name,
+                            "package_filename": None,
+                            "platform": None,
+                            "scheme": "file",
+                            "token": None,
+                        }
+                    },
                 }
 
                 rvalue = [
@@ -966,15 +1493,11 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     (0, json.dumps(channels)),
                 ]
                 # Use side_effect to have a different return value for each call
-                f.side_effect = (
-                    map(tornado.gen.maybe_future, rvalue)
-                    if AsyncMock is None
-                    else rvalue
-                )
+                f.side_effect = map(maybe_future, rvalue)
 
-                r = self.wait_for_task(self.conda_api.get, ["packages"])
-                self.assertEqual(r.status_code, 200)
-                body = r.json()
+                r = await wait_for_task(NS, "packages", method="GET")
+                assert r.code == 200
+                body = json.loads(r.body)
 
                 expected = {
                     "packages": [
@@ -997,689 +1520,266 @@ class TestPackagesHandler(JupyterCondaAPITest):
                             "name": "numpydoc",
                             "platform": None,
                             "version": ["0.8.0", "0.9.0", "0.9.1"],
-                            "summary": "Numpy's Sphinx extensions",
-                            "home": "https://github.com/numpy/numpydoc",
-                            "keywords": [],
-                            "tags": [],
-                        },
-                    ],
-                    "with_description": True,
-                }
-                self.assertEqual(body, expected)
-
-    @unittest.skipIf(sys.platform.startswith("win"), "TODO test not enough reliability")
-    def test_package_list_available_local_channel(self):
-        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-                dummy = {
-                    "numpy_sugar": [
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "380115a180acf251faaf754ff37cab8f",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                            "size": 46560,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "version": "1.0.6",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                            "size": 46738,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "version": "1.0.8",
-                        },
-                    ],
-                    "numpydoc": [
-                        {
-                            "arch": None,
-                            "build": "py36_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                            "constrains": [],
-                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "f96891e9071727dfca3ea480408396f6",
-                            "name": "numpydoc",
-                            "platform": None,
-                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                            "size": 43791,
-                            "subdir": "win-64",
-                            "timestamp": 1522687759543,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_1",
-                            "build_number": 1,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                            "size": 21577,
-                            "subdir": "noarch",
-                            "timestamp": 1531243883293,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "081b5590105257246eada8a8bc5dd0aa",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                            "size": 32151,
-                            "subdir": "noarch",
-                            "timestamp": 1555950366084,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                            "version": "0.9.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "de8a98b573872ba539fe7e68e106178a",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                            "size": 29774,
-                            "subdir": "noarch",
-                            "timestamp": 1556022967544,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                            "version": "0.9.1",
-                        },
-                    ],
-                }
-
-                with tempfile.TemporaryDirectory() as local_channel:
-                    with open(
-                        os.path.join(local_channel, "channeldata.json"), "w+"
-                    ) as d:
-                        d.write(
-                            '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Numpy\'s Sphinx extensions", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
-                        )
-                    local_name = local_channel.strip("/")
-                    channels = {
-                        "channel_alias": {},
-                        "channels": [local_channel],
-                        "custom_multichannels": {},
-                        "custom_channels": {
-                            local_name: {
-                                "auth": None,
-                                "location": "",
-                                "name": local_name,
-                                "package_filename": None,
-                                "platform": None,
-                                "scheme": "file",
-                                "token": None,
-                            }
-                        },
-                    }
-
-                    rvalue = [
-                        (0, json.dumps(dummy)),
-                        (0, json.dumps(channels)),
-                    ]
-                    # Use side_effect to have a different return value for each call
-                    f.side_effect = (
-                        map(tornado.gen.maybe_future, rvalue)
-                        if AsyncMock is None
-                        else rvalue
-                    )
-
-                    r = self.wait_for_task(self.conda_api.get, ["packages"])
-                    self.assertEqual(r.status_code, 200)
-                    body = r.json()
-
-                    expected = {
-                        "packages": [
-                            {
-                                "build_number": [0, 0],
-                                "build_string": ["py35_vc14_0", "py35_vc14_0"],
-                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                                "name": "numpy_sugar",
-                                "platform": None,
-                                "version": ["1.0.6", "1.0.8"],
-                                "summary": "",
-                                "home": "",
-                                "keywords": [],
-                                "tags": [],
-                            },
-                            {
-                                "build_number": [1, 0, 0],
-                                "build_string": ["py_1", "py_0", "py_0"],
-                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                                "name": "numpydoc",
-                                "platform": None,
-                                "version": ["0.8.0", "0.9.0", "0.9.1"],
-                                "summary": "Numpy's Sphinx extensions",
-                                "home": "https://github.com/numpy/numpydoc",
-                                "keywords": [],
-                                "tags": [],
-                            },
-                        ],
-                        "with_description": True,
-                    }
-                    self.assertEqual(body, expected)
-
-    @unittest.skipIf(sys.platform.startswith("win"), "not reliable on Windows")
-    def test_package_list_available_no_description(self):
-        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-                dummy = {
-                    "numpy_sugar": [
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "380115a180acf251faaf754ff37cab8f",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                            "size": 46560,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "version": "1.0.6",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                            "size": 46738,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "version": "1.0.8",
-                        },
-                    ],
-                    "numpydoc": [
-                        {
-                            "arch": None,
-                            "build": "py36_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                            "constrains": [],
-                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "f96891e9071727dfca3ea480408396f6",
-                            "name": "numpydoc",
-                            "platform": None,
-                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                            "size": 43791,
-                            "subdir": "win-64",
-                            "timestamp": 1522687759543,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_1",
-                            "build_number": 1,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                            "size": 21577,
-                            "subdir": "noarch",
-                            "timestamp": 1531243883293,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "081b5590105257246eada8a8bc5dd0aa",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                            "size": 32151,
-                            "subdir": "noarch",
-                            "timestamp": 1555950366084,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                            "version": "0.9.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "de8a98b573872ba539fe7e68e106178a",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                            "size": 29774,
-                            "subdir": "noarch",
-                            "timestamp": 1556022967544,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                            "version": "0.9.1",
-                        },
-                    ],
-                }
-
-                with tempfile.TemporaryDirectory() as local_channel:
-                    local_name = local_channel.strip("/")
-                    channels = {
-                        "channel_alias": {},
-                        "channels": [local_channel],
-                        "custom_multichannels": {},
-                        "custom_channels": {
-                            local_name: {
-                                "auth": None,
-                                "location": "",
-                                "name": local_name,
-                                "package_filename": None,
-                                "platform": None,
-                                "scheme": "file",
-                                "token": None,
-                            }
-                        },
-                    }
-
-                    rvalue = [
-                        (0, json.dumps(dummy)),
-                        (0, json.dumps(channels)),
-                    ]
-                    # Use side_effect to have a different return value for each call
-                    f.side_effect = (
-                        map(tornado.gen.maybe_future, rvalue)
-                        if AsyncMock is None
-                        else rvalue
-                    )
-
-                    r = self.wait_for_task(self.conda_api.get, ["packages"])
-                    self.assertEqual(r.status_code, 200)
-                    body = r.json()
-
-                    expected = {
-                        "packages": [
-                            {
-                                "build_number": [0, 0],
-                                "build_string": ["py35_vc14_0", "py35_vc14_0"],
-                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                                "name": "numpy_sugar",
-                                "platform": None,
-                                "version": ["1.0.6", "1.0.8"],
-                                "summary": "",
-                                "home": "",
-                                "keywords": [],
-                                "tags": [],
-                            },
-                            {
-                                "build_number": [1, 0, 0],
-                                "build_string": ["py_1", "py_0", "py_0"],
-                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                                "name": "numpydoc",
-                                "platform": None,
-                                "version": ["0.8.0", "0.9.0", "0.9.1"],
-                                "summary": "",
-                                "home": "",
-                                "keywords": [],
-                                "tags": [],
-                            },
-                        ],
-                        "with_description": False,
-                    }
-                    self.assertEqual(body, expected)
-
-    def test_package_list_available_caching(self):
-        cache_name = generate_name()
-        with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", cache_name):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
-                dummy = {
-                    "numpy_sugar": [
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "380115a180acf251faaf754ff37cab8f",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
-                            "size": 46560,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
-                            "version": "1.0.6",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py35_vc14_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "constrains": [],
-                            "depends": [
-                                "cffi",
-                                "ncephes",
-                                "numba",
-                                "numpy",
-                                "python 3.5*",
-                                "scipy",
-                                "vc 14.*",
-                            ],
-                            "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "license": "MIT",
-                            "license_family": "MIT",
-                            "md5": "6306fdf5d1f3fad5049f282b63e95403",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
-                            "size": 46738,
-                            "subdir": "win-64",
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
-                            "version": "1.0.8",
-                        },
-                    ],
-                    "numpydoc": [
-                        {
-                            "arch": None,
-                            "build": "py36_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                            "constrains": [],
-                            "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "f96891e9071727dfca3ea480408396f6",
-                            "name": "numpydoc",
-                            "platform": None,
-                            "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
-                            "size": 43791,
-                            "subdir": "win-64",
-                            "timestamp": 1522687759543,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_1",
-                            "build_number": 1,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.8.0-py_1.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
-                            "size": 21577,
-                            "subdir": "noarch",
-                            "timestamp": 1531243883293,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
-                            "version": "0.8.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.0-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "081b5590105257246eada8a8bc5dd0aa",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
-                            "size": 32151,
-                            "subdir": "noarch",
-                            "timestamp": 1555950366084,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
-                            "version": "0.9.0",
-                        },
-                        {
-                            "arch": None,
-                            "build": "py_0",
-                            "build_number": 0,
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
-                            "constrains": [],
-                            "depends": ["python", "sphinx"],
-                            "fn": "numpydoc-0.9.1-py_0.tar.bz2",
-                            "license": "BSD 3-Clause",
-                            "md5": "de8a98b573872ba539fe7e68e106178a",
-                            "name": "numpydoc",
-                            "noarch": "python",
-                            "package_type": "noarch_python",
-                            "platform": None,
-                            "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
-                            "size": 29774,
-                            "subdir": "noarch",
-                            "timestamp": 1556022967544,
-                            "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
-                            "version": "0.9.1",
-                        },
-                    ],
-                }
-                channels = {
-                    "channel_alias": {
-                        "auth": None,
-                        "location": "conda.anaconda.org",
-                        "name": None,
-                        "package_filename": None,
-                        "platform": None,
-                        "scheme": "https",
-                        "token": None,
-                    },
-                    "channels": ["defaults"],
-                    "custom_multichannels": {
-                        "defaults": [
-                            {
-                                "auth": None,
-                                "location": "repo.anaconda.com",
-                                "name": "pkgs/main",
-                                "package_filename": None,
-                                "platform": None,
-                                "scheme": "https",
-                                "token": None,
-                            }
-                        ]
-                    },
-                    "ssl_verify": False,
-                }
-
-                rvalue = [
-                    (0, json.dumps(dummy)),
-                    (0, json.dumps(channels)),
-                ]
-                # Use side_effect to have a different return value for each call
-                f.side_effect = (
-                    map(tornado.gen.maybe_future, rvalue)
-                    if AsyncMock is None
-                    else rvalue
-                )
-
-                # First retrival no cache available
-                r = self.wait_for_task(self.conda_api.get, ["packages"])
-                self.assertEqual(r.status_code, 200)
-
-                expected = {
-                    "packages": [
-                        {
-                            "build_number": [0, 0],
-                            "build_string": ["py35_vc14_0", "py35_vc14_0"],
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
-                            "name": "numpy_sugar",
-                            "platform": None,
-                            "version": ["1.0.6", "1.0.8"],
                             "summary": "",
                             "home": "",
                             "keywords": [],
                             "tags": [],
                         },
-                        {
-                            "build_number": [1, 0, 0],
-                            "build_string": ["py_1", "py_0", "py_0"],
-                            "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
-                            "name": "numpydoc",
-                            "platform": None,
-                            "version": ["0.8.0", "0.9.0", "0.9.1"],
-                            "summary": "Numpy's Sphinx extensions",
-                            "home": "https://github.com/numpy/numpydoc",
-                            "keywords": [],
-                            "tags": [],
-                        },
                     ],
-                    "with_description": True,
+                    "with_description": False,
                 }
-
-                cache_file = os.path.join(tempfile.gettempdir(), cache_name + ".json")
-                self.assertTrue(os.path.exists(cache_file))
-
-                with open(cache_file) as cache:
-                    self.assertEqual(json.load(cache), expected)
-
-                # Retrieve using cache
-                r = self.conda_api.get(["packages"])
-                self.assertEqual(r.status_code, 200)
-                body = r.json()
-                self.assertEqual(body, expected)
+                assert body == expected
 
 
-class TestTasksHandler(JupyterCondaAPITest):
-    def test_get_invalid_task(self):
-        with assert_http_error(404):
-            self.conda_api.get(["tasks", str(random.randint(1, 1200))])
+async def test_PackagesHandler_list_available_caching(wait_for_task, jp_fetch):
+    cache_name = generate_name()
+    with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", cache_name):
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+            dummy = {
+                "numpy_sugar": [
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "380115a180acf251faaf754ff37cab8f",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "8bba4c5179a7e40f0c03861df9dfc1fd7827322e76d0b646a29bee055b0b727a",
+                        "size": 46560,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                        "version": "1.0.6",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py35_vc14_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "constrains": [],
+                        "depends": [
+                            "cffi",
+                            "ncephes",
+                            "numba",
+                            "numpy",
+                            "python 3.5*",
+                            "scipy",
+                            "vc 14.*",
+                        ],
+                        "fn": "numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "license": "MIT",
+                        "license_family": "MIT",
+                        "md5": "6306fdf5d1f3fad5049f282b63e95403",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "sha256": "88e41187218af19e587ef43a3a570a6664d2041cfc01f660eae255a284d9ca77",
+                        "size": 46738,
+                        "subdir": "win-64",
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.8-py35_vc14_0.tar.bz2",
+                        "version": "1.0.8",
+                    },
+                ],
+                "numpydoc": [
+                    {
+                        "arch": None,
+                        "build": "py36_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                        "constrains": [],
+                        "depends": ["python >=3.6,<3.7.0a0", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py36_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "f96891e9071727dfca3ea480408396f6",
+                        "name": "numpydoc",
+                        "platform": None,
+                        "sha256": "8760ab4d1d04b4c9a455baa6961a2885175d74cafac1e06034f99ff7e2357056",
+                        "size": 43791,
+                        "subdir": "win-64",
+                        "timestamp": 1522687759543,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64/numpydoc-0.8.0-py36_0.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_1",
+                        "build_number": 1,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.8.0-py_1.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "5e71b7baaecd06f5c2dfbb1055cb0de3",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "30ae298b7e4b02f2e9fe07e1341c70468a95cb0ab6b38dd18d60de7082935494",
+                        "size": 21577,
+                        "subdir": "noarch",
+                        "timestamp": 1531243883293,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.8.0-py_1.tar.bz2",
+                        "version": "0.8.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.0-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "081b5590105257246eada8a8bc5dd0aa",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "8ccc9c59c5b874e7f255270e919fd9f8b6e0a4c62dca48bc4de990f5ceb7da34",
+                        "size": 32151,
+                        "subdir": "noarch",
+                        "timestamp": 1555950366084,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy/noarch/numpydoc-0.9.0-py_0.tar.bz2",
+                        "version": "0.9.0",
+                    },
+                    {
+                        "arch": None,
+                        "build": "py_0",
+                        "build_number": 0,
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch",
+                        "constrains": [],
+                        "depends": ["python", "sphinx"],
+                        "fn": "numpydoc-0.9.1-py_0.tar.bz2",
+                        "license": "BSD 3-Clause",
+                        "md5": "de8a98b573872ba539fe7e68e106178a",
+                        "name": "numpydoc",
+                        "noarch": "python",
+                        "package_type": "noarch_python",
+                        "platform": None,
+                        "sha256": "90049dd32972b2e61131ba27c9c4c90b09e701cbba2c6a473d041d7ffa1352c0",
+                        "size": 29774,
+                        "subdir": "noarch",
+                        "timestamp": 1556022967544,
+                        "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/noarch/numpydoc-0.9.1-py_0.tar.bz2",
+                        "version": "0.9.1",
+                    },
+                ],
+            }
+            channels = {
+                "channel_alias": {
+                    "auth": None,
+                    "location": "conda.anaconda.org",
+                    "name": None,
+                    "package_filename": None,
+                    "platform": None,
+                    "scheme": "https",
+                    "token": None,
+                },
+                "channels": ["defaults"],
+                "custom_multichannels": {
+                    "defaults": [
+                        {
+                            "auth": None,
+                            "location": "repo.anaconda.com",
+                            "name": "pkgs/main",
+                            "package_filename": None,
+                            "platform": None,
+                            "scheme": "https",
+                            "token": None,
+                        }
+                    ]
+                },
+                "ssl_verify": False,
+            }
 
-    def test_delete_invalid_task(self):
-        with assert_http_error(404):
-            self.conda_api.get(["tasks", str(random.randint(1, 1200))])
+            rvalue = [
+                (0, json.dumps(dummy)),
+                (0, json.dumps(channels)),
+            ]
+            # Use side_effect to have a different return value for each call
+            f.side_effect = map(maybe_future, rvalue)
 
-    def test_delete_task(self):
-        r = self.mk_env()
+            # First retrival no cache available
+            r = await wait_for_task(NS, "packages", method="GET")
+            assert r.code == 200
+
+            expected = {
+                "packages": [
+                    {
+                        "build_number": [0, 0],
+                        "build_string": ["py35_vc14_0", "py35_vc14_0"],
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",
+                        "name": "numpy_sugar",
+                        "platform": None,
+                        "version": ["1.0.6", "1.0.8"],
+                        "summary": "",
+                        "home": "",
+                        "keywords": [],
+                        "tags": [],
+                    },
+                    {
+                        "build_number": [1, 0, 0],
+                        "build_string": ["py_1", "py_0", "py_0"],
+                        "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy/win-64",
+                        "name": "numpydoc",
+                        "platform": None,
+                        "version": ["0.8.0", "0.9.0", "0.9.1"],
+                        "summary": "Numpy's Sphinx extensions",
+                        "home": "https://github.com/numpy/numpydoc",
+                        "keywords": [],
+                        "tags": [],
+                    },
+                ],
+                "with_description": True,
+            }
+
+            cache_file = os.path.join(tempfile.gettempdir(), cache_name + ".json")
+            assert os.path.exists(cache_file) == True
+
+            with open(cache_file) as cache:
+                assert json.load(cache) == expected
+
+            # Retrieve using cache
+            r = await jp_fetch(NS, "packages", method="GET")
+            assert r.code == 200
+            body = json.loads(r.body)
+            assert body == expected
+
+
+async def test_TaskHandler_get_invalid_task(jp_fetch):
+    with assert_http_error(404):
+        await jp_fetch(NS, "tasks", str(random.randint(1, 1200)), method="GET")
+
+
+async def test_TaskHandler_delete_invalid_task(jp_fetch):
+    with assert_http_error(404):
+        await jp_fetch(NS, "tasks", str(random.randint(1, 1200)), method="DELETE")
+
+
+async def test_TaskHandler_delete_task(jp_fetch, rm_env):
+    n = generate_name()
+    r = await jp_fetch(
+        NS,
+        "environments",
+        body=json.dumps({"name": n, "packages": ["python"]}),
+        method="POST",
+    )
+    try:
         location = r.headers["Location"]
         _, index = location.rsplit("/", maxsplit=1)
-        r = self.conda_api.delete(["tasks", index])
-        self.assertEqual(r.status_code, 204)
+        r = await jp_fetch(NS, "tasks", index, method="DELETE")
+        assert r.code == 204
+    finally:
+        await rm_env(n)
