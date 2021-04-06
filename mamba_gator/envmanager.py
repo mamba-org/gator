@@ -585,7 +585,10 @@ class EnvManager:
                 "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        ans = await self._execute(self.manager, "search", "--json")
+        if Path(self.manager).stem != "mamba":
+            ans = await self._execute(self.manager, "search", "--json")
+        else:
+            ans = await self._execute(self.manager, "repoquery", "search", "*", "--json")
         _, output = ans
 
         current_loop = tornado.ioloop.IOLoop.current()
@@ -595,6 +598,25 @@ class EnvManager:
             # we didn't get back a list of packages, we got a
             # dictionary with error info
             return data
+
+        def process_mamba_repoquery_output(data: Dict) -> Dict:
+            """Make a dictionary with keys as packages name and values
+            containing the list of available packages to match the json output
+            of "conda search --json".
+            """
+
+            data_ = {}
+            for entry in data['result']['pkgs']:
+                name = entry.get('name')
+                if name in data_.keys():
+                    data_[name].append(entry)
+                else:
+                    data_[name] = [entry]
+
+            return data_
+
+        if Path(self.manager).stem == "mamba":
+            data = await current_loop.run_in_executor(None, process_mamba_repoquery_output, data)
 
         def format_packages(data: Dict) -> List:
             packages = []
