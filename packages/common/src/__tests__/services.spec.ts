@@ -3,6 +3,7 @@ import { ServerConnection } from '@jupyterlab/services';
 import { Settings } from '@jupyterlab/settingregistry';
 import { testEmission } from '@jupyterlab/testutils';
 import 'jest';
+import { platform } from 'os'
 import { CondaEnvironments, CondaPackage } from '../services';
 
 jest.mock('@jupyterlab/services', () => {
@@ -17,6 +18,8 @@ jest.mock('@jupyterlab/services', () => {
   };
 });
 jest.mock('@jupyterlab/settingregistry');
+
+const itSkipIf = (condition: boolean) => condition ? it.skip : it;
 
 describe('@mamba-org/gator-lab/services', () => {
   const settings = { baseUrl: 'foo/' };
@@ -65,7 +68,7 @@ describe('@mamba-org/gator-lab/services', () => {
       );
     });
 
-    it('should cancel a redirection location for long running task', async () => {
+    itSkipIf(platform() === 'win32')('should cancel a redirection location for long running task', async () => {
       // Given
       const name = 'dummy';
       let taskIdx = 21;
