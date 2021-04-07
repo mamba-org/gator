@@ -1007,7 +1007,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 }
                 self.assertEqual(body, expected)
 
-    @unittest.skipIf(sys.platform.startswith("win"), "TODO test not enough reliability")
+    @unittest.skipIf(not sys.platform.startswith("linux"), "FIXME improve test reliability")
     def test_package_list_available_local_channel(self):
         with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
             with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
