@@ -1,6 +1,7 @@
 # Copyright (c) 2016-2020 Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 import asyncio
+import collections
 import json
 import logging
 import os
@@ -608,13 +609,11 @@ class EnvManager:
             of "conda search --json".
             """
 
-            data_ = {}
+            data_ = collections.defaultdict(lambda : [])
             for entry in data['result']['pkgs']:
                 name = entry.get('name')
-                if name in data_.keys():
+                if name is not None:
                     data_[name].append(entry)
-                else:
-                    data_[name] = [entry]
 
             return data_
 
