@@ -204,8 +204,8 @@ class EnvManager:
                 if process.returncode != 0:
                     raise RuntimeError(error)
 
-                mamba_exe = output.strip() or "mamba"
-                
+                mamba_exe = output.splitlines()[0] or "mamba"
+
                 process = Popen(
                     [mamba_exe, "--version"],
                     stdout=PIPE,
