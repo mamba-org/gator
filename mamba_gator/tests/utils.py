@@ -195,7 +195,7 @@ class ServerTest(ServerTestBase):
         if endpoint.startswith("/" + NS):
             endpoint = endpoint[len(NS) + 1 :]
 
-        print(start_time.total_seconds())
+        print(start_time)
         while (datetime.datetime.now() - start_time).total_seconds() < 3 * TIMEOUT:
             print(endpoint, (datetime.datetime.now() - start_time).total_seconds())
             time.sleep(SLEEP)
