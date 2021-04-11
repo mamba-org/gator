@@ -192,12 +192,12 @@ class EnvManager:
             # Set conda by default
             EnvManager._manager_exe = CONDA_EXE
             try:
-                which = "which"
+                cmd = ["which", "mamba"]
                 if sys.platform == "win32":
-                    which = "where"
+                    cmd = ["where", "mamba.exe"]
 
                 process = Popen(
-                    [which, "mamba"], stdout=PIPE, stderr=PIPE, encoding="utf-8"
+                    cmd, stdout=PIPE, stderr=PIPE, encoding="utf-8"
                 )
                 output, error = process.communicate()
 
