@@ -56,7 +56,7 @@ jobs:
     strategy:
       matrix:
         # Skip 3.7 as it is used for integration tests
-        python-version: [3.6, 3.8, 3.9]
+        python-version: [3.6, 3.7, 3.8, 3.9]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -235,8 +235,9 @@ jobs:
           yarn run eslint:check
 
           # Run test
-          coverage run -m pytest mamba_gator
-          coverage report
+          python -m pytest mamba_gator
+          # coverage run -m pytest mamba_gator
+          # coverage report
           yarn run test
 
           jupyter serverextension list 1>serverextensions 2>&1

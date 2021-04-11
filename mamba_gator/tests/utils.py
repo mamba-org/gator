@@ -11,7 +11,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import jupyter_core.paths
-import requests
 from ipython_genutils.tempdir import TemporaryDirectory
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
@@ -41,8 +40,8 @@ except ImportError:
 
 
 
-TIMEOUT = 150
-SLEEP = 1
+TIMEOUT = 180
+SLEEP = 5
 
 
 class APITester(object):
@@ -57,7 +56,7 @@ class APITester(object):
         if body is not None:
             body = json.dumps(body)
         response = self.request(
-            verb, url_path_join(self.url, *path), data=body, params=params
+            verb, url_path_join(self.url, *path), data=body, params=params, timeout=TIMEOUT
         )
 
         if 400 <= response.status_code < 600:
@@ -196,7 +195,9 @@ class ServerTest(ServerTestBase):
         if endpoint.startswith("/" + NS):
             endpoint = endpoint[len(NS) + 1 :]
 
-        while (datetime.datetime.now() - start_time).total_seconds() < TIMEOUT:
+        print(start_time)
+        while (datetime.datetime.now() - start_time).total_seconds() < 3 * TIMEOUT:
+            print(endpoint, (datetime.datetime.now() - start_time).total_seconds())
             time.sleep(SLEEP)
             response = self.conda_api.get([endpoint])
             response.raise_for_status()
