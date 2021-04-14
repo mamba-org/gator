@@ -77,13 +77,15 @@ jobs:
           activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
+          mamba-version: "*"
           python-version: ${{ matrix.python-version }}
           show-channel-urls: true
           use-only-tar-bz2: true
       - name: Install dependencies
         run: |
           conda activate test_gator
-          conda install -n test_gator --file requirements_dev.txt
+          mamba install -n test_gator --file requirements_dev.txt
+          mamba install -n test_gator mamba
           python setup.py develop --skip-npm
           # Check pip dependencies
           python -m pip check
@@ -220,7 +222,7 @@ jobs:
         run: |
           conda activate test_gator
           mamba install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator coveralls jupyterlab=3
+          mamba install -n test_gator coveralls jupyterlab=3 mamba
           yarn install
           python -m pip install -e .
           # Check pip dependencies
