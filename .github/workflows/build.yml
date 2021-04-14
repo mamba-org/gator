@@ -47,7 +47,7 @@ jobs:
       - name: Test the server extension
         run: |
           conda activate test_gator
-          python -m pytest mamba_gator
+          python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-backend-mamba:
@@ -91,7 +91,7 @@ jobs:
       - name: Test the server extension
         run: |
           conda activate test_gator
-          python -m pytest mamba_gator
+          python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-all-os:
