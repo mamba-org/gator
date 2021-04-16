@@ -85,7 +85,6 @@ jobs:
         run: |
           conda activate test_gator
           mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator mamba
           python setup.py develop --skip-npm
           # Check pip dependencies
           python -m pip check
@@ -222,7 +221,7 @@ jobs:
         run: |
           conda activate test_gator
           mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator coveralls jupyterlab=3 mamba
+          mamba install -n test_gator coveralls jupyterlab=3
           yarn install
           python -m pip install -e .
           # Check pip dependencies
@@ -241,10 +240,13 @@ jobs:
           coverage report
           yarn run test
 
-          jupyter serverextension list 1>serverextensions 2>&1
-          cat serverextensions | grep "mamba_gator.*OK"
-          jupyter labextension list 1>labextensions 2>&1
-          cat labextensions | grep "@mamba-org/gator-lab.*OK"
+          jupyter serverextension list
+          jupyter serverextension list 2>&1 | grep "mamba_gator.*OK"
+
+          jupyter server extension list
+          jupyter server extension list 2>&1 | grep "mamba_gator.*OK"
+          jupyter labextension list
+          jupyter labextension list 2>&1 | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
 

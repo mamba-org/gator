@@ -1,22 +1,25 @@
 from pathlib import Path
+from subprocess import CalledProcessError, check_call
 
 import pytest
 from mamba_gator.envmanager import EnvManager
 
 try:
-    import mamba
-except ImportError:
-    mamba = None
+    check_call(["mamba", "--version"])
+except CalledProcessError:
+    has_mamba = False
+else:
+    has_mamba = True
 
 
-@pytest.mark.skipif(mamba is not None, reason="Mamba found")
+@pytest.mark.skipif(has_mamba, reason="Mamba found")
 def test_EnvManager_manager_conda():
     manager = EnvManager("", None)
 
     assert Path(manager.manager).stem == "conda"
 
 
-@pytest.mark.skipif(mamba is None, reason="Mamba NOT found")
+@pytest.mark.skipif(not has_mamba, reason="Mamba NOT found")
 def test_EnvManager_manager_mamba():
     manager = EnvManager("", None)
 
