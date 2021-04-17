@@ -3,6 +3,7 @@ import { ServerConnection } from '@jupyterlab/services';
 import { Settings } from '@jupyterlab/settingregistry';
 import { testEmission } from '@jupyterlab/testutils';
 import 'jest';
+import { platform } from 'os';
 import { CondaEnvironments, CondaPackage } from '../services';
 
 jest.mock('@jupyterlab/services', () => {
@@ -17,6 +18,8 @@ jest.mock('@jupyterlab/services', () => {
   };
 });
 jest.mock('@jupyterlab/settingregistry');
+
+const itSkipIf = (condition: boolean) => (condition ? it.skip : it);
 
 describe('@mamba-org/gator-lab/services', () => {
   const settings = { baseUrl: 'foo/' };
@@ -65,87 +68,90 @@ describe('@mamba-org/gator-lab/services', () => {
       );
     });
 
-    it('should cancel a redirection location for long running task', async () => {
-      // Given
-      const name = 'dummy';
-      let taskIdx = 21;
-      const redirectURL = URLExt.join(
-        'conda',
-        'tasks',
-        (taskIdx + 1).toString()
-      );
+    itSkipIf(platform() === 'win32')(
+      'should cancel a redirection location for long running task',
+      async () => {
+        // Given
+        const name = 'dummy';
+        let taskIdx = 21;
+        const redirectURL = URLExt.join(
+          'conda',
+          'tasks',
+          (taskIdx + 1).toString()
+        );
 
-      (ServerConnection.makeRequest as jest.Mock).mockImplementation(
-        (
-          url: string,
-          request: RequestInit,
-          settings: ServerConnection.ISettings
-        ) => {
-          if (url.indexOf('/tasks') < 0) {
-            taskIdx += 1;
-            return Promise.resolve(
-              new Response('', {
-                headers: {
-                  Location: URLExt.join('conda', 'tasks', taskIdx.toString())
-                },
-                status: 202
-              })
-            );
-          } else if (Number.parseInt(url.slice(url.length - 2)) !== 22) {
-            return Promise.resolve(
-              new Response(JSON.stringify({ packages: [] }))
-            );
-          }
-
-          // let resolve: (value: Response) => void;
-          let reject: (reason?: any) => void;
-
-          const promise = new Promise<Response>(
-            (resolveFromPromise, rejectFromPromise) => {
-              // resolve = resolveFromPromise;
-              reject = rejectFromPromise;
+        (ServerConnection.makeRequest as jest.Mock).mockImplementation(
+          (
+            url: string,
+            request: RequestInit,
+            settings: ServerConnection.ISettings
+          ) => {
+            if (url.indexOf('/tasks') < 0) {
+              taskIdx += 1;
+              return Promise.resolve(
+                new Response('', {
+                  headers: {
+                    Location: URLExt.join('conda', 'tasks', taskIdx.toString())
+                  },
+                  status: 202
+                })
+              );
+            } else if (Number.parseInt(url.slice(url.length - 2)) !== 22) {
+              return Promise.resolve(
+                new Response(JSON.stringify({ packages: [] }))
+              );
             }
-          );
 
-          setTimeout(
-            () => {
-              reject('Fail to cancel promise');
-            },
-            5000 // Wait maximum for 5 sec
-          );
+            // let resolve: (value: Response) => void;
+            let reject: (reason?: any) => void;
 
-          return promise;
+            const promise = new Promise<Response>(
+              (resolveFromPromise, rejectFromPromise) => {
+                // resolve = resolveFromPromise;
+                reject = rejectFromPromise;
+              }
+            );
+
+            setTimeout(
+              () => {
+                reject('Fail to cancel promise');
+              },
+              5000 // Wait maximum for 5 sec
+            );
+
+            return promise;
+          }
+        );
+
+        // when
+        const pkgManager = new CondaPackage(name);
+        pkgManager.refresh(false, name).catch(err => {
+          expect(err.message).toEqual('cancelled');
+        });
+        try {
+          await pkgManager.refresh(false, name);
+        } catch (error) {
+          console.debug(error);
         }
-      );
 
-      // when
-      const pkgManager = new CondaPackage(name);
-      pkgManager.refresh(false, name).catch(err => {
-        expect(err.message).toEqual('cancelled');
-      });
-      try {
-        await pkgManager.refresh(false, name);
-      } catch (error) {
-        console.debug(error);
+        // Then
+        expect(ServerConnection.makeRequest).toHaveBeenNthCalledWith(
+          2,
+          URLExt.join(settings.baseUrl, 'conda', 'environments', name),
+          {
+            method: 'GET'
+          },
+          settings
+        );
+        expect(ServerConnection.makeRequest).toHaveBeenCalledWith(
+          URLExt.join(settings.baseUrl, redirectURL),
+          {
+            method: 'DELETE'
+          },
+          settings
+        );
       }
-
-      // Then
-      expect(ServerConnection.makeRequest).toHaveBeenNthCalledWith(
-        2,
-        URLExt.join(settings.baseUrl, 'conda', 'environments', name),
-        {
-          method: 'GET'
-        },
-        settings
-      );
-      expect(ServerConnection.makeRequest).toHaveBeenCalledWith(
-        URLExt.join(settings.baseUrl, redirectURL),
-        {
-          method: 'DELETE'
-        },
-        settings
-      );
-    });
+    );
   });
 
   describe('CondaEnvironments', () => {
