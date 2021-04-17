@@ -12,7 +12,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import jupyter_core.paths
-import requests
 from ipython_genutils.tempdir import TemporaryDirectory
 from mamba_gator.handlers import NS
 from tornado.ioloop import IOLoop
