@@ -5,6 +5,7 @@ import os
 import sys
 import time
 from binascii import hexlify
+from subprocess import CalledProcessError, check_call
 from threading import Event, Thread
 from typing import List
 from unittest import TestCase
@@ -13,10 +14,9 @@ from unittest.mock import patch
 import jupyter_core.paths
 import requests
 from ipython_genutils.tempdir import TemporaryDirectory
+from mamba_gator.handlers import NS
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
-
-from mamba_gator.handlers import NS
 
 # Shim for notebook server or jupyter_server
 #
@@ -27,22 +27,26 @@ from mamba_gator.handlers import NS
 #  - url_path_join
 
 try:
-    from notebook.tests.launchnotebook import (
-        assert_http_error,
-        NotebookTestBase as ServerTestBase,
-    )
-    from notebook.utils import url_escape, url_path_join
     from notebook.notebookapp import NotebookApp as ServerApp
+    from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
+    from notebook.tests.launchnotebook import assert_http_error
+    from notebook.utils import url_escape, url_path_join
 except ImportError:
+    from jupyter_server.serverapp import ServerApp  # noqa
     from jupyter_server.tests.launchnotebook import assert_http_error  # noqa
     from jupyter_server.tests.launchserver import ServerTestBase  # noqa
     from jupyter_server.utils import url_escape, url_path_join  # noqa
-    from jupyter_server.serverapp import ServerApp  # noqa
-
 
 
 TIMEOUT = 150
 SLEEP = 1
+
+try:
+    check_call(["mamba", "--version"])
+except (CalledProcessError, FileNotFoundError):
+    has_mamba = False
+else:
+    has_mamba = True
 
 
 class APITester(object):

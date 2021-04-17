@@ -47,7 +47,7 @@ jobs:
       - name: Test the server extension
         run: |
           conda activate test_gator
-          python -m pytest mamba_gator
+          python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-backend-mamba:
@@ -77,13 +77,14 @@ jobs:
           activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
+          mamba-version: "*"
           python-version: ${{ matrix.python-version }}
           show-channel-urls: true
           use-only-tar-bz2: true
       - name: Install dependencies
         run: |
           conda activate test_gator
-          conda install -n test_gator --file requirements_dev.txt
+          mamba install -n test_gator --file requirements_dev.txt
           python setup.py develop --skip-npm
           # Check pip dependencies
           python -m pip check
@@ -91,7 +92,7 @@ jobs:
       - name: Test the server extension
         run: |
           conda activate test_gator
-          python -m pytest mamba_gator
+          python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-all-os:
@@ -220,7 +221,7 @@ jobs:
         run: |
           conda activate test_gator
           mamba install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator coveralls jupyterlab=3
+          mamba install -n test_gator coveralls jupyterlab=3
           yarn install
           python -m pip install -e .
           # Check pip dependencies
@@ -239,10 +240,13 @@ jobs:
           coverage report
           yarn run test
 
-          jupyter serverextension list 1>serverextensions 2>&1
-          cat serverextensions | grep "mamba_gator.*OK"
-          jupyter labextension list 1>labextensions 2>&1
-          cat labextensions | grep "@mamba-org/gator-lab.*OK"
+          jupyter serverextension list
+          jupyter serverextension list 2>&1 | grep "mamba_gator.*OK"
+
+          jupyter server extension list
+          jupyter server extension list 2>&1 | grep "mamba_gator.*OK"
+          jupyter labextension list
+          jupyter labextension list 2>&1 | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
 
