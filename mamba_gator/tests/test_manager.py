@@ -1,15 +1,9 @@
 from pathlib import Path
-from subprocess import CalledProcessError, check_call
 
 import pytest
 from mamba_gator.envmanager import EnvManager
 
-try:
-    check_call(["mamba", "--version"])
-except CalledProcessError:
-    has_mamba = False
-else:
-    has_mamba = True
+from .utils import has_mamba
 
 
 @pytest.mark.skipif(has_mamba, reason="Mamba found")
