@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.9", "3.10.0-alpha"]
+        python-version: ["3.7", "3.9"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,7 +56,7 @@ jobs:
     strategy:
       matrix:
         # Skip 3.7 as it is used for integration tests
-        python-version: ["3.8", "3.9", "3.10.0-alpha"]
+        python-version: ["3.8", "3.9"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
