@@ -5,6 +5,7 @@ import os
 import sys
 import unittest
 import unittest.mock as mock
+from itertools import chain
 
 try:
     from unittest.mock import AsyncMock
@@ -971,6 +972,14 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     "ssl_verify": False,
                 }
 
+                if has_mamba:
+                    # Change dummy to match mamba repoquery format
+                    dummy = {
+                        "result": {
+                            "pkgs": list(chain(*dummy.values()))
+                        }
+                    }
+
                 rvalue = [
                     (0, json.dumps(dummy)),
                     (0, json.dumps(channels)),
@@ -984,6 +993,13 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
                 self.assertEqual(r.status_code, 200)
+
+                args, _ = f.call_args_list[0]
+                if has_mamba:
+                    self.assertSequenceEqual(args[1:], ["repoquery", "search", "*", "--json"])
+                else:
+                    self.assertSequenceEqual(args[1:], ["search", "--json"])
+
                 body = r.json()
 
                 expected = {
@@ -1164,6 +1180,14 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     ],
                 }
 
+                if has_mamba:
+                    # Change dummy to match mamba repoquery format
+                    dummy = {
+                        "result": {
+                            "pkgs": list(chain(*dummy.values()))
+                        }
+                    }
+
                 with tempfile.TemporaryDirectory() as local_channel:
                     with open(
                         os.path.join(local_channel, "channeldata.json"), "w+"
@@ -1202,6 +1226,13 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
                     self.assertEqual(r.status_code, 200)
+
+                    args, _ = f.call_args_list[0]
+                    if has_mamba:
+                        self.assertSequenceEqual(args[1:], ["repoquery", "search", "*", "--json"])
+                    else:
+                        self.assertSequenceEqual(args[1:], ["search", "--json"])
+
                     body = r.json()
 
                     expected = {
@@ -1382,6 +1413,14 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     ],
                 }
 
+                if has_mamba:
+                    # Change dummy to match mamba repoquery format
+                    dummy = {
+                        "result": {
+                            "pkgs": list(chain(*dummy.values()))
+                        }
+                    }
+
                 with tempfile.TemporaryDirectory() as local_channel:
                     local_name = local_channel.strip("/")
                     channels = {
@@ -1414,6 +1453,13 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
                     self.assertEqual(r.status_code, 200)
+
+                    args, _ = f.call_args_list[0]
+                    if has_mamba:
+                        self.assertSequenceEqual(args[1:], ["repoquery", "search", "*", "--json"])
+                    else:
+                        self.assertSequenceEqual(args[1:], ["search", "--json"])
+
                     body = r.json()
 
                     expected = {
@@ -1620,6 +1666,15 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     "ssl_verify": False,
                 }
 
+
+                if has_mamba:
+                    # Change dummy to match mamba repoquery format
+                    dummy = {
+                        "result": {
+                            "pkgs": list(chain(*dummy.values()))
+                        }
+                    }
+
                 rvalue = [
                     (0, json.dumps(dummy)),
                     (0, json.dumps(channels)),
@@ -1634,6 +1689,12 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 # First retrival no cache available
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
                 self.assertEqual(r.status_code, 200)
+
+                args, _ = f.call_args_list[0]
+                if has_mamba:
+                    self.assertSequenceEqual(args[1:], ["repoquery", "search", "*", "--json"])
+                else:
+                    self.assertSequenceEqual(args[1:], ["search", "--json"])
 
                 expected = {
                     "packages": [

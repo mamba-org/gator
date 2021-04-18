@@ -1,14 +1,14 @@
 # Copyright (c) 2016-2020 Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 import asyncio
+import collections
 import json
 import logging
 import os
 import re
-import ssl
 import sys
 import tempfile
-from functools import partial
+from functools import partial, lru_cache
 from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -232,6 +232,10 @@ class EnvManager:
             self.log.debug("Package manager: {}".format(EnvManager._manager_exe))
 
         return EnvManager._manager_exe
+
+    @lru_cache()
+    def is_mamba(self):
+        return Path(self.manager).stem == "mamba"
 
     async def env_channels(
         self, configuration: Optional[Dict[str, Any]] = None
@@ -552,7 +556,7 @@ class EnvManager:
         Returns:
             {"package": List[dependencies]}
         """
-        if Path(self.manager).stem != "mamba":
+        if not self.is_mamba():
             self.log.warning(
                 "Package manager '{}' does not support dependency query.".format(
                     self.manager
@@ -585,7 +589,10 @@ class EnvManager:
                 "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        ans = await self._execute(self.manager, "search", "--json")
+        if self.is_mamba():
+            ans = await self._execute(self.manager, "repoquery", "search", "*", "--json")
+        else:
+            ans = await self._execute(self.manager, "search", "--json")
         _, output = ans
 
         current_loop = tornado.ioloop.IOLoop.current()
@@ -595,6 +602,23 @@ class EnvManager:
             # we didn't get back a list of packages, we got a
             # dictionary with error info
             return data
+
+        def process_mamba_repoquery_output(data: Dict) -> Dict:
+            """Make a dictionary with keys as packages name and values
+            containing the list of available packages to match the json output
+            of "conda search --json".
+            """
+
+            data_ = collections.defaultdict(lambda : [])
+            for entry in data['result']['pkgs']:
+                name = entry.get('name')
+                if name is not None:
+                    data_[name].append(entry)
+
+            return data_
+
+        if self.is_mamba():
+            data = await current_loop.run_in_executor(None, process_mamba_repoquery_output, data)
 
         def format_packages(data: Dict) -> List:
             packages = []
