@@ -113,6 +113,13 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
+### 5.1.0
+
+- Feature
+  - Use much faster `mamba repoquery search` command to list packages instead of `conda search` [#133](https://github.com/mamba-org/gator/pull/133) (Thanks to @ericpre)
+- Bug fix
+  - Fix mamba detection on Windows [#135](https://github.com/mamba-org/gator/pull/135) (Thanks to @ericpre)
+
 ### 5.0.0
 
 - Features
