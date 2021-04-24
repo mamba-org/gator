@@ -51,7 +51,7 @@ async function activateCondaEnv(
   const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
     namespace: pluginNamespace
   });
-  let content: CondaEnvWidget;
+  let condaWidget: MainAreaWidget<CondaEnvWidget>;
 
   commands.addCommand(command, {
     label: 'Conda Packages Manager',
@@ -62,7 +62,7 @@ async function activateCondaEnv(
         const delayTour = (): void => {
           setTimeout(() => {
             timeout += TOUR_DELAY;
-            if (content.isVisible && tour) {
+            if (condaWidget?.isVisible && tour) {
               commands.execute('jupyterlab-tour:launch', {
                 id: tour.id,
                 force: false
@@ -88,21 +88,26 @@ async function activateCondaEnv(
         }
       });
 
-      if (tracker.currentWidget) {
-        shell.activateById(tracker.currentWidget.id);
-        return;
+      if (!condaWidget || condaWidget.isDisposed) {
+        condaWidget = new MainAreaWidget({
+          content: new CondaEnvWidget(model)
+        });
+        condaWidget.addClass(CONDA_WIDGET_CLASS);
+        condaWidget.id = pluginNamespace;
+        condaWidget.title.label = 'Packages';
+        condaWidget.title.caption = 'Conda Packages Manager';
+        condaWidget.title.icon = condaIcon;
       }
 
-      content = new CondaEnvWidget(model);
-      content.addClass(CONDA_WIDGET_CLASS);
-      content.id = pluginNamespace;
-      content.title.label = 'Packages';
-      content.title.caption = 'Conda Packages Manager';
-      content.title.icon = condaIcon;
-      const widget = new MainAreaWidget({ content });
-
-      void tracker.add(widget);
-      shell.add(widget, 'main');
+      if (!tracker.has(condaWidget)) {
+        // Track the state of the widget for later restoration
+        tracker.add(condaWidget);
+      }
+      if (!condaWidget.isAttached) {
+        // Attach the widget to the main work area if it's not there
+        shell.add(condaWidget, 'main');
+      }
+      shell.activateById(condaWidget.id);
     }
   });
 
