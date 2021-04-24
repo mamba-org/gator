@@ -113,6 +113,11 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
+### 5.1.1
+
+- Bug fix
+  - Fix gator not displayed after updating or re-installing [#139](https://github.com/mamba-org/gator/issues/139)
+
 ### 5.1.0
 
 - Feature
