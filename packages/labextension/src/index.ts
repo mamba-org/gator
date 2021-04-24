@@ -105,9 +105,9 @@ async function activateCondaEnv(
       }
       if (!condaWidget.isAttached) {
         // Attach the widget to the main work area if it's not there
-        app.shell.add(condaWidget, 'main');
+        shell.add(condaWidget, 'main');
       }
-      app.shell.activateById(condaWidget.id);
+      shell.activateById(condaWidget.id);
     }
   });
 
