@@ -1,0 +1,273 @@
+import CodeMirror, { Editor } from 'codemirror';
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/show-hint.css';
+
+// TODO: get URLs from settings
+const quetz_url = 'http://localhost:8000';
+const quetz_solver_url = 'http://localhost:8000';
+
+CodeMirror.registerHelper('hint', 'yaml', condaHint);
+
+function getChannels(environment_yml: string) {
+  const matches = [
+    ...environment_yml.matchAll(/^channels:\s*\n((?:\s+- \S+\s*\n)+)\S/gm)
+  ];
+  if (!matches[0] || matches[0].length < 2) {
+    return;
+  }
+  const channels = matches[0][1];
+  if (!channels) {
+    return;
+  }
+  return channels
+    .split('\n')
+    .filter(x => x)
+    .map(line => line.match(/\s+- (.+)\s*/)[1]);
+}
+
+function getDependencies(environment_yml: string) {
+  const matches = [
+    ...environment_yml.matchAll(/^dependencies:\s*\n((?:\s+- .*(\n|$))+)/gm)
+  ];
+  if (!matches[0] || matches[0].length < 2) {
+    return;
+  }
+  const dependencies = matches[0][1];
+  if (!dependencies) {
+    return;
+  }
+  return dependencies
+    .split('\n')
+    .filter(x => x)
+    .map(line => line.match(/\s+- (.+)/)[1]);
+}
+
+export function getName(environment_yml: string): string | null {
+  const matches = [...environment_yml.matchAll(/^name:\s*(.*?)\s*(?:\n|$)/gm)];
+  if (!matches[0] || matches[0].length < 2) {
+    return;
+  }
+  return matches[0][1];
+}
+
+let quetzChannels = ['loading...'];
+(async () => {
+  const response = await fetch(`${quetz_url}/api/channels`);
+  const data: { name: string }[] = await response.json();
+  quetzChannels = data.map(channel => channel.name);
+})();
+
+type PackageList = { result: { name: string; summary: string }[] };
+
+async function loadPackages(channel: string, q: string): Promise<PackageList> {
+  const response = await fetch(
+    `${quetz_url}/api/paginated/channels/${channel}/packages?limit=20${
+      q ? `&q=${q}` : ''
+    }`
+  );
+  return response.json();
+}
+
+async function loadPackagesOfChannels(channels: string[], q: string) {
+  const data: PackageList[] = await Promise.all(
+    channels.map(channel => loadPackages(channel, q))
+  );
+  const mapping = data
+    .map((d, i) =>
+      d.result.map(packageInfo => ({ ...packageInfo, channel: channels[i] }))
+    )
+    .flat();
+  return mapping;
+}
+
+async function loadVersions(channel: string, packageName: string) {
+  const url = `${quetz_url}/api/channels/${channel}/packages/${packageName}/versions`;
+  try {
+    const response = await fetch(url);
+    return response.status === 200 ? response.json() : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function loadVersionsOfChannels(
+  channels: string[],
+  packageName: string,
+  q: string
+) {
+  const data: { version: string }[][] = await Promise.all(
+    channels.map(channel => loadVersions(channel, packageName))
+  );
+  const seen: any = {};
+  const mapping = data
+    .map((d, i) => d.map(version => version.version))
+    .flat()
+    .filter(e => !q || e.startsWith(q))
+    .filter(e => (seen[e] ? false : (seen[e] = true)));
+  return mapping;
+}
+
+async function condaHint(editor: Editor, callback: any, options: any) {
+  const topLevel = [
+    {
+      displayText: 'name',
+      text: 'name: '
+    },
+    {
+      displayText: 'channels',
+      text: 'channels:\n\t- '
+    },
+    {
+      displayText: 'dependencies',
+      text: 'dependencies:\n\t- '
+    }
+  ];
+  const channels = [...quetzChannels, 'nodefaults'];
+
+  const cur = editor.getCursor();
+  const curLine = editor.getLine(cur.line);
+
+  let list = [];
+  let start = 0;
+
+  if (!curLine.startsWith(' ') && !curLine.startsWith('\t')) {
+    list = topLevel.filter(e => e.displayText.startsWith(curLine));
+    callback({
+      list: list,
+      from: CodeMirror.Pos(cur.line, start),
+      to: CodeMirror.Pos(cur.line, cur.ch)
+    });
+    return;
+  }
+
+  let top = undefined;
+  let lineNr = cur.line;
+  do {
+    lineNr -= 1;
+    top = editor.getLine(lineNr);
+  } while (top !== undefined && !top.match(/^\S/));
+
+  if (top === 'channels:') {
+    const re = /^(\s+- )(.*)/;
+    const groups = curLine.match(re);
+    if (groups && groups.length > 1) {
+      const [, pre, name] = groups;
+      start = pre.length;
+      list = name ? channels.filter(e => e.startsWith(name)) : channels;
+
+      callback({
+        list: list,
+        from: CodeMirror.Pos(cur.line, start),
+        to: CodeMirror.Pos(cur.line, cur.ch)
+      });
+    }
+    return;
+  }
+
+  if (top === 'dependencies:') {
+    const re = /^(?<pre>\s+- )(?<packageName>.+?)?(?<comp1>$|[\s>=<]+)(?<version1>.*?)?(?<comp2>$|[\s,>=<]+)(?<version2>.+?)?($|\s*$)/g;
+
+    const groups = [...curLine.matchAll(re)];
+
+    if (groups && groups.length > 0) {
+      const {
+        pre,
+        packageName,
+        comp1,
+        version1,
+        comp2,
+        version2
+      } = groups[0].groups;
+
+      const matchLengths = [pre, packageName, comp1, version1, comp2, version2]
+        .map(e => (e !== undefined ? e.length : 0))
+        .reduce(
+          (list, e) => (list.length ? [...list, list[list.length - 1] + e] : [e]),
+          [] as number[]
+        );
+
+      const [
+        preEnd,
+        packageEnd,
+        comp1End,
+        version1End,
+        comp2End,
+        version2End
+      ] = matchLengths;
+
+      if (
+        cur.ch >= preEnd &&
+        (!packageEnd || cur.ch <= packageEnd) /* package */
+      ) {
+        const packagePart = packageName
+          ? packageName.slice(0, cur.ch - preEnd)
+          : undefined;
+        list = (
+          await loadPackagesOfChannels(
+            getChannels(editor.getValue()),
+            packagePart
+          )
+        ).map(p => ({
+          displayText: `${p.name} [${p.channel}] ${p.summary}`,
+          text: `${p.name}`
+        }));
+        callback({
+          list: list,
+          from: CodeMirror.Pos(cur.line, preEnd),
+          to: CodeMirror.Pos(cur.line, packageName ? packageEnd : preEnd)
+        });
+      } else if (
+        cur.ch >= comp1End &&
+        (!version1End || cur.ch <= version1End) /* version1 */
+      ) {
+        list = await loadVersionsOfChannels(
+          getChannels(editor.getValue()),
+          packageName,
+          version1
+        );
+        callback({
+          list: list,
+          from: CodeMirror.Pos(cur.line, comp1End),
+          to: CodeMirror.Pos(cur.line, version1 ? version1End : comp1End)
+        });
+      } else if (
+        cur.ch >= comp2End &&
+        (!version2End || cur.ch <= version2End) /* version2 */
+      ) {
+        list = await loadVersionsOfChannels(
+          getChannels(editor.getValue()),
+          packageName,
+          version2
+        );
+        callback({
+          list: list,
+          from: CodeMirror.Pos(cur.line, comp2End),
+          to: CodeMirror.Pos(cur.line, version2 ? version2End : comp2End)
+        });
+      }
+    }
+  }
+}
+condaHint.async = true;
+
+export async function fetchSolve(
+  subdir: string,
+  environment_yml: string
+): Promise<string> {
+  const data = {
+    subdir,
+    channels: getChannels(environment_yml).map(
+      channel => `${quetz_url}/get/${channel}`
+    ),
+    spec: getDependencies(environment_yml)
+  };
+  const response = await fetch(`${quetz_solver_url}/api/mamba/solve`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  if (response.status === 200) {
+    return response.text();
+  } else {
+    throw Error(`error [${response.status}]`);
+  }
+}

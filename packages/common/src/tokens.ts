@@ -45,6 +45,13 @@ export interface IEnvironmentManager extends IDisposable {
    */
   create(name: string, type?: string): Promise<void>;
   /**
+   * Create a new environment from input file
+   *
+   * @param name name of the new environment
+   * @param spec the explicit list of dependencies
+   */
+  createFromExplicitList(name: string, explicitList: string): Promise<void>;
+  /**
    * Signal emitted when a environment is changed.
    */
   environmentChanged: ISignal<IEnvironmentManager, Conda.IEnvironmentChange>;
@@ -76,6 +83,10 @@ export interface IEnvironmentManager extends IDisposable {
    * @param name name of the environment to be removed
    */
   remove(name: string): Promise<void>;
+  /**
+   * Get the conda-subdir of the server
+   */
+  subdir(): Promise<{ subdir: string }>;
 }
 
 export namespace Conda {

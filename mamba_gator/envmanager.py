@@ -336,6 +336,29 @@ class EnvManager:
             return {"error": output}
         return output
 
+    async def create_explicit_env(self, name: str, explicit_list: str) -> Dict[str, str]:
+        """Create a environment from an explicit spec.
+
+        Args:
+            name (str): Name of the environment
+            explicit_list (str): the explicit list of URLs
+
+        Returns:
+            Dict[str, str]: Create command output
+        """
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            f.write(explicit_list)
+            f.flush()
+
+            ans = await self._execute(
+                self.manager, "create", "-y", "-q", "--json", "-n", name, "--file", f.name,
+            )
+
+            rcode, output = ans
+            if rcode > 0:
+                return {"error": output}
+            return output
+
     async def delete_env(self, env: str) -> Dict[str, str]:
         """Delete an environment.
 

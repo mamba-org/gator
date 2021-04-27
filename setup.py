@@ -84,6 +84,8 @@ setuptools.setup(
         "tornado",
         "traitlets",
         "typing;python_version<'3.7'",
+        "conda",
+        "cytoolz"
     ],
     extras_require={
         "test": [

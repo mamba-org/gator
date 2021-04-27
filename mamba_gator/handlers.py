@@ -23,6 +23,7 @@ from .envmanager import EnvManager
 from .log import get_logger
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
+from conda.base.context import context
 
 NS = r"conda"
 # Filename for the available conda packages list cache in temp folder
@@ -210,6 +211,26 @@ class EnvironmentsHandler(EnvBaseHandler):
             )
         else:
             idx = self._stack.put(self.env_manager.create_env, name)
+
+        self.redirect_to_task(idx)
+
+
+class ExplicitListHandler(EnvBaseHandler):
+    @tornado.web.authenticated
+    def post(self):
+        """`POST /explicit` creates an environment from an explicit spec.
+
+        Request json body:
+        {
+            name (str): environment name
+            explicitList (str): the explicit list of URLs
+        }
+        """
+        data = self.get_json_body()
+        name = data["name"]
+        explicit_list = data["explicitList"]
+
+        idx = self._stack.put(self.env_manager.create_explicit_env, name, explicit_list)
 
         self.redirect_to_task(idx)
 
@@ -475,6 +496,13 @@ class TaskHandler(EnvBaseHandler):
             self.finish()
 
 
+class SubdirHandler(EnvBaseHandler):
+    @tornado.web.authenticated
+    async def get(self):
+        """`GET /subdir` Get the conda-subdir.
+        """
+        self.finish(tornado.escape.json_encode({'subdir': context.subdir}))
+
 # -----------------------------------------------------------------------------
 # URL to handler mappings
 # -----------------------------------------------------------------------------
@@ -488,6 +516,8 @@ default_handlers = [
     (r"/channels", ChannelsHandler),
     (r"/environments", EnvironmentsHandler),  # GET / POST
     (r"/environments/%s" % _env_regex, EnvironmentHandler),  # GET / PATCH / DELETE
+    (r"/explicit", ExplicitListHandler),  # POST
+    (r"/subdir", SubdirHandler),  # GET
     # PATCH / POST / DELETE
     (r"/environments/%s/packages" % _env_regex, PackagesEnvironmentHandler),
     (r"/packages", PackagesHandler),  # GET
