@@ -23,13 +23,13 @@ _Requirements_
 To install in the classical notebook:
 
 ```shell
-conda install -c conda-forge mamba_gator
+mamba install -c conda-forge mamba_gator
 ```
 
 To install in the JupyterLab:
 
 ```shell
-conda install -c conda-forge jupyterlab mamba_gator
+mamba install -c conda-forge jupyterlab mamba_gator
 ```
 
 If you use JupyterLab 1.x or 2.x, you can install the extension with the following command:
@@ -92,8 +92,8 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 ## Development
 
 ```shell
-conda create -c conda-forge -y -n gator python jupyterlab=3
-conda install -c conda-forge -y -n gator --file requirements_dev.txt
+mamba create -c conda-forge -y -n gator python jupyterlab=3
+mamba install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
 pip install -e .
 jupyter server extension enable mamba_gator --sys-prefix
