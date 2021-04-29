@@ -9,7 +9,9 @@ from jupyter_server.extension.handler import (
     ExtensionHandlerMixin,
 )
 from jupyter_server.utils import url_path_join as ujoin
+from jupyter_core.application import base_aliases
 from jupyterlab_server import LabServerApp
+from traitlets import Unicode
 from mamba_gator._version import __version__
 from mamba_gator.handlers import _load_jupyter_server_extension
 from mamba_gator.log import get_logger
@@ -21,12 +23,16 @@ class MambaNavigatorHandler(
     ExtensionHandlerJinjaMixin, ExtensionHandlerMixin, JupyterHandler
 ):
     def get(self):
+        print("[ARGS]", self.quetz_url, self.quetz_solver_url)
+
         config_data = {
             "appVersion": __version__,
             "baseUrl": self.base_url,
             "token": self.settings["token"],
             "fullStaticUrl": ujoin(self.base_url, "static", self.name),
             "frontendUrl": ujoin(self.base_url, "gator/"),
+            "quetzUrl": self.quetz_url,
+            "quetzSolverUrl": self.quetz_solver_url
         }
         return self.write(
             self.render_template(
@@ -55,6 +61,24 @@ class MambaNavigator(LabServerApp):
     themes_dir = os.path.join(HERE, "themes")
     user_settings_dir = os.path.join(HERE, "user_settings")
     workspaces_dir = os.path.join(HERE, "workspaces")
+
+    quetz_url = Unicode(
+        'http://localhost:8000',
+        config=True,
+        help="The Quetz server to use for creating new environments"
+    )
+
+    quetz_solver_url = Unicode(
+        '',
+        config=True,
+        help="The Quetz server to use for solving, if this is a different server than 'quetzUrl'",
+    )
+
+    aliases = dict(base_aliases)
+    aliases.update({
+        'quetz_url': 'MambaNavigator.quetz_url',
+        'quetz_solver_url': 'MambaNavigator.quetz_solver_url'
+    })
 
     def initialize_handlers(self):
         self.handlers.append(("/gator", MambaNavigatorHandler))
