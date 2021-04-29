@@ -22,8 +22,9 @@ HERE = os.path.dirname(__file__)
 class MambaNavigatorHandler(
     ExtensionHandlerJinjaMixin, ExtensionHandlerMixin, JupyterHandler
 ):
+
     def get(self):
-        print("[ARGS]", self.quetz_url, self.quetz_solver_url)
+        cls = self.__class__
 
         config_data = {
             "appVersion": __version__,
@@ -31,8 +32,8 @@ class MambaNavigatorHandler(
             "token": self.settings["token"],
             "fullStaticUrl": ujoin(self.base_url, "static", self.name),
             "frontendUrl": ujoin(self.base_url, "gator/"),
-            "quetzUrl": self.quetz_url,
-            "quetzSolverUrl": self.quetz_solver_url
+            "quetzUrl": cls.quetz_url,
+            "quetzSolverUrl": cls.quetz_solver_url
         }
         return self.write(
             self.render_template(
@@ -81,6 +82,8 @@ class MambaNavigator(LabServerApp):
     })
 
     def initialize_handlers(self):
+        MambaNavigatorHandler.quetz_url = self.quetz_url
+        MambaNavigatorHandler.quetz_solver_url = self.quetz_solver_url
         self.handlers.append(("/gator", MambaNavigatorHandler))
         super().initialize_handlers()
 
