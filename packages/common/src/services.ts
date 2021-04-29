@@ -139,6 +139,20 @@ export class CondaEnvironments implements IEnvironmentManager {
   }
 
   /**
+   * Get the Quetz URL
+   */
+  get quetzUrl(): string {
+    return this._quetzUrl;
+  }
+
+  /**
+   * Get the Quetz solver URL
+   */
+  get quetzSolverUrl(): string {
+    return this._quetzSolverUrl;
+  }
+
+  /**
    * Load user settings
    *
    * @param settings User settings
@@ -147,6 +161,8 @@ export class CondaEnvironments implements IEnvironmentManager {
     this._environmentTypes = settings.get('types').composite as IType;
     this._fromHistory = settings.get('fromHistory').composite as boolean;
     this._whitelist = settings.get('whitelist').composite as boolean;
+    this._quetzUrl = settings.get('quetzUrl').composite as string;
+    this._quetzSolverUrl = settings.get('quetzSolverUrl').composite as string;
   }
 
   /**
@@ -464,6 +480,8 @@ export class CondaEnvironments implements IEnvironmentManager {
   private _fromHistory = false;
   private _packageManager = new CondaPackage();
   private _whitelist = false;
+  private _quetzUrl = 'http://localhost:8000';
+  private _quetzSolverUrl = '';
 }
 
 export class CondaPackage implements Conda.IPackageManager {

@@ -366,12 +366,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
   async handleSolveEnvironment(): Promise<void> {
     let toastId: React.ReactText;
-    const { subdir } = await this.props.model.subdir();
+    const model = this.props.model;
+    const { subdir } = await model.subdir();
 
     const create = async (name: string, explicitList: string) => {
       toastId = await INotification.inProgress(`Creating environment ${name}`);
       try {
-        await this.props.model.createFromExplicitList(name, explicitList);
+        await model.createFromExplicitList(name, explicitList);
         INotification.update({
           toastId,
           message: `Environment ${name} has been created.`,
@@ -403,7 +404,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     };
     const dialog = new NonKeypressStealingDialog({
       title: 'Solve Environment',
-      body: <CondaEnvSolve subdir={subdir} create={create} />,
+      body: (
+        <CondaEnvSolve
+          quetzUrl={model.quetzUrl}
+          quetzSolverUrl={model.quetzSolverUrl}
+          subdir={subdir}
+          create={create}
+        />
+      ),
       buttons: [Dialog.okButton()]
     });
 

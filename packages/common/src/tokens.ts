@@ -18,6 +18,17 @@ export interface IEnvironmentManager extends IDisposable {
    * Get the list of user-defined environment types
    */
   environmentTypes: string[];
+
+  /**
+   * Get the Quetz URL
+   */
+  quetzUrl: string;
+
+  /**
+   * Get the Quetz solver URL
+   */
+  quetzSolverUrl: string;
+
   /**
    * Get all packages channels available in the requested environment
    *

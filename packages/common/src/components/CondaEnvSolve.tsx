@@ -8,11 +8,15 @@ import * as condaHint from './CondaHint';
  * Conda solve properties
  */
 export interface ICondaEnvSolveProps {
+  quetzUrl: string;
+  quetzSolverUrl: string;
   subdir: string;
   create(name: string, explicitList: string): void;
 }
 
 export const CondaEnvSolve = (props: ICondaEnvSolveProps): JSX.Element => {
+  condaHint.register(props.quetzUrl);
+
   const codemirrorElem = React.useRef();
 
   const [editor, setEditor] = React.useState(null);
@@ -24,6 +28,8 @@ export const CondaEnvSolve = (props: ICondaEnvSolveProps): JSX.Element => {
     const name = condaHint.getName(environment_yml);
     try {
       const solveResult = await condaHint.fetchSolve(
+        props.quetzUrl,
+        props.quetzSolverUrl,
         props.subdir,
         environment_yml
       );
