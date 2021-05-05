@@ -1018,3 +1018,13 @@ class EnvManager:
         )
         _, output = ans
         return self._clean_conda_json(output)
+
+    async def get_subdir(self):
+        rcode, output = await self._execute(
+            self.manager, "list", "--explicit"
+        )
+        if rcode == 0:
+            regex = re.compile('^# platform: ([a-z\-0-9]+)$', re.MULTILINE)
+            return {'subdir': regex.findall(output)[0]}
+
+        raise RuntimeError('subdir not found')

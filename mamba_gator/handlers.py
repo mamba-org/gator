@@ -23,7 +23,6 @@ from .envmanager import EnvManager
 from .log import get_logger
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
-from conda.base.context import context
 
 NS = r"conda"
 # Filename for the available conda packages list cache in temp folder
@@ -501,7 +500,9 @@ class SubdirHandler(EnvBaseHandler):
     async def get(self):
         """`GET /subdir` Get the conda-subdir.
         """
-        self.finish(tornado.escape.json_encode({'subdir': context.subdir}))
+        idx = self._stack.put(self.env_manager.get_subdir)
+
+        self.redirect_to_task(idx)
 
 # -----------------------------------------------------------------------------
 # URL to handler mappings
