@@ -261,41 +261,6 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  async createFromExplicitList(
-    name: string,
-    explicitList: string
-  ): Promise<void> {
-    try {
-      const request: RequestInit = {
-        body: JSON.stringify({ name, explicitList }),
-        method: 'POST'
-      };
-      const { promise } = Private.requestServer(
-        URLExt.join('conda', 'explicit'),
-        request
-      );
-      const response = await promise;
-      if (response.ok) {
-        this._environmentChanged.emit({
-          name: name,
-          source: explicitList,
-          type: 'create'
-        });
-      } else {
-        throw new Error(
-          `Error while creating environment, response code: ${response.status}`
-        );
-      }
-    } catch (error) {
-      let message: string = error.message || error.toString();
-      if (message !== 'cancelled') {
-        console.error(message);
-        message = `An error occurred while creating environment "${name}".`;
-      }
-      throw new Error(message);
-    }
-  }
-
   export(name: string, fromHistory: boolean | null = null): Promise<Response> {
     if (fromHistory === null) {
       fromHistory = this._fromHistory;

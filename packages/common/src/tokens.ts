@@ -56,13 +56,6 @@ export interface IEnvironmentManager extends IDisposable {
    */
   create(name: string, type?: string): Promise<void>;
   /**
-   * Create a new environment from input file
-   *
-   * @param name name of the new environment
-   * @param spec the explicit list of dependencies
-   */
-  createFromExplicitList(name: string, explicitList: string): Promise<void>;
-  /**
    * Signal emitted when a environment is changed.
    */
   environmentChanged: ISignal<IEnvironmentManager, Conda.IEnvironmentChange>;
@@ -79,7 +72,7 @@ export interface IEnvironmentManager extends IDisposable {
    * @param name name of the environment to create
    * @param fileContent file content of the file containing the packages list to import
    */
-  import(name: string, fileContent: string, fileName: string): Promise<void>;
+  import(name: string, fileContent: string, fileName?: string): Promise<void>;
   /**
    * Create an environment from a packages list file
    *

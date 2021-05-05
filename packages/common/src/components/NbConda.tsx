@@ -372,7 +372,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     const create = async (name: string, explicitList: string) => {
       toastId = await INotification.inProgress(`Creating environment ${name}`);
       try {
-        await model.createFromExplicitList(name, explicitList);
+        await model.import(name, explicitList);
         INotification.update({
           toastId,
           message: `Environment ${name} has been created.`,

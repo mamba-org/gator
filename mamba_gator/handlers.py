@@ -214,26 +214,6 @@ class EnvironmentsHandler(EnvBaseHandler):
         self.redirect_to_task(idx)
 
 
-class ExplicitListHandler(EnvBaseHandler):
-    @tornado.web.authenticated
-    def post(self):
-        """`POST /explicit` creates an environment from an explicit spec.
-
-        Request json body:
-        {
-            name (str): environment name
-            explicitList (str): the explicit list of URLs
-        }
-        """
-        data = self.get_json_body()
-        name = data["name"]
-        explicit_list = data["explicitList"]
-
-        idx = self._stack.put(self.env_manager.create_explicit_env, name, explicit_list)
-
-        self.redirect_to_task(idx)
-
-
 class EnvironmentHandler(EnvBaseHandler):
     """Environment handler."""
 
@@ -517,7 +497,6 @@ default_handlers = [
     (r"/channels", ChannelsHandler),
     (r"/environments", EnvironmentsHandler),  # GET / POST
     (r"/environments/%s" % _env_regex, EnvironmentHandler),  # GET / PATCH / DELETE
-    (r"/explicit", ExplicitListHandler),  # POST
     (r"/subdir", SubdirHandler),  # GET
     # PATCH / POST / DELETE
     (r"/environments/%s/packages" % _env_regex, PackagesEnvironmentHandler),
