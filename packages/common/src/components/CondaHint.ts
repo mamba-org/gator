@@ -44,8 +44,11 @@ export function getName(environment_yml: string): string | null {
   return matches[0][1];
 }
 
-async function loadChannels(quetzUrl: string) {
+async function loadChannels(quetzUrl: string): Promise<string[]> {
   const response = await fetch(`${quetzUrl}/api/channels`);
+  if (response.status !== 200) {
+    throw new Error(`Unexpected status code: ${response.status}`);
+  }
   const data: { name: string }[] = await response.json();
   return data.map(channel => channel.name);
 }
@@ -62,6 +65,9 @@ async function loadPackages(
       q ? `&q=${q}` : ''
     }`
   );
+  if (response.status !== 200) {
+    throw new Error(`Unexpected status code: ${response.status}`);
+  }
   return response.json();
 }
 
@@ -87,12 +93,14 @@ async function loadVersions(
   packageName: string
 ) {
   const url = `${quetzUrl}/api/channels/${channel}/packages/${packageName}/versions`;
-  try {
-    const response = await fetch(url);
-    return response.status === 200 ? response.json() : [];
-  } catch (e) {
+  const response = await fetch(url);
+  if (response.status === 404) {
     return [];
   }
+  if (response.status === 200) {
+    return response.json();
+  }
+  throw new Error(`Unexpected status code: ${response.status}`);
 }
 
 async function loadVersionsOfChannels(
@@ -114,9 +122,6 @@ async function loadVersionsOfChannels(
 }
 
 export function register(quetzUrl: string): void {
-  let channels = ['loading...'];
-  (async () => (channels = await loadChannels(quetzUrl)))();
-
   const condaHint = async (editor: Editor, callback: any, options: any) => {
     const topLevel = [
       {
@@ -156,13 +161,25 @@ export function register(quetzUrl: string): void {
       top = editor.getLine(lineNr);
     } while (top !== undefined && !top.match(/^\S/));
 
+    const wrapErrorMsg = (errorMsg: string) => [
+      { displayText: errorMsg, text: '' },
+      ''
+    ];
+
     if (top === 'channels:') {
       const re = /^(\s+- )(.*)/;
       const groups = curLine.match(re);
       if (groups && groups.length > 1) {
         const [, pre, name] = groups;
         start = pre.length;
-        list = name ? channels.filter(e => e.startsWith(name)) : channels;
+        try {
+          list = (await loadChannels(quetzUrl)).filter(channel =>
+            channel.startsWith(name || '')
+          );
+        } catch (e) {
+          console.error(e);
+          list = wrapErrorMsg('Loading of channels failed');
+        }
 
         callback({
           list: list,
@@ -212,6 +229,20 @@ export function register(quetzUrl: string): void {
           version2End
         ] = matchLengths;
 
+        const loadVersions = async (query: string) => {
+          try {
+            return await loadVersionsOfChannels(
+              quetzUrl,
+              getChannels(editor.getValue()),
+              packageName,
+              query
+            );
+          } catch (e) {
+            console.error(e);
+            return wrapErrorMsg('Loading of versions failed');
+          }
+        };
+
         if (
           cur.ch >= preEnd &&
           (!packageEnd || cur.ch <= packageEnd) /* package */
@@ -219,16 +250,23 @@ export function register(quetzUrl: string): void {
           const packagePart = packageName
             ? packageName.slice(0, cur.ch - preEnd)
             : undefined;
-          list = (
-            await loadPackagesOfChannels(
-              quetzUrl,
-              getChannels(editor.getValue()),
-              packagePart
-            )
-          ).map(p => ({
-            displayText: `${p.name} [${p.channel}] ${p.summary}`,
-            text: `${p.name}`
-          }));
+
+          try {
+            list = (
+              await loadPackagesOfChannels(
+                quetzUrl,
+                getChannels(editor.getValue()),
+                packagePart
+              )
+            ).map(p => ({
+              displayText: `${p.name} [${p.channel}] ${p.summary}`,
+              text: `${p.name}`
+            }));
+          } catch (e) {
+            console.error(e);
+            list = wrapErrorMsg('Loading of packages failed');
+          }
+
           callback({
             list: list,
             from: CodeMirror.Pos(cur.line, preEnd),
@@ -238,12 +276,7 @@ export function register(quetzUrl: string): void {
           cur.ch >= comp1End &&
           (!version1End || cur.ch <= version1End) /* version1 */
         ) {
-          list = await loadVersionsOfChannels(
-            quetzUrl,
-            getChannels(editor.getValue()),
-            packageName,
-            version1
-          );
+          list = await loadVersions(version1);
           callback({
             list: list,
             from: CodeMirror.Pos(cur.line, comp1End),
@@ -253,12 +286,7 @@ export function register(quetzUrl: string): void {
           cur.ch >= comp2End &&
           (!version2End || cur.ch <= version2End) /* version2 */
         ) {
-          list = await loadVersionsOfChannels(
-            quetzUrl,
-            getChannels(editor.getValue()),
-            packageName,
-            version2
-          );
+          list = await loadVersions(version2);
           callback({
             list: list,
             from: CodeMirror.Pos(cur.line, comp2End),
