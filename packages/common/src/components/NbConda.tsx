@@ -6,7 +6,7 @@ import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
 import { CondaEnvList, ENVIRONMENT_PANEL_WIDTH } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
-import { CondaEnvSolve } from './CondaEnvSolve';
+import { CondaEnvSolveDialog } from './CondaEnvSolve';
 
 /**
  * Jupyter Conda Component properties
@@ -365,52 +365,16 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleSolveEnvironment(): Promise<void> {
-    let toastId: React.ReactText;
-    const model = this.props.model;
-    const { subdir } = await model.subdir();
-
-    const create = async (name: string, explicitList: string) => {
-      toastId = await INotification.inProgress(`Creating environment ${name}`);
-      try {
-        await model.import(name, explicitList);
-        INotification.update({
-          toastId,
-          message: `Environment ${name} has been created.`,
-          type: 'success',
-          autoClose: 5000
-        });
-        this.setState({ currentEnvironment: name });
-        this.loadEnvironments();
-      } catch (error) {
-        if (error !== 'cancelled') {
-          console.error(error);
-          if (toastId) {
-            INotification.update({
-              toastId,
-              message: error.message,
-              type: 'error',
-              autoClose: 0
-            });
-          } else {
-            INotification.error(error.message);
-          }
-        } else {
-          if (toastId) {
-            INotification.dismiss(toastId);
-          }
-        }
-        throw error;
-      }
-    };
+    const { subdir } = await this.props.model.subdir();
     const dialog = new NonKeypressStealingDialog({
       title: 'Solve Environment',
       body: (
-        <CondaEnvSolve
-          quetzUrl={model.quetzUrl}
-          quetzSolverUrl={model.quetzSolverUrl}
-          subdir={subdir}
-          create={create}
-        />
+        <div className="condaCompleteDialog">
+          <CondaEnvSolveDialog
+            subdir={subdir}
+            environmentManager={this.props.model}
+          />
+        </div>
       ),
       buttons: [Dialog.okButton()]
     });

@@ -121,7 +121,7 @@ async function loadVersionsOfChannels(
   return mapping;
 }
 
-export function register(quetzUrl: string): void {
+export function register(quetzUrl: string, expandChannelUrl = false): void {
   const condaHint = async (editor: Editor, callback: any, options: any) => {
     const topLevel = [
       {
@@ -173,9 +173,12 @@ export function register(quetzUrl: string): void {
         const [, pre, name] = groups;
         start = pre.length;
         try {
-          list = (await loadChannels(quetzUrl)).filter(channel =>
-            channel.startsWith(name || '')
-          );
+          list = (await loadChannels(quetzUrl))
+            .filter(channel => channel.startsWith(name || ''))
+            .map(channel => ({
+              displayText: channel,
+              text: expandChannelUrl ? `${quetzUrl}/get/${channel}` : channel
+            }));
         } catch (e) {
           console.error(e);
           list = wrapErrorMsg('Loading of channels failed');
@@ -229,11 +232,15 @@ export function register(quetzUrl: string): void {
           version2End
         ] = matchLengths;
 
+        const channels = getChannels(editor.getValue()).map(channel =>
+          expandChannelUrl ? channel.slice(quetzUrl.length + 5) : channel
+        );
+
         const loadVersions = async (query: string) => {
           try {
             return await loadVersionsOfChannels(
               quetzUrl,
-              getChannels(editor.getValue()),
+              channels,
               packageName,
               query
             );
@@ -253,11 +260,7 @@ export function register(quetzUrl: string): void {
 
           try {
             list = (
-              await loadPackagesOfChannels(
-                quetzUrl,
-                getChannels(editor.getValue()),
-                packagePart
-              )
+              await loadPackagesOfChannels(quetzUrl, channels, packagePart)
             ).map(p => ({
               displayText: `${p.name} [${p.channel}] ${p.summary}`,
               text: `${p.name}`
@@ -304,13 +307,16 @@ export async function fetchSolve(
   quetzUrl: string,
   quetzSolverUrl: string,
   subdir: string,
-  environment_yml: string
+  environment_yml: string,
+  expandChannelUrl = true
 ): Promise<string> {
   const data = {
     subdir,
-    channels: getChannels(environment_yml).map(
-      channel => `${quetzUrl}/get/${channel}`
-    ),
+    channels: expandChannelUrl
+      ? getChannels(environment_yml).map(
+          channel => `${quetzUrl}/get/${channel}`
+        )
+      : getChannels(environment_yml),
     spec: getDependencies(environment_yml)
   };
   const response = await fetch(
