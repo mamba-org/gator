@@ -22,21 +22,20 @@ HERE = os.path.dirname(__file__)
 class MambaNavigatorHandler(
     ExtensionHandlerJinjaMixin, ExtensionHandlerMixin, JupyterHandler
 ):
-    def get(self):
-        cls = self.__class__
+    extra_settings = None
 
+    def initialize(self, extra_settings, **kwargs):
+        self.extra_settings = extra_settings
+        super().initialize(**kwargs)
+
+    def get(self):
         config_data = {
             "appVersion": __version__,
             "baseUrl": self.base_url,
             "token": self.settings["token"],
             "fullStaticUrl": ujoin(self.base_url, "static", self.name),
             "frontendUrl": ujoin(self.base_url, "gator/"),
-            "quetzUrl": cls.quetz_url,
-            "quetzSolverUrl": cls.quetz_solver_url,
-            "companions": cls.companions,
-            "fromHistory": cls.from_history,
-            "types": cls.types,
-            "whitelist": cls.white_list
+            **self.extra_settings
         }
         return self.write(
             self.render_template(
@@ -116,13 +115,15 @@ class MambaNavigator(LabServerApp):
     })
 
     def initialize_handlers(self):
-        MambaNavigatorHandler.quetz_url = self.quetz_url
-        MambaNavigatorHandler.quetz_solver_url = self.quetz_solver_url
-        MambaNavigatorHandler.companions = self.companions
-        MambaNavigatorHandler.from_history = self.from_history
-        MambaNavigatorHandler.types = self.types
-        MambaNavigatorHandler.white_list = self.white_list
-        self.handlers.append(("/gator", MambaNavigatorHandler))
+        self.handlers.append(("/gator", MambaNavigatorHandler, dict(
+            extra_settings=dict(
+                quetzUrl=self.quetz_url,
+                quetzSolverUrl=self.quetz_solver_url,
+                companions=self.companions,
+                fromHistory=self.from_history,
+                types=self.types,
+                whiteList=self.white_list
+            ))))
         super().initialize_handlers()
 
     def start(self):
