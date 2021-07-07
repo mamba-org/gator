@@ -36,6 +36,11 @@ function getDependencies(environment_yml: string) {
     .map(line => line.match(/\s+- (.+)/)[1]);
 }
 
+/**
+ * Gets the name of the environment from environment_yml.
+ *
+ * @param environment_yml - The content of environment.yml
+ */
 export function getName(environment_yml: string): string | null {
   const matches = [...environment_yml.matchAll(/^name:\s*(.*?)\s*(?:\n|$)/gm)];
   if (!matches[0] || matches[0].length < 2) {
@@ -121,6 +126,13 @@ async function loadVersionsOfChannels(
   return mapping;
 }
 
+/**
+ * Registers the autocompletion hints for Conda environment files
+ *
+ * @param quetzUrl - The URL of the Quetz server
+ * @param expandChannelUrl - Should channel names be expanded to channel URLs in the editors text
+ *   area?
+ */
 export function register(quetzUrl: string, expandChannelUrl = false): void {
   const condaHint = async (editor: Editor, callback: any, options: any) => {
     const topLevel = [
@@ -303,6 +315,16 @@ export function register(quetzUrl: string, expandChannelUrl = false): void {
   CodeMirror.registerHelper('hint', 'yaml', condaHint);
 }
 
+/**
+ * Fetches the solved environment from the Quetz server
+ *
+ * @param quetzUrl - The URL of the Quetz server
+ * @param quetzSolverUrl - The URL of the Quetz server with the solver plugin
+ * @param subdir - The Conda subdir (or platform e.g. osx-64, linux-32)
+ * @param environment_yml - The environment.yml content
+ * @param expandChannelUrl - The environment_yml contains channel names that should be expanded to
+ *  channel URLS
+ */
 export async function fetchSolve(
   quetzUrl: string,
   quetzSolverUrl: string,

@@ -71,6 +71,7 @@ export interface IEnvironmentManager extends IDisposable {
    *
    * @param name name of the environment to create
    * @param fileContent file content of the file containing the packages list to import
+   * @param filename name of the file in which the content will be written
    */
   import(name: string, fileContent: string, fileName?: string): Promise<void>;
   /**

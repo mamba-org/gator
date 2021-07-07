@@ -10,11 +10,29 @@ import { INotification } from 'jupyterlab_toastify';
  * Conda solve properties
  */
 export interface ICondaEnvSolveProps {
+  /**
+   *  The URL of the Quetz server
+   */
   quetzUrl: string;
+  /**
+   *  The URL of the Quetz server with the solver plugin, if different from quetzUrl
+   */
   quetzSolverUrl: string;
+  /**
+   * The Conda subdir (or platform e.g. osx-64, linux-32) of the backend
+   */
   subdir: string;
+  /**
+   * The initial content of the editors text area
+   */
   content?: string;
+  /**
+   * Should the channel name be expanded to the channel URL in the editors text area
+   */
   expandChannelUrl?: boolean;
+  /**
+   *  Callback to get notified of changes to the editors text area
+   */
   onContentChange?(content: string): void;
 }
 
@@ -62,6 +80,16 @@ export function CondaEnvSolve(props: ICondaEnvSolveProps): JSX.Element {
   );
 }
 
+/**
+ * Solve the environment provided in environment_yml on the Quetz server and create it on the
+ * backend.
+ *
+ * @param environment_yml - The environment.yml content
+ * @param environmentManager - The Conda environment manager
+ * @param expandChannelUrl - The environment_yml contains channel names that should be expanded to
+ *  channel URLS
+ * @param onMessage - Callback to provide feedback about the process
+ */
 export async function solveAndCreateEnvironment(
   environment_yml: string,
   environmentManager: IEnvironmentManager,
@@ -116,7 +144,13 @@ export async function solveAndCreateEnvironment(
 }
 
 export interface ICondaEnvSolveDialogProps {
+  /**
+   * The Conda subdir (or platform e.g. osx-64, linux-32) of the backend
+   */
   subdir: string;
+  /**
+   * The Conda environment manager
+   */
   environmentManager: IEnvironmentManager;
 }
 

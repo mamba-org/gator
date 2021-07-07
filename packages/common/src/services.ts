@@ -414,6 +414,11 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
+  /**
+   * Requests the subdir (platform) from the backend
+   *
+   * @returns A Promise with the subdir
+   */
   async subdir(): Promise<{ subdir: string }> {
     const { promise } = Private.requestServer(
       URLExt.join('conda', 'subdir'),
