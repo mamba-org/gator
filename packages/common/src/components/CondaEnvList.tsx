@@ -58,7 +58,7 @@ export interface IEnvListProps {
   /**
    * Environment solve handler
    */
-  onSolve(): void;
+  onSolve?: (() => void) | false;
 }
 
 /**

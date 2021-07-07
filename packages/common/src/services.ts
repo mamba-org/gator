@@ -74,7 +74,6 @@ export interface ICancellableAction {
 export class CondaEnvironments implements IEnvironmentManager {
   constructor(settings?: ISettingRegistry.ISettings) {
     this._environments = new Array<Conda.IEnvironment>();
-
     if (settings) {
       this._updateSettings(settings);
       settings.changed.connect(this._updateSettings, this);
@@ -453,8 +452,7 @@ export class CondaEnvironments implements IEnvironmentManager {
   private _packageManager = new CondaPackage();
   private _whitelist =
     PageConfig.getOption('whitelist').toLowerCase() === 'true';
-  private _quetzUrl =
-    PageConfig.getOption('quetzUrl') || 'http://localhost:8000';
+  private _quetzUrl = PageConfig.getOption('quetzUrl');
   private _quetzSolverUrl = PageConfig.getOption('quetzSolverUrl');
 }
 

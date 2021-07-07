@@ -183,6 +183,10 @@ function activate(
   const namespace = 'conda';
   const tracker = new WidgetTracker<DocumentWidget>({ namespace });
 
+  if (!environmentManager.quetzUrl) {
+    return tracker;
+  }
+
   restorer.restore(tracker, {
     command: 'docmanager:open',
     args: widget => ({ path: widget.context.path, factory: FACTORY }),

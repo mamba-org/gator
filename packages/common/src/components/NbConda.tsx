@@ -429,7 +429,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           onExport={this.handleExportEnvironment}
           onRefresh={this.handleRefreshEnvironment}
           onRemove={this.handleRemoveEnvironment}
-          onSolve={this.handleSolveEnvironment}
+          onSolve={this.props.model.quetzUrl && this.handleSolveEnvironment}
         />
         <CondaPkgPanel
           height={this.props.height}

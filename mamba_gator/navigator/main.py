@@ -66,7 +66,7 @@ class MambaNavigator(LabServerApp):
     workspaces_dir = os.path.join(HERE, "workspaces")
 
     quetz_url = Unicode(
-        'http://localhost:8000',
+        '',
         config=True,
         help="The Quetz server to use for creating new environments"
     )

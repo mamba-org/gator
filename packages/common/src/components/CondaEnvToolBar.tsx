@@ -56,7 +56,7 @@ export interface ICondaEnvToolBarProps {
   /**
    * Solve environment handler
    */
-  onSolve(): void;
+  onSolve?: (() => void) | false;
 }
 
 export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
@@ -85,11 +85,13 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           tooltip="Create"
           onClick={props.onCreate}
         />
-        <ToolbarButtonComponent
-          icon={buildIcon}
-          tooltip="Solve new"
-          onClick={props.onSolve}
-        />
+        {props.onSolve && (
+          <ToolbarButtonComponent
+            icon={buildIcon}
+            tooltip="Solve new"
+            onClick={props.onSolve}
+          />
+        )}
         <Button
           className="jp-ToolbarButtonComponent"
           disabled={props.isBase}
