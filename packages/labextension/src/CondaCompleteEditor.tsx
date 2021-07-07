@@ -168,7 +168,7 @@ export const ICondaCompleteTracker = new Token<ICondaCompleteTracker>(
 );
 
 export const condaCompleteExtension: JupyterFrontEndPlugin<ICondaCompleteTracker> = {
-  id: '@jupyterlab/condacomplete-extension:plugin',
+  id: '@mamba-org/gator-lab:conda-completer',
   autoStart: true,
   requires: [ILayoutRestorer, IEnvironmentManager],
   provides: ICondaCompleteTracker,
