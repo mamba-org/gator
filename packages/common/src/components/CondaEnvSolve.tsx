@@ -18,7 +18,7 @@ export interface ICondaEnvSolveProps {
   onContentChange?(content: string): void;
 }
 
-export const CondaEnvSolve = (props: ICondaEnvSolveProps): JSX.Element => {
+export function CondaEnvSolve(props: ICondaEnvSolveProps): JSX.Element {
   condaHint.register(props.quetzUrl, props.expandChannelUrl);
   const codemirrorElem = React.useRef(null);
 
@@ -60,7 +60,7 @@ export const CondaEnvSolve = (props: ICondaEnvSolveProps): JSX.Element => {
       onMouseEnter={() => editor && editor.refresh()}
     />
   );
-};
+}
 
 export async function solveAndCreateEnvironment(
   environment_yml: string,
@@ -120,9 +120,9 @@ export interface ICondaEnvSolveDialogProps {
   environmentManager: IEnvironmentManager;
 }
 
-export const CondaEnvSolveDialog = (
+export function CondaEnvSolveDialog(
   props: ICondaEnvSolveDialogProps
-): JSX.Element => {
+): JSX.Element {
   const [environment_yml, setEnvironment_yml] = React.useState('');
   const [solveState, setSolveState] = React.useState(null);
 
@@ -155,4 +155,4 @@ export const CondaEnvSolveDialog = (
       </div>
     </div>
   );
-};
+}
