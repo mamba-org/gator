@@ -24,6 +24,7 @@ import {
   CompanionValidator,
   ICompanionValidator
 } from './validator';
+import { condaCompleteExtension } from './CondaCompleteEditor';
 
 const CONDAENVID = '@mamba-org/gator-lab:plugin';
 const TOUR_DELAY = 1000;
@@ -186,7 +187,7 @@ const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
   provides: ICompanionValidator
 };
 
-const extensions = [condaManager, companions];
+const extensions = [condaManager, companions, condaCompleteExtension];
 
 export default extensions;
 

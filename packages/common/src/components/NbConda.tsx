@@ -6,6 +6,7 @@ import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
 import { CondaEnvList, ENVIRONMENT_PANEL_WIDTH } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
+import { CondaEnvSolveDialog } from './CondaEnvSolve';
 
 /**
  * Jupyter Conda Component properties
@@ -47,6 +48,13 @@ export interface ICondaEnvState {
   isLoading: boolean;
 }
 
+class NonKeypressStealingDialog<T> extends Dialog<T> {
+  protected onAfterAttach(msg: any) {
+    super.onAfterAttach(msg);
+    this.node.removeEventListener('keydown', this, true);
+  }
+}
+
 /** Top level React component for Jupyter Conda Manager */
 export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   constructor(props: ICondaEnvProps) {
@@ -65,6 +73,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleExportEnvironment = this.handleExportEnvironment.bind(this);
     this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
     this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
+    this.handleSolveEnvironment = this.handleSolveEnvironment.bind(this);
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
@@ -355,6 +364,24 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
+  async handleSolveEnvironment(): Promise<void> {
+    const { subdir } = await this.props.model.subdir();
+    const dialog = new NonKeypressStealingDialog({
+      title: 'Solve Environment',
+      body: (
+        <div className="condaCompleteDialog">
+          <CondaEnvSolveDialog
+            subdir={subdir}
+            environmentManager={this.props.model}
+          />
+        </div>
+      ),
+      buttons: [Dialog.okButton()]
+    });
+
+    await dialog.launch();
+  }
+
   async loadEnvironments(): Promise<void> {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
@@ -402,6 +429,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           onExport={this.handleExportEnvironment}
           onRefresh={this.handleRefreshEnvironment}
           onRemove={this.handleRemoveEnvironment}
+          onSolve={this.props.model.quetzUrl && this.handleSolveEnvironment}
         />
         <CondaPkgPanel
           height={this.props.height}

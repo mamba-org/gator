@@ -18,6 +18,17 @@ export interface IEnvironmentManager extends IDisposable {
    * Get the list of user-defined environment types
    */
   environmentTypes: string[];
+
+  /**
+   * Get the Quetz URL
+   */
+  quetzUrl: string;
+
+  /**
+   * Get the Quetz solver URL
+   */
+  quetzSolverUrl: string;
+
   /**
    * Get all packages channels available in the requested environment
    *
@@ -60,8 +71,9 @@ export interface IEnvironmentManager extends IDisposable {
    *
    * @param name name of the environment to create
    * @param fileContent file content of the file containing the packages list to import
+   * @param filename name of the file in which the content will be written
    */
-  import(name: string, fileContent: string, fileName: string): Promise<void>;
+  import(name: string, fileContent: string, fileName?: string): Promise<void>;
   /**
    * Create an environment from a packages list file
    *
@@ -76,6 +88,10 @@ export interface IEnvironmentManager extends IDisposable {
    * @param name name of the environment to be removed
    */
   remove(name: string): Promise<void>;
+  /**
+   * Get the conda-subdir of the server
+   */
+  subdir(): Promise<{ subdir: string }>;
 }
 
 export namespace Conda {

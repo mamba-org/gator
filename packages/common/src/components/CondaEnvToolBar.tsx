@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import {
   addIcon,
+  buildIcon,
   Button,
   closeIcon,
   downloadIcon,
@@ -52,6 +53,10 @@ export interface ICondaEnvToolBarProps {
    * Remove environment handler
    */
   onRemove(): void;
+  /**
+   * Solve environment handler
+   */
+  onSolve?: (() => void) | false;
 }
 
 export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
@@ -80,6 +85,13 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           tooltip="Create"
           onClick={props.onCreate}
         />
+        {props.onSolve && (
+          <ToolbarButtonComponent
+            icon={buildIcon}
+            tooltip="Solve new"
+            onClick={props.onSolve}
+          />
+        )}
         <Button
           className="jp-ToolbarButtonComponent"
           disabled={props.isBase}
