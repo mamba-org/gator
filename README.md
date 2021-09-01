@@ -91,17 +91,32 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 
 ## Development
 
+First, set up the environment:
+
 ```shell
-mamba create -c conda-forge -y -n gator python jupyterlab=3
+mamba create -c conda-forge -y -n gator python jupyterlab
 mamba install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
-pip install -e .
-jupyter server extension enable mamba_gator --sys-prefix
-
-yarn install
-yarn run build:dev
-jupyter labextension link packages/common/ packages/labextension/
 ```
+
+Clone the repo, install it with `pip`, and then watch for changes to the
+javascript:
+
+```bash
+git clone git@github.com:quansight/gator
+cd gator
+pip install -e .
+yarn install
+./node_modules/.bin/lerna run watch --parallel  # <-- enable automatic rebuilds
+```
+
+Elsewhere, start the jupyter server in watch mode:
+
+```bash
+jupyter lab --watch
+```
+
+Now you're good to go!
 
 ## Acknowledgements
 
@@ -143,7 +158,7 @@ sense to move the project in the `mamba-org` organization.
 ### 5.0.0
 
 - Features
-  - Update to JupyterLab 3 and the new Jupyter Server  
+  - Update to JupyterLab 3 and the new Jupyter Server
   You don't need to install anything more than the pip or conda package.
   - Drop support for the classical notebook.
 
