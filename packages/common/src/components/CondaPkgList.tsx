@@ -10,6 +10,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { classes, style } from 'typestyle';
 import { NestedCSSProperties } from 'typestyle/lib/types';
+import useInView from 'react-cool-inview';
 import {
   CONDA_PACKAGES_PANEL_ID,
   CONDA_PACKAGE_SELECT_CLASS
@@ -46,10 +47,66 @@ export interface IPkgListProps {
    * Package item graph dependencies handler
    */
   onPkgGraph: (pkg: Conda.IPackage) => void;
+  /**
+   * Reference with triggers callback when the user scrolls to the bottom of the package list.
+   */
+  observe: (element?: HTMLElement) => void;
+}
+
+/**
+ * Wrapper for CondaPkgView which triggers a callback when the bottom of the list is visible.
+ *
+ * @param {boolean} hasDescription - True if package description is available
+ * @param {number} height - Height of the component
+ * @param {Array<Conda.IPackage>} packages - List of packages to display
+ * @param {function} onPkgClick - Callback triggered when package is clicked
+ * @param {function} onPkgChange - Callback triggered when the selected version is changed
+ * @param {function} onPkgGraph - Callback triggered when the version string is clicked
+ * @param {function} onPkgBottomHit - Callback triggered when the bottom of the list is visible
+ * @return {JSX.Element} Component showing the list of packages
+ */
+export function CondaPkgList({
+  hasDescription,
+  height,
+  packages,
+  onPkgClick,
+  onPkgChange,
+  onPkgGraph,
+  onPkgBottomHit
+}: {
+  hasDescription: boolean;
+  height: number;
+  packages: Conda.IPackage[];
+  onPkgClick: (pkg: Conda.IPackage) => void;
+  onPkgChange: (pkg: Conda.IPackage, version: string) => void;
+  onPkgGraph: (pkg: Conda.IPackage) => void;
+  onPkgBottomHit: () => Promise<void>;
+}): JSX.Element {
+  const { observe } = useInView({
+    rootMargin: '200px 0px',
+    onChange: async ({ inView, unobserve, observe }) => {
+      if (inView) {
+        unobserve();
+        await onPkgBottomHit();
+        observe();
+      }
+    }
+  });
+  return (
+    <CondaPkgView
+      hasDescription={hasDescription}
+      height={height}
+      packages={packages}
+      onPkgClick={onPkgClick}
+      onPkgChange={onPkgChange}
+      onPkgGraph={onPkgGraph}
+      observe={observe}
+    />
+  );
 }
 
 /** React component for the package list */
-export class CondaPkgList extends React.Component<IPkgListProps> {
+class CondaPkgView extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
     hasDescription: false,
     packages: []
@@ -81,11 +138,14 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             Update
           </option>
         )}
-        {pkg.version.map((v: string) => (
-          <option key={v} value={v}>
-            {v}
-          </option>
-        ))}
+        {
+          // Some packages have duplicate version strings; make them unique here
+          [...new Set(pkg.version)].map((v: string) => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))
+        }
       </HTMLSelect>
     </div>
   );
@@ -196,6 +256,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           this.props.onPkgClick(pkg);
         }}
         role="row"
+        ref={index === data.length - 1 ? this.props.observe : null}
       >
         <div className={classes(Style.Cell, Style.StatusSize)} role="gridcell">
           {this.iconRender(pkg)}

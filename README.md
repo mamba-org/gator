@@ -94,20 +94,21 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 First, set up the environment:
 
 ```shell
-mamba create -c conda-forge -y -n gator python jupyterlab
+git clone git@github.com:mamba-org/gator
+cd gator
+mamba create -c conda-forge -y -n gator python jupyterlab=3
 mamba install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
+pip install -e .
+jupyter server extension enable mamba_gator --sys-prefix
 ```
 
-Clone the repo, install it with `pip`, and then watch for changes to the
-javascript:
+To automatically watch frontend for changes as you develop, carry out the
+previous steps and then run `yarn watch`:
 
 ```bash
-git clone git@github.com:quansight/gator
-cd gator
-pip install -e .
 yarn install
-./node_modules/.bin/lerna run watch --parallel  # <-- enable automatic rebuilds
+yarn watch  # <-- enable automatic rebuilds
 ```
 
 Elsewhere, start the jupyter server in watch mode:
@@ -117,6 +118,38 @@ jupyter lab --watch
 ```
 
 Now you're good to go!
+
+## Setting up Gator for conda-store
+
+[conda-store](https://github.com/Quansight/conda-store) is an environment
+management system that aims to provide users with reproducible conda
+environments. There are several ways in which conda-store can be used - see
+the conda-store documentation for detailed setup guides. If you'd like to test
+it out locally, it's easy to get started with Docker:
+
+```bash
+git clone git@github.com:Quansight/conda-store
+cd conda-store/examples/docker/
+docker-compose up --build
+```
+
+This will start the conda-store server inside a docker container at
+`localhost:5000`. Now navigate to JupyterLab, and open gator by clicking
+`Settings->Conda Store Packages Manager`, and the list of environments should
+populate with any existing conda-store environments. If you've just installed
+conda-store there won't be any environments yet, but now you can start creating
+reproducible environments with gator+conda-store!
+
+One important thing to note about conda-store environments is that they are
+managed completely separately from normal conda environments. In fact, gator
+accesses the environments through completely separate code paths:
+
+![Diagram of how conda-store integrates with gator. Conda-managed environments
+are completely separate from conda-store-managed
+environments.](gator-conda-store.svg)
+
+For more information about conda-store, check out the
+[documentation](https://conda-store.readthedocs.io/en/latest/#).
 
 ## Acknowledgements
 

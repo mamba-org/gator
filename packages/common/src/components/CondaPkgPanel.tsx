@@ -99,6 +99,7 @@ export class CondaPkgPanel extends React.Component<
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleRefreshPackages = this.handleRefreshPackages.bind(this);
+    this.onPkgBottomHit = this.onPkgBottomHit.bind(this);
   }
 
   private async _updatePackages(): Promise<void> {
@@ -459,6 +460,29 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
+  /**
+   * Callback which is triggered when the bottom of the package list is visible.
+   *
+   * If the model supports it, more packages will be loaded.
+   *
+   * @async
+   * @return {Promise<void>}
+   */
+  async onPkgBottomHit(): Promise<void> {
+    if (!this.state.isLoading) {
+      this.setState({
+        isLoading: true
+      });
+      const packages = await this._model.loadMorePackages?.();
+      if (packages !== undefined) {
+        this.setState({ packages });
+      }
+      this.setState({
+        isLoading: false
+      });
+    }
+  }
+
   render(): JSX.Element {
     let filteredPkgs: Conda.IPackage[] = [];
     if (this.state.activeFilter === PkgFilters.All) {
@@ -515,6 +539,7 @@ export class CondaPkgPanel extends React.Component<
           onPkgClick={this.handleClick}
           onPkgChange={this.handleVersionSelection}
           onPkgGraph={this.handleDependenciesGraph}
+          onPkgBottomHit={this.onPkgBottomHit}
         />
       </div>
     );

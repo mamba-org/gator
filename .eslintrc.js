@@ -10,7 +10,10 @@ module.exports = {
   parserOptions: {
     project: 'tsconfig.json'
   },
-  plugins: ['@typescript-eslint'],
+  plugins: [
+    '@typescript-eslint',
+    'react-hooks'
+  ],
   rules: {
     '@typescript-eslint/naming-convention': [
       'error',
@@ -34,7 +37,9 @@ module.exports = {
     ],
     curly: ['error', 'all'],
     eqeqeq: 'error',
-    'prefer-arrow-callback': 'error'
+    'prefer-arrow-callback': 'error',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn'
   },
   settings: {
     react: {

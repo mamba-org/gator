@@ -3,10 +3,10 @@
   "compilerOptions": {
     "outDir": "lib",
     "rootDir": "src",
-    "sourceRoot": "./@mamba-org/gator-lab/src",
+    "sourceRoot": "./@mamba-org/conda-store/src",
     "types": ["jest"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["src/**/*.spec.*"],
-  "references": [{ "path": "../common" }, { "path": "../conda-store" }]
+  "references": [{ "path": "../common" }]
 }
