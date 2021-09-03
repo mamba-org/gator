@@ -29,7 +29,13 @@ jobs:
           echo Publishing ${VERSION} with distribution tag ${TAG}
           npm install -g yarn
           yarn install
-          yarn run publish ${VERSION} --yes --no-git-tag-version --dist-tag ${TAG}
+          # yarn lerna version ${VERSION} --yes --no-git-tag-version
+          pushd packages/common
+          yarn run publish --access public --tag ${TAG}
+          popd
+          pushd packages/labextension
+          yarn run publish --access public --tag ${TAG}
+          popd
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PRE_RELEASE: ${{ github.event.release.prerelease }}
