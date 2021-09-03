@@ -113,6 +113,21 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
+### 5.1.2
+
+- Security updates:
+  - Bump handlebars from 4.7.6 to 4.7.7 (#143)
+  - Bump hosted-git-info from 2.8.8 to 2.8.9 (#144)
+  - Bump lodash from 4.17.20 to 4.17.21 (#145)
+  - Bump browserslist from 4.16.1 to 4.16.6 (#146)
+  - Bump ws from 7.4.2 to 7.4.6 (#148)
+  - Bump postcss from 7.0.35 to 7.0.36 (#149)
+  - Bump tar from 4.4.13 to 4.4.15 (#151)
+  - Bump path-parse from 1.0.6 to 1.0.7 (#152)
+  - Bump tar from 4.4.15 to 4.4.19 (#153)
+- Maintenance:
+  - Add keywords and PyPI classifiers
+
 ### 5.1.1
 
 - Bug fix
