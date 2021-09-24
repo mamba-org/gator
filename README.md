@@ -50,7 +50,7 @@ This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
 
 ![jupyterlab_conda_extension](packages/labextension/jupyterlab_conda.gif)
 
-## Navigator
+## _Gator_ (Mamba navigator)
 
 This project contains a standalone navigator application sharing much of the code
 of the JupyterLab extension.
@@ -83,7 +83,7 @@ There are three ways to create an environment:
 
 ### Try it online
 
-Open Mamba Navigator: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
+Open _Gator_ (Mamba Navigator): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/gator)
 
 Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
 
