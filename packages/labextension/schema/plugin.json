@@ -45,6 +45,12 @@
       "title": "Only kernel whitelist",
       "description": "Show only environment corresponding to whitelisted kernels",
       "default": false
+    },
+    "condaStoreUrl": {
+      "type": "string",
+      "title": "Conda-Store URL",
+      "description": "URL of the conda-store server",
+      "default": "http://localhost:5000"
     }
   },
   "additionalProperties": false,

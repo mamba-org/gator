@@ -1,3 +1,4 @@
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ISignal, Signal } from '@lumino/signaling';
 import { Conda, IEnvironmentManager } from '@mamba-org/gator-common';
 import {
@@ -13,13 +14,21 @@ import {
  * @implements IEnvironmentManager
  */
 export class CondaStoreEnvironmentManager implements IEnvironmentManager {
+  constructor(settings?: ISettingRegistry.ISettings) {
+    if (settings) {
+      this.updateSettings(settings);
+      settings.changed.connect(this.updateSettings, this);
+    }
+    return;
+  }
+
   async getServerStatus(): Promise<string> {
-    const { status } = await condaStoreServerStatus();
+    const { status } = await condaStoreServerStatus(this._baseUrl);
     return status;
   }
 
   get environments(): Promise<Array<Conda.IEnvironment>> {
-    return fetchEnvironments().then(({ data }) => {
+    return fetchEnvironments(this._baseUrl).then(({ data }) => {
       return data.map(({ name, namespace }) => {
         return {
           name: `${namespace.name}/${name}`,
@@ -45,8 +54,9 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
    * @return {Conda.IPackageManager} Manager for accessing/modifying packages
    */
   getPackageManager(name?: string): Conda.IPackageManager {
-    this.packageManager.environment = name;
-    return this.packageManager;
+    this._packageManager.environment = name;
+    this._packageManager.baseUrl = this._baseUrl;
+    return this._packageManager;
   }
 
   clone(target: string, name: string): Promise<void> {
@@ -91,12 +101,17 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     this._isDisposed = true;
   }
 
-  private packageManager = new CondaStorePackageManager();
+  updateSettings(settings: ISettingRegistry.ISettings): void {
+    this._baseUrl = settings.get('condaStoreUrl').composite as string;
+  }
+
+  private _packageManager = new CondaStorePackageManager();
   private _environmentChanged = new Signal<
     IEnvironmentManager,
     Conda.IEnvironmentChange
   >(this);
   private _isDisposed = false;
+  private _baseUrl = 'http://localhost:5000';
 }
 
 interface IParsedEnvironment {
@@ -118,6 +133,7 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
   availablePage = 1;
   availablePageSize = 100;
   availablePackages: Array<ICondaStorePackage> = [];
+  baseUrl = '';
 
   constructor(environment?: string) {
     this.environment = environment;
@@ -297,6 +313,7 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
   async loadAvailablePackages(): Promise<Array<ICondaStorePackage>> {
     if (this.hasMoreAvailablePackages) {
       const { count, data } = await fetchPackages(
+        this.baseUrl,
         this.availablePage,
         this.availablePageSize
       );
@@ -328,6 +345,7 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
         environment !== undefined ? environment : this.environment
       );
       const { count, data } = await fetchEnvironmentPackages(
+        this.baseUrl,
         namespaceName,
         envName,
         this.installedPage,
