@@ -6,6 +6,7 @@ jupyter_client
 jupyter-packaging >=0.7.9,<0.8.0
 jupyter_server
 jupyterlab_server
+requests
 tornado
 traitlets
 coverage
