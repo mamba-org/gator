@@ -6,8 +6,33 @@ import {
   fetchPackages,
   fetchEnvironmentPackages,
   ICondaStorePackage,
-  condaStoreServerStatus
+  condaStoreServerStatus,
+  createEnvironment
 } from './condaStore';
+
+interface IParsedEnvironment {
+  environment: string;
+  namespace: string;
+}
+
+/**
+ * Split a conda-store environment into a namespace name and environment name.
+ *
+ * @param {string} environment - Name of the environment in the form <namespace>/<environment>
+ * @throws {Error} - Thrown if the environment is not defined
+ * @return {IParsedEnvironment} Environment and namespace names
+ */
+function parseEnvironment(environment: string): IParsedEnvironment {
+  if (environment !== undefined) {
+    const [namespaceName, environmentName] = environment.split('/', 2);
+    return {
+      environment: environmentName,
+      namespace: namespaceName
+    };
+  } else {
+    throw 'Environment is undefined.';
+  }
+}
 
 /**
  * Model for managing conda-store environments.
@@ -59,12 +84,28 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     return this._packageManager;
   }
 
-  clone(target: string, name: string): Promise<void> {
-    return Promise.resolve(void 0);
+  async clone(target: string, name: string): Promise<void> {
+    return;
   }
 
-  create(name: string, type?: string): Promise<void> {
-    return Promise.resolve(void 0);
+  /**
+   * Create a new environment.
+   *
+   * @param {string} name - <namespace>/<environment> name for the new environment.
+   * @param {string} [type] - Type of environment to create; see this.environmentTypes for possible
+   * values.
+   * @returns {Promise<void>}
+   */
+  async create(name: string, type?: string): Promise<void> {
+    const { namespace, environment } = parseEnvironment(name);
+    const dependencies = type === 'python3' ? ['python'] : [type];
+    await createEnvironment(
+      this._baseUrl,
+      namespace,
+      environment,
+      dependencies
+    );
+    return;
   }
 
   get environmentChanged(): ISignal<
@@ -74,20 +115,28 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     return this._environmentChanged;
   }
 
-  export(name: string, fromHistory?: boolean): Promise<Response> {
+  async export(name: string, fromHistory?: boolean): Promise<Response> {
     return;
   }
 
-  import(name: string, fileContent: string, fileName: string): Promise<void> {
+  async import(
+    name: string,
+    fileContent: string,
+    fileName: string
+  ): Promise<void> {
     return Promise.resolve(void 0);
   }
 
-  update(name: string, fileContent: string, fileName: string): Promise<void> {
-    return Promise.resolve(void 0);
+  async update(
+    name: string,
+    fileContent: string,
+    fileName: string
+  ): Promise<void> {
+    return;
   }
 
-  remove(name: string): Promise<void> {
-    return Promise.resolve(void 0);
+  async remove(name: string): Promise<void> {
+    return;
   }
 
   get isDisposed(): boolean {
@@ -114,11 +163,6 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
   private _baseUrl = 'http://localhost:5000';
 }
 
-interface IParsedEnvironment {
-  environment: string;
-  namespace: string;
-}
-
 /**
  * Model for managing packages for a single environment.
  */
@@ -137,25 +181,6 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
 
   constructor(environment?: string) {
     this.environment = environment;
-  }
-
-  /**
-   * Split a conda-store environment into a namespace name and environment name.
-   *
-   * @param {string} environment - Name of the environment in the form <namespace>/<environment>
-   * @throws {Error} - Thrown if the environment is not defined
-   * @return {IParsedEnvironment} Environment and namespace names
-   */
-  parseEnvironment(environment: string): IParsedEnvironment {
-    if (environment !== undefined) {
-      const [namespaceName, environmentName] = environment.split('/', 2);
-      return {
-        environment: environmentName,
-        namespace: namespaceName
-      };
-    } else {
-      throw 'Environment is undefined.';
-    }
   }
 
   /**
@@ -341,7 +366,7 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
       const {
         environment: envName,
         namespace: namespaceName
-      } = this.parseEnvironment(
+      } = parseEnvironment(
         environment !== undefined ? environment : this.environment
       );
       const { count, data } = await fetchEnvironmentPackages(
@@ -438,8 +463,13 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
     installed: Array<ICondaStorePackage>;
     available: Array<ICondaStorePackage>;
   } {
-    // If there are no more packages to fetch, show all packages. Otherwise truncate
-    if (!this.hasMoreInstalledPackages && !this.hasMoreAvailablePackages) {
+    // If there are no more packages to fetch, or if there are no installed or no available
+    // packages, show all packages.
+    if (
+      (!this.hasMoreInstalledPackages && !this.hasMoreAvailablePackages) ||
+      installed.length === 0 ||
+      available.length === 0
+    ) {
       return {
         installed,
         available

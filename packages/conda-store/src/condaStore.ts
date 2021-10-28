@@ -1,3 +1,5 @@
+import { stringify } from 'yaml';
+
 export interface ICondaStoreEnvironment {
   name: string;
   build_id: number;
@@ -222,4 +224,55 @@ export async function fetchChannels(
     return await response.json();
   }
   return [];
+}
+
+/**
+ * Create a new environment from a specification.
+ *
+ * @async
+ * @param {string} namespace - Namespace for the environment
+ * @param {string} specification - YAML-formatted specification containing environment name and
+ * dependencies
+ * @returns {Promise<Response>}
+ */
+export async function specifyEnvironment(
+  baseUrl: string,
+  namespace: string,
+  specification: string
+): Promise<Response> {
+  return await fetch(`${getServerUrl(baseUrl)}/specification/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      namespace: namespace,
+      specification
+    })
+  });
+}
+
+/**
+ * Create a new environment from a list of package names.
+ *
+ * @async
+ * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
+ * @param {string} namespace - Namespace into which the environment is to be created.
+ * @param {string} environment - Name of the new environment.
+ * @param {Array<string>} dependencies - List of string package names to be added to the spec.
+ * @returns {Promise<void>}
+ */
+export async function createEnvironment(
+  baseUrl: string,
+  namespace: string,
+  environment: string,
+  dependencies: Array<string>
+): Promise<void> {
+  await specifyEnvironment(
+    baseUrl,
+    namespace,
+    stringify({
+      name: environment,
+      dependencies
+    })
+  );
+  return;
 }
