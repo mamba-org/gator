@@ -95,6 +95,7 @@ jobs:
     name: Test Conda Python 3.9 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -149,7 +150,7 @@ jobs:
         run: |
           conda info
           conda install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=3
+          conda install -n test_gator jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
           python -m pip install -e .
         shell: bash -l {0}
@@ -216,7 +217,7 @@ jobs:
         run: |
           conda info
           mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator coveralls jupyterlab=3
+          mamba install -n test_gator coveralls jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
           python -m pip install -e .
           # Check pip dependencies
