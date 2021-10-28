@@ -59,7 +59,7 @@ class JupyterCondaAPITest(ServerTest):
 
         return self.conda_api.post(
             ["environments"],
-            body={"name": new_name, "packages": packages or ["python=3.9"]},
+            body={"name": new_name, "packages": packages or ["python!=3.10.0"]},
         )
 
     def rm_env(self, name):
@@ -541,7 +541,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         self.wait_for_task(
             self.conda_api.post,
             ["environments"],
-            body={"name": n, "packages": ["python"]},
+            body={"name": n, "packages": ["python!=3.10.0"]},
         )
 
         r = self.wait_for_task(
@@ -556,7 +556,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         self.wait_for_task(
             self.conda_api.post,
             ["environments"],
-            body={"name": n, "packages": ["python", "alabaster=0.7.11"]},
+            body={"name": n, "packages": ["python!=3.10.0", "alabaster=0.7.11"]},
         )
 
         r = self.wait_for_task(
@@ -583,7 +583,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
     def test_env_export_history(self):
         n = generate_name()
-        self.wait_for_task(self.mk_env, n)
+        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
         r = self.conda_api.get(
             ["environments", n], params={"download": 1, "history": 1}
         )
@@ -591,7 +591,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         content = " ".join(r.text.splitlines())
         self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python\s+prefix:"
+            content, r"^name:\s" + n + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python=3\.9\s+prefix:"
         )
 
     def test_env_export_not_supporting_history(self):
