@@ -276,3 +276,46 @@ export async function createEnvironment(
   );
   return;
 }
+
+/**
+ * Remove one or more packages from an environment.
+ *
+ * @async
+ * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
+ * @param {string} namespace - Namespace in which the environment resides
+ * @param {string} environment - Environment for which packages are to be removed
+ * @param {Array<string>} packages - Packages to remove
+ * @returns {Promise<void>}
+ */
+export async function removePackages(
+  baseUrl: string,
+  namespace: string,
+  environment: string,
+  packages: Array<string>
+): Promise<void> {
+  // Fetch all the packages from the current environment
+  let page = 1;
+  let count, data, size;
+  let hasMorePackages = true;
+  let installed: Array<ICondaStorePackage> = [];
+
+  while (hasMorePackages) {
+    ({ count, data, page, size } = await fetchEnvironmentPackages(
+      baseUrl,
+      namespace,
+      environment,
+      page
+    ));
+    hasMorePackages = page * size < count;
+    installed = [...installed, ...data];
+  }
+
+  // Reconstruct the specification for the current environment, minus the packages to delete
+  const toDelete = new Set(packages);
+  const dependencies = installed
+    .filter(({ name }) => !toDelete.has(name))
+    .map(({ name, version }) => `${name}=${version}`);
+
+  await createEnvironment(baseUrl, namespace, environment, dependencies);
+  return;
+}
