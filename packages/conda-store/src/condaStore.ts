@@ -319,3 +319,29 @@ export async function removePackages(
   await createEnvironment(baseUrl, namespace, environment, dependencies);
   return;
 }
+
+/**
+ * Export an environment as a yaml file.
+ *
+ * @async
+ * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
+ * @param {string} namespace - Namespace of the environment to be exported
+ * @param {string} environment - Name of the environment
+ * @returns {Promise<Response>} Response containing the yaml of the environment specification
+ * in the response text
+ */
+export async function exportEnvironment(
+  baseUrl: string,
+  namespace: string,
+  environment: string
+): Promise<Response> {
+  // First get the build ID of the requested environment
+  const response = await fetch(
+    `${getServerUrl(baseUrl)}/environment/${namespace}/${environment}/`
+  );
+
+  const { data } = await response.json();
+  return await fetch(
+    `${getServerUrl(baseUrl)}/build/${data.current_build_id}/yaml/`
+  );
+}

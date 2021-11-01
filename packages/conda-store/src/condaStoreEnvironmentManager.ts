@@ -9,7 +9,8 @@ import {
   condaStoreServerStatus,
   createEnvironment,
   specifyEnvironment,
-  removePackages
+  removePackages,
+  exportEnvironment
 } from './condaStore';
 
 interface IParsedEnvironment {
@@ -116,8 +117,17 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     return this._environmentChanged;
   }
 
+  /**
+   * Export the selected conda-store environment as a YAML file.
+   *
+   * @async
+   * @param {string} name - <namespace>/<environment> name for the new environment.
+   * @param {boolean} [fromHistory] - Unused here; kept for compatibility
+   * @returns {Promise<Response>} Response with text attribute containing the requested environment yaml
+   */
   async export(name: string, fromHistory?: boolean): Promise<Response> {
-    return;
+    const { namespace, environment } = parseEnvironment(name);
+    return await exportEnvironment(this._baseUrl, namespace, environment);
   }
 
   /**
