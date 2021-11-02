@@ -59,7 +59,8 @@ module.exports = {
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
-      reportFilename: path.resolve(__dirname, 'webpack-report.html')
+      reportFilename: path.resolve(__dirname, 'webpack-report.html'),
+      openAnalyzer: false
     })
   ]
 };

@@ -378,6 +378,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (error !== 'cancelled') {
           console.error(error);
           INotification.error(error.message);
+          this.setState({ isLoading: false });
         }
       }
     }

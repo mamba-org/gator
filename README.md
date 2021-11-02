@@ -50,7 +50,7 @@ This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
 
 ![jupyterlab_conda_extension](packages/labextension/jupyterlab_conda.gif)
 
-## Navigator
+## _Gator_ (Mamba navigator)
 
 This project contains a standalone navigator application sharing much of the code
 of the JupyterLab extension.
@@ -83,7 +83,7 @@ There are three ways to create an environment:
 
 ### Try it online
 
-Open Mamba Navigator: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/navigator)
+Open _Gator_ (Mamba Navigator): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/gator)
 
 Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
 
@@ -91,17 +91,65 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 
 ## Development
 
+First, set up the environment:
+
 ```shell
+git clone git@github.com:mamba-org/gator
+cd gator
 mamba create -c conda-forge -y -n gator python jupyterlab=3
 mamba install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
 pip install -e .
 jupyter server extension enable mamba_gator --sys-prefix
-
-yarn install
-yarn run build:dev
-jupyter labextension link packages/common/ packages/labextension/
 ```
+
+To automatically watch frontend for changes as you develop, carry out the
+previous steps and then run `yarn watch`:
+
+```bash
+yarn install
+yarn watch  # <-- enable automatic rebuilds
+```
+
+Elsewhere, start the jupyter server in watch mode:
+
+```bash
+jupyter lab --watch
+```
+
+Now you're good to go!
+
+## Setting up Gator for conda-store
+
+[conda-store](https://github.com/Quansight/conda-store) is an environment
+management system that aims to provide users with reproducible conda
+environments. There are several ways in which conda-store can be used - see
+the conda-store documentation for detailed setup guides. If you'd like to test
+it out locally, it's easy to get started with Docker:
+
+```bash
+git clone git@github.com:Quansight/conda-store
+cd conda-store/examples/docker/
+docker-compose up --build
+```
+
+This will start the conda-store server inside a docker container at
+`localhost:5000`. Now navigate to JupyterLab, and open gator by clicking
+`Settings->Conda Store Packages Manager`, and the list of environments should
+populate with any existing conda-store environments. If you've just installed
+conda-store there won't be any environments yet, but now you can start creating
+reproducible environments with gator+conda-store!
+
+One important thing to note about conda-store environments is that they are
+managed completely separately from normal conda environments. In fact, gator
+accesses the environments through completely separate code paths:
+
+![Diagram of how conda-store integrates with gator. Conda-managed environments
+are completely separate from conda-store-managed
+environments.](gator-conda-store.svg)
+
+For more information about conda-store, check out the
+[documentation](https://conda-store.readthedocs.io/en/latest/#).
 
 ## Acknowledgements
 
@@ -143,7 +191,7 @@ sense to move the project in the `mamba-org` organization.
 ### 5.0.0
 
 - Features
-  - Update to JupyterLab 3 and the new Jupyter Server  
+  - Update to JupyterLab 3 and the new Jupyter Server
   You don't need to install anything more than the pip or conda package.
   - Drop support for the classical notebook.
 

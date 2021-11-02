@@ -38,16 +38,14 @@ jobs:
           use-only-tar-bz2: true
       - name: Install dependencies
         run: |
-          conda activate test_gator
+          conda info
           conda install -n test_gator --file requirements_dev.txt
           python setup.py develop --skip-npm
-          # Check pip dependencies
-          python -m pip check
+          # Check pip dependencies - broken for Python 3.7
+          # python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
-        run: |
-          conda activate test_gator
-          python -m pytest -ra mamba_gator
+        run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-backend-mamba:
@@ -55,8 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Skip 3.7 as it is used for integration tests
-        python-version: ["3.8", "3.9"]
+        # Skip 3.9 as it is used for integration tests
+        python-version: ["3.7", "3.8"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -83,22 +81,21 @@ jobs:
           use-only-tar-bz2: true
       - name: Install dependencies
         run: |
-          conda activate test_gator
+          conda info
           mamba install -n test_gator --file requirements_dev.txt
           python setup.py develop --skip-npm
-          # Check pip dependencies
-          python -m pip check
+          # Check pip dependencies - broken for Python 3.7
+          # python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
-        run: |
-          conda activate test_gator
-          python -m pytest -ra mamba_gator
+        run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-all-os:
     name: Test Conda Python 3.7 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -151,9 +148,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda activate test_gator
+          conda info
           conda install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=3
+          conda install -n test_gator jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
           python -m pip install -e .
         shell: bash -l {0}
@@ -162,7 +159,6 @@ jobs:
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
-          conda activate test_gator
           python -m pytest mamba_gator
           yarn run test
 
@@ -172,7 +168,7 @@ jobs:
         shell: bash -l {0}
 
   test-integration:
-    name: All tests on Ubuntu Mamba Python 3.7
+    name: All tests on Ubuntu Mamba Python 3.9
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -184,10 +180,10 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
           restore-keys: |
-            ${{ runner.os }}-mamba-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ runner.os }}-mamba-3.7
+            ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-mamba-3.9
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -206,22 +202,22 @@ jobs:
             ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-yarn-
 
-      - name: Setup Python 3.7
+      - name: Setup Python 3.9
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_gator
           auto-update-conda: true
           channels: conda-forge
           mamba-version: "*"
-          python-version: "3.7"
+          python-version: "3.9"
           show-channel-urls: true
           use-only-tar-bz2: true
 
       - name: Install dependencies
         run: |
-          conda activate test_gator
+          conda info
           mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator coveralls jupyterlab=3
+          mamba install -n test_gator coveralls jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
           python -m pip install -e .
           # Check pip dependencies
@@ -230,7 +226,6 @@ jobs:
 
       - name: Test the extension
         run: |
-          conda activate test_gator
           # Run linter
           flake8 setup.py mamba_gator
           yarn run eslint:check
