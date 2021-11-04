@@ -55,7 +55,8 @@ async function activateCondaStoreEnv(
   const command = 'jupyter_conda_store:open-ui';
 
   // Use gator-lab for a single place for configuration
-  const model = new CondaStoreEnvironmentManager();
+  const settings = await settingsRegistry?.load(CONDAENVID);
+  const model = new CondaStoreEnvironmentManager(settings);
 
   // Track and restore the widget state
   const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
