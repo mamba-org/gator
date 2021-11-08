@@ -345,3 +345,51 @@ export async function exportEnvironment(
     `${getServerUrl(baseUrl)}/build/${data.current_build_id}/yaml/`
   );
 }
+
+/**
+ * Add packages to an environment.
+ *
+ * If a package already exists in the environment, no change will be made to that package.
+ *
+ * @async
+ * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
+ * @param {string} namespace - Namespace into which the environment resides.
+ * @param {string} environment - Name of the environment.
+ * @param {Array<string>} packages - List of packages to add to the environment.
+ * @returns {Promise<void>}
+ */
+export async function addPackages(
+  baseUrl: string,
+  namespace: string,
+  environment: string,
+  packages: Array<string>
+): Promise<void> {
+  // Fetch all the packages from the current environment
+  let page = 1;
+  let count, data, size;
+  let hasMorePackages = true;
+  let installed: Array<ICondaStorePackage> = [];
+
+  while (hasMorePackages) {
+    ({ count, data, page, size } = await fetchEnvironmentPackages(
+      baseUrl,
+      namespace,
+      environment,
+      page
+    ));
+    hasMorePackages = page * size < count;
+    installed = [...installed, ...data];
+  }
+
+  // Generate a specification for the new environment including the installed as well as new packages
+  const toAdd = new Set(packages);
+  let dependencies: Array<string> = [];
+  installed.forEach(({ name, version }) => {
+    // Don't add any package that is already installed
+    toAdd.delete(name);
+    dependencies.push(`${name}=${version}`);
+  });
+  dependencies = [...dependencies, ...toAdd];
+
+  await createEnvironment(baseUrl, namespace, environment, dependencies);
+}

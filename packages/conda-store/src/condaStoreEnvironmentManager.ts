@@ -10,7 +10,8 @@ import {
   createEnvironment,
   specifyEnvironment,
   removePackages,
-  exportEnvironment
+  exportEnvironment,
+  addPackages
 } from './condaStore';
 
 interface IParsedEnvironment {
@@ -569,8 +570,20 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
     return true;
   }
 
+  /**
+   * Add packages to an environment.
+   *
+   * @async
+   * @param {Array<string>} packages - Packages to add.
+   * @param {string} [environment] - Environment for which packages are to be added.
+   * @returns {Promise<void>}
+   */
   async install(packages: Array<string>, environment?: string): Promise<void> {
-    return Promise.resolve(void 0);
+    const { namespace, environment: environmentName } = parseEnvironment(
+      environment === undefined ? this.environment : environment
+    );
+    await addPackages(this.baseUrl, namespace, environmentName, packages);
+    return;
   }
 
   async develop(path: string, environment?: string): Promise<void> {
