@@ -16,6 +16,7 @@
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "preserveWatchOutput": true,
+    "pretty": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
