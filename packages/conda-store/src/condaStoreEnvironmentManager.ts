@@ -7,7 +7,8 @@ import {
   fetchEnvironmentPackages,
   ICondaStorePackage,
   condaStoreServerStatus,
-  createEnvironment
+  createEnvironment,
+  specifyEnvironment
 } from './condaStore';
 
 interface IParsedEnvironment {
@@ -94,7 +95,6 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
    * @param {string} name - <namespace>/<environment> name for the new environment.
    * @param {string} [type] - Type of environment to create; see this.environmentTypes for possible
    * values.
-   * @returns {Promise<void>}
    */
   async create(name: string, type?: string): Promise<void> {
     const { namespace, environment } = parseEnvironment(name);
@@ -119,12 +119,24 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     return;
   }
 
+  /**
+   * Create a new conda-store environment by importing a YAML-formatted environment file.
+   *
+   * Valid examples of environment files can be found in the conda-store and conda documentation; at
+   * a minimum, a valid file must contain a name and a list of conda package dependencies.
+   *
+   * @async
+   * @param {string} name - Name of the namespace/environment name to create.
+   * @param {string} fileContent - Raw contents of the file to import.
+   * @param {string} fileName - Name of the file to use for import.
+   */
   async import(
     name: string,
     fileContent: string,
     fileName: string
   ): Promise<void> {
-    return Promise.resolve(void 0);
+    const { namespace } = parseEnvironment(name);
+    await specifyEnvironment(this._baseUrl, namespace, fileContent);
   }
 
   async update(
