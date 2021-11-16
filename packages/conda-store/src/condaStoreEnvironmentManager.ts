@@ -8,7 +8,8 @@ import {
   ICondaStorePackage,
   condaStoreServerStatus,
   createEnvironment,
-  specifyEnvironment
+  specifyEnvironment,
+  removePackages
 } from './condaStore';
 
 interface IParsedEnvironment {
@@ -574,8 +575,16 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
     return Promise.resolve(void 0);
   }
 
+  /**
+   * Remove packages from an environment.
+   *
+   * @async
+   * @param {Array<string>} packages - Packages to remove from the environment
+   * @param {string} [environment] - Namespace/environment ti be modified
+   */
   async remove(packages: Array<string>, environment?: string): Promise<void> {
-    return Promise.resolve(void 0);
+    const { namespace, environment: envName } = parseEnvironment(environment);
+    await removePackages(this.baseUrl, namespace, envName, packages);
   }
 
   async getDependencies(
