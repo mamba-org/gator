@@ -84,12 +84,10 @@ export function CondaPkgList({
 }): JSX.Element {
   const { observe } = useInView({
     rootMargin: '200px 0px',
-    onChange: async ({ inView, unobserve, observe }) => {
-      if (inView) {
-        unobserve();
-        await onPkgBottomHit();
-        observe();
-      }
+    onEnter: async ({ unobserve, observe }) => {
+      unobserve();
+      await onPkgBottomHit();
+      observe();
     }
   });
   return (
