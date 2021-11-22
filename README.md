@@ -125,10 +125,30 @@ Now you're good to go!
 management system that aims to provide users with reproducible conda
 environments. There are several ways in which conda-store can be used - see
 the conda-store documentation for detailed setup guides. If you'd like to test
-it out locally, it's easy to get started with Docker:
+it out locally, it's easy to get started with Docker.
+
+First, clone the conda-store repo:
 
 ```bash
 git clone git@github.com:Quansight/conda-store
+```
+
+Next, you will make a modification to the conda-store config file that allows
+the conda-store extension in JupyterLab to create, read, update, and delete
+environments via the conda-store API. Modify the file at
+conda-store/examples/docker/assets/conda_store_config.py by copying the
+following line to the bottom of the file:
+
+```python
+# Make it so that anybody can access any endpoint
+c.RBACAuthorizationBackend.unauthenticated_role_bindings = {
+    "*/*": {"admin"},
+}
+```
+
+Finally, start up conda-store with Docker:
+
+```bash
 cd conda-store/examples/docker/
 docker-compose up --build
 ```
