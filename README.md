@@ -150,7 +150,7 @@ Finally, start up conda-store with Docker:
 
 ```bash
 cd conda-store/examples/docker/
-docker-compose up --build
+docker compose up --build
 ```
 
 This will start the conda-store server inside a docker container at
