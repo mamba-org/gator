@@ -10,7 +10,8 @@ import {
   createEnvironment,
   specifyEnvironment,
   removePackages,
-  exportEnvironment
+  exportEnvironment,
+  removeEnvironment
 } from './condaStore';
 
 interface IParsedEnvironment {
@@ -94,6 +95,7 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
   /**
    * Create a new environment.
    *
+   * @async
    * @param {string} name - <namespace>/<environment> name for the new environment.
    * @param {string} [type] - Type of environment to create; see this.environmentTypes for possible
    * values.
@@ -158,7 +160,15 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     return;
   }
 
+  /**
+   * Remove an environment.
+   *
+   * @async
+   * @param {string} name - <namespace>/<environment> name for environment.
+   */
   async remove(name: string): Promise<void> {
+    const { namespace, environment } = parseEnvironment(name);
+    await removeEnvironment(this._baseUrl, namespace, environment);
     return;
   }
 
