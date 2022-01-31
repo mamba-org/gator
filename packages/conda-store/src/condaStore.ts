@@ -305,20 +305,28 @@ export async function cloneEnvironment(
   environment: string
 ): Promise<void> {
   // Get specification for existing environment
-  const response = await exportEnvironment(
+  const specificationResponse = await exportEnvironment(
     baseUrl,
     existingNamespace,
     existingEnvironment
   );
 
   // Modify specification so that it uses the provided environment name
-  const specificationYaml = await response.text();
+  const specificationYaml = await specificationResponse.text();
   const specification: ICondaStoreSpecification = parse(specificationYaml);
   specification.name = environment;
 
   // Pass specification to the API to create new environment based on the
   // provided existiing environment
-  await specifyEnvironment(baseUrl, namespace, stringify(specification));
+  const response = await specifyEnvironment(
+    baseUrl,
+    namespace,
+    stringify(specification)
+  );
+  if (!response.ok) {
+    console.error(await response.json());
+    throw new Error('Could not clone environment, see browser console.');
+  }
   return;
 }
 

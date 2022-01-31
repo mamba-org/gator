@@ -30,12 +30,17 @@ interface IParsedEnvironment {
 function parseEnvironment(environment: string): IParsedEnvironment {
   if (environment !== undefined) {
     const [namespaceName, environmentName] = environment.split('/', 2);
+    if (!environmentName) {
+      throw new Error(
+        'Namespace and environment must be provided together, like so: namespace/environment'
+      );
+    }
     return {
       environment: environmentName,
       namespace: namespaceName
     };
   } else {
-    throw 'Environment is undefined.';
+    throw new Error('Environment is undefined.');
   }
 }
 
