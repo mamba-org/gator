@@ -41,6 +41,8 @@ interface IPaginatedResult<T> {
   status?: string;
 }
 
+// See class CondaSpecification in conda_store_server/schema.py.
+// https://github.com/Quansight/conda-store/blob/main/conda-store-server/conda_store_server/schema.py#L111
 interface ICondaStoreSpecification {
   name: string;
   dependencies: Array<string>;
