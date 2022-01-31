@@ -7,6 +7,7 @@ import {
   fetchEnvironmentPackages,
   ICondaStorePackage,
   condaStoreServerStatus,
+  cloneEnvironment,
   createEnvironment,
   specifyEnvironment,
   removePackages,
@@ -88,8 +89,27 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
     return this._packageManager;
   }
 
-  async clone(target: string, name: string): Promise<void> {
-    return;
+  /**
+   * Clone an existing environment.
+   *
+   * @param {string} existingName - <namespace>/<environment> name for the
+   * existing environment.
+   * @param {string} name - <namespace>/<environment> name for new
+   * environment, which will be a clone of the existing environment.
+   */
+  async clone(existingName: string, name: string): Promise<void> {
+    const {
+      namespace: existingNamespace,
+      environment: existingEnvironment
+    } = parseEnvironment(existingName);
+    const { namespace, environment } = parseEnvironment(name);
+    await cloneEnvironment(
+      this._baseUrl,
+      existingNamespace,
+      existingEnvironment,
+      namespace,
+      environment
+    );
   }
 
   /**
