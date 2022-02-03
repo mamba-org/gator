@@ -16,7 +16,8 @@ module.exports = {
       'navigator',
       'static'
     ),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    hashFunction: 'sha256'
   },
   bail: true,
   devtool: 'source-map',
