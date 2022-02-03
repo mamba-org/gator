@@ -2,8 +2,14 @@
 // Distributed under the terms of the Modified BSD License.
 const path = require('path');
 const webpack = require('webpack');
+const crypto = require('crypto');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
+
+// Workaround for loaders using "md4" by default, which is not supported in FIPS-compliant OpenSSL
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = algorithm =>
+  cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
 
 module.exports = {
   entry: ['whatwg-fetch', './lib/index.js'],
