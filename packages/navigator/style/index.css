@@ -1,5 +1,5 @@
 @import url('~@jupyterlab/application/style/index.css');
-@import url('~@jupyterlab/theme-light-extension/style/index.css');
+@import url('~@jupyterlab/theme-light-extension/style/theme.css');
 @import url('~@mamba-org/gator-common/style/index.css');
 
 @import url('./base.css');
