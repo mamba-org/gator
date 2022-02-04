@@ -837,10 +837,8 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
-  private _packageChanged: Signal<
-    CondaPackage,
-    Conda.IPackageChange
-  > = new Signal<this, Conda.IPackageChange>(this);
+  private _packageChanged: Signal<CondaPackage, Conda.IPackageChange> =
+    new Signal<this, Conda.IPackageChange>(this);
   private _cancellableStack: Array<ICancellableAction> = [];
   private static _availablePackages: Array<Conda.IPackage> = null;
   private static _hasDescription = false;
