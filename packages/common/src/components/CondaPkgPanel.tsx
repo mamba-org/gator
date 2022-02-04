@@ -272,8 +272,7 @@ export class CondaPkgPanel extends React.Component<
 
       const confirmation = await showDialog({
         title: 'Update all',
-        body:
-          'Please confirm you want to update all packages? Conda enforces environment consistency. So maybe only a subset of the available updates will be applied.'
+        body: 'Please confirm you want to update all packages? Conda enforces environment consistency. So maybe only a subset of the available updates will be applied.'
       });
 
       if (confirmation.button.accept) {
