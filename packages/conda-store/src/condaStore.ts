@@ -100,28 +100,6 @@ export async function fetchEnvironments(
 }
 
 /**
- * Search all packages (both installed and not installed) for a package.
- *
- * @async
- * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
- * @param {string} term - Search term; both name and descriptions are searched
- * @return {Promise<Array<ICondaStorePackage>>} Packages matching the search term.
- */
-export async function searchPackages(
-  baseUrl: string,
-  term: string
-): Promise<Array<ICondaStorePackage>> {
-  const response = await fetch(
-    `${getServerUrl(baseUrl)}/package/?search=${term}`
-  );
-  if (response.ok) {
-    return await response.json();
-  } else {
-    return [];
-  }
-}
-
-/**
  * Fetch the packages available in the conda-store database.
  *
  * Results are distinct on name and version.
@@ -161,7 +139,8 @@ export async function fetchEnvironmentPackages(
   namespace: string,
   environment: string,
   page = 1,
-  size = 100
+  size = 100,
+  search = ''
 ): Promise<IPaginatedResult<ICondaStorePackage>> {
   if (namespace === undefined || environment === undefined) {
     console.error(
@@ -179,7 +158,8 @@ export async function fetchEnvironmentPackages(
     response = await fetch(
       `${getServerUrl(baseUrl)}/build/${
         data.current_build_id
-      }/packages/?page=${page}&size=${size}&sort_by=name`
+      }/packages/?page=${page}&size=${size}&sort_by=name` +
+        (search ? `&search=${search}` : '')
     );
     if (response.ok) {
       return response.json();

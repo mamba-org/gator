@@ -1,6 +1,7 @@
 import { showDialog, Dialog } from '@jupyterlab/apputils';
 import { INotification } from 'jupyterlab_toastify';
 import * as React from 'react';
+import debounce from 'lodash.debounce';
 import semver from 'semver';
 import { style } from 'typestyle';
 import { Conda } from '../tokens';
@@ -58,6 +59,10 @@ export interface IPkgPanelState {
    */
   packages: Conda.IPackage[];
   /**
+   * List of packages that match a search
+   */
+  searchMatchPackages: Conda.IPackage[];
+  /**
    * Selected packages
    */
   selected: Conda.IPackage[];
@@ -84,6 +89,7 @@ export class CondaPkgPanel extends React.Component<
       hasDescription: false,
       hasUpdate: false,
       packages: [],
+      searchMatchPackages: [],
       selected: [],
       searchTerm: '',
       activeFilter: PkgFilters.All
@@ -249,15 +255,22 @@ export class CondaPkgPanel extends React.Component<
     });
   };
 
-  handleSearch(event: React.FormEvent): void {
+  async handleSearch(event: React.FormEvent): Promise<void> {
     if (this.state.isApplyingChanges) {
       return;
     }
 
-    this.setState({
-      searchTerm: (event.target as HTMLInputElement).value
-    });
+    const searchTerm = (event.target as HTMLInputElement).value;
+    // need to call setState for searchTerm before waiting for promise
+    // to resolve so the UI can update without delay
+    this.setState({ searchTerm, isLoading: true });
+
+    this.searchOnceUserHasStoppedTyping(searchTerm);
   }
+  searchOnceUserHasStoppedTyping = debounce(async (searchTerm: string) => {
+    const searchMatchPackages = await this._model.searchPackages(searchTerm);
+    this.setState({ searchMatchPackages, isLoading: false });
+  }, 1000);
 
   async handleUpdateAll(): Promise<void> {
     if (this.state.isApplyingChanges) {
@@ -484,35 +497,25 @@ export class CondaPkgPanel extends React.Component<
   }
 
   render(): JSX.Element {
+    // note: search results may be empty
+    const hasSearchResults = this.state.searchTerm && !this.state.isLoading;
+    const packages = hasSearchResults
+      ? this.state.searchMatchPackages
+      : this.state.packages;
+
     let filteredPkgs: Conda.IPackage[] = [];
     if (this.state.activeFilter === PkgFilters.All) {
-      filteredPkgs = this.state.packages;
+      filteredPkgs = packages;
     } else if (this.state.activeFilter === PkgFilters.Installed) {
-      filteredPkgs = this.state.packages.filter(pkg => pkg.version_installed);
+      filteredPkgs = packages.filter(pkg => pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Available) {
-      filteredPkgs = this.state.packages.filter(pkg => !pkg.version_installed);
+      filteredPkgs = packages.filter(pkg => !pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Updatable) {
-      filteredPkgs = this.state.packages.filter(pkg => pkg.updatable);
+      filteredPkgs = packages.filter(pkg => pkg.updatable);
     } else if (this.state.activeFilter === PkgFilters.Selected) {
-      filteredPkgs = this.state.packages.filter(
+      filteredPkgs = packages.filter(
         pkg => this.state.selected.indexOf(pkg) >= 0
       );
-    }
-
-    let searchPkgs: Conda.IPackage[] = [];
-    if (this.state.searchTerm === null) {
-      searchPkgs = filteredPkgs;
-    } else {
-      searchPkgs = filteredPkgs.filter(pkg => {
-        const lowerSearch = this.state.searchTerm.toLowerCase();
-        return (
-          pkg.name.indexOf(this.state.searchTerm) >= 0 ||
-          (this.state.hasDescription &&
-            (pkg.summary.indexOf(this.state.searchTerm) >= 0 ||
-              pkg.keywords.indexOf(lowerSearch) >= 0 ||
-              pkg.tags.indexOf(lowerSearch) >= 0))
-        );
-      });
     }
 
     return (
@@ -535,7 +538,7 @@ export class CondaPkgPanel extends React.Component<
           hasDescription={
             this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
           }
-          packages={searchPkgs}
+          packages={filteredPkgs}
           onPkgClick={this.handleClick}
           onPkgChange={this.handleVersionSelection}
           onPkgGraph={this.handleDependenciesGraph}

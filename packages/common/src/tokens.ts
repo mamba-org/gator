@@ -193,6 +193,16 @@ export namespace Conda {
      */
     remove(packages: Array<string>, environment?: string): Promise<void>;
     /**
+     * Searches current environment for packages that match a search term
+     *
+     * @async
+     * @param searchTerm The string to search for
+     *
+     * @returns A promise resolving to a list of packages that match the search
+     * term
+     */
+    searchPackages(searchTerm: string): Promise<Array<Conda.IPackage>>;
+    /**
      * Get packages dependencies list.
      *
      * @param package Package name

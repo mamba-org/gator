@@ -738,6 +738,20 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
+  async searchPackages(searchTerm: string): Promise<Conda.IPackage[]> {
+    const packages: Conda.IPackage[] = await this._getAvailablePackages();
+    const lowerSearch = searchTerm.toLowerCase();
+    return packages.filter(pkg => {
+      return (
+        pkg.name.indexOf(searchTerm) >= 0 ||
+        (this.hasDescription() &&
+          (pkg.summary.indexOf(searchTerm) >= 0 ||
+            pkg.keywords.indexOf(lowerSearch) >= 0 ||
+            pkg.tags.indexOf(lowerSearch) >= 0))
+      );
+    });
+  }
+
   async getDependencies(
     pkg: string,
     cancellable = true

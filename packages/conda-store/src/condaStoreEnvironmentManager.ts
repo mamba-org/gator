@@ -590,11 +590,26 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
    *
    * @async
    * @param {Array<string>} packages - Packages to remove from the environment
-   * @param {string} [environment] - Namespace/environment ti be modified
+   * @param {string} [environment] - Namespace/environment to be modified
    */
   async remove(packages: Array<string>, environment?: string): Promise<void> {
     const { namespace, environment: envName } = parseEnvironment(environment);
     await removePackages(this.baseUrl, namespace, envName, packages);
+  }
+
+  async searchPackages(searchTerm: string): Promise<Array<Conda.IPackage>> {
+    const { namespace, environment } = parseEnvironment(this.environment);
+    const {
+      data
+    }: { data: Array<Conda.IPackage> } = (await fetchEnvironmentPackages(
+      this.baseUrl,
+      namespace,
+      environment,
+      undefined,
+      undefined,
+      searchTerm
+    )) as { data: any };
+    return data;
   }
 
   async getDependencies(
