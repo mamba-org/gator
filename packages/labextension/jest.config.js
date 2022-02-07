@@ -1,5 +1,13 @@
 const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
 
+const esModules = [
+  '@jupyterlab/',
+  'lib0',
+  'y\\-protocols',
+  'y\\-websocket',
+  'yjs'
+].join('|');
+
 const jlabConfig = jestJupyterLab(__dirname);
 
 const {
@@ -30,5 +38,5 @@ module.exports = {
     }
   },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
-  transformIgnorePatterns: ['/node_modules/(?!(@jupyterlab/.*)/)']
+  transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
 };
