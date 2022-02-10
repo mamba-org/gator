@@ -42,7 +42,7 @@ interface IPaginatedResult<T> {
  * @returns {string} Formatted base URL for all conda-store server endpoints
  */
 function getServerUrl(serverURL: string): string {
-  return `${serverURL}/api/v1`;
+  return `${serverURL}/api/v1/`;
 }
 
 /**
