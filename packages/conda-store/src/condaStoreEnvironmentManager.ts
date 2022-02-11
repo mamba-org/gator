@@ -103,10 +103,8 @@ export class CondaStoreEnvironmentManager implements IEnvironmentManager {
    * environment, which will be a clone of the existing environment.
    */
   async clone(existingName: string, name: string): Promise<void> {
-    const {
-      namespace: existingNamespace,
-      environment: existingEnvironment
-    } = parseEnvironment(existingName);
+    const { namespace: existingNamespace, environment: existingEnvironment } =
+      parseEnvironment(existingName);
     const { namespace, environment } = parseEnvironment(name);
     await cloneEnvironment(
       this._baseUrl,
