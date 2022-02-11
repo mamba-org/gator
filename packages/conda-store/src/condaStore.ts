@@ -1,3 +1,9 @@
+/**
+ * @file Client-side functions to call the conda-store REST API.
+ *
+ * Note: fetch is assumed to be global (execution environment: web browser).
+ */
+
 import { stringify } from 'yaml';
 
 export interface ICondaStoreEnvironment {
@@ -271,6 +277,29 @@ export async function createEnvironment(
       name: environment,
       dependencies
     })
+  );
+  return;
+}
+
+/**
+ * Remove an environment.
+ *
+ * @async
+ * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
+ * @param {string} namespace - Namespace the environment belongs to.
+ * @param {string} environment - Name of the environment.
+ * @returns {Promise<void>}
+ */
+export async function removeEnvironment(
+  baseUrl: string,
+  namespace: string,
+  environment: string
+): Promise<void> {
+  await fetch(
+    `${getServerUrl(baseUrl)}/environment/${namespace}/${environment}/`,
+    {
+      method: 'DELETE'
+    }
   );
   return;
 }
