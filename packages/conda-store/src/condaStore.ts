@@ -55,9 +55,7 @@ function getServerUrl(serverURL: string): string {
     status: string
 }>} Status of the conda-store server
  */
-export async function condaStoreServerStatus(
-  baseUrl: string
-): Promise<{
+export async function condaStoreServerStatus(baseUrl: string): Promise<{
   status: string;
 }> {
   let response;

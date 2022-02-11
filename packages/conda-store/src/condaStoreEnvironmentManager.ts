@@ -386,12 +386,10 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
     environment: string
   ): Promise<Array<ICondaStorePackage>> {
     if (this.hasMoreInstalledPackages) {
-      const {
-        environment: envName,
-        namespace: namespaceName
-      } = parseEnvironment(
-        environment !== undefined ? environment : this.environment
-      );
+      const { environment: envName, namespace: namespaceName } =
+        parseEnvironment(
+          environment !== undefined ? environment : this.environment
+        );
       const { count, data } = await fetchEnvironmentPackages(
         this.baseUrl,
         namespaceName,
@@ -438,15 +436,13 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
     if (this.hasMoreAvailablePackages) {
       await this.loadAvailablePackages();
     }
-    const lastAvailable = this.availablePackages[
-      this.availablePackages.length - 1
-    ];
+    const lastAvailable =
+      this.availablePackages[this.availablePackages.length - 1];
 
     // Keep loading installed packages until we have enough to be sure we know whether the last
     // available package has been installed or not.
-    let lastInstalled = this.installedPackages[
-      this.installedPackages.length - 1
-    ];
+    let lastInstalled =
+      this.installedPackages[this.installedPackages.length - 1];
     while (
       this.hasMoreInstalledPackages &&
       (lastInstalled === undefined ||
