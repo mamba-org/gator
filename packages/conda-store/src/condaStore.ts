@@ -55,10 +55,15 @@ interface ICondaStoreSpecification {
  * Construct the base URL for all endpoints available on the conda-store server.
  *
  * @param {string} serverURL - URL of the conda-store server; usually
- * "http://localhost:5000"
+ * 'http://localhost:5000'
  * @param {string} restEndpoint - Pathname plus query string without the
- * api/version prefix. Example: "/environment/?page=1&size=100"
- * @returns {string} Formatted base URL for all conda-store server endpoints
+ * api/version prefix. Example: '/environment/?page=1&size=100'
+ * @returns {string} Formatted base URL for all conda-store server endpoints.
+ * Examples:
+ * - URLExt.join('http://localhost:5000', '/') =>
+ *   'http://localhost:5000/api/v1/'
+ * - URLExt.join('http://localhost:5000', 'package/?search=python') =>
+ *   'http://localhost:5000/api/v1/package/?search=python'
  */
 function createApiUrl(serverURL: string, restEndpoint: string): string {
   return URLExt.join(`${serverURL}/api/v1`, restEndpoint);
@@ -124,7 +129,7 @@ export async function searchPackages(
   baseUrl: string,
   term: string
 ): Promise<Array<ICondaStorePackage>> {
-  const url = createApiUrl(baseUrl, '/package/?search=${term}');
+  const url = createApiUrl(baseUrl, `/package/?search=${term}`);
   const response = await fetch(url);
   if (response.ok) {
     return await response.json();
@@ -350,12 +355,13 @@ export async function removeEnvironment(
   namespace: string,
   environment: string
 ): Promise<void> {
-  await fetch(
-    `${getServerUrl(baseUrl)}/environment/${namespace}/${environment}/`,
-    {
-      method: 'DELETE'
-    }
+  const url = createApiUrl(
+    baseUrl,
+    `/environment/${namespace}/${environment}/`
   );
+  await fetch(url, {
+    method: 'DELETE'
+  });
   return;
 }
 
