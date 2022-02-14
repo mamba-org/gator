@@ -5,6 +5,7 @@
  */
 
 import { parse, stringify } from 'yaml';
+import { URLExt } from '@jupyterlab/coreutils';
 
 export interface ICondaStoreEnvironment {
   name: string;
@@ -53,11 +54,14 @@ interface ICondaStoreSpecification {
 /**
  * Construct the base URL for all endpoints available on the conda-store server.
  *
- * @param {string} serverURL - URL of the conda-store server; usually http://localhost:5000
+ * @param {string} serverURL - URL of the conda-store server; usually
+ * "http://localhost:5000"
+ * @param {string} restEndpoint - Pathname plus query string without the
+ * api/version prefix. Example: "/environment/?page=1&size=100"
  * @returns {string} Formatted base URL for all conda-store server endpoints
  */
-function getServerUrl(serverURL: string): string {
-  return `${serverURL}/api/v1`;
+function createApiUrl(serverURL: string, restEndpoint: string): string {
+  return URLExt.join(`${serverURL}/api/v1`, restEndpoint);
 }
 
 /**
@@ -66,20 +70,17 @@ function getServerUrl(serverURL: string): string {
  * @async
  * @param {string} baseUrl - Base URL of the conda-store server; usually http://localhost:5000
  * @throws {Error} - Thrown if the request fails or the response is not ok.
- * @return {Promise<{
-    status: string
-}>} Status of the conda-store server
+ * @return {Promise<{status: string}>} Status of the conda-store server
  */
 export async function condaStoreServerStatus(baseUrl: string): Promise<{
   status: string;
 }> {
   let response;
+  const url = createApiUrl(baseUrl, '/');
   try {
-    response = await fetch(`${getServerUrl(baseUrl)}`);
+    response = await fetch(url);
   } catch {
-    throw new Error(
-      `Failed to reach the conda-store server at ${getServerUrl(baseUrl)}`
-    );
+    throw new Error(`Failed to reach the conda-store server at ${url}`);
   }
   if (response.ok) {
     return await response.json();
@@ -102,9 +103,8 @@ export async function fetchEnvironments(
   page = 1,
   size = 100
 ): Promise<IPaginatedResult<ICondaStoreEnvironment>> {
-  const response = await fetch(
-    `${getServerUrl(baseUrl)}/environment/?page=${page}&size=${size}`
-  );
+  const url = createApiUrl(baseUrl, `/environment/?page=${page}&size=${size}`);
+  const response = await fetch(url);
   if (response.ok) {
     return await response.json();
   } else {
@@ -124,9 +124,8 @@ export async function searchPackages(
   baseUrl: string,
   term: string
 ): Promise<Array<ICondaStorePackage>> {
-  const response = await fetch(
-    `${getServerUrl(baseUrl)}/package/?search=${term}`
-  );
+  const url = createApiUrl(baseUrl, '/package/?search=${term}');
+  const response = await fetch(url);
   if (response.ok) {
     return await response.json();
   } else {
@@ -147,11 +146,11 @@ export async function fetchPackages(
   page = 1,
   size = 100
 ): Promise<IPaginatedResult<ICondaStorePackage>> {
-  const response = await fetch(
-    `${getServerUrl(
-      baseUrl
-    )}/package/?page=${page}&size=${size}&distinct_on=name&distinct_on=version&sort_by=name`
+  const url = createApiUrl(
+    baseUrl,
+    `/package/?page=${page}&size=${size}&distinct_on=name&distinct_on=version&sort_by=name`
   );
+  const response = await fetch(url);
   if (response.ok) {
     return await response.json();
   } else {
@@ -183,17 +182,19 @@ export async function fetchEnvironmentPackages(
     return {};
   }
 
-  let response = await fetch(
-    `${getServerUrl(baseUrl)}/environment/${namespace}/${environment}/`
+  const environmentInfoUrl = createApiUrl(
+    baseUrl,
+    `/environment/${namespace}/${environment}/`
   );
+  const environmentInfoResponse = await fetch(environmentInfoUrl);
 
-  if (response.ok) {
-    const { data } = await response.json();
-    response = await fetch(
-      `${getServerUrl(baseUrl)}/build/${
-        data.current_build_id
-      }/packages/?page=${page}&size=${size}&sort_by=name`
+  if (environmentInfoResponse.ok) {
+    const { data } = await environmentInfoResponse.json();
+    const url = createApiUrl(
+      baseUrl,
+      `/build/${data.current_build_id}/packages/?page=${page}&size=${size}&sort_by=name`
     );
+    const response = await fetch(url);
     if (response.ok) {
       return response.json();
     }
@@ -214,7 +215,8 @@ export async function fetchBuildPackages(
   baseUrl: string,
   build_id: number
 ): Promise<IPaginatedResult<ICondaStorePackage>> {
-  const response = await fetch(`${getServerUrl(baseUrl)}/build/${build_id}/`);
+  const url = createApiUrl(baseUrl, `/build/${build_id}/`);
+  const response = await fetch(url);
   if (response.ok) {
     return await response.json();
   }
@@ -232,7 +234,8 @@ export async function fetchBuildPackages(
 export async function fetchChannels(
   baseUrl: string
 ): Promise<Array<ICondaStoreChannel>> {
-  const response = await fetch(`${getServerUrl(baseUrl)}/channel/`);
+  const url = createApiUrl(baseUrl, '/channel/');
+  const response = await fetch(url);
   if (response.ok) {
     return await response.json();
   }
@@ -253,7 +256,8 @@ export async function specifyEnvironment(
   namespace: string,
   specification: string
 ): Promise<Response> {
-  return await fetch(`${getServerUrl(baseUrl)}/specification/`, {
+  const url = createApiUrl(baseUrl, '/specification/');
+  return await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -414,12 +418,13 @@ export async function exportEnvironment(
   environment: string
 ): Promise<Response> {
   // First get the build ID of the requested environment
-  const response = await fetch(
-    `${getServerUrl(baseUrl)}/environment/${namespace}/${environment}/`
+  const enviornmentInfoUrl = createApiUrl(
+    baseUrl,
+    `/environment/${namespace}/${environment}/`
   );
+  const environmentInfoResponse = await fetch(enviornmentInfoUrl);
 
-  const { data } = await response.json();
-  return await fetch(
-    `${getServerUrl(baseUrl)}/build/${data.current_build_id}/yaml/`
-  );
+  const { data } = await environmentInfoResponse.json();
+  const url = createApiUrl(baseUrl, `/build/${data.current_build_id}/yaml/`);
+  return await fetch(url);
 }
