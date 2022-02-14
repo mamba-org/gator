@@ -66,7 +66,7 @@ interface ICondaStoreSpecification {
  *   'http://localhost:5000/api/v1/package/?search=python'
  */
 function createApiUrl(serverURL: string, restEndpoint: string): string {
-  return URLExt.join(`${serverURL}/api/v1`, restEndpoint);
+  return URLExt.join(serverURL, 'api', 'v1', restEndpoint);
 }
 
 /**
