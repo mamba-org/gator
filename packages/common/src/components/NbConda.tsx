@@ -363,11 +363,11 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           environments: await this.props.model.environments
         };
         if (this.state.currentEnvironment === undefined) {
-          newState.environments.forEach(env => {
-            if (env.is_default) {
-              newState.currentEnvironment = env.name;
-            }
-          });
+          const defaultEnvironment =
+            newState.environments.find(env => env.is_default) ||
+            // in case no environment is_default just load the first environment
+            newState.environments[0];
+          newState.currentEnvironment = defaultEnvironment.name;
           newState.channels = await this.props.model.getChannels(
             newState.currentEnvironment
           );
