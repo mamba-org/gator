@@ -63,24 +63,31 @@ export interface ICondaPkgToolBarProps {
    * Refresh available packages handler
    */
   onRefreshPackages: () => void;
+  /**
+   * Disable the filter dropdown (install, not installed, etc.)
+   * For Conda Store
+   */
+  filterDisabled: boolean;
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
   return (
     <div className={`lm-Widget ${CONDA_PACKAGES_TOOLBAR_CLASS} jp-Toolbar`}>
-      <div className="lm-Widget jp-Toolbar-item">
-        <HTMLSelect
-          value={props.category}
-          onChange={props.onCategoryChanged}
-          aria-label="Package filter"
-        >
-          <option value={PkgFilters.All}>All</option>
-          <option value={PkgFilters.Installed}>Installed</option>
-          <option value={PkgFilters.Available}>Not installed</option>
-          <option value={PkgFilters.Updatable}>Updatable</option>
-          <option value={PkgFilters.Selected}>Selected</option>
-        </HTMLSelect>
-      </div>
+      {!props.filterDisabled && (
+        <div className="lm-Widget jp-Toolbar-item">
+          <HTMLSelect
+            value={props.category}
+            onChange={props.onCategoryChanged}
+            aria-label="Package filter"
+          >
+            <option value={PkgFilters.All}>All</option>
+            <option value={PkgFilters.Installed}>Installed</option>
+            <option value={PkgFilters.Available}>Not installed</option>
+            <option value={PkgFilters.Updatable}>Updatable</option>
+            <option value={PkgFilters.Selected}>Selected</option>
+          </HTMLSelect>
+        </div>
+      )}
       <div className="lm-Widget jp-Toolbar-item">
         <div className={classes('jp-NbConda-search-wrapper', Style.Search)}>
           <InputGroup

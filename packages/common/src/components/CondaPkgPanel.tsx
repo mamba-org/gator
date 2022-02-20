@@ -528,6 +528,10 @@ export class CondaPkgPanel extends React.Component<
           onApply={this.handleApply}
           onCancel={this.handleCancel}
           onRefreshPackages={this.handleRefreshPackages}
+          filterDisabled={Boolean(
+            // code smell: duck typing
+            this._model.loadMorePackages
+          )}
         />
         <CondaPkgList
           height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
