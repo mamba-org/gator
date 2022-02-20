@@ -209,10 +209,13 @@ export namespace Conda {
      */
     packageChanged: ISignal<IPackageManager, Conda.IPackageChange>;
     /**
-     * Callback triggered when the user scrolls to the bottom of the package list.
-     * Optionally loads more packages, if the result is paginated.
+     * Callback triggered when the user scrolls to the bottom of the package
+     * list. Note this is a stateful method that fetches the next page of
+     * results each time it is called.
      */
-    loadMorePackages?: (environment?: string) => Promise<Array<Conda.IPackage>>;
+    loadInstalledPackages?: (
+      environment?: string
+    ) => Promise<Array<Conda.IPackage>>;
   }
 
   /**

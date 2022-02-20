@@ -472,7 +472,7 @@ export class CondaPkgPanel extends React.Component<
       this.setState({
         isLoading: true
       });
-      const packages = await this._model.loadMorePackages?.();
+      const packages = await this._model.loadInstalledPackages?.();
       if (packages !== undefined) {
         this.setState({ packages });
       }
@@ -530,7 +530,7 @@ export class CondaPkgPanel extends React.Component<
           onRefreshPackages={this.handleRefreshPackages}
           filterDisabled={Boolean(
             // code smell: duck typing
-            this._model.loadMorePackages
+            this._model.loadInstalledPackages
           )}
         />
         <CondaPkgList
