@@ -209,13 +209,23 @@ export namespace Conda {
      */
     packageChanged: ISignal<IPackageManager, Conda.IPackageChange>;
     /**
-     * Callback triggered when the user scrolls to the bottom of the package
-     * list. Note this is a stateful method that fetches the next page of
-     * results each time it is called.
+     * Get a list of installed packages.
+     *
+     * For traditional conda model:
+     * - returns all installed packages
+     * - some package fields are empty strings and need to be augmented (e.g.,
+     *   package.summary)
+     *
+     * For Conda Store:
+     * - return next page of installed packages
+     * - includes package metadata, such as package.summary
      */
-    loadInstalledPackages?: (
-      environment?: string
-    ) => Promise<Array<Conda.IPackage>>;
+    getInstalledPackages(environment?: string): Promise<Array<Conda.IPackage>>;
+    /**
+     * Does the model provide a way to get a set of packages based on search
+     * query?
+     */
+    hasSearchProvider: boolean;
   }
 
   /**

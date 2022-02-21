@@ -234,6 +234,7 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
   availablePageSize = 100;
   availablePackages: Array<ICondaStorePackage> = [];
   baseUrl = '';
+  hasSearchProvider = true;
 
   constructor(environment?: string) {
     this.environment = environment;
@@ -408,21 +409,19 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
   }
 
   /**
-   * Load the next page of installed packages.
+   * Get the next page of installed packages.
    *
    * @async
    * @param {string} environment - Environment for which the installed packages are to be fetched;
    * if none is provided, the current environment is used.
    * @return {Promise<Array<Conda.IPackage>>} Array of installed conda-store packages.
    */
-  async loadInstalledPackages(
-    environment: string
+  async getInstalledPackages(
+    environment: string = this.environment
   ): Promise<Array<Conda.IPackage>> {
     if (this.hasMoreInstalledPackages) {
       const { environment: envName, namespace: namespaceName } =
-        parseEnvironment(
-          environment !== undefined ? environment : this.environment
-        );
+        parseEnvironment(environment);
       const { count, data } = await fetchEnvironmentPackages(
         this.baseUrl,
         namespaceName,
@@ -482,7 +481,7 @@ export class CondaStorePackageManager implements Conda.IPackageManager {
       (lastInstalled === undefined ||
         this.compareName(lastInstalled, lastAvailable) <= 0)
     ) {
-      await this.loadInstalledPackages(environment);
+      await this.getInstalledPackages(environment);
       lastInstalled = this.installedPackages[this.installedPackages.length - 1];
     }
 

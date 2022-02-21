@@ -424,6 +424,12 @@ export class CondaPackage implements Conda.IPackageManager {
    */
   environment?: string;
 
+  /**
+   * This implementation of IPackageManager does not expose a way to get a list
+   * of packages that match a search query.
+   */
+  hasSearchProvider = false;
+
   constructor(environment?: string) {
     this.environment = environment;
   }
@@ -452,22 +458,7 @@ export class CondaPackage implements Conda.IPackageManager {
     this._cancelTasks('default');
 
     try {
-      const request: RequestInit = {
-        method: 'GET'
-      };
-
-      // Get installed packages
-      const { promise, cancel } = Private.requestServer(
-        URLExt.join('conda', 'environments', theEnvironment),
-        request
-      );
-      const idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
-      const response = await promise;
-      this._cancellableStack.splice(idx, 1);
-      const data = (await response.json()) as {
-        packages: Array<RESTAPI.IRawPackage>;
-      };
-      const installedPkgs = data.packages;
+      const installedPkgs = await this.getInstalledPackages(theEnvironment);
 
       const allPackages: Array<Conda.IPackage> = [];
       if (includeAvailable) {
@@ -487,16 +478,7 @@ export class CondaPackage implements Conda.IPackageManager {
         availableIdx < allPackages.length
       ) {
         const installed = installedPkgs[installedIdx];
-        let pkg = allPackages[availableIdx] || {
-          ...installed,
-          version: [installed.version],
-          build_number: [installed.build_number],
-          build_string: [installed.build_string],
-          summary: '',
-          home: '',
-          keywords: '',
-          tags: ''
-        };
+        let pkg = allPackages[availableIdx] || { ...installed };
         pkg.summary = pkg.summary || '';
         // Stringify keywords and tags
         pkg.keywords = (pkg.keywords || '').toString().toLowerCase();
@@ -508,23 +490,15 @@ export class CondaPackage implements Conda.IPackageManager {
         if (installed !== undefined) {
           if (pkg.name > installed.name) {
             // installed is not in available
-            pkg = {
-              ...installed,
-              version: [installed.version],
-              build_number: [installed.build_number],
-              build_string: [installed.build_string],
-              summary: '',
-              home: '',
-              keywords: '',
-              tags: ''
-            };
+            pkg = { ...installed };
             availableIdx -= 1;
           }
           if (pkg.name === installed.name) {
-            pkg.version_installed = installed.version;
-            pkg.version_selected = installed.version;
-            if (pkg.version.indexOf(installed.version) < 0) {
-              pkg.version.push(installed.version);
+            const [installedVersion] = installed.version;
+            pkg.version_installed = installedVersion;
+            pkg.version_selected = installedVersion;
+            if (pkg.version.indexOf(installedVersion) < 0) {
+              pkg.version.push(installedVersion);
             }
             installedIdx += 1;
           }
@@ -821,6 +795,38 @@ export class CondaPackage implements Conda.IPackageManager {
   }
 
   /**
+   * Get the list of installed packages
+   *
+   * @param {string} environment The environment in which the list of packages is
+   * installed; if none is provided, defaults to the current environment
+   * @return {Promise<Array<Conda.IPackage>>} Array of installed packages.
+   */
+  async getInstalledPackages(
+    environment: string = this.environment
+  ): Promise<Array<Conda.IPackage>> {
+    if (!environment) {
+      return [];
+    }
+
+    const request: RequestInit = {
+      method: 'GET'
+    };
+
+    // Get installed packages
+    const { promise, cancel } = Private.requestServer(
+      URLExt.join('conda', 'environments', environment),
+      request
+    );
+    const idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
+    const response = await promise;
+    this._cancellableStack.splice(idx, 1);
+    const data = (await response.json()) as {
+      packages: Array<RESTAPI.IRawPackage>;
+    };
+    return data.packages.map(Private.normalizePackage);
+  }
+
+  /**
    * Cancel optional tasks
    */
   private _cancelTasks(type: string): void {
@@ -928,4 +934,17 @@ namespace Private {
       }
     };
   };
+
+  export function normalizePackage(raw: RESTAPI.IRawPackage): Conda.IPackage {
+    return {
+      ...raw,
+      version: [raw.version],
+      build_number: [raw.build_number],
+      build_string: [raw.build_string],
+      summary: '',
+      home: '',
+      keywords: '',
+      tags: ''
+    };
+  }
 }
