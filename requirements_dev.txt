@@ -1,4 +1,4 @@
-nodejs
+nodejs=16
 yarn
 nb_conda_kernels >=2.2.0
 packaging
