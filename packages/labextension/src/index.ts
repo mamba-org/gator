@@ -45,7 +45,7 @@ async function activateCondaEnv(
   const model = new CondaEnvironments(settings);
 
   // Request listing available package as quickly as possible
-  if (settings?.get('backgroundCaching') ?? true) {
+  if (settings?.get('backgroundCaching').composite ?? true) {
     Private.loadPackages(model);
   }
 
