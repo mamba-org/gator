@@ -1,6 +1,6 @@
 {
   "name": "@mamba-org/gator-common",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Base components and models to manage conda/mamba environments within Jupyter",
   "keywords": [
     "conda",
