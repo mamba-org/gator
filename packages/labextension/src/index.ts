@@ -45,7 +45,9 @@ async function activateCondaEnv(
   const model = new CondaEnvironments(settings);
 
   // Request listing available package as quickly as possible
-  Private.loadPackages(model);
+  if (settings?.get('backgroundCaching').composite ?? true) {
+    Private.loadPackages(model);
+  }
 
   // Track and restore the widget state
   const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({

@@ -4,6 +4,12 @@
   "title": "Conda",
   "description": "Environments and packages manager settings.",
   "properties": {
+    "backgroundCaching": {
+      "type": "boolean",
+      "title": "Background caching",
+      "description": "Whether to cache package list as early as possible in the background.",
+      "default": true
+    },
     "companions": {
       "type": "object",
       "title": "Kernel companions",
