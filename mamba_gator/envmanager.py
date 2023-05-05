@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import tornado
 from jupyter_client.kernelspec import KernelSpecManager
 
-from packaging.version import parse
+from packaging.version import parse, InvalidVersion
 
 try:
     import nb_conda_kernels
@@ -659,7 +659,13 @@ class EnvManager:
                     if pkg_entry is None:
                         pkg_entry = entry
 
-                    version = parse(entry.get("version", ""))
+                    try:
+                        version = parse(entry.get("version", "")) 
+                    except InvalidVersion:
+                        name = entry.get("name")
+                        version = entry.get("version")
+                        self.log.warning(f"Unable to parse version '{version}' of '{name}'")
+                        continue
 
                     if version not in versions:
                         versions.append(version)
