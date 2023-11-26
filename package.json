@@ -20,6 +20,8 @@
     "clean": "lerna run clean",
     "eslint": "eslint . --fix --ext .ts,.tsx",
     "eslint:check": "eslint . --ext .ts,.tsx",
+    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
     "prettier": "npx prettier --write \"packages/**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "prettier:check": "npx prettier --list-different \"packages/**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "publish": "yarn run clean && yarn run build && lerna publish",
@@ -161,6 +163,5 @@
       "selector-no-vendor-prefix": null,
       "value-no-vendor-prefix": null
     }
-  },
-  "styleModule": "style/index.js"
+  }
 }

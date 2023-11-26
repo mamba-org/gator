@@ -12,12 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.12"]
+        # nb_conda_kernels not compatible with 3.12
+        python-version: ["3.8", "3.11"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           # Increase this value to reset cache
           CACHE_NUMBER: 3
@@ -40,9 +41,12 @@ jobs:
         run: |
           conda info
           conda install -n test_gator --file requirements_dev.txt
-          python setup.py develop --skip-npm
-          # Check pip dependencies - broken for Python 3.7
-          # python -m pip check
+          # Fake JS assets to avoid building them
+          touch mamba_gator/labextension/static/style.js
+          touch mamba_gator/labextension/package.json
+
+          pip install -e .
+          python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -53,13 +57,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Skip 3.9 as it is used for integration tests
-        python-version: ["3.8", "3.12"]
+        # nb_conda_kernels not compatible with 3.12
+        python-version: ["3.8", "3.11"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           # Increase this value to reset cache if requirements_dev.txt has not changed
           CACHE_NUMBER: 1
@@ -83,9 +87,12 @@ jobs:
         run: |
           conda info
           mamba install -n test_gator --file requirements_dev.txt
-          python setup.py develop --skip-npm
-          # Check pip dependencies - broken for Python 3.7
-          # python -m pip check
+          # Fake JS assets to avoid building them
+          touch mamba_gator/labextension/static/style.js
+          touch mamba_gator/labextension/package.json
+
+          pip install -e .
+          python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -104,10 +111,10 @@ jobs:
           - "windows-latest"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           # Increase this value to reset cache
           CACHE_NUMBER: 2
@@ -122,7 +129,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Setup yarn cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         env:
           # Increase this value to reset cache
@@ -150,8 +157,7 @@ jobs:
         run: |
           conda info
           conda install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=3 "nbclassic!=0.3.3"
-          yarn install
+          conda install -n test_gator jupyterlab=4
           python -m pip install -e .
         shell: bash -l {0}
 
@@ -255,6 +261,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1
