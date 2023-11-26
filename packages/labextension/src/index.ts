@@ -6,6 +6,7 @@ import {
 import {
   ICommandPalette,
   MainAreaWidget,
+  Notification,
   WidgetTracker
 } from '@jupyterlab/apputils';
 import { IMainMenu } from '@jupyterlab/mainmenu';
@@ -17,7 +18,6 @@ import {
   CONDA_WIDGET_CLASS,
   IEnvironmentManager
 } from '@mamba-org/gator-common';
-import { INotification } from 'jupyterlab_toastify';
 import { managerTour } from './tour';
 import {
   companionID,
@@ -153,7 +153,9 @@ async function activateCompanions(
   commands.addCommand(command, {
     label: 'Validate kernels compatibility',
     execute: () => {
-      validator.validate(serviceManager.kernelspecs.specs);
+      if (serviceManager.kernelspecs.specs) {
+        validator.validate(serviceManager.kernelspecs.specs);
+      }
     }
   });
 
@@ -196,7 +198,7 @@ export default extensions;
 namespace Private {
   export function loadPackages(model: CondaEnvironments): void {
     let packageFound = false;
-    let toastId: React.ReactText;
+    let toastId = '';
     const messages = [
       'I know you want to give up, but wait a bit longer...',
       'Why is conda so popular, still loading that gigantic packages list...',
@@ -204,15 +206,15 @@ namespace Private {
       'Available packages list still loading...'
     ];
 
-    function displayMessage(message: React.ReactNode): void {
+    function displayMessage(message: string): void {
       setTimeout(() => {
         if (!packageFound) {
-          INotification.update({
+          Notification.update({
             message,
-            toastId
+            id: toastId
           });
           if (messages.length > 0) {
-            displayMessage(messages.pop());
+            displayMessage(messages.pop()!);
           }
         }
       }, 60000);
@@ -224,13 +226,13 @@ namespace Private {
       .then(() => {
         packageFound = true;
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       })
       .catch((reason: Error) => {
         console.debug('Fail to cache available packages list.', reason);
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       });
 
@@ -238,12 +240,13 @@ namespace Private {
     // the available packages list
     setTimeout(() => {
       if (!packageFound) {
-        INotification.inProgress(
-          'Loading the available packages list in background...'
-        ).then(id => {
-          toastId = id;
-        });
-        displayMessage(messages.pop());
+        toastId = Notification.emit(
+          'Loading the available packages list in background...',
+          'in-progress'
+        );
+        if (messages.length > 0) {
+          displayMessage(messages.pop()!);
+        }
       }
     }, 60000);
   }

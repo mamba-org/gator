@@ -183,6 +183,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         ? Style.RowEven(isSelected)
         : Style.RowOdd(isSelected);
     }
+
+    return '';
   };
 
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
@@ -233,7 +235,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return (
       <div id={CONDA_PACKAGES_PANEL_ID} role="grid">
         <AutoSizer disableHeight>
-          {({ width }): JSX.Element => {
+          {({ width }: { width: number }): JSX.Element => {
             return (
               <>
                 <div

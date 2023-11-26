@@ -1,10 +1,10 @@
-name: Test
+name: Build
 
 on:
   push:
-    branches: [master]
+    branches: main
   pull_request:
-    branches: "*"
+    branches: '*'
 
 jobs:
   test-backend-conda:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.9"]
+        python-version: ["3.8", "3.12"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -54,7 +54,7 @@ jobs:
     strategy:
       matrix:
         # Skip 3.9 as it is used for integration tests
-        python-version: ["3.7", "3.8"]
+        python-version: ["3.8", "3.12"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -92,7 +92,7 @@ jobs:
         shell: bash -l {0}
 
   test-all-os:
-    name: Test Conda Python 3.7 on ${{ matrix.os }}
+    name: Test Conda Python 3.11 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
@@ -113,10 +113,10 @@ jobs:
           CACHE_NUMBER: 2
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3.11-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ matrix.os }}-conda-3.7
+            ${{ matrix.os }}-conda-3.11-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.11
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -136,13 +136,13 @@ jobs:
             ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-yarn
 
-      - name: Setup Python 3.7
+      - name: Setup Python 3.11
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: test_gator
           miniconda-version: "latest"
           channels: conda-forge
-          python-version: "3.7"
+          python-version: "3.11"
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -167,97 +167,94 @@ jobs:
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
         shell: bash -l {0}
 
-  test-integration:
-    name: All tests on Ubuntu Mamba Python 3.9
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Cache conda
-        uses: actions/cache@v2
-        env:
-          # Increase this value to reset cache if requirements_dev.txt has not changed
-          CACHE_NUMBER: 0
-        with:
-          path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ runner.os }}-mamba-3.9
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Setup yarn cache
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        env:
-          # Increase this value to reset cache
-          CACHE_NUMBER: 4
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            **/node_modules
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
-            ${{ runner.os }}-yarn-
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Setup Python 3.9
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          activate-environment: test_gator
-          auto-update-conda: true
-          channels: conda-forge
-          mamba-version: "*"
-          python-version: "3.9"
-          show-channel-urls: true
-          use-only-tar-bz2: true
+    - name: Base Setup
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
-      - name: Install dependencies
-        run: |
-          conda info
-          mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator coveralls jupyterlab=3 "nbclassic!=0.3.3"
-          yarn install
-          python -m pip install -e .
-          # Check pip dependencies
-          pip check
-        shell: bash -l {0}
+    - name: Install dependencies
+      run: python -m pip install -U "jupyterlab>=4.0.0,<5"
 
-      - name: Test the extension
-        run: |
-          # Run linter
-          flake8 setup.py mamba_gator
-          yarn run eslint:check
+    - name: Lint the extension
+      run: |
+        set -eux
+        jlpm
+        jlpm run lint:check    
+        
+        black --check --diff --color .
+        ruff .
+        pipx run 'validate-pyproject[all]' pyproject.toml
 
-          # Run test
-          coverage run -m pytest mamba_gator
-          coverage report
-          yarn run test
+    - name: Build the extension
+      run: |
+        set -eux
+        python -m pip install .[test]
+        # Check pip dependencies
+        pip check
 
-          jupyter serverextension list
-          jupyter serverextension list 2>&1 | grep "mamba_gator.*OK"
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "mamba_gator.*OK"
 
-          jupyter server extension list
-          jupyter server extension list 2>&1 | grep "mamba_gator.*OK"
-          jupyter labextension list
-          jupyter labextension list 2>&1 | grep "@mamba-org/gator-lab.*OK"
-          python -m jupyterlab.browser_check
-        shell: bash -l {0}
+        jupyter labextension list
+        jupyter labextension list 2>&1 | grep -ie "gator.*OK"
+        python -m jupyterlab.browser_check
 
-      # - name: Install Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: 2.6
-      # - name: Upload coverage
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     conda activate test_gator
-      #     gem install coveralls-lcov
-      #     pushd packages/common/
-      #     coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
-      #     popd
-      #     python -m pip install --upgrade coveralls
-      #     python -m coveralls --merge=common-jscoverage.json
-      #   shell: bash -l {0}
+    - name: Package the extension
+      run: |
+        set -eux
+
+        pip install build
+        python -m build
+        pip uninstall -y "mamba_gator" jupyterlab
+
+    - name: Upload extension packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: extension-artifacts
+        path: dist/mamba_gator*
+        if-no-files-found: error
+
+  test_isolated:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        architecture: 'x64'
+    - uses: actions/download-artifact@v3
+      with:
+        name: extension-artifacts
+    - name: Install and Test
+      run: |
+        set -eux
+        # Remove NodeJS, twice to take care of system and locally installed node versions.
+        sudo rm -rf $(which node)
+        sudo rm -rf $(which node)
+
+        pip install "jupyterlab>=4.0.0,<5" mamba_gator*.whl
+
+
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "mamba_gator.*OK"
+
+        jupyter labextension list
+        jupyter labextension list 2>&1 | grep -ie "gator.*OK"
+        python -m jupyterlab.browser_check --no-browser-test
+
+
+  check_links:
+    name: Check Links
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1

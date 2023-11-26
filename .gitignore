@@ -1,13 +1,42 @@
+*.bundle.*
+lib/
+node_modules/
+*.log
+.eslintcache
+.stylelintcache
+*.egg-info/
+.ipynb_checkpoints
+*.tsbuildinfo
+**/tsconfig.tsbuildinfo
+.pytest_cache/
+mamba_gator/navigator/static/**
+!mamba_gator/navigator/static/.gitkeep
+!mamba_gator/navigator/static/main.js
+!mamba_gator/navigator/static/tree.js
+!mamba_gator/navigator/static/favicon.svg
+packages/**/coverage/**
+packages/navigator/webpack-report.html
+mamba_gator/nbextension/static/**
+!mamba_gator/nbextension/static/favicon.svg
+.playwright/
+mamba_gator/labextension
+# Version file is handled by hatchling
+mamba_gator/_version.py
+
+# Created by https://www.gitignore.io/api/python
+# Edit at https://www.gitignore.io/?templates=python
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
 # C extensions
 *.so
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -19,9 +48,12 @@ lib64/
 parts/
 sdist/
 var/
-*.egg-info/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -36,41 +68,66 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
+coverage/
 coverage.xml
-*,cover
+*.cover
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
 *.pot
 
-# Django stuff:
-*.log
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
 
 # PyBuilder
 target/
-.ipynb_checkpoints/
-*.xunit.xml
-screenshots/
-node_modules/
 
-.vscode/
-**/tsconfig.tsbuildinfo
-.pytest_cache/
-mamba_gator/navigator/static/**
-!mamba_gator/navigator/static/.gitkeep
-!mamba_gator/navigator/static/main.js
-!mamba_gator/navigator/static/tree.js
-!mamba_gator/navigator/static/favicon.svg
-packages/**/coverage/**
-mamba_gator/labextension/**
-packages/navigator/webpack-report.html
-mamba_gator/nbextension/static/**
-!mamba_gator/nbextension/static/favicon.svg
-.playwright/
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# End of https://www.gitignore.io/api/python
+
+# OSX files
+.DS_Store
+
+# Yarn cache
+.yarn/

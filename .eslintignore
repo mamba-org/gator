@@ -1,7 +1,0 @@
-node_modules
-dist
-coverage
-**/*.d.ts
-package.json
-**/__tests__/
-lib

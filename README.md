@@ -92,7 +92,7 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 ## Development
 
 ```shell
-mamba create -c conda-forge -y -n gator python jupyterlab=3
+mamba create -c conda-forge -y -n gator python jupyterlab=4
 mamba install -c conda-forge -y -n gator --file requirements_dev.txt
 conda activate gator
 pip install -e .

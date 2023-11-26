@@ -1,11 +1,11 @@
-import { JupyterLabMenu } from '@jupyterlab/mainmenu';
+import { RankedMenu } from '@jupyterlab/ui-components';
 
 import { Menu } from '@lumino/widgets';
 
 /**
  * A concrete implementation of a help menu.
  */
-export class HelpMenu extends JupyterLabMenu {
+export class HelpMenu extends RankedMenu {
   /**
    * Construct a help menu.
    *
@@ -14,6 +14,6 @@ export class HelpMenu extends JupyterLabMenu {
   constructor(options: Menu.IOptions) {
     super(options);
 
-    this.menu.title.label = 'Help';
+    this.title.label = 'Help';
   }
 }
