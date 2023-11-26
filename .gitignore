@@ -131,3 +131,4 @@ dmypy.json
 
 # Yarn cache
 .yarn/
+packages/common/junit.xml
