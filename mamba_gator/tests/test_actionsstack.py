@@ -2,7 +2,6 @@ import asyncio
 import functools
 import subprocess
 import sys
-import time
 
 import pytest
 from mamba_gator.handlers import ActionsStack
@@ -113,7 +112,7 @@ async def test_ActionsStack_put_result():
         idxs.append(a.put(f, b))
 
     len(idxs) == len(to_be_tested)
-    for l in idxs:
+    for l in idxs:  # noqa E741
         assert isinstance(l, int)
         assert a.get(l) is None
 

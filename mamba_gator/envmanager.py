@@ -152,9 +152,7 @@ class EnvManager:
             None, partial(Popen, cmdline, stdout=PIPE, stderr=PIPE)
         )
         try:
-            output, error = await current_loop.run_in_executor(
-                None, process.communicate
-            )
+            output, error = await current_loop.run_in_executor(None, process.communicate)
         except asyncio.CancelledError:
             process.terminate()
             await current_loop.run_in_executor(None, process.wait)
@@ -196,9 +194,7 @@ class EnvManager:
                 if sys.platform == "win32":
                     cmd = ["where", "mamba.exe"]
 
-                process = Popen(
-                    cmd, stdout=PIPE, stderr=PIPE, encoding="utf-8"
-                )
+                process = Popen(cmd, stdout=PIPE, stderr=PIPE, encoding="utf-8")
                 output, error = process.communicate()
 
                 if process.returncode != 0:
@@ -217,7 +213,7 @@ class EnvManager:
                 if process.returncode != 0:
                     raise RuntimeError(error)
 
-                versions = list(map(lambda l: l.split(), output.splitlines()))
+                versions = list(map(lambda line: line.split(), output.splitlines()))
                 if versions[0][0] == "mamba" and versions[1][0] == "conda":
                     EnvManager._conda_version = versions[1][1]
                     EnvManager._mamba_version = versions[0][1]
@@ -269,9 +265,7 @@ class EnvManager:
                     get_uri(entry) for entry in info["custom_multichannels"][channel]
                 ]
             elif strip_channel in info["custom_channels"]:
-                deployed_channels[strip_channel] = [
-                    get_uri(info["custom_channels"][strip_channel])
-                ]
+                deployed_channels[strip_channel] = [get_uri(info["custom_channels"][strip_channel])]
             else:
                 parsed_channel = tornado.httputil.urlparse(channel)
                 if parsed_channel.scheme:
@@ -327,9 +321,7 @@ class EnvManager:
         Returns:
             Dict[str, str]: Create command output
         """
-        ans = await self._execute(
-            self.manager, "create", "-y", "-q", "--json", "-n", env, *args
-        )
+        ans = await self._execute(self.manager, "create", "-y", "-q", "--json", "-n", env, *args)
 
         rcode, output = ans
         if rcode > 0:
@@ -345,18 +337,14 @@ class EnvManager:
         Returns:
             Dict[str, str]: Deletion command output
         """
-        ans = await self._execute(
-            self.manager, "env", "remove", "-y", "-q", "--json", "-n", env
-        )
+        ans = await self._execute(self.manager, "env", "remove", "-y", "-q", "--json", "-n", env)
 
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
         return output
 
-    async def export_env(
-        self, env: str, from_history: bool = False
-    ) -> Union[str, Dict[str, str]]:
+    async def export_env(self, env: str, from_history: bool = False) -> Union[str, Dict[str, str]]:
         """Export an environment as YAML file.
 
         Args:
@@ -558,9 +546,7 @@ class EnvManager:
         """
         if not self.is_mamba():
             self.log.warning(
-                "Package manager '{}' does not support dependency query.".format(
-                    self.manager
-                )
+                "Package manager '{}' does not support dependency query.".format(self.manager)
             )
             return {pkg: None}
 
@@ -571,7 +557,7 @@ class EnvManager:
 
         if "error" not in query:
             for dep in query["result"]["pkgs"]:
-                if type(dep) is dict:
+                if isinstance(dep, dict):
                     deps = dep.get("depends", None)
                     if deps:
                         resp[dep["name"]] = deps
@@ -609,9 +595,9 @@ class EnvManager:
             of "conda search --json".
             """
 
-            data_ = collections.defaultdict(lambda : [])
-            for entry in data['result']['pkgs']:
-                name = entry.get('name')
+            data_ = collections.defaultdict(lambda: [])
+            for entry in data["result"]["pkgs"]:
+                name = entry.get("name")
                 if name is not None:
                     data_[name].append(entry)
 
@@ -660,7 +646,7 @@ class EnvManager:
                         pkg_entry = entry
 
                     try:
-                        version = parse(entry.get("version", "")) 
+                        version = parse(entry.get("version", ""))
                     except InvalidVersion:
                         name = entry.get("name")
                         version = entry.get("version")
@@ -676,21 +662,13 @@ class EnvManager:
                         build_number = entry.get("build_number", 0)
                         if build_number > max_build_numbers[version_idx]:
                             max_build_numbers[version_idx] = build_number
-                            max_build_strings[version_idx] = entry.get(
-                                "build_string", ""
-                            )
+                            max_build_strings[version_idx] = entry.get("build_string", "")
 
-                sorted_versions_idx = sorted(
-                    range(len(versions)), key=versions.__getitem__
-                )
+                sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
 
                 pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
-                pkg_entry["build_number"] = [
-                    max_build_numbers[i] for i in sorted_versions_idx
-                ]
-                pkg_entry["build_string"] = [
-                    max_build_strings[i] for i in sorted_versions_idx
-                ]
+                pkg_entry["build_number"] = [max_build_numbers[i] for i in sorted_versions_idx]
+                pkg_entry["build_string"] = [max_build_strings[i] for i in sorted_versions_idx]
 
                 packages.append(pkg_entry)
             return packages
@@ -848,9 +826,7 @@ class EnvManager:
             "with_description": False,
         }
 
-    async def check_update(
-        self, env: str, packages: List[str]
-    ) -> Dict[str, List[Dict[str, str]]]:
+    async def check_update(self, env: str, packages: List[str]) -> Dict[str, List[Dict[str, str]]]:
         """Check for packages update in an environment.
 
         if '--all' is the only element in `packages`, search for all
@@ -890,9 +866,7 @@ class EnvManager:
             links = data["actions"].get("LINK", [])
             package_versions = [link for link in links]
             return {
-                "updates": [
-                    normalize_pkg_info(pkg_version) for pkg_version in package_versions
-                ]
+                "updates": [normalize_pkg_info(pkg_version) for pkg_version in package_versions]
             }
         else:
             # no action plan returned means everything is already up to date
@@ -947,9 +921,7 @@ class EnvManager:
                 realpath = os.path.realpath(os.path.expanduser(path))
                 if not os.path.exists(realpath):
                     # Convert jupyterlab path to local path if the path does not exists
-                    realpath = os.path.realpath(
-                        os.path.join(self._root_dir, url2path(path))
-                    )
+                    realpath = os.path.realpath(os.path.join(self._root_dir, url2path(path)))
                     if not os.path.exists(realpath):
                         return {"error": "Unable to find path {}.".format(path)}
 

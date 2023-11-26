@@ -1,13 +1,13 @@
 import sys
 
-c.ServerProxy.servers = {
+c.ServerProxy.servers = {  # noqa F821
     "mamba": {
         "command": [
             sys.executable,
             "-m",
             "mamba_gator",
             "--no-browser",
-            '--port={port}',
+            "--port={port}",
             "--ip=0.0.0.0",
             "--ServerApp.token=''",
             "--ServerApp.base_url={base_url}mamba",
