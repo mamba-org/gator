@@ -6,11 +6,9 @@
 # pylint: disable=W0221
 
 import asyncio
-import collections
 import json
 import logging
 import os
-import re
 import stat
 import sys
 import tempfile
@@ -205,9 +203,7 @@ class EnvironmentsHandler(EnvBaseHandler):
         elif twin is not None:
             idx = self._stack.put(self.env_manager.clone_env, twin, name)
         elif file_content is not None:
-            idx = self._stack.put(
-                self.env_manager.import_env, name, file_content, file_name
-            )
+            idx = self._stack.put(self.env_manager.import_env, name, file_content, file_name)
         else:
             idx = self._stack.put(self.env_manager.create_env, name)
 
@@ -239,9 +235,7 @@ class EnvironmentHandler(EnvBaseHandler):
 
         if download:
             # export requirements file
-            self.set_header(
-                "Content-Disposition", 'attachment; filename="%s"' % (env + ".yml")
-            )
+            self.set_header("Content-Disposition", 'attachment; filename="%s"' % (env + ".yml"))
             answer = await self.env_manager.export_env(env, bool(history))
             if "error" in answer:
                 self.set_status(500)
@@ -403,9 +397,7 @@ class PackagesHandler(EnvBaseHandler):
                 # Request cache update in background
                 if not PackagesHandler.__is_listing_available:
                     PackagesHandler.__is_listing_available = True
-                    self._stack.put(
-                        update_available, self.env_manager, cache_file, False
-                    )
+                    self._stack.put(update_available, self.env_manager, cache_file, False)
                 # Return current cache
                 self.set_status(200)
                 self.finish(cache_data)
@@ -505,10 +497,7 @@ def _load_jupyter_server_extension(server_app):
     base_url = webapp.settings["base_url"]
     webapp.add_handlers(
         ".*$",
-        [
-            (url_path_join(base_url, NS, pat), handler)
-            for pat, handler in default_handlers
-        ],
+        [(url_path_join(base_url, NS, pat), handler) for pat, handler in default_handlers],
     )
 
     get_logger().info("Server extension enabled")

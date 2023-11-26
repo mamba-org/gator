@@ -1,12 +1,23 @@
+# a mybinder.org-ready environment for demoing mamba_gator
+# this environment may also be used locally on Linux/MacOS/Windows, e.g.
+#
+#   conda env update --file binder/environment.yml
+#   conda activate mamba-gator-demo
+#
+name: mamba-gator-demo
+
 channels:
   - conda-forge
+
 dependencies:
-  - python >=3.6,<3.9
-  - jupyterlab =3
-  - jupyter-packaging >=0.7.9,<0.8.0
+  # runtime dependencies
+  - python >=3.10,<3.11.0a0
+  - jupyterlab >=4.0.0,<5
+  # labextension build dependencies
+  - nodejs >=18,<19
+  - pip
+  - wheel
   - jupyter-server-proxy
   - nb_conda_kernels >=2.2.3
-  - nodejs >=14
-  - yarn
   - notebook >=4.3.1
   - packaging

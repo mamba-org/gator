@@ -131,7 +131,7 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
       }
       this.setState({ data, error });
     } catch (error) {
-      if (error.message !== 'cancelled') {
+      if ((error as any).message !== 'cancelled') {
         console.error('Error when looking for dependencies.', error);
       }
     }

@@ -1,4 +1,3 @@
-import asyncio
 import json
 import random
 import os
@@ -16,10 +15,8 @@ import tempfile
 
 from nb_conda_kernels import CondaKernelSpecManager
 import tornado
-from traitlets.config import Config
 
 from mamba_gator.envmanager import EnvManager
-from mamba_gator.handlers import AVAILABLE_CACHE, PackagesHandler
 from mamba_gator.tests.utils import ServerTest, assert_http_error
 
 from .utils import has_mamba
@@ -82,9 +79,7 @@ class TestChannelsHandler(JupyterCondaAPITest):
             error_msg = "Fail to get channels"
             r = {"error": True, "message": error_msg}
             rvalue = (1, json.dumps(r))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
+            f.return_value = tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
             with assert_http_error(500, msg=error_msg):
                 self.conda_api.get(["channels"])
 
@@ -153,9 +148,7 @@ class TestChannelsHandler(JupyterCondaAPITest):
                 },
             }
             rvalue = (0, json.dumps(data))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
+            f.return_value = tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
 
             response = self.conda_api.get(["channels"])
             self.assertEqual(response.status_code, 200)
@@ -194,9 +187,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
             msg = "Fail to get environments"
             err = {"error": True, "message": msg}
             rvalue = (1, json.dumps(err))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
+            f.return_value = tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
             with assert_http_error(500, msg=msg):
                 self.conda_api.get(["environments"])
 
@@ -236,9 +227,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
     def test_empty_environment(self):
         n = generate_name()
         self.env_names.append(n)
-        response = self.wait_for_task(
-            self.conda_api.post, ["environments"], body={"name": n}
-        )
+        response = self.wait_for_task(self.conda_api.post, ["environments"], body={"name": n})
         self.assertEqual(response.status_code, 200)
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])
@@ -246,9 +235,7 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
 
     def cp_env(self, name, new_name):
         self.env_names.append(new_name)
-        return self.conda_api.post(
-            ["environments"], body={"name": new_name, "twin": name}
-        )
+        return self.conda_api.post(["environments"], body={"name": new_name, "twin": name})
 
     def test_env_clone(self):
         n = generate_name()
@@ -308,9 +295,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
         r = self.conda_api.get(["environments", n])
         pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
+        packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
@@ -337,9 +322,7 @@ python=3.7.3={}
         ]
 
         def g():
-            return self.conda_api.post(
-                ["environments"], body={"name": n, "file": content}
-            )
+            return self.conda_api.post(["environments"], body={"name": n, "file": content})
 
         response = self.wait_for_task(g)
         self.assertEqual(response.status_code, 200)
@@ -349,9 +332,7 @@ python=3.7.3={}
 
         r = self.conda_api.get(["environments", n])
         pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
+        packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
@@ -360,7 +341,13 @@ python=3.7.3={}
             self.skipTest("FIXME not working with mamba")
 
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
+        response = self.wait_for_task(
+            self.mk_env,
+            n,
+            [
+                "python=3.7",
+            ],
+        )
         self.assertEqual(response.status_code, 200)
 
         content = """name: test_conda
@@ -381,7 +368,8 @@ prefix: /home/user/.conda/envs/lab_conda
 
         def g():
             return self.conda_api.patch(
-                ["environments", n], body={"file": content, "filename": "testenv.yml"},
+                ["environments", n],
+                body={"file": content, "filename": "testenv.yml"},
             )
 
         response = self.wait_for_task(g)
@@ -392,18 +380,22 @@ prefix: /home/user/.conda/envs/lab_conda
 
         r = self.conda_api.get(["environments", n])
         pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
+        packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
     def test_update_env_no_filename(self):
         if has_mamba:
             self.skipTest("FIXME not working with mamba")
-            
+
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
+        response = self.wait_for_task(
+            self.mk_env,
+            n,
+            [
+                "python=3.7",
+            ],
+        )
         self.assertEqual(response.status_code, 200)
 
         content = """name: test_conda
@@ -423,7 +415,10 @@ prefix: /home/user/.conda/envs/lab_conda
         ]
 
         def g():
-            return self.conda_api.patch(["environments", n], body={"file": content},)
+            return self.conda_api.patch(
+                ["environments", n],
+                body={"file": content},
+            )
 
         response = self.wait_for_task(g)
         self.assertEqual(response.status_code, 200)
@@ -433,15 +428,19 @@ prefix: /home/user/.conda/envs/lab_conda
 
         r = self.conda_api.get(["environments", n])
         pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
+        packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
     def test_update_env_txt(self):
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.7",])
+        response = self.wait_for_task(
+            self.mk_env,
+            n,
+            [
+                "python=3.7",
+            ],
+        )
         self.assertEqual(response.status_code, 200)
 
         content = """# This file may be used to create an environment using:
@@ -456,7 +455,8 @@ astroid=2.2.5=py37_0
 
         def g():
             return self.conda_api.patch(
-                ["environments", n], body={"file": content, "filename": "testenv.txt"},
+                ["environments", n],
+                body={"file": content, "filename": "testenv.txt"},
             )
 
         response = self.wait_for_task(g)
@@ -467,9 +467,7 @@ astroid=2.2.5=py37_0
 
         r = self.conda_api.get(["environments", n])
         pkgs = r.json().get("packages", [])
-        packages = list(
-            map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs)
-        )
+        packages = list(map(lambda p: (p["name"], p["version"], p["build_string"]), pkgs))
         for p in expected:
             self.assertIn(p, packages, "{} not found.".format(p))
 
@@ -478,13 +476,28 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
     @mock.patch("nb_conda_kernels.manager.CACHE_TIMEOUT", 0)
     def test_get_whitelist(self):
         n = "banana"
-        self.wait_for_task(self.mk_env, n, packages=["ipykernel",])
+        self.wait_for_task(
+            self.mk_env,
+            n,
+            packages=[
+                "ipykernel",
+            ],
+        )
         manager = CondaKernelSpecManager()
-        manager.whitelist = set(["conda-env-banana-py",])
+        manager.whitelist = set(
+            [
+                "conda-env-banana-py",
+            ]
+        )
         env_manager = TestEnvironmentsHandlerWhiteList.notebook.web_app.settings["env_manager"]
         env_manager._kernel_spec_manager = manager
 
-        r = self.conda_api.get(["environments",], params={"whitelist": 1})
+        r = self.conda_api.get(
+            [
+                "environments",
+            ],
+            params={"whitelist": 1},
+        )
         self.assertEqual(r.status_code, 200)
         envs = r.json()
         env = None
@@ -501,7 +514,12 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n)
-        r = self.conda_api.get(["environments",], params={"whitelist": 1})
+        r = self.conda_api.get(
+            [
+                "environments",
+            ],
+            params={"whitelist": 1},
+        )
         self.assertEqual(r.status_code, 200)
         envs = r.json()
         self.assertEqual(len(envs["environments"]), found_env)
@@ -584,14 +602,15 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
     def test_env_export_history(self):
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
-        r = self.conda_api.get(
-            ["environments", n], params={"download": 1, "history": 1}
-        )
+        r = self.conda_api.get(["environments", n], params={"download": 1, "history": 1})
         self.assertEqual(r.status_code, 200)
 
         content = " ".join(r.text.splitlines())
         self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python=3\.9\s+prefix:"
+            content,
+            r"^name:\s"
+            + n
+            + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python=3\.9\s+prefix:",
         )
 
     def test_env_export_not_supporting_history(self):
@@ -599,9 +618,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
             n = generate_name()
             self.wait_for_task(self.mk_env, n)
             EnvManager._conda_version = (4, 6, 0)
-            r = self.conda_api.get(
-                ["environments", n], params={"download": 1, "history": 1}
-            )
+            r = self.conda_api.get(["environments", n], params={"download": 1, "history": 1})
             self.assertEqual(r.status_code, 200)
 
             content = r.text
@@ -619,7 +636,9 @@ class TestCondaVersion(JupyterCondaAPITest):
         EnvManager._conda_version = None
         self.assertIsNone(EnvManager._conda_version)
         self.conda_api.get(
-            ["environments",]
+            [
+                "environments",
+            ]
         )
         self.assertIsNotNone(EnvManager._conda_version)
 
@@ -787,9 +806,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
 
 class TestPackagesHandler(JupyterCondaAPITest):
     def test_package_search(self):
-        r = self.wait_for_task(
-            self.conda_api.get, ["packages"], params={"query": self.pkg_name}
-        )
+        r = self.wait_for_task(self.conda_api.get, ["packages"], params={"query": self.pkg_name})
         self.assertEqual(r.status_code, 200)
         body = r.json()
         self.assertIn("packages", body)
@@ -974,11 +991,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
                 if has_mamba:
                     # Change dummy to match mamba repoquery format
-                    dummy = {
-                        "result": {
-                            "pkgs": list(chain(*dummy.values()))
-                        }
-                    }
+                    dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
 
                 rvalue = [
                     (0, json.dumps(dummy)),
@@ -986,9 +999,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 ]
                 # Use side_effect to have a different return value for each call
                 f.side_effect = (
-                    map(tornado.gen.maybe_future, rvalue)
-                    if AsyncMock is None
-                    else rvalue
+                    map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
                 )
 
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
@@ -1182,16 +1193,10 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
                 if has_mamba:
                     # Change dummy to match mamba repoquery format
-                    dummy = {
-                        "result": {
-                            "pkgs": list(chain(*dummy.values()))
-                        }
-                    }
+                    dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
 
                 with tempfile.TemporaryDirectory() as local_channel:
-                    with open(
-                        os.path.join(local_channel, "channeldata.json"), "w+"
-                    ) as d:
+                    with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
                         d.write(
                             '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Numpy\'s Sphinx extensions", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
                         )
@@ -1219,9 +1224,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     ]
                     # Use side_effect to have a different return value for each call
                     f.side_effect = (
-                        map(tornado.gen.maybe_future, rvalue)
-                        if AsyncMock is None
-                        else rvalue
+                        map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
                     )
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
@@ -1415,11 +1418,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
                 if has_mamba:
                     # Change dummy to match mamba repoquery format
-                    dummy = {
-                        "result": {
-                            "pkgs": list(chain(*dummy.values()))
-                        }
-                    }
+                    dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
 
                 with tempfile.TemporaryDirectory() as local_channel:
                     local_name = local_channel.strip("/")
@@ -1446,9 +1445,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     ]
                     # Use side_effect to have a different return value for each call
                     f.side_effect = (
-                        map(tornado.gen.maybe_future, rvalue)
-                        if AsyncMock is None
-                        else rvalue
+                        map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
                     )
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
@@ -1666,14 +1663,9 @@ class TestPackagesHandler(JupyterCondaAPITest):
                     "ssl_verify": False,
                 }
 
-
                 if has_mamba:
                     # Change dummy to match mamba repoquery format
-                    dummy = {
-                        "result": {
-                            "pkgs": list(chain(*dummy.values()))
-                        }
-                    }
+                    dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
 
                 rvalue = [
                     (0, json.dumps(dummy)),
@@ -1681,9 +1673,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 ]
                 # Use side_effect to have a different return value for each call
                 f.side_effect = (
-                    map(tornado.gen.maybe_future, rvalue)
-                    if AsyncMock is None
-                    else rvalue
+                    map(tornado.gen.maybe_future, rvalue) if AsyncMock is None else rvalue
                 )
 
                 # First retrival no cache available

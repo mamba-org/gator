@@ -1,16 +1,12 @@
 nodejs
-yarn
 nb_conda_kernels >=2.2.0
 packaging
 jupyter_client
-jupyter-packaging >=0.7.9,<0.8.0
 jupyter_server
 jupyterlab_server
 requests
 tornado
 traitlets
 coverage
-flake8
 pytest
 pytest-asyncio
-notebook >=4.3.1,!=6.1.0

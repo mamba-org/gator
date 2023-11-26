@@ -1,6 +1,5 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-import logging
 import os
 
 from jupyter_server.base.handlers import JupyterHandler
@@ -12,14 +11,11 @@ from jupyter_server.utils import url_path_join as ujoin
 from jupyterlab_server import LabServerApp
 from mamba_gator._version import __version__
 from mamba_gator.handlers import _load_jupyter_server_extension
-from mamba_gator.log import get_logger
 
 HERE = os.path.dirname(__file__)
 
 
-class MambaNavigatorHandler(
-    ExtensionHandlerJinjaMixin, ExtensionHandlerMixin, JupyterHandler
-):
+class MambaNavigatorHandler(ExtensionHandlerJinjaMixin, ExtensionHandlerMixin, JupyterHandler):
     def get(self):
         config_data = {
             "appVersion": __version__,

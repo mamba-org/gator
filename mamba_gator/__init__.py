@@ -13,7 +13,10 @@ def _jupyter_labextension_paths():
 
 
 def _jupyter_server_extension_points():
-    return [{"module": "mamba_gator"}, {"module": "mamba_gator.navigator.main", "app": MambaNavigator}]
+    return [
+        {"module": "mamba_gator"},
+        {"module": "mamba_gator.navigator.main", "app": MambaNavigator},
+    ]
 
 
 # For backward compatibility

@@ -8,7 +8,6 @@ from binascii import hexlify
 from subprocess import CalledProcessError, check_call
 from threading import Event, Thread
 from typing import List
-from unittest import TestCase
 from unittest.mock import patch
 
 import jupyter_core.paths
@@ -59,9 +58,7 @@ class APITester(object):
     def _req(self, verb: str, path: List[str], body=None, params=None):
         if body is not None:
             body = json.dumps(body)
-        response = self.request(
-            verb, url_path_join(self.url, *path), data=body, params=params
-        )
+        response = self.request(verb, url_path_join(self.url, *path), data=body, params=params)
 
         if 400 <= response.status_code < 600:
             try:
@@ -95,7 +92,6 @@ class JupyterCondaAPI(APITester):
 
 
 class ServerTest(ServerTestBase):
-
     # Force extension enabling - Disabled by parent class otherwise
     config = Config({"NotebookApp": {"nbserver_extensions": {"mamba_gator": True}}})
 
@@ -116,9 +112,9 @@ class ServerTest(ServerTestBase):
             return path
 
         cls.home_dir = tmp("home")
-        data_dir = cls.data_dir = tmp("data")
-        config_dir = cls.config_dir = tmp("config")
-        runtime_dir = cls.runtime_dir = tmp("runtime")
+        cls.data_dir = tmp("data")
+        cls.config_dir = tmp("config")
+        cls.runtime_dir = tmp("runtime")
         cls.notebook_dir = tmp("notebooks")
         cls.env_patch = patch.dict(
             "os.environ",

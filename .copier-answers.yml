@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.4
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: ''
+author_name: Jupyter Development Team
+has_binder: true
+has_settings: false
+kind: server
+labextension_name: gator
+project_short_description: <description>
+python_name: mamba_gator
+repository: git+https://github.com/mamba-org/gator.git
+test: false
+

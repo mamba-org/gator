@@ -2,14 +2,13 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { DOMUtils, MainAreaWidget } from '@jupyterlab/apputils';
+import { DOMUtils, MainAreaWidget, Notification } from '@jupyterlab/apputils';
 import {
   CondaEnvironments,
   CondaEnvWidget,
   condaIcon,
   CONDA_WIDGET_CLASS
 } from '@mamba-org/gator-common';
-import { INotification } from 'jupyterlab_toastify';
 
 /**
  * The command ids used by the main navigator plugin.
@@ -48,7 +47,7 @@ export default plugin;
 namespace Private {
   export function loadPackages(model: CondaEnvironments): void {
     let packageFound = false;
-    let toastId: React.ReactText;
+    let toastId = '';
     const messages = [
       'I know you want to give up, but wait a bit longer...',
       'Why is conda so popular, still loading that gigantic packages list...',
@@ -56,15 +55,15 @@ namespace Private {
       'Available packages list still loading...'
     ];
 
-    function displayMessage(message: React.ReactNode): void {
+    function displayMessage(message: string): void {
       setTimeout(() => {
         if (!packageFound) {
-          INotification.update({
+          Notification.update({
             message,
-            toastId
+            id: toastId
           });
           if (messages.length > 0) {
-            displayMessage(messages.pop());
+            displayMessage(messages.pop()!);
           }
         }
       }, 60000);
@@ -76,13 +75,13 @@ namespace Private {
       .then(() => {
         packageFound = true;
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       })
       .catch((reason: Error) => {
         console.debug('Fail to cache available packages list.', reason);
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       });
 
@@ -90,12 +89,11 @@ namespace Private {
     // the available packages list
     setTimeout(() => {
       if (!packageFound) {
-        INotification.inProgress(
-          'Loading the available packages list in background...'
-        ).then(id => {
-          toastId = id;
-        });
-        displayMessage(messages.pop());
+        toastId = Notification.emit(
+          'Loading the available packages list in background...',
+          'in-progress'
+        );
+        displayMessage(messages.pop()!);
       }
     }, 60000);
   }

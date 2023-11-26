@@ -176,8 +176,10 @@ export class CondaEnvironments implements IEnvironmentManager {
         const data = await response.json();
         return data['channels'] as Conda.IChannels;
       }
+
+      return {};
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `Fail to get the channels for environment ${name}.`;
@@ -206,7 +208,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while cloning environment "${target}".`;
@@ -236,7 +238,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while creating environment "${name}".`;
@@ -263,7 +265,7 @@ export class CondaEnvironments implements IEnvironmentManager {
       );
       return promise;
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while exporting environment "${name}".`;
@@ -299,7 +301,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while importing "${name}".`;
@@ -326,7 +328,7 @@ export class CondaEnvironments implements IEnvironmentManager {
       this._environments = data.environments;
       return data.environments;
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while listing Conda environments.';
@@ -353,7 +355,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while removing "${name}".`;
@@ -389,7 +391,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while updating "${name}".`;
@@ -562,7 +564,7 @@ export class CondaPackage implements Conda.IPackageManager {
 
       return finalList;
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while retrieving available packages.';
@@ -595,7 +597,7 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while installing packages.';
@@ -629,7 +631,7 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while installing in development mode package in ${path}.`;
@@ -663,7 +665,7 @@ export class CondaPackage implements Conda.IPackageManager {
       };
       return data.updates.map(pkg => pkg.name);
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while checking for package updates.';
@@ -696,7 +698,7 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while updating packages.';
@@ -729,7 +731,7 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while removing packages.';
@@ -754,7 +756,7 @@ export class CondaPackage implements Conda.IPackageManager {
       request
     );
 
-    let idx: number;
+    let idx = 0;
     if (cancellable) {
       idx =
         this._cancellableStack.push({ type: 'getDependencies', cancel }) - 1;
@@ -802,7 +804,7 @@ export class CondaPackage implements Conda.IPackageManager {
         URLExt.join('conda', 'packages'),
         request
       );
-      let idx: number;
+      let idx = 0;
       if (cancellable) {
         idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
       }
@@ -840,7 +842,7 @@ export class CondaPackage implements Conda.IPackageManager {
   private _packageChanged: Signal<CondaPackage, Conda.IPackageChange> =
     new Signal<this, Conda.IPackageChange>(this);
   private _cancellableStack: Array<ICancellableAction> = [];
-  private static _availablePackages: Array<Conda.IPackage> = null;
+  private static _availablePackages: Array<Conda.IPackage> | null = null;
   private static _hasDescription = false;
 }
 

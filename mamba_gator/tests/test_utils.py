@@ -29,9 +29,7 @@ from mamba_gator.envmanager import RUNNER_COMMAND, get_env_path
                     "-m",
                     "ipykernel_launcher",
                 ],
-                "metadata": {
-                    "conda_env_path": os.path.join("path", "to", "envs", "myenv")
-                },
+                "metadata": {"conda_env_path": os.path.join("path", "to", "envs", "myenv")},
             },
             os.path.join("path", "to", "envs", "myenv"),
         ),

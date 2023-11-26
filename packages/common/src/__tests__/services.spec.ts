@@ -394,7 +394,6 @@ describe('@mamba-org/gator-lab/services', () => {
         (Settings as jest.Mock).mockImplementation(() => {
           return {
             get: jest.fn().mockImplementation((key: string) => {
-              // @ts-ignore
               return {
                 fromHistory: { composite: false },
                 types: { composite: {} },
@@ -407,7 +406,7 @@ describe('@mamba-org/gator-lab/services', () => {
           };
         });
 
-        // @ts-ignore
+        // @ts-expect-error missing input arguments
         const envManager = new CondaEnvironments(new Settings());
 
         const envs = await envManager.refresh();

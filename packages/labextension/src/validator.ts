@@ -1,10 +1,10 @@
+import { Notification } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
-import { KernelSpecAPI, KernelSpecManager } from '@jupyterlab/services';
+import { KernelSpec, KernelSpecAPI } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
 import { Conda, IEnvironmentManager } from '@mamba-org/gator-common';
-import { INotification } from 'jupyterlab_toastify';
 import semver from 'semver';
 
 export const companionID = '@mamba-org/gator-lab:companion';
@@ -50,7 +50,7 @@ type Companions = { [key: string]: string };
  */
 export class CompanionValidator implements ICompanionValidator {
   constructor(
-    kernelManager: KernelSpecManager,
+    kernelManager: KernelSpec.IManager,
     envManager: IEnvironmentManager,
     settings: ISettingRegistry.ISettings
   ) {
@@ -147,10 +147,10 @@ export class CompanionValidator implements ICompanionValidator {
    * @param specs Available kernelSpec models
    */
   private async _validateSpecs(
-    manager: KernelSpecManager, // Needed to connect signal
-    specs: KernelSpecAPI.ISpecModels
+    manager: KernelSpec.IManager | null, // Needed to connect signal
+    specs: KernelSpecAPI.ISpecModels | null
   ): Promise<void> {
-    if (Object.keys(this._companions).length === 0) {
+    if (Object.keys(this._companions).length === 0 || !specs) {
       return;
     }
 
@@ -170,33 +170,21 @@ export class CompanionValidator implements ICompanionValidator {
       manager: IEnvironmentManager,
       name: string
     ): void {
-      INotification.warning(`Environment "${name}" has some inconsistencies.`, {
-        buttons: [
+      Notification.warning(`Environment "${name}" has some inconsistencies.`, {
+        actions: [
           {
             label: 'Correct',
             caption: 'Correct installed packages',
             callback: (): void => {
-              INotification.inProgress('Correct the environment.').then(
-                toastId => {
-                  manager
-                    .getPackageManager()
-                    .install(updates, name)
-                    .then(() => {
-                      INotification.update({
-                        toastId,
-                        message: 'Environment corrected',
-                        type: 'success',
-                        autoClose: 5000
-                      });
-                    })
-                    .catch((reason: Error) => {
-                      console.error(reason);
-                      INotification.update({
-                        toastId,
-                        message: 'Fail to correct the environment.',
-                        type: 'error'
-                      });
-                    });
+              Notification.promise(
+                manager
+                  .getPackageManager()
+                  .install(updates, name)
+                  .then(() => null),
+                {
+                  pending: { message: 'Correct the environment.' },
+                  success: { message: () => 'Environment corrected' },
+                  error: { message: () => 'Fail to correct the environment.' }
                 }
               );
             }
@@ -207,8 +195,11 @@ export class CompanionValidator implements ICompanionValidator {
 
     // Loop on the kernelSpecs
     for (const spec of Object.keys(specs.kernelspecs)) {
-      let environment: string;
-      const { conda_env_name, conda_env_path } = specs.kernelspecs[spec]
+      let environment = '';
+      if (!specs.kernelspecs[spec]) {
+        continue;
+      }
+      const { conda_env_name, conda_env_path } = specs.kernelspecs[spec]!
         .metadata as { conda_env_name: string; conda_env_path: string };
 
       if (conda_env_path) {
@@ -216,7 +207,9 @@ export class CompanionValidator implements ICompanionValidator {
           conda_env_name === 'root' ? 'base' : PathExt.basename(conda_env_path);
       } else {
         const name = CompanionValidator.kernelNameToEnvironment(spec);
-        environment = normalizedNames[name];
+        if (name !== null) {
+          environment = normalizedNames[name];
+        }
       }
 
       if (environment) {
@@ -230,7 +223,7 @@ export class CompanionValidator implements ICompanionValidator {
             if (
               companions.indexOf(pkg.name) >= 0 &&
               !semver.satisfies(
-                pkg.version_installed,
+                pkg.version_installed ?? '',
                 this._companions[pkg.name]
               )
             ) {

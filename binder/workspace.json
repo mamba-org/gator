@@ -23,10 +23,6 @@
       },
       "right": { "collapsed": true, "widgets": [] }
     },
-    "jupyterlab-tour:state": {
-      "tutorialsDone": ["jupyterlab-tour:welcome"],
-      "version": "3.0.0"
-    },
     "conda-env:conda-env": { "data": {} }
   },
   "metadata": { "id": "default" }

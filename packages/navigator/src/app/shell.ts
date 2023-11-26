@@ -2,8 +2,6 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
-import { IIterator, iter, toArray } from '@lumino/algorithm';
-
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
 export type IGatorShell = GatorShell;
@@ -71,12 +69,14 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
    */
   get currentWidget(): Widget {
     // TODO: use a focus tracker to return the current widget
-    return toArray(this._main.widgets())[0];
+    return this._main.widgets().next().value;
   }
 
-  widgets(area: IGatorShell.Area): IIterator<Widget> {
+  *widgets(area: IGatorShell.Area): IterableIterator<Widget> {
     if (area === 'top') {
-      return iter(this._top.widgets);
+      for (const w of this._top.widgets) {
+        yield w;
+      }
     }
     return this._main.widgets();
   }
