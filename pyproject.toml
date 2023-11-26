@@ -4,6 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mamba_gator"
+version = "5.2.1"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
@@ -31,7 +32,7 @@ dependencies = [
     "tornado",
     "traitlets",
 ]
-dynamic = ["version", "description", "authors", "urls", "keywords"]
+dynamic = ["description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]
 "test" = [
