@@ -2,7 +2,7 @@ import json
 import os.path as osp
 
 # flake8: noqa
-from ._version import version_info, __version__
+from ._version import __version__
 from .handlers import _load_jupyter_server_extension
 from .navigator.main import MambaNavigator
 

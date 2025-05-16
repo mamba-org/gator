@@ -2,5 +2,3 @@
 #   - modify
 #   - track in version control e.g. be sure to add to .gitignore
 __version__ = VERSION = '5.2.1'
-
-version_info = tuple(__version__.split('.'))

@@ -19,7 +19,7 @@
     "build": "tsc && webpack --mode=production",
     "build:dev": "tsc && webpack",
     "build:prod": "yarn run build",
-    "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.* ../../mamba_gator/nbextension/static/*.*",
+    "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.* ../../mamba_gator/labextension/static/*.*",
     "prepublishOnly": "yarn run build",
     "watch:ts": "tsc -w --listEmittedFiles",
     "watch:webpack": "webpack --watch",
@@ -32,7 +32,7 @@
     "@jupyterlab/theme-light-extension": "^4.0.0",
     "@jupyterlab/ui-components": "^4.0.0",
     "@lumino/widgets": "^2.0.0",
-    "@mamba-org/gator-common": "^3.0.2",
+    "@mamba-org/gator-common": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "whatwg-fetch": "^3.0.0"
