@@ -46,6 +46,9 @@ export interface ICondaEnvState {
   isLoading: boolean;
 }
 
+Dialog;
+Widget;
+
 /** Top level React component for Jupyter Conda Manager */
 export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   constructor(props: ICondaEnvProps) {
@@ -97,8 +100,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
       const response = await showDialog({
         title: 'New Environment',
-        body: new Widget({ node: body }),
-        buttons: [Dialog.cancelButton(), Dialog.okButton()]
+        // body: 'ABCDEF',
+        // // body: new Widget({ node: body }),
+        // buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept) {
         if (nameInput.value.length === 0) {
@@ -155,8 +159,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
       const response = await showDialog({
         title: 'Clone Environment',
-        body: new Widget({ node: body }),
-        buttons: [Dialog.cancelButton(), Dialog.okButton({ caption: 'Clone' })]
+        // body: new Widget({ node: body }),
+        // buttons: [Dialog.cancelButton(), Dialog.okButton({ caption: 'Clone' })]
       });
       if (response.button.accept) {
         if (nameInput.value.length === 0) {
@@ -229,8 +233,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
       const response = await showDialog({
         title: 'Import Environment',
-        body: new Widget({ node: body }),
-        buttons: [Dialog.cancelButton(), Dialog.okButton()]
+        // body: new Widget({ node: body }),
+        // buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept) {
         if (nameInput.value.length === 0) {
@@ -320,14 +324,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       }
       const response = await showDialog({
         title: 'Remove Environment',
-        body: `Are you sure you want to permanently delete environment "${environmentName}" ?`,
-        buttons: [
-          Dialog.cancelButton(),
-          Dialog.okButton({
-            caption: 'Delete',
-            displayType: 'warn'
-          })
-        ]
+        // body: `Are you sure you want to permanently delete environment "${environmentName}" ?`,
+        // buttons: [
+        //   Dialog.cancelButton(),
+        //   Dialog.okButton({
+        //     caption: 'Delete',
+        //     displayType: 'warn'
+        //   })
+        // ]
       });
       if (response.button.accept) {
         toastId = Notification.emit(
