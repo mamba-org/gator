@@ -17,18 +17,22 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
-      - name: Install dependencies
+          python-version: "3.9"
+      - name: Install Python build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine jupyterlab~=3.0 jupyter_packaging~=0.7.9
+          pip install build twine jupyterlab~=3.0 hatchling
+
+      - name: Install frontend dependencies
+        run: |
+          npm install -g yarn
+          yarn install
+
       - name: Build and publish NPM package
         if: ${{ startsWith(github.event.release.tag_name, 'npm') }}
         run: |
           if [[ ${PRE_RELEASE} == "true" ]]; then export TAG="next"; else export TAG="latest"; fi
           echo Publishing ${VERSION} with distribution tag ${TAG}
-          npm install -g yarn
-          yarn install
           # yarn lerna version ${VERSION} --yes --no-git-tag-version
           pushd packages/common
           yarn run publish --access public --tag ${TAG}
@@ -40,14 +44,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PRE_RELEASE: ${{ github.event.release.prerelease }}
           VERSION: ${{ github.event.release.name }}
-      - name: Publish Python package
+      - name: Build and publish Python package to PyPI
         if: ${{ !startsWith(github.event.release.tag_name, 'npm') }}
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          npm install -g yarn
-          yarn install
           yarn build
-          python setup.py sdist bdist_wheel
+          python -m build
           twine upload dist/*
