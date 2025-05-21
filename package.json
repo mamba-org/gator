@@ -1,4 +1,12 @@
 {
+  "name": "mamba-gator",
+  "version": "5.2.1",
+  "description": "Manage your conda environments.",
+  "keywords": [
+        "jupyter",
+        "jupyterlab",
+        "jupyterlab-extension"
+    ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mamba-org/gator.git"
