@@ -38,6 +38,18 @@
     "react-dom": "^18.2.0",
     "whatwg-fetch": "^3.0.0"
   },
+  "jupyterlab": {
+    "sharedPackages": {
+      "react": {
+        "bundled": true,
+        "singleton": true
+      },
+      "react-dom": {
+        "bundled": true,
+        "singleton": true
+      }
+    }
+  },
   "devDependencies": {
     "css-loader": "^5.0.1",
     "file-loader": "~6.0.0",

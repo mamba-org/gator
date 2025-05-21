@@ -32,8 +32,8 @@
     "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
-    "build:lib": "tsc --sourceMap",
-    "build:lib:prod": "tsc",
+    "build:lib": "tsc -b",
+    "build:lib:prod": "tsc -b",
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
@@ -50,7 +50,7 @@
     "stylelint": "jlpm stylelint:check --fix",
     "stylelint:check": "stylelint --cache \"style/**/*.css\"",
     "watch": "run-p watch:src watch:labextension",
-    "watch:src": "tsc -w --sourceMap",
+    "watch:src": "tsc -b -w",
     "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
@@ -66,21 +66,15 @@
     "semver": "^6.0.0||^7.0.0"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^4.0.0",
+    "@jupyterlab/builder": "^4.4.2",
     "@jupyterlab/testutils": "^4.0.0",
-    "@types/react": "^18.2.0",
-    "@types/semver": "^7.3.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@types/semver": "^7.3.1"
   },
   "sideEffects": [
     "style/*"
   ],
   "jupyterlab": {
+    "outputDir": "../../mamba_gator/labextension",
     "extension": true,
     "schemaDir": "schema",
     "discovery": {
@@ -92,8 +86,7 @@
           "conda"
         ]
       }
-    },
-    "outputDir": "../../mamba_gator/labextension"
+    }
   },
   "publishConfig": {
     "access": "public"

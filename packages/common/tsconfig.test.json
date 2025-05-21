@@ -3,7 +3,6 @@
   "compilerOptions": {
     "outDir": "lib",
     "rootDir": "src",
-    "sourceRoot": "./@mamba-org/gator-common/src",
     "types": ["jest"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]

@@ -15,8 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import tornado
 from jupyter_client.kernelspec import KernelSpecManager
-
-from packaging.version import parse, InvalidVersion
+from packaging.version import parse, InvalidVersion, Version
 
 try:
     import nb_conda_kernels
@@ -606,6 +605,22 @@ class EnvManager:
         if self.is_mamba():
             data = await current_loop.run_in_executor(None, process_mamba_repoquery_output, data)
 
+        def _parse_version(version_str):
+            """Handle R-style and year-based versions"""
+            # Convert R package versions like "1.8_4" to "1.8.4"
+            version_str = version_str.replace('_', '.')
+
+            # Handle year-based versions like "2023d" -> "2023.4"
+            if re.match(r'^\d{4}[a-z]$', version_str):
+                letter = version_str[-1]
+                number = ord(letter) - ord('a') + 1
+                version_str = f"{version_str[:-1]}.{number}"
+
+            try:
+                return Version(version_str)
+            except InvalidVersion:
+                return None
+
         def format_packages(data: Dict) -> List:
             packages = []
 
@@ -644,10 +659,9 @@ class EnvManager:
                     entry = normalize_pkg_info(entry)
                     if pkg_entry is None:
                         pkg_entry = entry
+                        version = _parse_version(entry.get("version", ""))
 
-                    try:
-                        version = parse(entry.get("version", ""))
-                    except InvalidVersion:
+                    if version is None:
                         name = entry.get("name")
                         version = entry.get("version")
                         self.log.warning(f"Unable to parse version '{version}' of '{name}'")
