@@ -77,7 +77,7 @@ path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = [
-    "hatch-jupyter-builder>=0.9.1",
+    "hatch-jupyter-builder",
 ]
 ensured-targets = [
     "packages/labextension/lib/index.js",
