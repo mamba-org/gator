@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "hatchling",
+    "hatchling>=1.9.0",
     "jupyterlab<=4.0.0",
     "jupyter-server",
     "setuptools",
