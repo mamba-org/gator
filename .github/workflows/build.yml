@@ -39,7 +39,7 @@ jobs:
         run: |
           conda info
           conda install -n test_gator --file requirements_dev.txt
-          pip install -e .[test]
+          pip install .[test]
           # Check pip dependencies - broken for Python 3.7
           # python -m pip check
         shell: bash -l {0}
@@ -80,7 +80,7 @@ jobs:
         run: |
           conda info
           mamba install -n test_gator --file requirements_dev.txt
-          pip install -e .[test]
+          pip install .[test]
           # Check pip dependencies - broken for Python 3.7
           # python -m pip check
         shell: bash -l {0}
