@@ -1,11 +1,11 @@
 nodejs
-yarn
-nb_conda_kernels >=2.2.0
+yarn <2.0.0
+nb_conda_kernels
 packaging
 jupyter_client
 jupyter-packaging >=0.7.9,<0.8.0
-jupyter_server
-jupyterlab_server
+jupyter_server >=1.0.0,<2.0.0
+jupyterlab_server >=2.0.0,<3.0.0
 requests
 tornado
 traitlets
@@ -14,3 +14,4 @@ flake8
 pytest
 pytest-asyncio
 notebook >=4.3.1,!=6.1.0
+ipython_genutils # TODO: Remove test dependency on this

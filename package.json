@@ -5,6 +5,9 @@
   },
   "author": "Jupyter Development Team",
   "license": "BSD-3-Clause",
+  "engines": {
+    "yarn": "<2.0.0"
+  },
   "bugs": {
     "url": "https://github.com/mamba-org/gator/issues"
   },
