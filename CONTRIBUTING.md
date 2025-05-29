@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Gator! This document will help yo
 
 ### Prerequisites
 
-- Python 3.7, 3.8, or 3.9
+- Python 3.8 or 3.9
 - Node.js >= 14.x
 - Yarn 1.x (or jlpm - JupyterLab's package manager)
 - Conda or Mamba (v1.x) package manager. Mamba v2.x is not currently supported.

@@ -71,7 +71,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           miniforge-version: latest
-          mamba-version: 1.5.6
+          mamba-version: "<2.0.0"
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
@@ -115,10 +115,11 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
       - name: Setup yarn cache
         uses: actions/cache@v4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        id: yarn-cache
         env:
           # Increase this value to reset cache
           CACHE_NUMBER: 5
@@ -136,7 +137,6 @@ jobs:
         with:
           activate-environment: test_gator
           channels: conda-forge
-          conda-remove-defaults: "true"
           python-version: "3.8"
           show-channel-urls: true
           use-only-tar-bz2: true
@@ -181,10 +181,11 @@ jobs:
             ${{ runner.os }}-mamba-3.9
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
       - name: Setup yarn cache
         uses: actions/cache@v4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        id: yarn-cache
         env:
           # Increase this value to reset cache
           CACHE_NUMBER: 5
@@ -202,7 +203,7 @@ jobs:
         with:
           python-version: "3.9"
           miniforge-version: latest
-          mamba-version: 1.5.6
+          mamba-version: "<2.0.0"
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
