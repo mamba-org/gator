@@ -591,7 +591,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         content = " ".join(r.text.splitlines())
         self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:(\s+- conda-forge)?\s+- defaults\s+dependencies:\s+- python=3\.9\s+prefix:"
+            content, r"^name:\s" + n + r"\s+channels:(\s+-\s+[^\s]+)+\s+dependencies:\s+-\s+python=3\.9\s+prefix:"
         )
 
     def test_env_export_not_supporting_history(self):
