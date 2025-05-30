@@ -415,8 +415,6 @@ astroid
         env_names = list(map(lambda env: env["name"], envs["environments"]))
         self.assertIn(n, env_names)
 
-        # Just verify the environment still exists and has packages,
-        # without checking for specific packages
         r = self.conda_api.get(["environments", n])
         self.assertEqual(r.status_code, 200)
         body = r.json()
