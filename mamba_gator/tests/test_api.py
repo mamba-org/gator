@@ -290,7 +290,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
         response = self.wait_for_task(g)
         self.assertEqual(response.status_code, 200)
-        
+
         envs = self.conda_api.envs()
         env_names = list(map(lambda env: env["name"], envs["environments"]))
         self.assertIn(n, env_names)
@@ -319,7 +319,7 @@ astroid
 
         response = self.wait_for_task(g)
         self.assertEqual(response.status_code, 200)
-        
+
         envs = self.conda_api.envs()
         env_names = list(map(lambda env: env["name"], envs["environments"]))
         self.assertIn(n, env_names)
@@ -415,7 +415,7 @@ astroid
         env_names = list(map(lambda env: env["name"], envs["environments"]))
         self.assertIn(n, env_names)
 
-        # Just verify the environment still exists and has packages, 
+        # Just verify the environment still exists and has packages,
         # without checking for specific packages
         r = self.conda_api.get(["environments", n])
         self.assertEqual(r.status_code, 200)
@@ -464,7 +464,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         r = self.wait_for_task(self.conda_api.delete, ["environments", n])
         self.assertEqual(r.status_code, 200)
-        
+
         # Remove the environment from tracking list since we deleted it manually
         if n in self.env_names:
             self.env_names.remove(n)
