@@ -492,6 +492,14 @@ class EnvManager:
                 path = get_env_path(entry["spec"])
                 if path:
                     whitelist_env.add(path)
+            
+            # Fallback: match environment names against whitelist patterns
+            if not whitelist_env and self._kernel_spec_manager.whitelist:
+                all_env_dirs = [info["root_prefix"]] + info.get("envs", [])
+                for env_dir in all_env_dirs:
+                    env_name = os.path.basename(env_dir) if env_dir != info["root_prefix"] else "base"
+                    if f"conda-env-{env_name}-py" in self._kernel_spec_manager.whitelist:
+                        whitelist_env.add(env_dir)
 
         def get_info(env):
             base_dir = os.path.dirname(env)
@@ -504,12 +512,15 @@ class EnvManager:
                 "is_default": env == default_env,
             }
 
-        envs_list = [root_env]
+        envs_list = []
+        
+        # Add root environment if not whitelisting, or if whitelisting found valid matches, or if root is explicitly whitelisted
+        if not whitelist or whitelist_env or root_env["dir"] in whitelist_env:
+            envs_list.append(root_env)
+            
         for env in info["envs"]:
             env_info = get_info(env)
-            if env_info is not None and (
-                len(whitelist_env) == 0 or env_info["dir"] in whitelist_env
-            ):
+            if env_info is not None and (not whitelist or env_info["dir"] in whitelist_env):
                 envs_list.append(env_info)
 
         return {"environments": envs_list}
