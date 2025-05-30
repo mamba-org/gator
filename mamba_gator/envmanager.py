@@ -356,6 +356,15 @@ class EnvManager:
 
         rcode, output = ans
         if rcode > 0:
+            # Check if this is just a "environment not found" error, which should be treated as success
+            try:
+                error_data = self._clean_conda_json(output)
+                if isinstance(error_data, dict) and error_data.get("exception_name") == "EnvironmentLocationNotFound":
+                    # Environment doesn't exist, treat as successful deletion
+                    return {"success": True, "message": f"Environment '{env}' was already removed or did not exist"}
+            except (json.JSONDecodeError, KeyError):
+                pass
+            
             return {"error": output}
 
         return self._clean_conda_json(output)

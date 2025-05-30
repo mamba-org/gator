@@ -462,6 +462,10 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         r = self.wait_for_task(self.conda_api.delete, ["environments", n])
         self.assertEqual(r.status_code, 200)
+        
+        # Remove the environment from tracking list since we deleted it manually
+        if n in self.env_names:
+            self.env_names.remove(n)
 
         # Remove the environment from tracking list since we deleted it manually
         if n in self.env_names:
