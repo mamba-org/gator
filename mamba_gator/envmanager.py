@@ -128,11 +128,6 @@ class EnvManager:
         # try to remove bad lines
         lines = [line for line in lines if re.match(JSONISH_RE, line)]
 
-        # Check if we have any lines left after filtering
-        if not lines or not "\n".join(lines).strip():
-            self.log.warning("No valid JSON content found after filtering")
-            return {}
-
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
@@ -323,7 +318,8 @@ class EnvManager:
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+        
+        return self._clean_conda_json(output)
 
     async def create_env(self, env: str, *args) -> Dict[str, str]:
         """Create a environment from a list of packages.
@@ -342,7 +338,8 @@ class EnvManager:
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+        
+        return self._clean_conda_json(output)
 
     async def delete_env(self, env: str) -> Dict[str, str]:
         """Delete an environment.
@@ -360,7 +357,8 @@ class EnvManager:
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+
+        return self._clean_conda_json(output)
 
     async def export_env(
         self, env: str, from_history: bool = False
@@ -408,15 +406,17 @@ class EnvManager:
             f.write(file_content)
 
         ans = await self._execute(
-            self.manager, "env", "create", "-q", "--json", "-n", env, "--file", name
+            self.manager, "env", "create", "-y", "-q", "--json", "-n", env, "--file", name
         )
+
         # Remove temporary file
         os.unlink(name)
 
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+        
+        return self._clean_conda_json(output)
 
     async def info(self) -> Dict[str, Any]:
         """Returns `conda info --json` execution.
@@ -427,7 +427,9 @@ class EnvManager:
         ans = await self._execute(self.manager, "info", "--json")
         rcode, output = ans
         info = self._clean_conda_json(output)
-        if rcode == 0:
+        
+        conda_version = info.get("conda_version")
+        if conda_version is not None:
             EnvManager._conda_version = tuple(
                 map(
                     lambda part: int(part),
@@ -507,20 +509,41 @@ class EnvManager:
             file_name (str): optional, Original filename
 
         Returns:
-            Dict[str, str]: Create command output
+            Dict[str, str]: Update command output
         """
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
+        # Get just the file extension for the temporary file
+        ext = Path(file_name).suffix
+        if not ext:
+            ext = '.yml'  # Default to .yml if no extension
+
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=ext) as f:
             name = f.name
             f.write(file_content)
 
-        ans = await self._execute(
-            self.manager, "env", "update", "-q", "--json", "-n", env, "-f", name
-        )
+        # Determine the command based on file type
+        if file_name.endswith('.txt'):
+            # For .txt files (explicit package lists), use conda install
+            self.log.debug(f"Updating environment {env} with txt file using conda install")
+            ans = await self._execute(
+                self.manager, "install", "-y", "-q", "--json", "-n", env, "--file", name
+            )
+        else:
+            # For .yml files (environment definitions), use conda env update
+            self.log.debug(f"Updating environment {env} with yml file using conda env update")
+            ans = await self._execute(
+                self.manager, "env", "update", "-q", "--json", "-n", env, "-f", name
+            )
+
+        # Remove temporary file
+        os.unlink(name)
 
         rcode, output = ans
+
         if rcode > 0:
+            self.log.error(f"Error updating environment {env}: {output}")
             return {"error": output}
-        return output
+
+        return self._clean_conda_json(output)
 
     async def env_packages(self, env: str) -> Dict[str, List[str]]:
         """List environment package.
