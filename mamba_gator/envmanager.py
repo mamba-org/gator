@@ -426,6 +426,13 @@ class EnvManager:
         """
         ans = await self._execute(self.manager, "info", "--json")
         rcode, output = ans
+        
+        if rcode != 0:
+            error_data = self._clean_conda_json(output)
+            if isinstance(error_data, dict) and "message" in error_data:
+                return {"error": True, "message": error_data["message"]}
+            return {"error": True, "message": output}
+            
         info = self._clean_conda_json(output)
         
         conda_version = info.get("conda_version")
