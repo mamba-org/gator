@@ -70,8 +70,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
-          miniforge-version: latest
-          mamba-version: "<2.0.0"
+          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
@@ -202,8 +201,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.9"
-          miniforge-version: latest
-          mamba-version: "<2.0.0"
+          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
