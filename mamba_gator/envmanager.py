@@ -581,7 +581,7 @@ class EnvManager:
         Returns:
             {"packages": List[package]}
         """
-        ans = await self._execute(self.manager, "list", "--no-pip", "--json", "-n", env)
+        ans = await self._execute(self.manager, "list", "--json", "-n", env)
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -603,7 +603,52 @@ class EnvManager:
             # error info
             return data
 
-        return {"packages": [normalize_pkg_info(package) for package in data]}
+        # Process packages and identify development mode packages
+        packages = []
+        for package in data:
+            normalized_pkg = normalize_pkg_info(package)
+            
+            # Check if this is a pip package installed in development mode
+            # Development mode packages have 'channel': '<develop>' in pip list output
+            # or are pip packages with editable installs
+            if normalized_pkg.get("channel") == "<develop>":
+                # Already marked as development mode by conda/pip
+                pass
+            elif normalized_pkg.get("channel") == "pypi":
+                # This is a pip package - check if it's in development mode
+                # We need to check if it's installed as editable
+                envs = await self.list_envs()
+                env_info = None
+                for e in envs["environments"]:
+                    if e["name"] == env:
+                        env_info = e
+                        break
+                
+                if env_info:
+                    if sys.platform == "win32":
+                        python_cmd = os.path.join(env_info["dir"], "python")
+                    else:
+                        python_cmd = os.path.join(env_info["dir"], "bin", "python")
+                    
+                    # Check if this package is installed in editable mode
+                    try:
+                        ans = await self._execute(
+                            python_cmd, "-m", "pip", "list", "--editable", "--format=json"
+                        )
+                        pip_rcode, pip_output = ans
+                        if pip_rcode == 0:
+                            editable_packages = json.loads(pip_output)
+                            for editable_pkg in editable_packages:
+                                if editable_pkg["name"].lower() == normalized_pkg["name"].lower():
+                                    normalized_pkg["channel"] = "<develop>"
+                                    break
+                    except (json.JSONDecodeError, Exception):
+                        # If we can't determine editable status, leave as is
+                        pass
+            
+            packages.append(normalized_pkg)
+
+        return {"packages": packages}
 
     async def pkg_depends(self, pkg: str) -> Dict[str, List[str]]:
         """List environment packages dependencies.
