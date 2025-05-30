@@ -90,7 +90,7 @@ build-function = "hatch_jupyter_builder.npm_builder"
 path = "."
 build_cmd = "build:prod"
 npm = [
-    "jlpm",
+    "yarn",
 ]
 
 [tool.tbump]
