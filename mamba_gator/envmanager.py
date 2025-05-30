@@ -117,13 +117,21 @@ class EnvManager:
         """
         lines = output.splitlines()
 
+        if not output.strip():
+            return {}
+
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.warn("JSON parse fail:\n{!s}".format(err))
+            self.log.warning("JSON parse fail:\n{!s}".format(err))
 
         # try to remove bad lines
         lines = [line for line in lines if re.match(JSONISH_RE, line)]
+
+        # Check if we have any lines left after filtering
+        if not lines or not "\n".join(lines).strip():
+            self.log.warning("No valid JSON content found after filtering")
+            return {}
 
         try:
             return json.loads("\n".join(lines))
