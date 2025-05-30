@@ -1483,13 +1483,13 @@ class TestPackagesHandler(JupyterCondaAPITest):
                                 "name": "numpydoc",
                                 "platform": None,
                                 "version": ["0.8.0", "0.9.0", "0.9.1"],
-                                "summary": "Sphinx extension to support docstrings in Numpy format",
-                                "home": "https://github.com/numpy/numpydoc",
+                                "summary": "",
+                                "home": "",
                                 "keywords": [],
                                 "tags": [],
                             },
                         ],
-                        "with_description": True,
+                        "with_description": False,
                     }
                     self.assertEqual(body, expected)
 
