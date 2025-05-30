@@ -28,19 +28,19 @@
     "url": "https://github.com/mamba-org/gator.git"
   },
   "scripts": {
-    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
+    "build": "yarn run build:lib && yarn run build:labextension:dev",
     "build:dev": "tsc",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
-    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
-    "clean": "jlpm run clean:lib && jlpm run clean:labextension",
+    "build:prod": "yarn run build:lib && yarn run build:labextension",
+    "clean": "yarn run clean:lib && yarn run clean:labextension",
     "clean:dev": "rimraf lib tsconfig.tsbuildinfo",
     "clean:labextension": "rimraf ../../mamba_gator/labextension",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "install:extension": "jupyter labextension develop --overwrite .",
     "lab:link": "jupyter labextension link . --no-build",
-    "prepare": "jlpm run clean && jlpm run build:prod",
+    "prepare": "yarn run clean && yarn run build:prod",
     "watch": "run-p watch:src watch:labextension",
     "watch:labextension": "jupyter labextension watch .",
     "watch:src": "tsc -w"
@@ -54,12 +54,12 @@
     "@jupyterlab/settingregistry": "^3.0.0",
     "@lumino/coreutils": "^1.5.3",
     "@lumino/widgets": "^1.16.1",
-    "@mamba-org/gator-common": "^3.0.2",
+    "@mamba-org/gator-common": "^3.1.0",
     "jupyterlab_toastify": "^4.1.3",
     "semver": "^6.0.0||^7.0.0"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^3.0.1",
+    "@jupyterlab/builder": "^4.0.0",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/react": "^17.0.0",
     "@types/semver": "^7.3.1",
