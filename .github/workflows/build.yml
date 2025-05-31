@@ -149,13 +149,17 @@ jobs:
           python -m pip install -e .
         shell: bash -l {0}
 
+      - name: Install Playwright browsers
+        if: matrix.os != 'windows-latest'
+        run: npx playwright install --with-deps chromium
+        shell: bash -l {0}
+
       - name: Test the extension
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
           python -m pytest mamba_gator
           yarn run test
-
           jupyter serverextension list
           jupyter labextension list
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
@@ -215,6 +219,10 @@ jobs:
           python -m pip install -e .
           # Check pip dependencies
           pip check
+        shell: bash -l {0}
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
         shell: bash -l {0}
 
       - name: Test the extension
