@@ -216,7 +216,10 @@ jobs:
           mamba install -n test_gator --file requirements_dev.txt
           mamba install -n test_gator coveralls jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
-          python -m pip install -e .
+
+          # TODO: This will be replaced with pip install -e . with Hatch
+          python setup.py develop
+
           # Check pip dependencies
           pip check
         shell: bash -l {0}
