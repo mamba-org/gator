@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@v4
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 4
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -32,6 +32,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           activate-environment: test_gator
+          channels: conda-forge
           show-channel-urls: true
           use-only-tar-bz2: true
       - name: Install dependencies
@@ -59,7 +60,7 @@ jobs:
         uses: actions/cache@v4
         env:
           # Increase this value to reset cache if requirements_dev.txt has not changed
-          CACHE_NUMBER: 2
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -104,7 +105,7 @@ jobs:
         uses: actions/cache@v4
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 3
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -144,7 +145,6 @@ jobs:
         run: |
           conda info
           conda install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
           python -m pip install -e .
         shell: bash -l {0}
@@ -175,7 +175,7 @@ jobs:
         uses: actions/cache@v4
         env:
           # Increase this value to reset cache if requirements_dev.txt has not changed
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -214,7 +214,6 @@ jobs:
         run: |
           conda info
           mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator coveralls jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
 
           # TODO: This will be replaced with pip install -e . with Hatch
@@ -248,20 +247,3 @@ jobs:
           jupyter labextension list 2>&1 | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
-
-      # - name: Install Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: 2.6
-      # - name: Upload coverage
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     conda activate test_gator
-      #     gem install coveralls-lcov
-      #     pushd packages/common/
-      #     coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
-      #     popd
-      #     python -m pip install --upgrade coveralls
-      #     python -m coveralls --merge=common-jscoverage.json
-      #   shell: bash -l {0}
