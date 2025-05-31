@@ -2,6 +2,7 @@ import asyncio
 import json
 import random
 import os
+import shutil
 import sys
 import unittest
 import unittest.mock as mock
@@ -664,18 +665,18 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         self.wait_for_task(self.mk_env, n)
 
         pkg_name = "banana"
-        with tempfile.TemporaryDirectory() as folder:
-            os.mkdir(os.path.join(folder, pkg_name))
-            with open(os.path.join(folder, pkg_name, "__init__.py"), "w+") as f:
+        with tempfile.TemporaryDirectory() as temp_folder:
+            os.mkdir(os.path.join(temp_folder, pkg_name))
+            with open(os.path.join(temp_folder, pkg_name, "__init__.py"), "w+") as f:
                 f.write("")
-            with open(os.path.join(folder, "setup.py"), "w+") as f:
+            with open(os.path.join(temp_folder, "setup.py"), "w+") as f:
                 f.write("from setuptools import setup\n")
                 f.write("setup(name='{}')\n".format(pkg_name))
 
             self.wait_for_task(
                 self.conda_api.post,
                 ["environments", n, "packages"],
-                body={"packages": [folder]},
+                body={"packages": [temp_folder]},
                 params={"develop": 1},
             )
 
@@ -696,31 +697,37 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
 
         pkg_name = generate_name()[1:]
         folder = os.path.join(self.notebook.contents_manager.root_dir, pkg_name)
-        os.mkdir(folder)
-        os.mkdir(os.path.join(folder, pkg_name))
-        with open(os.path.join(folder, pkg_name, "__init__.py"), "w+") as f:
-            f.write("")
-        with open(os.path.join(folder, "setup.py"), "w+") as f:
-            f.write("from setuptools import setup\n")
-            f.write("setup(name='{}')\n".format(pkg_name))
+        
+        try:
+            os.mkdir(folder)
+            os.mkdir(os.path.join(folder, pkg_name))
+            with open(os.path.join(folder, pkg_name, "__init__.py"), "w+") as f:
+                f.write("")
+            with open(os.path.join(folder, "setup.py"), "w+") as f:
+                f.write("from setuptools import setup\n")
+                f.write("setup(name='{}')\n".format(pkg_name))
 
-        self.wait_for_task(
-            self.conda_api.post,
-            ["environments", n, "packages"],
-            body={"packages": [pkg_name]},
-            params={"develop": 1},
-        )
+            self.wait_for_task(
+                self.conda_api.post,
+                ["environments", n, "packages"],
+                body={"packages": [pkg_name]},
+                params={"develop": 1},
+            )
 
-        r = self.conda_api.get(["environments", n])
-        body = r.json()
+            r = self.conda_api.get(["environments", n])
+            body = r.json()
 
-        v = None
-        for p in body["packages"]:
-            if p["name"] == pkg_name:
-                v = p
-                break
-        self.assertEqual(v["channel"], "<develop>")
-        self.assertEqual(v["platform"], "pypi")
+            v = None
+            for p in body["packages"]:
+                if p["name"] == pkg_name:
+                    v = p
+                    break
+            self.assertEqual(v["channel"], "<develop>")
+            self.assertEqual(v["platform"], "pypi")
+        finally:
+            # Clean up the package directory that was created in the notebook root
+            if os.path.exists(folder):
+                shutil.rmtree(folder)
 
     def test_pkg_update(self):
         n = generate_name()

@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import jupyter_core.paths
 from ipython_genutils.tempdir import TemporaryDirectory
+from mamba_gator.envmanager import PATH_SEP
 from mamba_gator.handlers import NS
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
@@ -207,3 +208,9 @@ class ServerTest(ServerTestBase):
                 return response
 
         raise RuntimeError("Request {} timed out.".format(endpoint))
+
+# Disable Windows file association dialogs during testing
+# This prevents Windows from showing "How do you want to open this file?" dialogs
+# when conda operations encounter files with unknown extensions during testing
+if sys.platform == "win32":
+    os.environ["PATHEXT"] = ""

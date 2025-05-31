@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from functools import partial, lru_cache
@@ -151,8 +152,16 @@ class EnvManager:
         self.log.debug("command: {!s}".format(" ".join(cmdline)))
 
         current_loop = tornado.ioloop.IOLoop.current()
+        
+        # Set environment variables to suppress Windows file association dialogs
+        env = os.environ.copy()
+        subprocess_kwargs = {"stdout": PIPE, "stderr": PIPE, "env": env}
+        
+        if sys.platform == "win32":
+            env["PATHEXT"] = env.get("PATHEXT", "") + ";.env"  # Treat .env as executable to avoid dialog
+        
         process = await current_loop.run_in_executor(
-            None, partial(Popen, cmdline, stdout=PIPE, stderr=PIPE)
+            None, partial(Popen, cmdline, **subprocess_kwargs)
         )
         try:
             output, error = await current_loop.run_in_executor(
@@ -1039,38 +1048,68 @@ class EnvManager:
                 env_rootpath = e
                 break
 
+        if not env_rootpath:
+            return {"error": f"Environment {env} not found"}
+
+        # Ensure pip is installed in the environment
+        pip_check = await self._execute(self.manager, "list", "-n", env, "pip", "--json")
+        pip_rcode, pip_output = pip_check
+        
+        if pip_rcode != 0 or not pip_output.strip() or pip_output.strip() == "[]":
+            pip_install = await self.install_packages(env, ["pip"])
+            if "error" in pip_install:
+                return {"error": f"Failed to install pip in environment {env}: {pip_install['error']}"}
+
         result = []
-        if env_rootpath:
-            if sys.platform == "win32":
-                python_cmd = os.path.join(env_rootpath["dir"], "python")
-            else:
-                python_cmd = os.path.join(env_rootpath["dir"], "bin", "python")
+        
+        # Get the Python executable path using pathlib
+        env_path = Path(env_rootpath["dir"])
+        if sys.platform == "win32":
+            python_cmd = env_path / "python.exe"
+        else:
+            python_cmd = env_path / "bin" / "python"
 
-            for path in packages:
-                realpath = os.path.realpath(os.path.expanduser(path))
-                if not os.path.exists(realpath):
-                    # Convert jupyterlab path to local path if the path does not exists
-                    realpath = os.path.realpath(
-                        os.path.join(self._root_dir, url2path(path))
-                    )
-                    if not os.path.exists(realpath):
-                        return {"error": "Unable to find path {}.".format(path)}
+        if not python_cmd.exists():
+            return {"error": f"Python executable not found at {python_cmd}"}
 
-                ans = await self._execute(
-                    python_cmd,
-                    "-m",
-                    "pip",
-                    "install",
-                    "--progress-bar",
-                    "off",
-                    "-e",
-                    realpath,
-                )
-                rcode, output = ans
-                if rcode > 0:
-                    return {"error": output}
-                feedback = {"path": path, "output": output}
-                result.append(feedback)
+        root_dir = Path(self._root_dir)
+        
+        for path in packages:
+            # Try as a local filesystem path first
+            pkg_path = Path(os.path.expanduser(path))
+            if not pkg_path.is_absolute():
+                pkg_path = pkg_path.resolve()
+                
+            if not pkg_path.exists():
+                # Try as a JupyterLab path
+                jupyterlab_path = url2path(path)
+                pkg_path = root_dir / jupyterlab_path
+                
+                if not pkg_path.exists():
+                    return {"error": f"Unable to find package path: {path}"}
+
+            # Verify the package structure
+            if not ((pkg_path / "setup.py").exists() or (pkg_path / "pyproject.toml").exists()):
+                return {"error": f"Invalid package structure at {path}. Missing setup.py or pyproject.toml"}
+
+            # Run pip install in editable mode
+            ans = await self._execute(
+                str(python_cmd),
+                "-m",
+                "pip",
+                "install",
+                "--progress-bar",
+                "off",
+                "-e",
+                str(pkg_path),
+            )
+            rcode, output = ans
+            
+            if rcode > 0:
+                return {"error": f"Failed to install {path} in development mode: {output}"}
+            
+            result.append({"path": str(pkg_path), "output": output})
+
         return {"packages": result}
 
     async def update_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
