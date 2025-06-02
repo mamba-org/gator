@@ -40,8 +40,6 @@ jobs:
           conda info
           conda install -n test_gator --file requirements_dev.txt
           pip install .[test]
-          # Check pip dependencies - broken for Python 3.7
-          # python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
