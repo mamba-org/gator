@@ -214,6 +214,7 @@ jobs:
         run: |
           conda info
           mamba install -n test_gator --file requirements_dev.txt
+          pip install hatch
           yarn install
 
           pip install -e .
