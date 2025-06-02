@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
     branches: "*"
 
@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.9"]
+        python-version: ["3.8", "3.9"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 3
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -28,12 +28,11 @@ jobs:
             ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
             ${{ runner.os }}-conda-${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python-version }}
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: test_gator
-          auto-update-conda: true
-          channels: conda-forge
           python-version: ${{ matrix.python-version }}
+          activate-environment: test_gator
+          channels: conda-forge
           show-channel-urls: true
           use-only-tar-bz2: true
       - name: Install dependencies
@@ -41,8 +40,7 @@ jobs:
           conda info
           conda install -n test_gator --file requirements_dev.txt
           python setup.py develop --skip-npm
-          # Check pip dependencies - broken for Python 3.7
-          # python -m pip check
+          python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -54,15 +52,15 @@ jobs:
     strategy:
       matrix:
         # Skip 3.9 as it is used for integration tests
-        python-version: ["3.7", "3.8"]
+        python-version: ["3.8"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           # Increase this value to reset cache if requirements_dev.txt has not changed
-          CACHE_NUMBER: 1
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
@@ -70,13 +68,11 @@ jobs:
             ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
             ${{ runner.os }}-mamba-${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python-version }}
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: test_gator
-          auto-update-conda: true
-          channels: conda-forge
-          mamba-version: "*"
           python-version: ${{ matrix.python-version }}
+          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
+          activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
       - name: Install dependencies
@@ -84,15 +80,14 @@ jobs:
           conda info
           mamba install -n test_gator --file requirements_dev.txt
           python setup.py develop --skip-npm
-          # Check pip dependencies - broken for Python 3.7
-          # python -m pip check
+          python -m pip check
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-all-os:
-    name: Test Conda Python 3.7 on ${{ matrix.os }}
+    name: Test Conda Python 3.8 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
@@ -104,29 +99,30 @@ jobs:
           - "windows-latest"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 2
+          CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.7-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
-            ${{ matrix.os }}-conda-3.7
+            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.8
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
       - name: Setup yarn cache
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        uses: actions/cache@v4
+        id: yarn-cache
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 4
+          CACHE_NUMBER: 5
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -136,13 +132,12 @@ jobs:
             ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-yarn
 
-      - name: Setup Python 3.7
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Setup Python 3.8
+        uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: test_gator
-          miniconda-version: "latest"
           channels: conda-forge
-          python-version: "3.7"
+          python-version: "3.8"
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -150,9 +145,13 @@ jobs:
         run: |
           conda info
           conda install -n test_gator --file requirements_dev.txt
-          conda install -n test_gator jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
           python -m pip install -e .
+        shell: bash -l {0}
+
+      - name: Install Playwright browsers
+        if: matrix.os != 'windows-latest'
+        run: npx playwright install --with-deps chromium
         shell: bash -l {0}
 
       - name: Test the extension
@@ -161,7 +160,6 @@ jobs:
         run: |
           python -m pytest mamba_gator
           yarn run test
-
           jupyter serverextension list
           jupyter labextension list
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
@@ -172,9 +170,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           # Increase this value to reset cache if requirements_dev.txt has not changed
           CACHE_NUMBER: 0
@@ -186,13 +184,14 @@ jobs:
             ${{ runner.os }}-mamba-3.9
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
       - name: Setup yarn cache
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        uses: actions/cache@v4
+        id: yarn-cache
         env:
           # Increase this value to reset cache
-          CACHE_NUMBER: 4
+          CACHE_NUMBER: 5
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -203,13 +202,11 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Setup Python 3.9
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: test_gator
-          auto-update-conda: true
-          channels: conda-forge
-          mamba-version: "*"
           python-version: "3.9"
+          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
+          activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -217,11 +214,17 @@ jobs:
         run: |
           conda info
           mamba install -n test_gator --file requirements_dev.txt
-          mamba install -n test_gator coveralls jupyterlab=3 "nbclassic!=0.3.3"
           yarn install
-          python -m pip install -e .
+
+          # TODO: This will be replaced with pip install -e . with Hatch
+          python setup.py develop
+
           # Check pip dependencies
           pip check
+        shell: bash -l {0}
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
         shell: bash -l {0}
 
       - name: Test the extension
@@ -244,20 +247,3 @@ jobs:
           jupyter labextension list 2>&1 | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
-
-      # - name: Install Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: 2.6
-      # - name: Upload coverage
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     conda activate test_gator
-      #     gem install coveralls-lcov
-      #     pushd packages/common/
-      #     coveralls-lcov -v -n coverage/lcov.info > ../../common-jscoverage.json
-      #     popd
-      #     python -m pip install --upgrade coveralls
-      #     python -m coveralls --merge=common-jscoverage.json
-      #   shell: bash -l {0}

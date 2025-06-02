@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from functools import partial, lru_cache
@@ -117,10 +118,13 @@ class EnvManager:
         """
         lines = output.splitlines()
 
+        if not output.strip():
+            return {}
+
         try:
             return json.loads("\n".join(lines))
         except (ValueError, json.JSONDecodeError) as err:
-            self.log.warn("JSON parse fail:\n{!s}".format(err))
+            self.log.warning("JSON parse fail:\n{!s}".format(err))
 
         # try to remove bad lines
         lines = [line for line in lines if re.match(JSONISH_RE, line)]
@@ -148,8 +152,16 @@ class EnvManager:
         self.log.debug("command: {!s}".format(" ".join(cmdline)))
 
         current_loop = tornado.ioloop.IOLoop.current()
+        
+        # Set environment variables to suppress Windows file association dialogs
+        env = os.environ.copy()
+        subprocess_kwargs = {"stdout": PIPE, "stderr": PIPE, "env": env}
+        
+        if sys.platform == "win32":
+            env["PATHEXT"] = env.get("PATHEXT", "") + ";.env"  # Treat .env as executable to avoid dialog
+        
         process = await current_loop.run_in_executor(
-            None, partial(Popen, cmdline, stdout=PIPE, stderr=PIPE)
+            None, partial(Popen, cmdline, **subprocess_kwargs)
         )
         try:
             output, error = await current_loop.run_in_executor(
@@ -315,7 +327,8 @@ class EnvManager:
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+        
+        return self._clean_conda_json(output)
 
     async def create_env(self, env: str, *args) -> Dict[str, str]:
         """Create a environment from a list of packages.
@@ -334,7 +347,8 @@ class EnvManager:
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+        
+        return self._clean_conda_json(output)
 
     async def delete_env(self, env: str) -> Dict[str, str]:
         """Delete an environment.
@@ -351,8 +365,18 @@ class EnvManager:
 
         rcode, output = ans
         if rcode > 0:
+            # Check if this is just a "environment not found" error, which should be treated as success
+            try:
+                error_data = self._clean_conda_json(output)
+                if isinstance(error_data, dict) and error_data.get("exception_name") == "EnvironmentLocationNotFound":
+                    # Environment doesn't exist, treat as successful deletion
+                    return {"success": True, "message": f"Environment '{env}' was already removed or did not exist"}
+            except (json.JSONDecodeError, KeyError):
+                pass
+            
             return {"error": output}
-        return output
+
+        return self._clean_conda_json(output)
 
     async def export_env(
         self, env: str, from_history: bool = False
@@ -400,15 +424,17 @@ class EnvManager:
             f.write(file_content)
 
         ans = await self._execute(
-            self.manager, "env", "create", "-q", "--json", "-n", env, "--file", name
+            self.manager, "env", "create", "-y", "-q", "--json", "-n", env, "--file", name
         )
+
         # Remove temporary file
         os.unlink(name)
 
         rcode, output = ans
         if rcode > 0:
             return {"error": output}
-        return output
+        
+        return self._clean_conda_json(output)
 
     async def info(self) -> Dict[str, Any]:
         """Returns `conda info --json` execution.
@@ -418,8 +444,17 @@ class EnvManager:
         """
         ans = await self._execute(self.manager, "info", "--json")
         rcode, output = ans
+        
+        if rcode != 0:
+            error_data = self._clean_conda_json(output)
+            if isinstance(error_data, dict) and "message" in error_data:
+                return {"error": True, "message": error_data["message"]}
+            return {"error": True, "message": output}
+            
         info = self._clean_conda_json(output)
-        if rcode == 0:
+        
+        conda_version = info.get("conda_version")
+        if conda_version is not None:
             EnvManager._conda_version = tuple(
                 map(
                     lambda part: int(part),
@@ -466,6 +501,14 @@ class EnvManager:
                 path = get_env_path(entry["spec"])
                 if path:
                     whitelist_env.add(path)
+            
+            # Fallback: match environment names against whitelist patterns
+            if not whitelist_env and self._kernel_spec_manager.whitelist:
+                all_env_dirs = [info["root_prefix"]] + info.get("envs", [])
+                for env_dir in all_env_dirs:
+                    env_name = os.path.basename(env_dir) if env_dir != info["root_prefix"] else "base"
+                    if f"conda-env-{env_name}-py" in self._kernel_spec_manager.whitelist:
+                        whitelist_env.add(env_dir)
 
         def get_info(env):
             base_dir = os.path.dirname(env)
@@ -478,12 +521,15 @@ class EnvManager:
                 "is_default": env == default_env,
             }
 
-        envs_list = [root_env]
+        envs_list = []
+        
+        # Add root environment if not whitelisting, or if whitelisting found valid matches, or if root is explicitly whitelisted
+        if not whitelist or whitelist_env or root_env["dir"] in whitelist_env:
+            envs_list.append(root_env)
+            
         for env in info["envs"]:
             env_info = get_info(env)
-            if env_info is not None and (
-                len(whitelist_env) == 0 or env_info["dir"] in whitelist_env
-            ):
+            if env_info is not None and (not whitelist or env_info["dir"] in whitelist_env):
                 envs_list.append(env_info)
 
         return {"environments": envs_list}
@@ -499,20 +545,41 @@ class EnvManager:
             file_name (str): optional, Original filename
 
         Returns:
-            Dict[str, str]: Create command output
+            Dict[str, str]: Update command output
         """
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=file_name) as f:
+        # Get just the file extension for the temporary file
+        ext = Path(file_name).suffix
+        if not ext:
+            ext = '.yml'  # Default to .yml if no extension
+
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=ext) as f:
             name = f.name
             f.write(file_content)
 
-        ans = await self._execute(
-            self.manager, "env", "update", "-q", "--json", "-n", env, "-f", name
-        )
+        # Determine the command based on file type
+        if file_name.endswith('.txt'):
+            # For .txt files (explicit package lists), use conda install
+            self.log.debug(f"Updating environment {env} with txt file using conda install")
+            ans = await self._execute(
+                self.manager, "install", "-y", "-q", "--json", "-n", env, "--file", name
+            )
+        else:
+            # For .yml files (environment definitions), use conda env update
+            self.log.debug(f"Updating environment {env} with yml file using conda env update")
+            ans = await self._execute(
+                self.manager, "env", "update", "-q", "--json", "-n", env, "-f", name
+            )
+
+        # Remove temporary file
+        os.unlink(name)
 
         rcode, output = ans
+
         if rcode > 0:
+            self.log.error(f"Error updating environment {env}: {output}")
             return {"error": output}
-        return output
+
+        return self._clean_conda_json(output)
 
     async def env_packages(self, env: str) -> Dict[str, List[str]]:
         """List environment package.
@@ -523,7 +590,7 @@ class EnvManager:
         Returns:
             {"packages": List[package]}
         """
-        ans = await self._execute(self.manager, "list", "--no-pip", "--json", "-n", env)
+        ans = await self._execute(self.manager, "list", "--json", "-n", env)
         _, output = ans
         data = self._clean_conda_json(output)
 
@@ -545,7 +612,52 @@ class EnvManager:
             # error info
             return data
 
-        return {"packages": [normalize_pkg_info(package) for package in data]}
+        # Process packages and identify development mode packages
+        packages = []
+        for package in data:
+            normalized_pkg = normalize_pkg_info(package)
+            
+            # Check if this is a pip package installed in development mode
+            # Development mode packages have 'channel': '<develop>' in pip list output
+            # or are pip packages with editable installs
+            if normalized_pkg.get("channel") == "<develop>":
+                # Already marked as development mode by conda/pip
+                pass
+            elif normalized_pkg.get("channel") == "pypi":
+                # This is a pip package - check if it's in development mode
+                # We need to check if it's installed as editable
+                envs = await self.list_envs()
+                env_info = None
+                for e in envs["environments"]:
+                    if e["name"] == env:
+                        env_info = e
+                        break
+                
+                if env_info:
+                    if sys.platform == "win32":
+                        python_cmd = os.path.join(env_info["dir"], "python")
+                    else:
+                        python_cmd = os.path.join(env_info["dir"], "bin", "python")
+                    
+                    # Check if this package is installed in editable mode
+                    try:
+                        ans = await self._execute(
+                            python_cmd, "-m", "pip", "list", "--editable", "--format=json"
+                        )
+                        pip_rcode, pip_output = ans
+                        if pip_rcode == 0:
+                            editable_packages = json.loads(pip_output)
+                            for editable_pkg in editable_packages:
+                                if editable_pkg["name"].lower() == normalized_pkg["name"].lower():
+                                    normalized_pkg["channel"] = "<develop>"
+                                    break
+                    except (json.JSONDecodeError, Exception):
+                        # If we can't determine editable status, leave as is
+                        pass
+            
+            packages.append(normalized_pkg)
+
+        return {"packages": packages}
 
     async def pkg_depends(self, pkg: str) -> Dict[str, List[str]]:
         """List environment packages dependencies.
@@ -936,38 +1048,68 @@ class EnvManager:
                 env_rootpath = e
                 break
 
+        if not env_rootpath:
+            return {"error": f"Environment {env} not found"}
+
+        # Ensure pip is installed in the environment
+        pip_check = await self._execute(self.manager, "list", "-n", env, "pip", "--json")
+        pip_rcode, pip_output = pip_check
+        
+        if pip_rcode != 0 or not pip_output.strip() or pip_output.strip() == "[]":
+            pip_install = await self.install_packages(env, ["pip"])
+            if "error" in pip_install:
+                return {"error": f"Failed to install pip in environment {env}: {pip_install['error']}"}
+
         result = []
-        if env_rootpath:
-            if sys.platform == "win32":
-                python_cmd = os.path.join(env_rootpath["dir"], "python")
-            else:
-                python_cmd = os.path.join(env_rootpath["dir"], "bin", "python")
+        
+        # Get the Python executable path using pathlib
+        env_path = Path(env_rootpath["dir"])
+        if sys.platform == "win32":
+            python_cmd = env_path / "python.exe"
+        else:
+            python_cmd = env_path / "bin" / "python"
 
-            for path in packages:
-                realpath = os.path.realpath(os.path.expanduser(path))
-                if not os.path.exists(realpath):
-                    # Convert jupyterlab path to local path if the path does not exists
-                    realpath = os.path.realpath(
-                        os.path.join(self._root_dir, url2path(path))
-                    )
-                    if not os.path.exists(realpath):
-                        return {"error": "Unable to find path {}.".format(path)}
+        if not python_cmd.exists():
+            return {"error": f"Python executable not found at {python_cmd}"}
 
-                ans = await self._execute(
-                    python_cmd,
-                    "-m",
-                    "pip",
-                    "install",
-                    "--progress-bar",
-                    "off",
-                    "-e",
-                    realpath,
-                )
-                rcode, output = ans
-                if rcode > 0:
-                    return {"error": output}
-                feedback = {"path": path, "output": output}
-                result.append(feedback)
+        root_dir = Path(self._root_dir)
+        
+        for path in packages:
+            # Try as a local filesystem path first
+            pkg_path = Path(os.path.expanduser(path))
+            if not pkg_path.is_absolute():
+                pkg_path = pkg_path.resolve()
+                
+            if not pkg_path.exists():
+                # Try as a JupyterLab path
+                jupyterlab_path = url2path(path)
+                pkg_path = root_dir / jupyterlab_path
+                
+                if not pkg_path.exists():
+                    return {"error": f"Unable to find package path: {path}"}
+
+            # Verify the package structure
+            if not ((pkg_path / "setup.py").exists() or (pkg_path / "pyproject.toml").exists()):
+                return {"error": f"Invalid package structure at {path}. Missing setup.py or pyproject.toml"}
+
+            # Run pip install in editable mode
+            ans = await self._execute(
+                str(python_cmd),
+                "-m",
+                "pip",
+                "install",
+                "--progress-bar",
+                "off",
+                "-e",
+                str(pkg_path),
+            )
+            rcode, output = ans
+            
+            if rcode > 0:
+                return {"error": f"Failed to install {path} in development mode: {output}"}
+            
+            result.append({"path": str(pkg_path), "output": output})
+
         return {"packages": result}
 
     async def update_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
