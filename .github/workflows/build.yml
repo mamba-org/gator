@@ -216,7 +216,6 @@ jobs:
           mamba install -n test_gator --file requirements_dev.txt
           yarn install
 
-          # TODO: This will be replaced with pip install -e . with Hatch
           pip install -e .
 
           # Check pip dependencies
