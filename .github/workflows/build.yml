@@ -219,7 +219,7 @@ jobs:
           yarn install
 
           # TODO: This will be replaced with pip install -e . with Hatch
-          python setup.py develop
+          pip install -e .
 
           # Check pip dependencies
           pip check
