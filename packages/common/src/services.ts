@@ -177,7 +177,8 @@ export class CondaEnvironments implements IEnvironmentManager {
         return data['channels'] as Conda.IChannels;
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `Fail to get the channels for environment ${name}.`;
@@ -206,7 +207,8 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while cloning environment "${target}".`;
@@ -236,7 +238,8 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while creating environment "${name}".`;
@@ -263,7 +266,8 @@ export class CondaEnvironments implements IEnvironmentManager {
       );
       return promise;
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while exporting environment "${name}".`;
@@ -299,7 +303,8 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while importing "${name}".`;
@@ -326,7 +331,8 @@ export class CondaEnvironments implements IEnvironmentManager {
       this._environments = data.environments;
       return data.environments;
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while listing Conda environments.';
@@ -353,7 +359,8 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while removing "${name}".`;
@@ -389,7 +396,8 @@ export class CondaEnvironments implements IEnvironmentManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while updating "${name}".`;
@@ -562,7 +570,8 @@ export class CondaPackage implements Conda.IPackageManager {
 
       return finalList;
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while retrieving available packages.';
@@ -595,7 +604,8 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while installing packages.';
@@ -629,7 +639,8 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = `An error occurred while installing in development mode package in ${path}.`;
@@ -663,7 +674,8 @@ export class CondaPackage implements Conda.IPackageManager {
       };
       return data.updates.map(pkg => pkg.name);
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while checking for package updates.';
@@ -696,7 +708,8 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while updating packages.';
@@ -729,7 +742,8 @@ export class CondaPackage implements Conda.IPackageManager {
         });
       }
     } catch (error) {
-      let message: string = error.message || error.toString();
+      let message: string =
+        error instanceof Error ? error.message : error.toString();
       if (message !== 'cancelled') {
         console.error(message);
         message = 'An error occurred while removing packages.';
