@@ -23,9 +23,9 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
             ${{ runner.os }}-conda-${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
@@ -38,9 +38,8 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -n test_gator --file requirements_dev.txt
-          python setup.py develop --skip-npm
-          python -m pip check
+          conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -59,13 +58,13 @@ jobs:
       - name: Cache conda
         uses: actions/cache@v4
         env:
-          # Increase this value to reset cache if requirements_dev.txt has not changed
+          # Increase this value to reset cache
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
             ${{ runner.os }}-mamba-${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
@@ -78,9 +77,8 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          mamba install -n test_gator --file requirements_dev.txt
-          python setup.py develop --skip-npm
-          python -m pip check
+          mamba install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -108,9 +106,9 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
             ${{ matrix.os }}-conda-3.8
 
       - name: Get yarn cache directory path
@@ -144,9 +142,9 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -n test_gator --file requirements_dev.txt
+          conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
           yarn install
-          python -m pip install -e .
+          python -m pip install -e .[test]
         shell: bash -l {0}
 
       - name: Install Playwright browsers
@@ -174,13 +172,13 @@ jobs:
       - name: Cache conda
         uses: actions/cache@v4
         env:
-          # Increase this value to reset cache if requirements_dev.txt has not changed
+          # Increase this value to reset cache
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
             ${{ runner.os }}-mamba-3.9
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -213,11 +211,10 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          mamba install -n test_gator --file requirements_dev.txt
+          mamba install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
           yarn install
 
-          # TODO: This will be replaced with pip install -e . with Hatch
-          python setup.py develop
+          pip install -e .[test,dev]
 
           # Check pip dependencies
           pip check
@@ -230,7 +227,7 @@ jobs:
       - name: Test the extension
         run: |
           # Run linter
-          flake8 setup.py mamba_gator
+          hatch run lint:check
           yarn run eslint:check
 
           # Run test

@@ -91,7 +91,7 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 ## Development
 
 ```shell
-mamba create -c conda-forge -y -n gator python=3.9 --file requirements_dev.txt
+mamba create -c conda-forge -y -n gator python=3.9 nodejs "yarn<2.0.0" nb_conda_kernels
 conda activate gator
 pip install -e .
 jupyter server extension enable mamba_gator --sys-prefix

@@ -1,3 +1,146 @@
 [build-system]
-requires = ["jupyter_packaging~=0.7.9", "jupyterlab>=3.0.0,==3.*", "setuptools>=40.8.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = [
+    "hatchling>=1.9.0",
+    "jupyterlab<=4.0.0",
+    "jupyter-server",
+    "setuptools",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "mamba_gator"
+version = "5.2.1.dev0"
+readme = "README.md"
+authors = [
+    { name = "Continuum Analytics" },
+    { name = "Jupyter Development Team" },
+]
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 3",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = [
+    "jupyterlab<4.0.0",
+    "jupyter_client",
+    "jupyter_server>=1.0.0,<2.0.0",
+    "jupyterlab_server>=2.0.0,<3.0.0",
+    "packaging",
+    "tornado",
+    "traitlets",
+    "pip"
+]
+description = "Manage your conda environments"
+
+[project.license]
+file = "LICENSE"
+
+[project.optional-dependencies]
+dev = [
+    "hatch"
+]
+test = [
+    "coverage",
+    "flake8",
+    "pytest",
+    "pytest-asyncio",
+    "requests",
+    "notebook >=4.3.1,!=6.1.0",
+    "ipython_genutils", # TODO: Remove test dependency on this
+]
+
+[project.scripts]
+gator = "mamba_gator.navigator.main:main"
+
+[tool.hatch.build]
+artifacts = [
+    "mamba_gator/navigator/static/**",
+    "mamba_gator/labextension/**",
+    "mamba_gator/nbextension/static/**",
+]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyter-config/jupyter_server_config.d/mamba_gator.json" = "etc/jupyter/jupyter_server_config.d/mamba_gator.json"
+"jupyter-config/jupyter_notebook_config.d/mamba_gator.json" = "etc/jupyter/jupyter_notebook_config.d/mamba_gator.json"
+"mamba_gator/labextension" = "share/jupyter/labextensions/@mamba-org/gator-lab"
+"./install.json" = "share/jupyter/labextensions/@mamba-org/gator-lab/install.json"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    ".github",
+]
+
+[tool.hatch.build.hooks.version]
+path = "mamba_gator/_version.py"
+
+[tool.hatch.build.hooks.jupyter-builder]
+skip-if-exists = ["packages/labextension/lib/index.js"]
+dependencies = [
+    "hatch-jupyter-builder",
+]
+ensured-targets = [
+    "packages/labextension/lib/index.js",
+    "mamba_gator/labextension/package.json",
+]
+build-function = "hatch_jupyter_builder.npm_builder"
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+path = "."
+build_cmd = "build:prod"
+npm = [
+    "yarn",
+]
+
+[tool.tbump]
+field = [
+    { name = "channel", default = "" },
+    { name = "release", default = "" },
+]
+
+[tool.tbump.version]
+current = "5.2.1.dev0"
+regex = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)((?P<channel>a|b|rc|.dev)(?P<release>\\d+))?"
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+[[tool.tbump.file]]
+src = "pyproject.toml"
+version_template = "version = \"{major}.{minor}.{patch}{channel}{release}\""
+
+[[tool.tbump.file]]
+src = "mamba_gator/_version.py"
+search = '__version__ = VERSION = "{current_version}"'
+
+[tool.hatch.envs.lint]
+skip-install = true
+dependencies = ["flake8"]
+
+[tool.hatch.envs.lint.scripts]
+check = "flake8 mamba_gator"
+
+
+[tool.pytest.ini_options]
+addopts = "--rootdir=mamba_gator --strict-markers"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+]
+show_missing = true
