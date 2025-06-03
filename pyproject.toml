@@ -74,6 +74,7 @@ exclude = [
 path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
+skip-if-exists = ["packages/labextension/lib/index.js"]
 dependencies = [
     "hatch-jupyter-builder",
 ]
