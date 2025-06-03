@@ -61,14 +61,15 @@
   "devDependencies": {
     "@jupyterlab/builder": "^4.0.0",
     "@jupyterlab/testutils": "^3.0.0",
-    "@types/react": "^17.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@types/semver": "^7.3.1",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "peerDependencies": {
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "sideEffects": [
     "style/*"

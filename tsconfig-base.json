@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "incremental": true,
     "inlineSources": true,
-    "lib": ["dom", "es6"],
+    "lib": ["dom", "es6", "es2018", "esnext"],
     "jsx": "react",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -20,6 +20,7 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,
-    "target": "es6"
+    "target": "es6",
+    "skipLibCheck": true
   }
 }
