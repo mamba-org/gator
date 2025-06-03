@@ -23,9 +23,9 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}
           restore-keys: |
-            ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-conda-${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
@@ -58,13 +58,13 @@ jobs:
       - name: Cache conda
         uses: actions/cache@v4
         env:
-          # Increase this value to reset cache if requirements_dev.txt has not changed
+          # Increase this value to reset cache
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}
           restore-keys: |
-            ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-mamba-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-mamba-${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
@@ -108,9 +108,9 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}
             ${{ matrix.os }}-conda-3.8
 
       - name: Get yarn cache directory path
@@ -174,13 +174,13 @@ jobs:
       - name: Cache conda
         uses: actions/cache@v4
         env:
-          # Increase this value to reset cache if requirements_dev.txt has not changed
+          # Increase this value to reset cache
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+          key: ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}
           restore-keys: |
-            ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements_dev.txt') }}
+            ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}
             ${{ runner.os }}-mamba-3.9
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

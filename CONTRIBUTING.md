@@ -28,11 +28,11 @@ This project uses Lerna (version 3.1.0) to manage multiple JavaScript/TypeScript
 2. **Create and activate a conda environment**
    ```bash
    # Using conda
-   conda create -c conda-forge -n gator python=3.9 --file requirements_dev.txt
+   conda create -c conda-forge -n gator python=3.9 nodejs "yarn<2.0.0" nb_conda_kernels
    conda activate gator
 
    # Or using mamba
-   mamba create -c conda-forge -n gator python=3.9 --file requirements_dev.txt
+   mamba create -c conda-forge -n gator python=3.9 nodejs "yarn<2.0.0" nb_conda_kernels
    mamba activate gator
    ```
 
