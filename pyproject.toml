@@ -114,6 +114,7 @@ src = "mamba_gator/_version.py"
 search = '__version__ = VERSION = "{current_version}"'
 
 [tool.hatch.envs.lint]
+skip-install = true
 dependencies = ["flake8"]
 
 [tool.hatch.envs.lint.scripts]
