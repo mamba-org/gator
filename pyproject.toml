@@ -35,7 +35,6 @@ dependencies = [
     "packaging",
     "tornado",
     "traitlets",
-    "typing;python_version<'3.7'",
 ]
 description = "Manage your conda environments"
 
