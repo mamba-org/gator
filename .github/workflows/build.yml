@@ -146,7 +146,7 @@ jobs:
           conda info
           conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
           yarn install
-          python -m pip install -e .
+          python -m pip install -e .[test]
         shell: bash -l {0}
 
       - name: Install Playwright browsers
