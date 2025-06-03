@@ -49,7 +49,6 @@ dev = [
 test = [
     "coverage",
     "flake8",
-    "nb_conda_kernels",
     "pytest",
     "pytest-asyncio",
     "requests",
