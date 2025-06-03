@@ -4,19 +4,15 @@ import random
 import os
 import shutil
 import sys
-import unittest
-import unittest.mock as mock
-from itertools import chain
-
-try:
-    from unittest.mock import AsyncMock
-except ImportError:
-    AsyncMock = None
-import uuid
 import tempfile
+import unittest
+import uuid
 
+import unittest.mock as mock
+
+from itertools import chain
 from nb_conda_kernels import CondaKernelSpecManager
-import tornado
+from unittest.mock import AsyncMock
 from traitlets.config import Config
 
 from mamba_gator.envmanager import EnvManager
@@ -79,18 +75,15 @@ class TestChannelsHandler(JupyterCondaAPITest):
         self.assertIsInstance(data["channels"], dict)
 
     def test_fail_get(self):
-        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
             error_msg = "Fail to get channels"
             r = {"error": True, "message": error_msg}
-            rvalue = (1, json.dumps(r))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
+            f.return_value = (1, json.dumps(r))
             with assert_http_error(500, msg=error_msg):
                 self.conda_api.get(["channels"])
 
     def test_deployment(self):
-        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
             local_channel = (
                 "C:/Users/Public/conda-channel"
                 if sys.platform == "win32"
@@ -153,10 +146,7 @@ class TestChannelsHandler(JupyterCondaAPITest):
                     ],
                 },
             }
-            rvalue = (0, json.dumps(data))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
+            f.return_value = (0, json.dumps(data))
 
             response = self.conda_api.get(["channels"])
             self.assertEqual(response.status_code, 200)
@@ -191,13 +181,10 @@ class TestEnvironmentsHandler(JupyterCondaAPITest):
         self.assertFalse(env["is_default"])
 
     def test_failed_get(self):
-        with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+        with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
             msg = "Fail to get environments"
             err = {"error": True, "message": msg}
-            rvalue = (1, json.dumps(err))
-            f.return_value = (
-                tornado.gen.maybe_future(rvalue) if AsyncMock is None else rvalue
-            )
+            f.return_value = (1, json.dumps(err))
             with assert_http_error(500, msg=msg):
                 self.conda_api.get(["environments"])
 
@@ -754,7 +741,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
 
     def test_package_list_available(self):
         with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -932,16 +919,11 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         }
                     }
 
-                rvalue = [
+                # Use side_effect to have a different return value for each call
+                f.side_effect = [
                     (0, json.dumps(dummy)),
                     (0, json.dumps(channels)),
                 ]
-                # Use side_effect to have a different return value for each call
-                f.side_effect = (
-                    map(tornado.gen.maybe_future, rvalue)
-                    if AsyncMock is None
-                    else rvalue
-                )
 
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
                 self.assertEqual(r.status_code, 200)
@@ -988,7 +970,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
     @unittest.skipIf(sys.platform.startswith("win"), "TODO test not enough reliability")
     def test_package_list_available_local_channel(self):
         with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -1165,16 +1147,11 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         },
                     }
 
-                    rvalue = [
+                    # Use side_effect to have a different return value for each call
+                    f.side_effect = [
                         (0, json.dumps(dummy)),
                         (0, json.dumps(channels)),
                     ]
-                    # Use side_effect to have a different return value for each call
-                    f.side_effect = (
-                        map(tornado.gen.maybe_future, rvalue)
-                        if AsyncMock is None
-                        else rvalue
-                    )
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
                     self.assertEqual(r.status_code, 200)
@@ -1221,7 +1198,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
     @unittest.skipIf(sys.platform.startswith("win"), "not reliable on Windows")
     def test_package_list_available_no_description(self):
         with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", generate_name()):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -1392,16 +1369,11 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         },
                     }
 
-                    rvalue = [
+                    # Use side_effect to have a different return value for each call
+                    f.side_effect = [
                         (0, json.dumps(dummy)),
                         (0, json.dumps(channels)),
                     ]
-                    # Use side_effect to have a different return value for each call
-                    f.side_effect = (
-                        map(tornado.gen.maybe_future, rvalue)
-                        if AsyncMock is None
-                        else rvalue
-                    )
 
                     r = self.wait_for_task(self.conda_api.get, ["packages"])
                     self.assertEqual(r.status_code, 200)
@@ -1448,7 +1420,7 @@ class TestPackagesHandler(JupyterCondaAPITest):
     def test_package_list_available_caching(self):
         cache_name = generate_name()
         with mock.patch("mamba_gator.handlers.AVAILABLE_CACHE", cache_name):
-            with mock.patch("mamba_gator.envmanager.EnvManager._execute") as f:
+            with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
                 dummy = {
                     "numpy_sugar": [
                         {
@@ -1627,16 +1599,11 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         }
                     }
 
-                rvalue = [
+                # Use side_effect to have a different return value for each call
+                f.side_effect = [
                     (0, json.dumps(dummy)),
                     (0, json.dumps(channels)),
                 ]
-                # Use side_effect to have a different return value for each call
-                f.side_effect = (
-                    map(tornado.gen.maybe_future, rvalue)
-                    if AsyncMock is None
-                    else rvalue
-                )
 
                 # First retrival no cache available
                 r = self.wait_for_task(self.conda_api.get, ["packages"])
