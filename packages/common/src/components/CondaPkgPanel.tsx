@@ -300,7 +300,9 @@ export class CondaPkgPanel extends React.Component<
             autoClose: 0
           });
         } else {
-          INotification.error(error instanceof Error ? error.message : 'Unknown error');
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -406,7 +408,9 @@ export class CondaPkgPanel extends React.Component<
             autoClose: 0
           });
         } else {
-          INotification.error(error instanceof Error ? error.message : 'Unknown error');
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
