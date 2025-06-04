@@ -51,12 +51,12 @@ This project uses Lerna (version 3.1.0) to manage multiple JavaScript/TypeScript
    jupyter labextension develop . --overwrite
    ```
 
-### Common Lerna Commands
+### Common Yarn Commands
 
 When working with the JavaScript/TypeScript packages, you can use these yarn commands. Note that while this project uses Lerna for monorepo management, the commands are wrapped in yarn scripts for convenience:
 
 ```bash
-# Install dependencies for all packages (uses lerna bootstrap internally)
+# Install dependencies for all packages (uses yarn workspaces)
 yarn install
 
 # Build all packages (uses lerna run build internally)
