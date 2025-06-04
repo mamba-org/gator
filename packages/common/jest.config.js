@@ -27,7 +27,9 @@ module.exports = {
   setupFilesAfterEnv,
   setupFiles,
   testPathIgnorePatterns,
-  transform,
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest'
+  },
   automock: false,
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   coverageDirectory: 'coverage',
