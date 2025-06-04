@@ -1,12 +1,12 @@
 const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
 
-const esModules = [
-  '@jupyterlab/',
-  'lib0',
-  'y\\-protocols',
-  'y\\-websocket',
-  'yjs'
-].join('|');
+// const esModules = [
+//   '@jupyterlab/',
+//   'lib0',
+//   'y\\-protocols',
+//   'y\\-websocket',
+//   'yjs'
+// ].join('|');
 
 const jlabConfig = jestJupyterLab(__dirname);
 
@@ -27,7 +27,7 @@ module.exports = {
   setupFilesAfterEnv,
   setupFiles,
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns,
+  testPathIgnorePattern,
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
@@ -41,5 +41,7 @@ module.exports = {
     }
   },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
-  transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
+  transformIgnorePatterns: [
+    '/node_modules/(?!(?:@jupyterlab|lib0|y\\-protocols|y\\-websocket|yjs)/)'
+  ]  
 };
