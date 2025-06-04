@@ -27,7 +27,7 @@ module.exports = {
   setupFilesAfterEnv,
   setupFiles,
   testEnvironment: 'jsdom',
-  testPathIgnorePattern,
+  testPathIgnorePatterns,
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
