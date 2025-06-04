@@ -29,17 +29,12 @@ module.exports = {
   testEnvironment: 'jsdom',
   testPathIgnorePatterns,
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
   },
   automock: false,
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/*.d.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text'],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    }
-  },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
   transformIgnorePatterns: [
     '/node_modules/(?!(?:@jupyterlab|lib0|y\\-protocols|y\\-websocket|yjs)/)'
