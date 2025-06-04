@@ -26,6 +26,7 @@ module.exports = {
   preset,
   setupFilesAfterEnv,
   setupFiles,
+  testEnvironment: 'jsdom',
   testPathIgnorePatterns,
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
