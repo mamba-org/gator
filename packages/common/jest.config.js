@@ -26,7 +26,6 @@ module.exports = {
   coverageReporters: ['lcov', 'text'],
   automock: false,
   setupFilesAfterEnv: [
-    '<rootDir>/jest-setup.js',
     '<rootDir>/../../node_modules/@jupyterlab/testutils/lib/jest-config.js'
   ]
 };
