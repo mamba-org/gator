@@ -55,10 +55,7 @@
     "@types/react-dom": "18.0.4",
     "@types/node": "14.18.63",
     "@types/babel__traverse": "7.11.1",
-    "undici-types": "4.0.0",
-    "ajv-keywords": "^3.5.2",
-    "ajv": "^6.12.6",
-    "schema-utils": "^3.3.0"
+    "undici-types": "4.0.0"
   },
   "workspaces": {
     "packages": [
