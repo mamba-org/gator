@@ -36,6 +36,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
+    "acorn": "^8.14.1",
+    "acorn-import-attributes": "^1.9.5",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -50,7 +52,13 @@
   },
   "resolutions": {
     "@types/react": "18.0.9",
-    "@types/react-dom": "18.0.4"
+    "@types/react-dom": "18.0.4",
+    "@types/node": "14.18.63",
+    "@types/babel__traverse": "7.11.1",
+    "undici-types": "4.0.0",
+    "ajv-keywords": "^3.5.2",
+    "ajv": "^6.12.6",
+    "schema-utils": "^3.3.0"
   },
   "workspaces": {
     "packages": [
