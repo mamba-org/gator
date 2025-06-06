@@ -35,11 +35,18 @@ jobs:
           channels: conda-forge
           show-channel-urls: true
           use-only-tar-bz2: true
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Enable Corepack
+        run: corepack enable
+          
       - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nodejs nb_conda_kernels
-          corepack enable
+          conda install -c conda-forge -n test_gator nb_conda_kernels
           pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
@@ -75,11 +82,18 @@ jobs:
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Enable Corepack
+        run: corepack enable
+          
       - name: Install dependencies
         run: |
           conda info
-          mamba install -c conda-forge -n test_gator nodejs nb_conda_kernels
-          corepack enable
+          mamba install -c conda-forge -n test_gator nb_conda_kernels
           pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
@@ -122,32 +136,20 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
-      - name: Install Node.js and Yarn
+      - name: Enable Corepack
+        run: corepack enable
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          
+      - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nodejs nb_conda_kernels
-          corepack enable
+          conda install -c conda-forge -n test_gator nb_conda_kernels
         shell: bash -l {0}
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-        shell: bash -l {0}
-
-      - name: Setup yarn cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        env:
-          # Increase this value to reset cache
-          CACHE_NUMBER: 5
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            **/node_modules
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
-            ${{ runner.os }}-yarn
 
       - name: Install dependencies
         run: |
@@ -198,32 +200,20 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
-      - name: Install Node.js and Yarn
+      - name: Enable Corepack
+        run: corepack enable
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          
+      - name: Install dependencies
         run: |
           conda info
-          mamba install -c conda-forge -n test_gator nodejs nb_conda_kernels
-          corepack enable
+          mamba install -c conda-forge -n test_gator nb_conda_kernels
         shell: bash -l {0}
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-        shell: bash -l {0}
-
-      - name: Setup yarn cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        env:
-          # Increase this value to reset cache
-          CACHE_NUMBER: 5
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            **/node_modules
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
-            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: |
