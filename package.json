@@ -33,17 +33,13 @@
     "test": "lerna run test"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.4",
-    "@babel/preset-env": "^7.27.2",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
-    "babel-jest": "^29.7.0",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.18.3",
     "husky": "^0.14.0",
-    "identity-obj-proxy": "^3.0.0",
     "lerna": "^7.1.4",
     "lint-staged": "^9.4.3",
     "node-fetch": "2",

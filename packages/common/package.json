@@ -60,7 +60,7 @@
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@jupyterlab/testutils": "^4.0.0",
-    "@types/jest": "^29.1.1",
+    "@types/jest": "^26.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/react-d3-graph": "^2.3.4",

@@ -1,26 +1,43 @@
+const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
+
+const esModules = [
+  '@jupyterlab/',
+  'lib0',
+  'y\\-protocols',
+  'y\\-websocket',
+  'yjs'
+].join('|');
+
+const jlabConfig = jestJupyterLab(__dirname);
+
+const {
+  moduleFileExtensions,
+  moduleNameMapper,
+  preset,
+  setupFilesAfterEnv,
+  setupFiles,
+  testPathIgnorePatterns,
+  transform
+} = jlabConfig;
+
 module.exports = {
-  preset: 'ts-jest',
+  moduleFileExtensions,
   testEnvironment: 'jsdom',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.json' }],
-    '^.+\\.jsx?$': 'babel-jest'
-  },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@jupyterlab|@jupyter)/).+\\.js$'
-  ],
-  moduleNameMapper: {
-    '\\.(css|less|sass|scss)$':
-      '<rootDir>/../../node_modules/identity-obj-proxy',
-    '\\.(gif|ttf|eot|svg)$':
-      '<rootDir>/../../node_modules/@jupyterlab/testutils/lib/jest-file-mock.js'
-  },
-  testRegex: 'src/.*/.*\\.spec\\.tsx?$',
-  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
+  moduleNameMapper,
+  preset,
+  setupFilesAfterEnv,
+  setupFiles,
+  testPathIgnorePatterns,
+  transform,
+  automock: false,
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/*.d.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text'],
-  automock: false,
-  setupFilesAfterEnv: [
-    '<rootDir>/../../node_modules/@jupyterlab/testutils/lib/jest-setup-test-file.js'
-  ]
+  globals: {
+    'ts-jest': {
+      tsConfig: 'tsconfig.json'
+    }
+  },
+  testRegex: 'src/.*/.*.spec.ts[x]?$',
+  transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
 };
