@@ -1,7 +1,10 @@
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import { Settings } from '@jupyterlab/settingregistry';
-import { testEmission } from '@jupyterlab/testutils';
+
+// Move back to @jupyterlab/testutils when JupyterLab 4 upgrade is complete
+import { testEmission } from './utils/testutils-local';
+
 import 'jest';
 import { platform } from 'os';
 import { CondaEnvironments, CondaPackage } from '../services';
