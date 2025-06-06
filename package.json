@@ -33,21 +33,26 @@
     "test": "lerna run test"
   },
   "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
+    "babel-jest": "^30.0.0-beta.3",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.18.3",
     "husky": "^0.14.0",
+    "identity-obj-proxy": "^3.0.0",
     "lerna": "^7.1.4",
     "lint-staged": "^9.4.3",
+    "node-fetch": "2",
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
     "typescript": "~5.0.2",
     "watch": "~1.0.2"
   },
-  "resolutions": { 
+  "resolutions": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@fortawesome/fontawesome-common-types": "^0.3.0"
