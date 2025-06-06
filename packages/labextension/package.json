@@ -59,7 +59,7 @@
     "semver": "^6.0.0||^7.0.0"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^4.0.0",
+    "@jupyterlab/builder": ">=3.6.8 <5.0.0",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
