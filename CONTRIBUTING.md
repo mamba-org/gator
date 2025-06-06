@@ -8,7 +8,7 @@ Thank you for your interest in contributing to Gator! This document will help yo
 
 - Conda or Mamba (v1.x) package manager. Mamba v2.x is not currently supported.
 
-> **Note**: Python, Node.js, and Yarn 3 will be automatically installed when you create the development environment. 
+> **Note**: Python and Node.js will be automatically installed when you create the development environment. Yarn 3.x is managed via Corepack and will be automatically used based on the `packageManager` field in package.json.
 
 ### Project Structure
 
@@ -28,28 +28,38 @@ This project uses Lerna to manage multiple JavaScript/TypeScript packages in a m
 2. **Create and activate a conda environment**
    ```bash
    # Using conda
-   conda create -c conda-forge -n gator python=3.9 nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
+   conda create -c conda-forge -n gator python=3.9 nodejs nb_conda_kernels
    conda activate gator
 
    # Or using mamba
-   mamba create -c conda-forge -n gator python=3.9 nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
+   mamba create -c conda-forge -n gator python=3.9 nodejs nb_conda_kernels
    mamba activate gator
    ```
 
-3. **Install Node.js dependencies**
+3. **Enable Corepack for Yarn management**
    ```bash
+   corepack enable
+   ```
+
+4. **Install Node.js dependencies**
+   ```bash
+   # Corepack will automatically use yarn@3.x as specified in package.json
    yarn install
    ```
 
-4. **Install the package in development mode**
+5. **Install the package in development mode**
    ```bash
    python -m pip install -e .
    ```
 
-5. **Install Jupyter extension in development mode**
+6. **Install Jupyter extension in development mode**
    ```bash
    jupyter labextension develop . --overwrite
    ```
+
+### Package Manager Notes
+
+This project uses **Yarn 3.x** as specified in the `packageManager` field in `package.json`. When you run `corepack enable`, Corepack will automatically manage the yarn version for you. You don't need to install yarn manually - just use the `yarn` commands and Corepack will handle the rest.
 
 ### Common Yarn Commands
 
