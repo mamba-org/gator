@@ -8,11 +8,11 @@ Thank you for your interest in contributing to Gator! This document will help yo
 
 - Conda or Mamba (v1.x) package manager. Mamba v2.x is not currently supported.
 
-> **Note**: Python, Node.js, and Yarn will be automatically installed when you create the development environment.
+> **Note**: Python, Node.js, and Yarn 3 will be automatically installed when you create the development environment. 
 
 ### Project Structure
 
-This project uses Lerna (version 3.1.0) to manage multiple JavaScript/TypeScript packages in a monorepo structure. The main packages are:
+This project uses Lerna to manage multiple JavaScript/TypeScript packages in a monorepo structure. The main packages are:
 - `@mamba-org/gator-common`: Base components and models
 - `@mamba-org/gator-lab`: JupyterLab extension
 - `@mamba-org/navigator`: Standalone application
@@ -28,11 +28,11 @@ This project uses Lerna (version 3.1.0) to manage multiple JavaScript/TypeScript
 2. **Create and activate a conda environment**
    ```bash
    # Using conda
-   conda create -c conda-forge -n gator python=3.9 nodejs "yarn<2.0.0" nb_conda_kernels
+   conda create -c conda-forge -n gator python=3.9 nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
    conda activate gator
 
    # Or using mamba
-   mamba create -c conda-forge -n gator python=3.9 nodejs "yarn<2.0.0" nb_conda_kernels
+   mamba create -c conda-forge -n gator python=3.9 nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
    mamba activate gator
    ```
 

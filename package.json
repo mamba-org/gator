@@ -13,8 +13,9 @@
   },
   "author": "Jupyter Development Team",
   "license": "BSD-3-Clause",
+  "packageManager": "yarn@3.8.8",
   "engines": {
-    "yarn": "<2.0.0"
+    "node": ">=18.0.0"
   },
   "bugs": {
     "url": "https://github.com/mamba-org/gator/issues"
@@ -47,7 +48,7 @@
     "typescript": "~4.1.3",
     "watch": "~1.0.2"
   },
-  "resolutions": { 
+  "resolutions": {
     "@types/react": "18.0.9",
     "@types/react-dom": "18.0.4"
   },

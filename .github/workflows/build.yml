@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          conda install -c conda-forge -n test_gator nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
           pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          mamba install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          mamba install -c conda-forge -n test_gator nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
           pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
@@ -142,7 +142,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          conda install -c conda-forge -n test_gator nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
           yarn install
           python -m pip install -e .[test]
         shell: bash -l {0}
@@ -211,7 +211,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          mamba install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          mamba install -c conda-forge -n test_gator nodejs "yarn>=3.0.0,<4.0.0" nb_conda_kernels
           yarn install
 
           pip install -e .[test,dev]
