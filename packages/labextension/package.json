@@ -30,8 +30,8 @@
   "scripts": {
     "build": "yarn run build:lib && yarn run build:labextension:dev",
     "build:dev": "tsc",
-    "build:labextension": "jupyter labextension build .",
-    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:labextension": "yarn install && jupyter labextension build . --skip-install",
+    "build:labextension:dev": "yarn install && jupyter labextension build --development True . --skip-install",
     "build:lib": "tsc",
     "build:prod": "yarn run build:lib && yarn run build:labextension",
     "clean": "yarn run clean:lib && yarn run clean:labextension",
