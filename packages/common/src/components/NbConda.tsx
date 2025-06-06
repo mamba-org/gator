@@ -124,12 +124,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (toastId) {
           INotification.update({
             toastId,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown error',
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -180,12 +182,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (toastId) {
           INotification.update({
             toastId,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown error',
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -256,12 +260,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (toastId) {
           INotification.update({
             toastId,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown error',
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -294,7 +300,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     } catch (error) {
       if (error !== 'cancelled') {
         console.error(error);
-        INotification.error(error.message);
+        INotification.error(
+          error instanceof Error ? error.message : 'Unknown error'
+        );
       }
     }
   }
@@ -340,12 +348,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (toastId) {
           INotification.update({
             toastId,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown error',
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -377,7 +387,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       } catch (error) {
         if (error !== 'cancelled') {
           console.error(error);
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       }
     }

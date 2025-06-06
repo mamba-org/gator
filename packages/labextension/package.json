@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@jupyterlab/builder": "^4.0.0",
-    "@jupyterlab/testutils": "^3.0.0",
+    "@jupyterlab/testutils": "^4.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/semver": "^7.3.1",

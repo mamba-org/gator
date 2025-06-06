@@ -148,7 +148,7 @@ export class CondaPkgPanel extends React.Component<
         hasUpdate
       });
     } catch (error) {
-      if (error.message !== 'cancelled') {
+      if (error instanceof Error && error.message !== 'cancelled') {
         this.setState({
           isLoading: false
         });
@@ -295,12 +295,14 @@ export class CondaPkgPanel extends React.Component<
         if (toastId) {
           INotification.update({
             toastId: toastId,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown error',
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -401,12 +403,14 @@ export class CondaPkgPanel extends React.Component<
         if (toastId) {
           INotification.update({
             toastId,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'Unknown error',
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(error.message);
+          INotification.error(
+            error instanceof Error ? error.message : 'Unknown error'
+          );
         }
       } else {
         if (toastId) {
@@ -444,7 +448,7 @@ export class CondaPkgPanel extends React.Component<
     try {
       await this._model.refreshAvailablePackages();
     } catch (error) {
-      if (error.message !== 'cancelled') {
+      if (error instanceof Error && error.message !== 'cancelled') {
         console.error('Error when refreshing the available packages.', error);
       }
     }
