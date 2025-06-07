@@ -15,6 +15,7 @@
   },
   "license": "BSD-3-Clause",
   "author": "Jupyter Development Team",
+  "_buildWorkaround": "Uses fake 'jlpm' script that redirects to yarn. PATH manipulation in build scripts ensures our jlpm wrapper intercepts JupyterLab's internal jlpm calls. Remove during JupyterLab 4 upgrade.",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
@@ -30,8 +31,8 @@
   "scripts": {
     "build": "yarn run build:lib && yarn run build:labextension:dev",
     "build:dev": "tsc",
-    "build:labextension": "jupyter labextension build .",
-    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:labextension": "node build-with-fake-jlpm.js",
+    "build:labextension:dev": "node build-with-fake-jlpm.js --dev",
     "build:lib": "tsc",
     "build:prod": "yarn run build:lib && yarn run build:labextension",
     "clean": "yarn run clean:lib && yarn run clean:labextension",
@@ -59,13 +60,14 @@
     "semver": "^6.0.0||^7.0.0"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^4.0.0",
+    "@jupyterlab/builder": ">=3.6.8 <5.0.0",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/semver": "^7.3.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "typescript": "~4.1.3"
   },
   "peerDependencies": {
     "react": "^18.2.0",

@@ -35,10 +35,22 @@ jobs:
           channels: conda-forge
           show-channel-urls: true
           use-only-tar-bz2: true
+
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
       - name: Install dependencies
         run: |
           conda info
-          conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          conda install -c conda-forge -n test_gator nb_conda_kernels
           pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
@@ -74,10 +86,22 @@ jobs:
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
+
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          
       - name: Install dependencies
         run: |
           conda info
-          mamba install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          mamba install -c conda-forge -n test_gator nb_conda_kernels
           pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
@@ -111,25 +135,6 @@ jobs:
             ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
             ${{ matrix.os }}-conda-3.8
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - name: Setup yarn cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        env:
-          # Increase this value to reset cache
-          CACHE_NUMBER: 5
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            **/node_modules
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
-            ${{ runner.os }}-yarn
-
       - name: Setup Python 3.8
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -139,10 +144,21 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          
       - name: Install dependencies
         run: |
           conda info
-          conda install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          conda install -c conda-forge -n test_gator nb_conda_kernels
           yarn install
           python -m pip install -e .[test]
         shell: bash -l {0}
@@ -180,24 +196,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mamba-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
             ${{ runner.os }}-mamba-3.9
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - name: Setup yarn cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        env:
-          # Increase this value to reset cache
-          CACHE_NUMBER: 5
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            **/node_modules
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NUMBER }}
-            ${{ runner.os }}-yarn-
 
       - name: Setup Python 3.9
         uses: conda-incubator/setup-miniconda@v3
@@ -208,12 +206,22 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          
       - name: Install dependencies
         run: |
           conda info
-          mamba install -n test_gator nodejs "yarn<2.0.0" nb_conda_kernels
+          mamba install -c conda-forge -n test_gator nb_conda_kernels
           yarn install
-
           pip install -e .[test,dev]
 
           # Check pip dependencies
