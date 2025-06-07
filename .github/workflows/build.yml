@@ -35,14 +35,18 @@ jobs:
           channels: conda-forge
           show-channel-urls: true
           use-only-tar-bz2: true
+
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
-      - name: Enable Corepack
-        run: corepack enable
-          
+          cache: 'yarn'
+
       - name: Install dependencies
         run: |
           conda info
@@ -82,13 +86,17 @@ jobs:
           activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
+
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
-      - name: Enable Corepack
-        run: corepack enable
+          cache: 'yarn'
           
       - name: Install dependencies
         run: |
@@ -136,9 +144,11 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
-      - name: Enable Corepack
-        run: corepack enable
-        
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -200,9 +210,11 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
-      - name: Enable Corepack
-        run: corepack enable
-        
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
