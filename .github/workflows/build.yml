@@ -159,10 +159,6 @@ jobs:
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels
-        shell: bash -l {0}
-
-      - name: Install dependencies
-        run: |
           yarn install
           python -m pip install -e .[test]
         shell: bash -l {0}
@@ -225,10 +221,6 @@ jobs:
         run: |
           conda info
           mamba install -c conda-forge -n test_gator nb_conda_kernels
-        shell: bash -l {0}
-
-      - name: Install dependencies
-        run: |
           yarn install
           pip install -e .[test,dev]
 
