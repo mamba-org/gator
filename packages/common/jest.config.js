@@ -34,9 +34,12 @@ module.exports = {
   coverageReporters: ['lcov', 'text'],
   globals: {
     'ts-jest': {
-      tsconfig: 'tsconfig.json'
+      tsconfig: 'tsconfig.json',
+      isolatedModules: true
     }
   },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
-  transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
+  transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`],
+  testEnvironment: 'jsdom',
+  testRunner: 'jest-circus'
 };
