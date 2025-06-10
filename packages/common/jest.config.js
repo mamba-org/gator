@@ -40,6 +40,6 @@ module.exports = {
   },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
   transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`],
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-environment-jsdom',
   testRunner: 'jest-circus'
 };
