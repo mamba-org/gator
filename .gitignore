@@ -22,7 +22,13 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-.yarn/
+# Yarn 3 files
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -42,6 +48,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+junit.xml
 *,cover
 
 # Translations
