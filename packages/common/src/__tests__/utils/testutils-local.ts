@@ -47,7 +47,7 @@ export async function testEmission<T, U, V>(
 
   signal.connect((sender, args) => {
     const shouldTest = options.find?.(sender, args) ?? true;
-
+    
     if (shouldTest) {
       try {
         Signal.disconnectReceiver(object);
@@ -88,7 +88,7 @@ export function signalToPromise<T, U>(signal: ISignal<T, U>): Promise<[T, U]> {
  * Return a promise that resolves in the given milliseconds.
  */
 export function sleep(milliseconds = 0): Promise<void> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(undefined);
     }, milliseconds);
