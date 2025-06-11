@@ -58,7 +58,9 @@
     "undici-types": "^6.19.8",
     "typescript": "~5.0.2",
     "@lumino/coreutils": "^1.12.1",
-    "@blueprintjs/core": "^4.20.2"
+    "@blueprintjs/core": "^4.20.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4"
   },
   "workspaces": {
     "packages": [
