@@ -3,7 +3,7 @@ import { faCheckSquare } from '@fortawesome/free-solid-svg-icons/faCheckSquare';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt';
 import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';

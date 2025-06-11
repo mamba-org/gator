@@ -2,7 +2,7 @@ import { faCartArrowDown } from '@fortawesome/free-solid-svg-icons/faCartArrowDo
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faUndoAlt } from '@fortawesome/free-solid-svg-icons/faUndoAlt';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
 import * as React from 'react';
