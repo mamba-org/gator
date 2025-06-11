@@ -9,41 +9,8 @@ import 'jest';
 import { platform } from 'os';
 import { CondaEnvironments, CondaPackage } from '../services';
 
-// Mock Response if not available in Node.js environment
-if (typeof Response === 'undefined') {
-  global.Response = class Response {
-    headers: { get: (name: string) => string | null };
-    status: number;
-    ok: boolean;
-    body: any;
-
-    constructor(
-      body?: any,
-      init?: { status?: number; headers?: Record<string, string> }
-    ) {
-      this.body = body;
-      this.status = init?.status || 200;
-      this.ok = this.status >= 200 && this.status < 300;
-
-      const headerMap = new Map<string, string>();
-      if (init?.headers) {
-        Object.entries(init.headers).forEach(([key, value]) => {
-          headerMap.set(key, value);
-        });
-      }
-
-      this.headers = {
-        get: (name: string) => headerMap.get(name) || null
-      };
-    }
-
-    json() {
-      return Promise.resolve(
-        typeof this.body === 'string' ? JSON.parse(this.body) : this.body
-      );
-    }
-  } as any;
-}
+// import Response if not available in Node.js environment
+global.Response = require('node-fetch').Response;
 
 jest.mock('@jupyterlab/services', () => {
   return {
