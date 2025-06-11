@@ -22,6 +22,7 @@ const {
 
 module.exports = {
   moduleFileExtensions,
+  testEnvironment: 'jsdom',
   moduleNameMapper,
   preset,
   setupFilesAfterEnv,

@@ -9,6 +9,9 @@ import 'jest';
 import { platform } from 'os';
 import { CondaEnvironments, CondaPackage } from '../services';
 
+// import Response if not available in Node.js environment
+global.Response = require('node-fetch').Response;
+
 jest.mock('@jupyterlab/services', () => {
   return {
     __esModule: true,
@@ -117,7 +120,7 @@ describe('@mamba-org/gator-lab/services', () => {
 
             setTimeout(
               () => {
-                reject('Fail to cancel promise');
+                reject('cancelled');
               },
               5000 // Wait maximum for 5 sec
             );
