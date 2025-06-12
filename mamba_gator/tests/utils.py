@@ -26,16 +26,52 @@ from traitlets.config import Config
 #  - url_escape
 #  - url_path_join
 
+ServerApp = None
+ServerTestBase = None
+assert_http_error = None
+url_escape = None
+url_path_join = None
+
+# Try notebook first (older versions)
 try:
     from notebook.notebookapp import NotebookApp as ServerApp
     from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
     from notebook.tests.launchnotebook import assert_http_error
     from notebook.utils import url_escape, url_path_join
 except ImportError:
-    from jupyter_server.serverapp import ServerApp  # noqa
-    from jupyter_server.tests.launchnotebook import assert_http_error  # noqa
-    from jupyter_server.tests.launchserver import ServerTestBase  # noqa
-    from jupyter_server.utils import url_escape, url_path_join  # noqa
+    raise ImportError("Could not import test utils from notebook")
+
+# Try jupyter_server imports (newer versions)
+if ServerApp is None:
+    try:
+        from jupyter_server.serverapp import ServerApp
+        from jupyter_server.utils import url_escape, url_path_join
+    except ImportError:
+        raise ImportError("Could not import ServerApp from jupyter_server")
+
+if ServerTestBase is None:
+    try:
+        from jupyter_server.tests.launchserver import ServerTestBase
+    except ImportError:
+        try:
+            from jupyter_server.tests.launchnotebook import ServerTestBase
+        except ImportError:
+            raise ImportError("Could not import ServerTestBase from jupyter_server")   
+
+if assert_http_error is None:
+    try:
+        from jupyter_server.tests.launchnotebook import assert_http_error
+    except ImportError:
+        try:
+            from jupyterlab_server.testutils import assert_http_error
+        except ImportError:
+            raise ImportError("Could not import assert_http_error from jupyterlab_server or jupyter_server")
+
+# Ensure we have all required imports
+if ServerApp is None:
+    raise ImportError("Could not import ServerApp from notebook or jupyter_server")
+if url_escape is None or url_path_join is None:
+    raise ImportError("Could not import url utilities from notebook or jupyter_server")
 
 
 TIMEOUT = 150
