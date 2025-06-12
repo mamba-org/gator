@@ -83,7 +83,7 @@ export class Gator extends JupyterFrontEnd<IGatorShell> {
     if (!Array.isArray(data)) {
       data = [data];
     }
-    data.forEach(item => {
+    data.forEach((item: JupyterFrontEndPlugin<any>) => {
       try {
         this.registerPlugin(item);
       } catch (error) {
