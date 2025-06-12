@@ -1,5 +1,4 @@
-import { showDialog, Dialog } from '@jupyterlab/apputils';
-import { INotification } from 'jupyterlab_toastify';
+import { showDialog, Dialog, Notification } from '@jupyterlab/apputils';
 import * as React from 'react';
 import semver from 'semver';
 import { style } from 'typestyle';
@@ -148,12 +147,12 @@ export class CondaPkgPanel extends React.Component<
         hasUpdate
       });
     } catch (error) {
-      if (error instanceof Error && error.message !== 'cancelled') {
+      if ((error as any).message !== 'cancelled') {
         this.setState({
           isLoading: false
         });
         console.error(error);
-        INotification.error(error.message);
+        Notification.error((error as any).message);
       }
     }
   }
@@ -263,7 +262,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    let toastId: React.ReactText;
+    let toastId = '';
     try {
       this.setState({
         searchTerm: '',
@@ -279,11 +278,11 @@ export class CondaPkgPanel extends React.Component<
         this.setState({
           isApplyingChanges: true
         });
-        toastId = await INotification.inProgress('Updating packages');
+        toastId = Notification.emit('Updating packages', 'in-progress');
         await this._model.update(['--all'], this._currentEnvironment);
 
-        INotification.update({
-          toastId: toastId,
+        Notification.update({
+          id: toastId,
           message: 'Package updated successfully.',
           type: 'success',
           autoClose: 5000
@@ -293,20 +292,18 @@ export class CondaPkgPanel extends React.Component<
       if (error !== 'cancelled') {
         console.error(error);
         if (toastId) {
-          INotification.update({
-            toastId: toastId,
-            message: error instanceof Error ? error.message : 'Unknown error',
+          Notification.update({
+            id: toastId,
+            message: (error as any).message,
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       } else {
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       }
     } finally {
@@ -330,7 +327,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    let toastId: React.ReactText;
+    let toastId = '';
     try {
       this.setState({
         searchTerm: '',
@@ -346,7 +343,7 @@ export class CondaPkgPanel extends React.Component<
         this.setState({
           isApplyingChanges: true
         });
-        toastId = await INotification.inProgress('Starting packages actions');
+        toastId = Notification.emit('Starting packages actions', 'in-progress');
 
         // Get modified pkgs
         const toRemove: Array<string> = [];
@@ -367,31 +364,31 @@ export class CondaPkgPanel extends React.Component<
         });
 
         if (toRemove.length > 0) {
-          await INotification.update({
-            toastId,
+          Notification.update({
+            id: toastId,
             message: 'Removing selected packages'
           });
           await this._model.remove(toRemove, this._currentEnvironment);
         }
 
         if (toUpdate.length > 0) {
-          await INotification.update({
-            toastId,
+          Notification.update({
+            id: toastId,
             message: 'Updating selected packages'
           });
           await this._model.update(toUpdate, this._currentEnvironment);
         }
 
         if (toInstall.length > 0) {
-          await INotification.update({
-            toastId,
+          Notification.update({
+            id: toastId,
             message: 'Installing new packages'
           });
           await this._model.install(toInstall, this._currentEnvironment);
         }
 
-        INotification.update({
-          toastId,
+        Notification.update({
+          id: toastId,
           message: 'Package actions successfully done.',
           type: 'success',
           autoClose: 5000
@@ -401,20 +398,18 @@ export class CondaPkgPanel extends React.Component<
       if (error !== 'cancelled') {
         console.error(error);
         if (toastId) {
-          INotification.update({
-            toastId,
-            message: error instanceof Error ? error.message : 'Unknown error',
+          Notification.update({
+            id: toastId,
+            message: (error as any).message,
             type: 'error',
             autoClose: 0
           });
         } else {
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       } else {
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       }
     } finally {
@@ -448,7 +443,7 @@ export class CondaPkgPanel extends React.Component<
     try {
       await this._model.refreshAvailablePackages();
     } catch (error) {
-      if (error instanceof Error && error.message !== 'cancelled') {
+      if ((error as any).message !== 'cancelled') {
         console.error('Error when refreshing the available packages.', error);
       }
     }

@@ -1,6 +1,5 @@
-import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { Dialog, Notification, showDialog } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { INotification } from 'jupyterlab_toastify';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
@@ -75,7 +74,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleCreateEnvironment(): Promise<void> {
-    let toastId: React.ReactText;
+    let toastId = '';
     try {
       const body = document.createElement('div');
       const nameLabel = document.createElement('label');
@@ -105,12 +104,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (nameInput.value.length === 0) {
           throw new Error('A environment name should be provided.');
         }
-        toastId = await INotification.inProgress(
-          `Creating environment ${nameInput.value}`
+        toastId = Notification.emit(
+          `Creating environment ${nameInput.value}`,
+          'in-progress'
         );
         await this.props.model.create(nameInput.value, typeInput.value);
-        INotification.update({
-          toastId,
+        Notification.update({
+          id: toastId,
           message: `Environment ${nameInput.value} has been created.`,
           type: 'success',
           autoClose: 5000
@@ -122,29 +122,30 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       if (error !== 'cancelled') {
         console.error(error);
         if (toastId) {
-          INotification.update({
-            toastId,
-            message: error instanceof Error ? error.message : 'Unknown error',
+          Notification.update({
+            id: toastId,
+            message: (error as any).message,
             type: 'error',
-            autoClose: 0
+            autoClose: false
           });
         } else {
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       } else {
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       }
     }
   }
 
   async handleCloneEnvironment(): Promise<void> {
-    let toastId: React.ReactText;
+    let toastId = '';
     try {
       const environmentName = this.state.currentEnvironment;
+      if (!environmentName) {
+        return;
+      }
       const body = document.createElement('div');
       const nameLabel = document.createElement('label');
       nameLabel.textContent = 'Name : ';
@@ -161,12 +162,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (nameInput.value.length === 0) {
           throw new Error('A environment name should be provided.');
         }
-        toastId = await INotification.inProgress(
-          `Cloning environment ${environmentName}`
+        toastId = Notification.emit(
+          `Cloning environment ${environmentName}`,
+          'in-progress'
         );
         await this.props.model.clone(environmentName, nameInput.value);
-        INotification.update({
-          toastId,
+        Notification.update({
+          id: toastId,
           message: `Environment ${nameInput.value} created.`,
           type: 'success',
           autoClose: 5000
@@ -180,20 +182,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       if (error !== 'cancelled') {
         console.error(error);
         if (toastId) {
-          INotification.update({
-            toastId,
-            message: error instanceof Error ? error.message : 'Unknown error',
+          Notification.update({
+            id: toastId,
+            message: (error as any).message,
             type: 'error',
-            autoClose: 0
+            autoClose: false
           });
         } else {
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       } else {
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       }
     }
@@ -210,7 +210,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleImportEnvironment(): Promise<void> {
-    let toastId: React.ReactText;
+    let toastId = '';
     try {
       const body = document.createElement('div');
       const nameLabel = document.createElement('label');
@@ -236,17 +236,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         if (nameInput.value.length === 0) {
           throw new Error('A environment name should be provided.');
         }
-        if (fileInput.files.length === 0) {
+        if ((fileInput.files?.length ?? 0) === 0) {
           throw new Error('A environment file should be selected.');
         }
-        toastId = await INotification.inProgress(
-          `Import environment ${nameInput.value}`
+        toastId = Notification.emit(
+          `Import environment ${nameInput.value}`,
+          'in-progress'
         );
-        const selectedFile = fileInput.files[0];
+        const selectedFile = fileInput.files![0];
         const file = await this._readText(selectedFile);
         await this.props.model.import(nameInput.value, file, selectedFile.name);
-        INotification.update({
-          toastId,
+        Notification.update({
+          id: toastId,
           message: `Environment ${nameInput.value} created.`,
           type: 'success',
           autoClose: 5000
@@ -258,20 +259,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       if (error !== 'cancelled') {
         console.error(error);
         if (toastId) {
-          INotification.update({
-            toastId,
-            message: error instanceof Error ? error.message : 'Unknown error',
+          Notification.update({
+            id: toastId,
+            message: (error as any).message,
             type: 'error',
-            autoClose: 0
+            autoClose: false
           });
         } else {
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       } else {
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       }
     }
@@ -280,6 +279,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleExportEnvironment(): Promise<void> {
     try {
       const environmentName = this.state.currentEnvironment;
+      if (!environmentName) {
+        return;
+      }
       const response = await this.props.model.export(environmentName);
       if (response.ok) {
         const content = await response.text();
@@ -300,9 +302,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     } catch (error) {
       if (error !== 'cancelled') {
         console.error(error);
-        INotification.error(
-          error instanceof Error ? error.message : 'Unknown error'
-        );
+        Notification.error((error as any).message);
       }
     }
   }
@@ -312,9 +312,12 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleRemoveEnvironment(): Promise<void> {
-    let toastId: React.ReactText;
+    let toastId = '';
     try {
       const environmentName = this.state.currentEnvironment;
+      if (!environmentName) {
+        return;
+      }
       const response = await showDialog({
         title: 'Remove Environment',
         body: `Are you sure you want to permanently delete environment "${environmentName}" ?`,
@@ -327,12 +330,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         ]
       });
       if (response.button.accept) {
-        toastId = await INotification.inProgress(
-          `Removing environment ${environmentName}`
+        toastId = Notification.emit(
+          `Removing environment ${environmentName}`,
+          'in-progress'
         );
         await this.props.model.remove(environmentName);
-        INotification.update({
-          toastId,
+        Notification.update({
+          id: toastId,
           message: `Environment ${environmentName} has been removed.`,
           type: 'success',
           autoClose: 5000
@@ -346,20 +350,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       if (error !== 'cancelled') {
         console.error(error);
         if (toastId) {
-          INotification.update({
-            toastId,
-            message: error instanceof Error ? error.message : 'Unknown error',
+          Notification.update({
+            id: toastId,
+            message: (error as any).message,
             type: 'error',
-            autoClose: 0
+            autoClose: false
           });
         } else {
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       } else {
         if (toastId) {
-          INotification.dismiss(toastId);
+          Notification.dismiss(toastId);
         }
       }
     }
@@ -387,9 +389,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       } catch (error) {
         if (error !== 'cancelled') {
           console.error(error);
-          INotification.error(
-            error instanceof Error ? error.message : 'Unknown error'
-          );
+          Notification.error((error as any).message);
         }
       }
     }

@@ -1414,13 +1414,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-common-types@npm:^0.2.36":
-  version: 0.2.36
-  resolution: "@fortawesome/fontawesome-common-types@npm:0.2.36"
-  checksum: d604ac51da0b1597127fde70c64157b70ead6af7f2643ab7dfca268ef99d4ed0b4cc823afba206362422a622e389828408bec573df802bf4f02b118d0fa18dc8
-  languageName: node
-  linkType: hard
-
 "@fortawesome/fontawesome-common-types@npm:^0.3.0":
   version: 0.3.0
   resolution: "@fortawesome/fontawesome-common-types@npm:0.3.0"
@@ -1432,15 +1425,6 @@ __metadata:
   version: 5.15.4
   resolution: "@fortawesome/fontawesome-free@npm:5.15.4"
   checksum: 32281c3df4075290d9a96dfc22f72fadb3da7055d4117e48d34046b8c98032a55fa260ae351b0af5d6f6fb57a2f5d79a4abe52af456da35195f7cb7dda27b4a2
-  languageName: node
-  linkType: hard
-
-"@fortawesome/fontawesome-svg-core@npm:^1.2.36":
-  version: 1.2.36
-  resolution: "@fortawesome/fontawesome-svg-core@npm:1.2.36"
-  dependencies:
-    "@fortawesome/fontawesome-common-types": ^0.2.36
-  checksum: 3011d8c1452b5df52a62eaee8b1ec925b9fdfabcc170fd6da5eaac7cfdef56258b9292ddd06c30f03a6a8ed6faa886565211f2e469fee3c9831c32f93e9383d8
   languageName: node
   linkType: hard
 
@@ -1462,33 +1446,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-solid-svg-icons@npm:^5.14.0":
-  version: 5.15.4
-  resolution: "@fortawesome/free-solid-svg-icons@npm:5.15.4"
-  dependencies:
-    "@fortawesome/fontawesome-common-types": ^0.2.36
-  checksum: eb037b703827ee37af3387a964afc7a190ff42a674ef46f4a6c295b634a38e849741eca78306b6423eaf3062d6ab1e7372aac5be2aec06f0fd9e8bd8110efcf9
-  languageName: node
-  linkType: hard
-
 "@fortawesome/free-solid-svg-icons@npm:^6.5.0":
   version: 6.7.2
   resolution: "@fortawesome/free-solid-svg-icons@npm:6.7.2"
   dependencies:
     "@fortawesome/fontawesome-common-types": 6.7.2
   checksum: 457cc180399be57efd1a5908aaa76c8530dec5469fa676904179f73976c10bb030c6de9bf866e2a83e042cfd23856ba5fa1ca5acdb83f4e90c6b4aa9e5412d3c
-  languageName: node
-  linkType: hard
-
-"@fortawesome/react-fontawesome@npm:^0.1.11":
-  version: 0.1.19
-  resolution: "@fortawesome/react-fontawesome@npm:0.1.19"
-  dependencies:
-    prop-types: ^15.8.1
-  peerDependencies:
-    "@fortawesome/fontawesome-svg-core": ~1 || ~6
-    react: ">=16.x"
-  checksum: 77dbe1d5fa156a2ff4aa069d6c11f0ba1fcf43df72c9f03f1eec353d23798513a1f2773957a2bc3107fb8dc79fa606999ed91bf21659745bcc166abc4072819e
   languageName: node
   linkType: hard
 
@@ -2946,7 +2909,6 @@ __metadata:
     d3: ^5.5.0
     jest: ^29.1.1
     jest-environment-jsdom: ^28.1.3
-    jupyterlab_toastify: ^4.1.3
     react: ^18.2.0
     react-d3-graph: ^2.6.0
     react-dom: ^18.2.0
@@ -2980,7 +2942,6 @@ __metadata:
     "@types/react": ^18.0.9
     "@types/react-dom": ^18.0.4
     "@types/semver": ^7.3.1
-    jupyterlab_toastify: ^4.1.3
     react: ^18.0.9
     react-dom: ^18.0.4
     semver: ^6.0.0||^7.0.0
@@ -3007,7 +2968,6 @@ __metadata:
     file-loader: ~6.0.0
     fs-extra: ^9.0.1
     glob: ~7.1.6
-    jupyterlab_toastify: ^4.1.3
     mini-css-extract-plugin: ~1.3.2
     npm-run-all: ^4.1.5
     raw-loader: ~4.0.0
@@ -5553,13 +5513,6 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: d06418b7335897209e77bdd430d04f882189582e67bd1f75a04565f3f07f5b3f119a9d670c943b6697d0afb100f03b866b3b8a1f91d4d02d72c4ecf2bb64b5dd
-  languageName: node
-  linkType: hard
-
-"clsx@npm:^1.1.1":
-  version: 1.2.1
-  resolution: "clsx@npm:1.2.1"
-  checksum: 30befca8019b2eb7dbad38cff6266cf543091dae2825c856a62a8ccf2c3ab9c2907c4d12b288b73101196767f66812365400a227581484a05f968b0307cfaf12
   languageName: node
   linkType: hard
 
@@ -10320,21 +10273,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jupyterlab_toastify@npm:^4.1.3":
-  version: 4.2.1
-  resolution: "jupyterlab_toastify@npm:4.2.1"
-  dependencies:
-    "@fortawesome/fontawesome-svg-core": ^1.2.36
-    "@fortawesome/free-solid-svg-icons": ^5.14.0
-    "@fortawesome/react-fontawesome": ^0.1.11
-    react-toastify: ^7.0.4
-  peerDependencies:
-    react: ^16.0.0 || ^17.0.0
-    react-dom: ^16.6.0 || ^17.0.0
-  checksum: f7b2ccfeec77f8e7f1e289de53defd7abbfbeb099988095541997c195ca37830c5a495b4950bc13287a1ab5db8dd5019383a07b24fb6b4eb799386a2d003f303
-  languageName: node
-  linkType: hard
-
 "keyv@npm:^4.5.3":
   version: 4.5.4
   resolution: "keyv@npm:4.5.4"
@@ -13117,18 +13055,6 @@ __metadata:
   peerDependencies:
     react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
   checksum: a0f5994f5799f1c7364498f74df123dd2561fff4ae834b10fdcca74d9a8e159b523ed1f0708db33bad606933ab4f0d5ce9c90e48cbb671bf30016c890f3c7ea4
-  languageName: node
-  linkType: hard
-
-"react-toastify@npm:^7.0.4":
-  version: 7.0.4
-  resolution: "react-toastify@npm:7.0.4"
-  dependencies:
-    clsx: ^1.1.1
-  peerDependencies:
-    react: ">=16"
-    react-dom: ">=16"
-  checksum: 63bedc8f03016b0960ea5b6d101181464ec16cf44240229210119e9db3b344dd59c4df3df23832803b136a225a9671096027131fee9b072f0eb87cd8e38f742d
   languageName: node
   linkType: hard
 
