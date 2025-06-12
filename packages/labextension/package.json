@@ -15,7 +15,6 @@
   },
   "license": "BSD-3-Clause",
   "author": "Jupyter Development Team",
-  "_buildWorkaround": "Uses fake 'jlpm' script that redirects to yarn. PATH manipulation in build scripts ensures our jlpm wrapper intercepts JupyterLab's internal jlpm calls. Remove during JupyterLab 4 upgrade.",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
@@ -31,8 +30,8 @@
   "scripts": {
     "build": "yarn run build:lib && yarn run build:labextension:dev",
     "build:dev": "tsc",
-    "build:labextension": "node build-with-fake-jlpm.js",
-    "build:labextension:dev": "node build-with-fake-jlpm.js --dev",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build . --development True",
     "build:lib": "tsc",
     "build:prod": "yarn run build:lib && yarn run build:labextension",
     "clean": "yarn run clean:lib && yarn run clean:labextension",

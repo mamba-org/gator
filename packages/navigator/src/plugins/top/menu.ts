@@ -1,4 +1,4 @@
-import { IJupyterLabMenu } from '@jupyterlab/mainmenu';
+import { IRankedMenu } from '@jupyterlab/ui-components';
 
 import { CommandRegistry } from '@lumino/commands';
 
@@ -22,13 +22,13 @@ export class MainMenu extends MenuBar implements IMainMenu {
     const { commands } = options;
     this._helpMenu = new HelpMenu({ commands });
 
-    this.addMenu(this._helpMenu.menu);
+    this.addMenu(this._helpMenu);
   }
 
   /**
    * Get the help menu.
    */
-  get helpMenu(): IJupyterLabMenu {
+  get helpMenu(): IRankedMenu {
     return this._helpMenu;
   }
 

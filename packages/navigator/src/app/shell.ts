@@ -1,8 +1,9 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { DocumentRegistry } from '@jupyterlab/docregistry';
 
 import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
-import { IIterator, iter, toArray } from '@lumino/algorithm';
+import { toArray } from '@lumino/algorithm';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
@@ -58,8 +59,13 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
    * @param area - Optional region in the shell into which the widget should
    * be added.
    *
+   * @param options - Optional options for adding the widget.
    */
-  add(widget: Widget, area?: IGatorShell.Area): void {
+  add(
+    widget: Widget,
+    area?: string,
+    options?: DocumentRegistry.IOpenOptions
+  ): void {
     if (area === 'top') {
       return this._top.addWidget(widget);
     }
@@ -69,14 +75,15 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
   /**
    * The current widget in the shell's main area.
    */
-  get currentWidget(): Widget {
+  get currentWidget(): Widget | null {
     // TODO: use a focus tracker to return the current widget
-    return toArray(this._main.widgets())[0];
+    const widgets = toArray(this._main.widgets());
+    return widgets.length > 0 ? widgets[0] : null;
   }
 
-  widgets(area: IGatorShell.Area): IIterator<Widget> {
+  widgets(area?: string): IterableIterator<Widget> {
     if (area === 'top') {
-      return iter(this._top.widgets);
+      return this._top.widgets[Symbol.iterator]();
     }
     return this._main.widgets();
   }

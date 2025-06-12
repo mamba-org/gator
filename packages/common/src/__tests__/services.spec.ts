@@ -8,8 +8,12 @@ import 'jest';
 import { platform } from 'os';
 import { CondaEnvironments, CondaPackage } from '../services';
 
-// import Response if not available in Node.js environment
-global.Response = require('node-fetch').Response;
+// Import fetch polyfills for Node.js environment
+const nodeFetch = require('node-fetch');
+global.Response = nodeFetch.Response;
+global.Request = nodeFetch.Request;
+global.Headers = nodeFetch.Headers;
+global.fetch = nodeFetch.default || nodeFetch;
 
 jest.mock('@jupyterlab/services', () => {
   return {

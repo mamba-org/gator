@@ -1,5 +1,5 @@
 import { PathExt } from '@jupyterlab/coreutils';
-import { KernelSpecAPI, KernelSpecManager } from '@jupyterlab/services';
+import { KernelSpec, KernelSpecAPI } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
@@ -50,7 +50,7 @@ type Companions = { [key: string]: string };
  */
 export class CompanionValidator implements ICompanionValidator {
   constructor(
-    kernelManager: KernelSpecManager,
+    kernelManager: KernelSpec.IManager,
     envManager: IEnvironmentManager,
     settings: ISettingRegistry.ISettings
   ) {
@@ -147,10 +147,10 @@ export class CompanionValidator implements ICompanionValidator {
    * @param specs Available kernelSpec models
    */
   private async _validateSpecs(
-    manager: KernelSpecManager, // Needed to connect signal
+    manager: KernelSpec.IManager | null, // Needed to connect signal
     specs: KernelSpecAPI.ISpecModels
   ): Promise<void> {
-    if (Object.keys(this._companions).length === 0) {
+    if (Object.keys(this._companions).length === 0 || !specs) {
       return;
     }
 
@@ -207,8 +207,11 @@ export class CompanionValidator implements ICompanionValidator {
 
     // Loop on the kernelSpecs
     for (const spec of Object.keys(specs.kernelspecs)) {
-      let environment: string;
-      const { conda_env_name, conda_env_path } = specs.kernelspecs[spec]
+      let environment = '';
+      if (!specs.kernelspecs[spec]) {
+        continue;
+      }
+      const { conda_env_name, conda_env_path } = specs.kernelspecs[spec]!
         .metadata as { conda_env_name: string; conda_env_path: string };
 
       if (conda_env_path) {
@@ -216,7 +219,9 @@ export class CompanionValidator implements ICompanionValidator {
           conda_env_name === 'root' ? 'base' : PathExt.basename(conda_env_path);
       } else {
         const name = CompanionValidator.kernelNameToEnvironment(spec);
-        environment = normalizedNames[name];
+        if (name !== null) {
+          environment = normalizedNames[name];
+        }
       }
 
       if (environment) {
@@ -230,7 +235,7 @@ export class CompanionValidator implements ICompanionValidator {
             if (
               companions.indexOf(pkg.name) >= 0 &&
               !semver.satisfies(
-                pkg.version_installed,
+                pkg.version_installed ?? '',
                 this._companions[pkg.name]
               )
             ) {

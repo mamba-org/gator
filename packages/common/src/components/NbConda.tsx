@@ -1,5 +1,4 @@
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { Widget } from '@lumino/widgets';
 import { INotification } from 'jupyterlab_toastify';
 import * as React from 'react';
 import { style } from 'typestyle';
@@ -77,31 +76,34 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleCreateEnvironment(): Promise<void> {
     let toastId: React.ReactText;
     try {
-      const body = document.createElement('div');
-      const nameLabel = document.createElement('label');
-      nameLabel.textContent = 'Name : ';
-      const nameInput = document.createElement('input');
-      body.appendChild(nameLabel);
-      body.appendChild(nameInput);
-
-      const typeLabel = document.createElement('label');
-      typeLabel.textContent = 'Type : ';
-      const typeInput = document.createElement('select');
-      for (const type of this.props.model.environmentTypes) {
-        const option = document.createElement('option');
-        option.setAttribute('value', type);
-        option.innerText = type;
-        typeInput.appendChild(option);
-      }
-      body.appendChild(typeLabel);
-      body.appendChild(typeInput);
+      const bodyElement = (
+        <div>
+          <label>Name : </label>
+          <input id="env-name-input" />
+          <label>Type : </label>
+          <select id="env-type-input">
+            {this.props.model.environmentTypes.map(type => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
 
       const response = await showDialog({
         title: 'New Environment',
-        body: new Widget({ node: body }),
+        body: bodyElement,
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept) {
+        const nameInput = document.getElementById(
+          'env-name-input'
+        ) as HTMLInputElement;
+        const typeInput = document.getElementById(
+          'env-type-input'
+        ) as HTMLSelectElement;
+
         if (nameInput.value.length === 0) {
           throw new Error('A environment name should be provided.');
         }
@@ -145,19 +147,23 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     let toastId: React.ReactText;
     try {
       const environmentName = this.state.currentEnvironment;
-      const body = document.createElement('div');
-      const nameLabel = document.createElement('label');
-      nameLabel.textContent = 'Name : ';
-      const nameInput = document.createElement('input');
-      body.appendChild(nameLabel);
-      body.appendChild(nameInput);
+      const bodyElement = (
+        <div>
+          <label>Name : </label>
+          <input id="clone-name-input" />
+        </div>
+      );
 
       const response = await showDialog({
         title: 'Clone Environment',
-        body: new Widget({ node: body }),
+        body: bodyElement,
         buttons: [Dialog.cancelButton(), Dialog.okButton({ caption: 'Clone' })]
       });
       if (response.button.accept) {
+        const nameInput = document.getElementById(
+          'clone-name-input'
+        ) as HTMLInputElement;
+
         if (nameInput.value.length === 0) {
           throw new Error('A environment name should be provided.');
         }
@@ -212,27 +218,28 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleImportEnvironment(): Promise<void> {
     let toastId: React.ReactText;
     try {
-      const body = document.createElement('div');
-      const nameLabel = document.createElement('label');
-      nameLabel.textContent = 'Name : ';
-      const nameInput = document.createElement('input');
-      body.appendChild(nameLabel);
-      body.appendChild(nameInput);
-
-      const fileLabel = document.createElement('label');
-      fileLabel.textContent = 'File : ';
-      const fileInput = document.createElement('input');
-      fileInput.setAttribute('type', 'file');
-
-      body.appendChild(fileLabel);
-      body.appendChild(fileInput);
+      const bodyElement = (
+        <div>
+          <label>Name : </label>
+          <input id="import-name-input" />
+          <label>File : </label>
+          <input id="import-file-input" type="file" />
+        </div>
+      );
 
       const response = await showDialog({
         title: 'Import Environment',
-        body: new Widget({ node: body }),
+        body: bodyElement,
         buttons: [Dialog.cancelButton(), Dialog.okButton()]
       });
       if (response.button.accept) {
+        const nameInput = document.getElementById(
+          'import-name-input'
+        ) as HTMLInputElement;
+        const fileInput = document.getElementById(
+          'import-file-input'
+        ) as HTMLInputElement;
+
         if (nameInput.value.length === 0) {
           throw new Error('A environment name should be provided.');
         }
