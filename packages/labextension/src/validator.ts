@@ -1,10 +1,10 @@
+import { Notification } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { KernelSpec, KernelSpecAPI } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
 import { Conda, IEnvironmentManager } from '@mamba-org/gator-common';
-import { INotification } from 'jupyterlab_toastify';
 import semver from 'semver';
 
 export const companionID = '@mamba-org/gator-lab:companion';
@@ -170,33 +170,21 @@ export class CompanionValidator implements ICompanionValidator {
       manager: IEnvironmentManager,
       name: string
     ): void {
-      INotification.warning(`Environment "${name}" has some inconsistencies.`, {
-        buttons: [
+      Notification.warning(`Environment "${name}" has some inconsistencies.`, {
+        actions: [
           {
             label: 'Correct',
             caption: 'Correct installed packages',
             callback: (): void => {
-              INotification.inProgress('Correct the environment.').then(
-                toastId => {
-                  manager
-                    .getPackageManager()
-                    .install(updates, name)
-                    .then(() => {
-                      INotification.update({
-                        toastId,
-                        message: 'Environment corrected',
-                        type: 'success',
-                        autoClose: 5000
-                      });
-                    })
-                    .catch((reason: Error) => {
-                      console.error(reason);
-                      INotification.update({
-                        toastId,
-                        message: 'Fail to correct the environment.',
-                        type: 'error'
-                      });
-                    });
+              Notification.promise(
+                manager
+                  .getPackageManager()
+                  .install(updates, name)
+                  .then(() => null),
+                {
+                  pending: { message: 'Correct the environment.' },
+                  success: { message: () => 'Environment corrected' },
+                  error: { message: () => 'Fail to correct the environment.' }
                 }
               );
             }

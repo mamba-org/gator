@@ -6,14 +6,12 @@ import sys
 import time
 from binascii import hexlify
 from subprocess import CalledProcessError, check_call
+from tempfile import TemporaryDirectory
 from threading import Event, Thread
 from typing import List
-from unittest import TestCase
 from unittest.mock import patch
 
 import jupyter_core.paths
-from ipython_genutils.tempdir import TemporaryDirectory
-from mamba_gator.envmanager import PATH_SEP
 from mamba_gator.handlers import NS
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
