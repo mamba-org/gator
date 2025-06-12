@@ -1,5 +1,4 @@
 import { Dialog, Notification, showDialog } from '@jupyterlab/apputils';
-import { Widget } from '@lumino/widgets';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';

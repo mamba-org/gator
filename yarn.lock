@@ -12924,38 +12924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-popper@npm:^1.3.11":
-  version: 1.3.11
-  resolution: "react-popper@npm:1.3.11"
-  dependencies:
-    "@babel/runtime": ^7.1.2
-    "@hypnosphi/create-react-context": ^0.3.1
-    deep-equal: ^1.1.1
-    popper.js: ^1.14.4
-    prop-types: ^15.6.1
-    typed-styles: ^0.0.7
-    warning: ^4.0.2
-  peerDependencies:
-    react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: a0f5994f5799f1c7364498f74df123dd2561fff4ae834b10fdcca74d9a8e159b523ed1f0708db33bad606933ab4f0d5ce9c90e48cbb671bf30016c890f3c7ea4
-  languageName: node
-  linkType: hard
-
-"react-transition-group@npm:^4.4.5":
-  version: 4.4.5
-  resolution: "react-transition-group@npm:4.4.5"
-  dependencies:
-    "@babel/runtime": ^7.5.5
-    dom-helpers: ^5.0.1
-    loose-envify: ^1.4.0
-    prop-types: ^15.6.2
-  peerDependencies:
-    react: ">=16.6.0"
-    react-dom: ">=16.6.0"
-  checksum: 75602840106aa9c6545149d6d7ae1502fb7b7abadcce70a6954c4b64a438ff1cd16fc77a0a1e5197cdd72da398f39eb929ea06f9005c45b132ed34e056ebdeb1
-  languageName: node
-  linkType: hard
-
 "react-virtualized-auto-sizer@npm:^1.0.7":
   version: 1.0.26
   resolution: "react-virtualized-auto-sizer@npm:1.0.26"
