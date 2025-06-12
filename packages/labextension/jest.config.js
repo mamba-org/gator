@@ -1,5 +1,4 @@
 const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
-
 const esModules = [
   '@jupyterlab/',
   'lib0',
@@ -7,9 +6,7 @@ const esModules = [
   'y\\-websocket',
   'yjs'
 ].join('|');
-
 const jlabConfig = jestJupyterLab(__dirname);
-
 const {
   moduleFileExtensions,
   moduleNameMapper,
@@ -28,16 +25,16 @@ module.exports = {
   setupFilesAfterEnv,
   setupFiles,
   testPathIgnorePatterns,
-  transform,
+  transform: {
+    ...transform,
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: 'tsconfig.json'
+    }]
+  },
   automock: false,
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/*.d.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text'],
-  globals: {
-    'ts-jest': {
-      tsConfig: 'tsconfig.json'
-    }
-  },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
   transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
 };
