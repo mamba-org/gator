@@ -790,9 +790,9 @@ class EnvManager:
 
                     if version is None:
                         name = entry.get("name")
-                        version = entry.get("version")
-                        self.log.warning(f"Unable to parse version '{version}' of '{name}'")
-                        continue
+                        original_version = entry.get("version")
+                        self.log.warning(f"Unable to parse version '{original_version}' of '{name}'")
+                        version = Version("0.0.0")
 
                     if version not in versions:
                         versions.append(version)
