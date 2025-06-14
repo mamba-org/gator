@@ -1115,11 +1115,25 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 }
 
                 if has_mamba:
-                    # Change dummy to match mamba repoquery format
                     dummy = {
-                        "result": {
-                            "pkgs": list(chain(*dummy.values()))
-                        }
+                        "numpy_sugar": [
+                            {
+                                "arch": None,
+                                "build": "py35_vc14_0",
+                                "build_number": 0,
+                                "channel": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64",  # ← Add this!
+                                "constrains": [],
+                                "depends": ["cffi", "numpy", "python 3.5*"],
+                                "fn": "numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                                "license": "MIT",
+                                "name": "numpy_sugar",
+                                "platform": None,
+                                "size": 46560,
+                                "subdir": "win-64",
+                                "url": "https://artifactory.server/artifactory/api/conda/conda-proxy-forge/win-64/numpy_sugar-1.0.6-py35_vc14_0.tar.bz2",
+                                "version": "1.0.6",
+                            }
+                        ]
                     }
 
                 with tempfile.TemporaryDirectory() as local_channel:
@@ -1131,19 +1145,29 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         )
                     local_name = local_channel.strip("/")
                     channels = {
-                        "channel_alias": {},
-                        "channels": [local_channel],
-                        "custom_multichannels": {},
-                        "custom_channels": {
-                            local_name: {
-                                "auth": None,
-                                "location": "",
-                                "name": local_name,
-                                "package_filename": None,
-                                "platform": None,
-                                "scheme": "file",
-                                "token": None,
-                            }
+                        "channel_alias": {
+                            "auth": None,
+                            "location": "conda.anaconda.org",
+                            "name": "",  # ← Change None to empty string
+                            "package_filename": None,
+                            "platform": None,
+                            "scheme": "https",
+                            "token": None,
+                        },
+                        "channels": ["defaults"],
+                        "custom_channels": {},
+                        "custom_multichannels": {
+                            "defaults": [
+                                {
+                                    "auth": None,
+                                    "location": "repo.anaconda.com",
+                                    "name": "pkgs/main",
+                                    "package_filename": None,
+                                    "platform": None,
+                                    "scheme": "https",
+                                    "token": None,
+                                }
+                            ]
                         },
                     }
 
