@@ -786,7 +786,7 @@ class EnvManager:
                     entry = normalize_pkg_info(entry)
                     if pkg_entry is None:
                         pkg_entry = entry
-                        version = parse_version(entry.get("version", ""))
+                    version = parse_version(entry.get("version", ""))
 
                     if version is None:
                         name = entry.get("name")

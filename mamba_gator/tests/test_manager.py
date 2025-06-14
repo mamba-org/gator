@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from packaging.version import Version
+from packaging.version import Version, InvalidVersion
 
 from mamba_gator.envmanager import EnvManager, parse_version
 
@@ -83,3 +83,76 @@ async def test_list_available_version_sorting_works():
             # Check that versions are in ascending order
             versions = [Version(v) for v in multi_version_pkg["version"]]
             assert versions == sorted(versions)
+
+
+@pytest.mark.asyncio
+async def test_list_available_handles_invalid_versions_gracefully():
+    """Test that list_available doesn't crash with invalid versions and logs warnings."""
+    manager = EnvManager("", None)
+
+    # This should complete without crashing, even if some packages have invalid versions
+    result = await manager.list_available()
+
+    # Should still return valid structure
+    assert "packages" in result
+    assert isinstance(result["packages"], list)
+
+
+@pytest.mark.asyncio
+async def test_list_available_preserves_package_metadata():
+    """Test that version parsing doesn't break other package metadata."""
+    manager = EnvManager("", None)
+    result = await manager.list_available()
+
+    if result["packages"]:
+        # Check that packages still have their expected metadata
+        package = result["packages"][0]
+        expected_fields = {"name", "version", "channel"}
+        assert all(field in package for field in expected_fields)
+
+        # Version should be a list of strings
+        assert isinstance(package["version"], list)
+        assert all(isinstance(v, str) for v in package["version"])
+
+
+@pytest.mark.asyncio
+async def test_list_available_version_parsing_integration():
+    """Test the full integration of version parsing within list_available."""
+    manager = EnvManager("", None)
+    result = await manager.list_available()
+
+    if result["packages"]:
+        # Look for packages that might have had version parsing applied
+        for package in result["packages"]:
+            if package["version"]:
+                # All versions should be valid strings after parsing
+                for version_str in package["version"]:
+                    assert isinstance(version_str, str)
+                    assert len(version_str) > 0
+
+                    # Should be parseable by packaging.Version after our parsing
+                    try:
+                        Version(version_str)
+                    except InvalidVersion:
+                        # If this fails, our version parsing didn't work correctly
+                        pytest.fail(f"Version '{version_str}' from package '{package['name']}' is not valid after parsing")
+
+
+@pytest.mark.asyncio
+async def test_list_available_build_metadata_preserved():
+    """Test that build numbers and strings are correctly aligned with parsed versions."""
+    manager = EnvManager("", None)
+    result = await manager.list_available()
+
+    if result["packages"]:
+        for package in result["packages"]:
+            versions = package.get("version", [])
+            build_numbers = package.get("build_number", [])
+            build_strings = package.get("build_string", [])
+
+            if versions and build_numbers:
+                # All arrays should have the same length
+                assert len(versions) == len(build_numbers)
+
+            if versions and build_strings:
+                assert len(versions) == len(build_strings)
