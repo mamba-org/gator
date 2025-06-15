@@ -1,6 +1,6 @@
 import { Notification } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
-import { KernelSpecAPI, KernelSpecManager } from '@jupyterlab/services';
+import { KernelSpecAPI, KernelSpec } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
@@ -50,7 +50,7 @@ type Companions = { [key: string]: string };
  */
 export class CompanionValidator implements ICompanionValidator {
   constructor(
-    kernelManager: KernelSpecManager,
+    kernelManager: KernelSpec.IManager,
     envManager: IEnvironmentManager,
     settings: ISettingRegistry.ISettings
   ) {
@@ -147,7 +147,7 @@ export class CompanionValidator implements ICompanionValidator {
    * @param specs Available kernelSpec models
    */
   private async _validateSpecs(
-    manager: KernelSpecManager, // Needed to connect signal
+    manager: KernelSpec.IManager,
     specs: KernelSpecAPI.ISpecModels
   ): Promise<void> {
     if (Object.keys(this._companions).length === 0) {
