@@ -42,6 +42,7 @@
     "install:extension": "jupyter labextension develop --overwrite .",
     "lab:link": "jupyter labextension link . --no-build",
     "prepare": "yarn run clean && yarn run build:prod",
+    "test": "jest --coverage",
     "watch": "run-p watch:src watch:labextension",
     "watch:labextension": "jupyter labextension watch .",
     "watch:src": "tsc -w"
