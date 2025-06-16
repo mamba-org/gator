@@ -50,10 +50,10 @@ async function activateCondaEnv(
   }
 
   // Track and restore the widget state
-  const tracker = new WidgetTracker<MainAreaWidget<CondaEnvWidget>>({
+  const tracker = new WidgetTracker<MainAreaWidget<any>>({
     namespace: pluginNamespace
   });
-  let condaWidget: MainAreaWidget<CondaEnvWidget>;
+  let condaWidget: MainAreaWidget<any>;
 
   commands.addCommand(command, {
     label: 'Conda Packages Manager',
@@ -92,7 +92,7 @@ async function activateCondaEnv(
 
       if (!condaWidget || condaWidget.isDisposed) {
         condaWidget = new MainAreaWidget({
-          content: new CondaEnvWidget(model)
+          content: new CondaEnvWidget(model) as any
         });
         condaWidget.addClass(CONDA_WIDGET_CLASS);
         condaWidget.id = pluginNamespace;

@@ -2,7 +2,7 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { DOMUtils, MainAreaWidget, Notification } from '@jupyterlab/apputils';
+import { DOMUtils, Notification } from '@jupyterlab/apputils';
 import {
   CondaEnvironments,
   CondaEnvWidget,
@@ -35,7 +35,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     content.title.label = 'Packages';
     content.title.caption = 'Conda Packages Manager';
     content.title.icon = condaIcon;
-    const widget = new MainAreaWidget({ content });
+    const envModel = new CondaEnvironments();
+    const widget = new CondaEnvWidget(envModel) as any;
     widget.title.closable = false;
     app.shell.add(widget, 'main');
   }
