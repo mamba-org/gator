@@ -26,11 +26,11 @@
     "watch": "npm-run-all --parallel watch:ts watch:webpack"
   },
   "dependencies": {
-    "@jupyterlab/application": "^3.0.0",
-    "@jupyterlab/apputils": "^3.0.0",
-    "@jupyterlab/mainmenu": "^3.0.0",
-    "@jupyterlab/theme-light-extension": "^3.0.0",
-    "@jupyterlab/ui-components": "^3.0.0",
+    "@jupyterlab/application": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/apputils": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/mainmenu": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/theme-light-extension": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/ui-components": "^3.0.0 || ^4.0.0",
     "@lumino/widgets": "^1.16.1",
     "@mamba-org/gator-common": "^3.0.2",
     "es6-promise": "~4.2.8",

@@ -13,6 +13,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.9"]
+        jupyterlab-version: ["3", "4"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,7 +52,7 @@ jobs:
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels
-          pip install .[test]
+          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" .[test]
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -64,6 +65,7 @@ jobs:
       matrix:
         # Skip 3.9 as it is used for integration tests
         python-version: ["3.8"]
+        jupyterlab-version: ["3", "4"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,7 +104,7 @@ jobs:
         run: |
           conda info
           mamba install -c conda-forge -n test_gator nb_conda_kernels
-          pip install .[test]
+          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" .[test]
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -115,6 +117,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       fail-fast: false
+      jupyterlab-version: ["3", "4"]
       matrix:
         os: 
           - "macos-latest"
@@ -160,7 +163,7 @@ jobs:
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels
           yarn install
-          python -m pip install -e .[test]
+          python -m pip install "jupyterlab==${{ matrix.jupyterlab-version }}" .[test]
         shell: bash -l {0}
 
       - name: Install Playwright browsers
