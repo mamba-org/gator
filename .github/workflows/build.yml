@@ -163,10 +163,22 @@ jobs:
           node-version: '18'
           cache: 'yarn'
           
-      - name: Install dependencies
+      - name: Create conda environment
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+
+      - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
+        run: |
+          if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
+            yarn add jupyterlab@3.6.7 @jupyterlab/builder@3.3.0
+          elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
+            yarn add jupyterlab@4.1.6 @jupyterlab/builder@4.0.0
+          fi
+        shell: bash -l {0}
+
+      - name: Install dependencies
+        run: |
           yarn install
           jupyter --version
           python -m pip install .[test]
@@ -230,10 +242,22 @@ jobs:
           node-version: '18'
           cache: 'yarn'
           
-      - name: Install dependencies
+      - name: Create mamba environment
         run: |
           conda info
           mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+
+      - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
+        run: |
+          if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
+            yarn add jupyterlab@3.6.7 @jupyterlab/builder@3.3.0
+          elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
+            yarn add jupyterlab@4.1.6 @jupyterlab/builder@4.0.0
+          fi
+        shell: bash -l {0}
+
+      - name: Install dependencies
+        run: |
           yarn install
           jupyter --version
           pip install -e .[test,dev]
