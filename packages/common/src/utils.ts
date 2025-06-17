@@ -1,31 +1,19 @@
-/**
- * JupyterLab version compatibility utilities
- *
- * TODO: Remove this file when dropping JupyterLab 3 support
- */
+import * as UIComponents from '@jupyterlab/ui-components';
+import * as AppUtils from '@jupyterlab/apputils';
 
-declare const require: (id: string) => any;
+// Use the one that's available
+export const ReactWidget =
+  (UIComponents as any)?.ReactWidget || (AppUtils as any)?.ReactWidget;
+export const UseSignal =
+  (UIComponents as any)?.UseSignal || (AppUtils as any)?.UseSignal;
 
-// TODO: Replace with this import when dropping JupyterLab 3 support:
-// import { ReactWidget } from '@jupyterlab/ui-components';
+if (!ReactWidget) {
+  throw new Error('ReactWidget not found in either package');
+}
 
-// Temporary compatibility for JupyterLab 3 & 4
-export const ReactWidget = (() => {
-  try {
-    return (require as any)('@jupyterlab/ui-components').ReactWidget;
-  } catch {
-    return (require as any)('@jupyterlab/apputils').ReactWidget;
-  }
-})();
-
-// TODO: Replace with this import when dropping JupyterLab 3 support:
-// import { UseSignal } from '@jupyterlab/ui-components';
-
-// Temporary compatibility for JupyterLab 3 & 4
-export const UseSignal = (() => {
-  try {
-    return (require as any)('@jupyterlab/ui-components').UseSignal;
-  } catch {
-    return (require as any)('@jupyterlab/apputils').UseSignal;
-  }
-})();
+console.log(
+  '✓ Using',
+  ReactWidget.name,
+  'from',
+  (UIComponents as any)?.ReactWidget ? 'ui-components' : 'apputils'
+);
