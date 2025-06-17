@@ -31,7 +31,7 @@
     "@jupyterlab/mainmenu": "^3.0.0 || ^4.0.0",
     "@jupyterlab/theme-light-extension": "^3.0.0 || ^4.0.0",
     "@jupyterlab/ui-components": "^3.0.0 || ^4.0.0",
-    "@lumino/widgets": "^1.16.1",
+    "@lumino/widgets": "^1.16.1 || ^2.0.0",
     "@mamba-org/gator-common": "^3.0.2",
     "es6-promise": "~4.2.8",
     "react": "^18.0.9",
