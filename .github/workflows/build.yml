@@ -171,9 +171,9 @@ jobs:
       - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
         run: |
           if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
-            yarn add jupyterlab@3.6.7 @jupyterlab/builder@3.3.0
+            yarn add @jupyterlab/builder@3.3.0
           elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
-            yarn add jupyterlab@4.1.6 @jupyterlab/builder@4.0.0
+            yarn add @jupyterlab/builder@4.0.0
           fi
         shell: bash -l {0}
 
@@ -250,9 +250,9 @@ jobs:
       - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
         run: |
           if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
-            yarn add jupyterlab@3.6.7 @jupyterlab/builder@3.3.0
+            yarn add @jupyterlab/builder@3.3.0
           elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
-            yarn add jupyterlab@4.1.6 @jupyterlab/builder@4.0.0
+            yarn add @jupyterlab/builder@4.0.0
           fi
         shell: bash -l {0}
 
