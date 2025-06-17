@@ -52,8 +52,9 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels
-          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" .[test]
+          conda install -c conda-forge -n test_gator nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
+          jupyter --version
+          pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -105,8 +106,9 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels
-          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" .[test]
+          mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+          jupyter --version
+          pip install .[test]
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -164,9 +166,10 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels
+          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
           yarn install
-          python -m pip install "jupyterlab==${{ matrix.jupyterlab-version }}" .[test]
+          jupyter --version
+          python -m pip install .[test]
         shell: bash -l {0}
 
       - name: Install Playwright browsers
@@ -230,8 +233,9 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels
+          mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
           yarn install
+          jupyter --version
           pip install -e .[test,dev]
 
           # Check pip dependencies
