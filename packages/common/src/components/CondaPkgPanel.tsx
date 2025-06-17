@@ -242,7 +242,7 @@ export class CondaPkgPanel extends React.Component<
   handleDependenciesGraph = (pkg: Conda.IPackage): void => {
     showDialog({
       title: pkg.name,
-      body: new PkgGraphWidget(this._model, pkg.name),
+      body: new PkgGraphWidget(this._model, pkg.name) as any,
       buttons: [Dialog.okButton()]
     });
   };

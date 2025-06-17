@@ -1,4 +1,4 @@
-import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
+import { ReactWidget, UseSignal } from './utils';
 import { Signal } from '@lumino/signaling';
 import { Widget } from '@lumino/widgets';
 import * as React from 'react';
@@ -40,7 +40,7 @@ export class CondaEnvWidget extends ReactWidget {
         signal={this._resizeSignal}
         initialArgs={{ height: 0, width: 0 }}
       >
-        {(_, size): JSX.Element => (
+        {(_: any, size: ISize): JSX.Element => (
           <NbConda
             height={size.height}
             width={size.width}
