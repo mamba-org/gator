@@ -171,15 +171,14 @@ jobs:
       - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
         run: |
           if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
-            yarn add @jupyterlab/builder@3.3.0
+            YARN_RC_FILENAME=.yarnrc-lab3.yml yarn install --lockfile-path=yarn.lock.lab3
           elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
-            yarn add @jupyterlab/builder@4.0.0
+            YARN_RC_FILENAME=.yarnrc-lab4.yml yarn install --lockfile-path=yarn.lock.lab4
           fi
         shell: bash -l {0}
 
-      - name: Install dependencies
+      - name: Editable install
         run: |
-          yarn install
           jupyter --version
           python -m pip install .[test]
         shell: bash -l {0}
@@ -247,18 +246,17 @@ jobs:
           conda info
           mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
 
-      - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
+      - name: Install dependencies for version ${{ matrix.jupyterlab-version }}
         run: |
           if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
-            yarn add @jupyterlab/builder@3.3.0
+            YARN_RC_FILENAME=.yarnrc-lab3.yml yarn install --lockfile-path=yarn.lock.lab3
           elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
-            yarn add @jupyterlab/builder@4.0.0
+            YARN_RC_FILENAME=.yarnrc-lab4.yml yarn install --lockfile-path=yarn.lock.lab4
           fi
         shell: bash -l {0}
 
-      - name: Install dependencies
+      - name: Editable install
         run: |
-          yarn install
           jupyter --version
           pip install -e .[test,dev]
 
