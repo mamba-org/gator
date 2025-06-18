@@ -54,7 +54,7 @@ jobs:
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
           jupyter --version
-          pip install .[test]
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
@@ -108,7 +108,7 @@ jobs:
           conda info
           mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
           jupyter --version
-          pip install .[test]
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
