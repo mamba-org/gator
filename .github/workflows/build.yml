@@ -173,12 +173,6 @@ jobs:
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
 
-      - name: Editable install
-        run: |
-          jupyter --version
-          python -m pip install .[test]
-        shell: bash -l {0}
-
       - name: Install Playwright browsers
         if: matrix.os != 'windows-latest'
         run: npx playwright install --with-deps chromium
@@ -250,9 +244,6 @@ jobs:
           pip check
         shell: bash -l {0}
 
-      
- 
-      
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
         shell: bash -l {0}
