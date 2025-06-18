@@ -168,13 +168,9 @@ jobs:
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
 
-      - name: Install JupyterLab JS Packages for version ${{ matrix.jupyterlab-version }}
+      - name: Install dependencies and Extension
         run: |
-          if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
-            YARN_RC_FILENAME=.yarnrc-lab3.yml yarn install --lockfile-path=yarn.lock.lab3
-          elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
-            YARN_RC_FILENAME=.yarnrc-lab4.yml yarn install --lockfile-path=yarn.lock.lab4
-          fi
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
 
       - name: Editable install
@@ -246,19 +242,11 @@ jobs:
           conda info
           mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
 
-      - name: Install dependencies for version ${{ matrix.jupyterlab-version }}
+      - name: Install Dependencies and Extension
         run: |
-          if [[ "${{ matrix.jupyterlab-version }}" == "3" ]]; then
-            YARN_RC_FILENAME=.yarnrc-lab3.yml yarn install --lockfile-path=yarn.lock.lab3
-          elif [[ "${{ matrix.jupyterlab-version }}" == "4" ]]; then
-            YARN_RC_FILENAME=.yarnrc-lab4.yml yarn install --lockfile-path=yarn.lock.lab4
-          fi
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
 
-      - name: Editable install
-        run: |
-          jupyter --version
-          pip install -e .[test,dev]
 
           # Check pip dependencies
           pip check

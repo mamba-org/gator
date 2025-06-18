@@ -81,6 +81,7 @@ exclude = [
 path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
+skip_npm_install = true
 dependencies = [
     "hatch-jupyter-builder",
 ]
