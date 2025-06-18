@@ -236,21 +236,22 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-          
+ 
       - name: Create mamba environment
         run: |
           conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+          mamba install -c conda-forge -n test_gator nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
 
       - name: Install Dependencies and Extension
         run: |
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
-        shell: bash -l {0}
-
 
           # Check pip dependencies
           pip check
         shell: bash -l {0}
+
+      
+ 
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
