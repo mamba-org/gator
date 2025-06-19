@@ -31,8 +31,8 @@ try:
     from notebook.utils import url_escape, url_path_join
 except ImportError:
     from jupyter_server.serverapp import ServerApp  # noqa
-    from jupyter_server.tests.launchnotebook import assert_http_error  # noqa
-    from jupyter_server.tests.launchserver import ServerTestBase  # noqa
+    from .test_utils import assert_http_error
+    from .test_server_base import ServerTestBase
     from jupyter_server.utils import url_escape, url_path_join  # noqa
 
 
@@ -96,7 +96,7 @@ class JupyterCondaAPI(APITester):
 class ServerTest(ServerTestBase):
 
     # Force extension enabling - Disabled by parent class otherwise
-    config = Config({"NotebookApp": {"nbserver_extensions": {"mamba_gator": True}}})
+    config = Config({"ServerApp": {"jpserver_extensions": {"mamba_gator": True}}})
 
     @classmethod
     def setup_class(cls):
@@ -188,6 +188,15 @@ class ServerTest(ServerTestBase):
         cls.notebook_thread.start()
         started.wait()
         cls.wait_until_alive()
+
+    @classmethod
+    def teardown_class(cls):
+        # Set server_app and server_thread for compatibility with parent teardown
+        if hasattr(cls, 'notebook'):
+            cls.server_app = cls.notebook
+        if hasattr(cls, 'notebook_thread'):
+            cls.server_thread = cls.notebook_thread
+        super(ServerTest, cls).teardown_class()
 
     def setUp(self):
         super(ServerTest, self).setUp()
