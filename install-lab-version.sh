@@ -6,8 +6,8 @@ PKG=package.json
 BACKUP=package.json.backup
 LOCKFILE="yarn.lock.lab$LAB"
 
-if [[ "$LAB" != "3" && "$LAB" != "4" ]]; then
-  echo "Usage: $0 [3|4]"
+if [[ "$LAB" != "3.6.7" && "$LAB" != "4" ]]; then
+  echo "Usage: $0 [3.6.7|4]"
   exit 1
 fi
 
@@ -15,7 +15,7 @@ echo "Backing up $PKG..."
 cp "$PKG" "$BACKUP"
 
 echo "Injecting resolutions for Lab $LAB..."
-if [[ "$LAB" == "3" ]]; then
+if [[ "$LAB" == "3.6.7" ]]; then
   jq '. + {
     resolutions: {
       "@jupyterlab/application": "^3.6.0",

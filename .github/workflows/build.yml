@@ -14,7 +14,7 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9"]
         # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["3"]
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,7 +68,7 @@ jobs:
         # Skip 3.9 as it is used for integration tests
         python-version: ["3.8"]
         # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["3"]
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,7 +126,7 @@ jobs:
           - "macos-latest"
           - "windows-latest"
         # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["3"]
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -195,7 +195,7 @@ jobs:
     strategy:
       matrix:
         # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["3"]
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
