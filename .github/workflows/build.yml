@@ -86,9 +86,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: ${{ matrix.python-version }}
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
-          activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -105,8 +103,9 @@ jobs:
           
       - name: Install dependencies
         run: |
-          conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+          mamba create -y -n test_gator python=${{ matrix.python-version }}
+          mamba activate test_gator
+          mamba install -c conda-forge nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
@@ -214,9 +213,7 @@ jobs:
       - name: Setup Python 3.9
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.9"
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
-          activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -233,8 +230,10 @@ jobs:
  
       - name: Create mamba environment
         run: |
-          conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
+          mamba create -y -n test_gator python=3.9
+          mamba activate test_gator
+          mamba install -c conda-forge nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
+        shell: bash -l {0}
 
       - name: Install Dependencies and Extension
         run: |
