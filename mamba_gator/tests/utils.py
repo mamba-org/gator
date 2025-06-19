@@ -10,6 +10,8 @@ from tempfile import TemporaryDirectory
 from threading import Event, Thread
 from typing import List
 from unittest.mock import patch
+import asyncio
+import traceback
 
 import jupyter_core.paths
 from mamba_gator.handlers import NS
@@ -172,6 +174,11 @@ class ServerTest(ServerTestBase):
             app.log.propagate = True
             app.log.handlers = []
             app.initialize()
+            
+            # Explicitly load the mamba_gator extension
+            from mamba_gator.handlers import _load_jupyter_server_extension
+            _load_jupyter_server_extension(app)
+            
             app.log.propagate = True
             app.log.handlers = []
             loop = IOLoop.current()
@@ -191,12 +198,38 @@ class ServerTest(ServerTestBase):
 
     @classmethod
     def teardown_class(cls):
-        # Set server_app and server_thread for compatibility with parent teardown
+        # Stop the server properly
         if hasattr(cls, 'notebook'):
-            cls.server_app = cls.notebook
-        if hasattr(cls, 'notebook_thread'):
-            cls.server_thread = cls.notebook_thread
-        super(ServerTest, cls).teardown_class()
+            try:
+                cls.notebook.stop()
+            except Exception as e:
+                print(f"Warning: Error stopping server: {e}")
+        
+        # Wait for the server thread to finish with timeout
+        if hasattr(cls, 'notebook_thread') and cls.notebook_thread.is_alive():
+            cls.notebook_thread.join(timeout=3)
+            # Force terminate if still alive
+            if cls.notebook_thread.is_alive():
+                print("Warning: Server thread did not terminate gracefully")
+        
+        # Clean up patches
+        if hasattr(cls, 'env_patch'):
+            try:
+                cls.env_patch.stop()
+            except Exception as e:
+                print(f"Warning: Error stopping env_patch: {e}")
+        if hasattr(cls, 'path_patch'):
+            try:
+                cls.path_patch.stop()
+            except Exception as e:
+                print(f"Warning: Error stopping path_patch: {e}")
+        
+        # Clean up temporary directory
+        if hasattr(cls, 'tmp_dir'):
+            try:
+                cls.tmp_dir.cleanup()
+            except Exception as e:
+                print(f"Warning: Error cleaning up tmp_dir: {e}")
 
     def setUp(self):
         super(ServerTest, self).setUp()
