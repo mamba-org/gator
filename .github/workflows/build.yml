@@ -103,14 +103,16 @@ jobs:
           
       - name: Install dependencies
         run: |
-          mamba create -y -n test_gator python=${{ matrix.python-version }}
-          mamba activate test_gator
-          mamba install -c conda-forge nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+          mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
+          conda activate test_gator
+          pip install jupyterlab==${{ matrix.jupyterlab-version }}
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
       - name: Test the server extension
-        run: python -m pytest -ra mamba_gator
+        run: |
+          conda activate test_gator
+          python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-all-os:
@@ -229,14 +231,17 @@ jobs:
           cache: 'yarn'
  
       - name: Create mamba environment
-        run: |
-          mamba create -y -n test_gator python=3.9
-          mamba activate test_gator
-          mamba install -c conda-forge nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
         shell: bash -l {0}
+        run: |
+          mamba create -y -n test_gator -c conda-forge python=3.9 nb_conda_kernels
+          conda activate test_gator
+          pip install jupyterlab==${{ matrix.jupyterlab-version }}
+          python --version
+          jupyter --version
 
       - name: Install Dependencies and Extension
         run: |
+          conda activate test_gator
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
 
           # Check pip dependencies
@@ -249,6 +254,7 @@ jobs:
 
       - name: Test the extension
         run: |
+          conda activate test_gator
           # Run linter
           hatch run lint:check
           yarn run eslint:check

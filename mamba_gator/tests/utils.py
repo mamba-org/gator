@@ -145,7 +145,10 @@ class ServerTest(ServerTestBase):
         config = cls.config or Config()
         config.NotebookNotary.db_file = ":memory:"
 
-        cls.token = hexlify(os.urandom(4)).decode("ascii")
+        cls.token = ''
+        cls.password = ''
+        config.NotebookApp.disable_check_xsrf = True
+        config.NotebookApp.allow_origin = '*'
 
         started = Event()
 
