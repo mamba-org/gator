@@ -24,6 +24,7 @@ import {
   CompanionValidator,
   ICompanionValidator
 } from './validator';
+import { KernelSpecManager } from '@jupyterlab/services';
 
 const CONDAENVID = '@mamba-org/gator-lab:plugin';
 const TOUR_DELAY = 1000;
@@ -145,7 +146,8 @@ async function activateCompanions(
   const settings = await settingsRegistry.load(CONDAENVID);
 
   const validator = new CompanionValidator(
-    serviceManager.kernelspecs,
+    // TODO: When dropping JL3 support, remove this cast to a KernelSpecManager
+    serviceManager.kernelspecs as KernelSpecManager,
     envManager,
     settings
   );
