@@ -4,15 +4,12 @@ import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
-import { isJupyterLab4 } from '../plugins/top/utils';
 let iter: ((obj: any) => IterableIterator<Widget>) | undefined;
-let toArray: (<T>(obj: Iterable<T>) => T[]) | undefined;
 
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const lumino = require('@lumino/algorithm');
   iter = lumino.iter;
-  toArray = lumino.toArray;
 } catch {
   // No-op: running in Lumino 2 where `iter` no longer exists
 }
@@ -80,27 +77,32 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
   /**
    * The current widget in the shell's main area.
    */
-  get currentWidget(): Widget {
-    if (isJupyterLab4()) {
-      return this._main.widgets().next().value;
+  get currentWidget(): Widget | null {
+    const widgets = this._main.widgets();
+    const first = widgets.next();
+
+    if (first === undefined || first === null) {
+      return null;
     }
 
-    return toArray(this._main.widgets())[0];
+    // Lumino v2: `.next()` returns { value, done }
+    if (typeof first === 'object' && 'value' in first) {
+      return (first.value as Widget) ?? null;
+    }
+
+    // Lumino v1: `.next()` returns the Widget directly
+    return first;
   }
 
-  widgets(area: IGatorShell.Area): IterableIterator<Widget> {
+  // Matches Lab 3's IShell.widgets signature at compile time.
+  // Lab 4 doesn't use IIterator anymore, but allows native iterables.
+  widgets(area?: string): any {
     if (area === 'top') {
-      const top = this._top.widgets;
-      if (iter) {
-        // Lumino 1
-        return iter(top) as unknown as IterableIterator<Widget>;
-      }
-      // Lumino 2
-      return top[Symbol.iterator]();
+      return iter
+        ? iter(this._top.widgets)
+        : this._top.widgets[Symbol.iterator]();
     }
-
-    // `this._main.widgets()` is already an IterableIterator in Lumino 2
-    return this._main.widgets();
+    return iter ? iter(this._main.widgets()) : this._main.widgets();
   }
 
   /**
