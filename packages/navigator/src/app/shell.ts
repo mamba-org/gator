@@ -2,9 +2,20 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
-import { IIterator, iter, toArray } from '@lumino/algorithm';
-
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
+
+import { isJupyterLab4 } from '../plugins/top/utils';
+let iter: ((obj: any) => IterableIterator<Widget>) | undefined;
+let toArray: (<T>(obj: Iterable<T>) => T[]) | undefined;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const lumino = require('@lumino/algorithm');
+  iter = lumino.iter;
+  toArray = lumino.toArray;
+} catch {
+  // No-op: running in Lumino 2 where `iter` no longer exists
+}
 
 export type IGatorShell = GatorShell;
 
@@ -70,14 +81,25 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
    * The current widget in the shell's main area.
    */
   get currentWidget(): Widget {
-    // TODO: use a focus tracker to return the current widget
+    if (isJupyterLab4()) {
+      return this._main.widgets().next().value;
+    }
+
     return toArray(this._main.widgets())[0];
   }
 
-  widgets(area: IGatorShell.Area): IIterator<Widget> {
+  widgets(area: IGatorShell.Area): IterableIterator<Widget> {
     if (area === 'top') {
-      return iter(this._top.widgets);
+      const top = this._top.widgets;
+      if (iter) {
+        // Lumino 1
+        return iter(top) as unknown as IterableIterator<Widget>;
+      }
+      // Lumino 2
+      return top[Symbol.iterator]();
     }
+
+    // `this._main.widgets()` is already an IterableIterator in Lumino 2
     return this._main.widgets();
   }
 
