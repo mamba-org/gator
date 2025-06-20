@@ -10,6 +10,8 @@ from tempfile import TemporaryDirectory
 from threading import Event, Thread
 from typing import List
 from unittest.mock import patch
+import asyncio
+import traceback
 
 import jupyter_core.paths
 from mamba_gator.handlers import NS
@@ -31,8 +33,8 @@ try:
     from notebook.utils import url_escape, url_path_join
 except ImportError:
     from jupyter_server.serverapp import ServerApp  # noqa
-    from jupyter_server.tests.launchnotebook import assert_http_error  # noqa
-    from jupyter_server.tests.launchserver import ServerTestBase  # noqa
+    from .test_utils import assert_http_error
+    from .test_server_base import ServerTestBase
     from jupyter_server.utils import url_escape, url_path_join  # noqa
 
 
@@ -96,7 +98,7 @@ class JupyterCondaAPI(APITester):
 class ServerTest(ServerTestBase):
 
     # Force extension enabling - Disabled by parent class otherwise
-    config = Config({"NotebookApp": {"nbserver_extensions": {"mamba_gator": True}}})
+    config = Config({"ServerApp": {"jpserver_extensions": {"mamba_gator": True}}})
 
     @classmethod
     def setup_class(cls):
@@ -143,7 +145,10 @@ class ServerTest(ServerTestBase):
         config = cls.config or Config()
         config.NotebookNotary.db_file = ":memory:"
 
-        cls.token = hexlify(os.urandom(4)).decode("ascii")
+        cls.token = ''
+        cls.password = ''
+        config.NotebookApp.disable_check_xsrf = True
+        config.NotebookApp.allow_origin = '*'
 
         started = Event()
 
@@ -172,6 +177,11 @@ class ServerTest(ServerTestBase):
             app.log.propagate = True
             app.log.handlers = []
             app.initialize()
+            
+            # Explicitly load the mamba_gator extension
+            from mamba_gator.handlers import _load_jupyter_server_extension
+            _load_jupyter_server_extension(app)
+            
             app.log.propagate = True
             app.log.handlers = []
             loop = IOLoop.current()
@@ -188,6 +198,41 @@ class ServerTest(ServerTestBase):
         cls.notebook_thread.start()
         started.wait()
         cls.wait_until_alive()
+
+    @classmethod
+    def teardown_class(cls):
+        # Stop the server properly
+        if hasattr(cls, 'notebook'):
+            try:
+                cls.notebook.stop()
+            except Exception as e:
+                print(f"Warning: Error stopping server: {e}")
+        
+        # Wait for the server thread to finish with timeout
+        if hasattr(cls, 'notebook_thread') and cls.notebook_thread.is_alive():
+            cls.notebook_thread.join(timeout=3)
+            # Force terminate if still alive
+            if cls.notebook_thread.is_alive():
+                print("Warning: Server thread did not terminate gracefully")
+        
+        # Clean up patches
+        if hasattr(cls, 'env_patch'):
+            try:
+                cls.env_patch.stop()
+            except Exception as e:
+                print(f"Warning: Error stopping env_patch: {e}")
+        if hasattr(cls, 'path_patch'):
+            try:
+                cls.path_patch.stop()
+            except Exception as e:
+                print(f"Warning: Error stopping path_patch: {e}")
+        
+        # Clean up temporary directory
+        if hasattr(cls, 'tmp_dir'):
+            try:
+                cls.tmp_dir.cleanup()
+            except Exception as e:
+                print(f"Warning: Error cleaning up tmp_dir: {e}")
 
     def setUp(self):
         super(ServerTest, self).setUp()
