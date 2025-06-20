@@ -2,9 +2,17 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
-import { IIterator, iter, toArray } from '@lumino/algorithm';
-
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
+
+let iter: ((obj: any) => IterableIterator<Widget>) | undefined;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const lumino = require('@lumino/algorithm');
+  iter = lumino.iter;
+} catch {
+  // No-op: running in Lumino 2 where `iter` no longer exists
+}
 
 export type IGatorShell = GatorShell;
 
@@ -69,16 +77,32 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
   /**
    * The current widget in the shell's main area.
    */
-  get currentWidget(): Widget {
-    // TODO: use a focus tracker to return the current widget
-    return toArray(this._main.widgets())[0];
+  get currentWidget(): Widget | null {
+    const widgets = this._main.widgets();
+    const first = widgets.next();
+
+    if (first === undefined || first === null) {
+      return null;
+    }
+
+    // Lumino v2: `.next()` returns { value, done }
+    if (typeof first === 'object' && 'value' in first) {
+      return (first.value as Widget) ?? null;
+    }
+
+    // Lumino v1: `.next()` returns the Widget directly
+    return first;
   }
 
-  widgets(area: IGatorShell.Area): IIterator<Widget> {
+  // Matches Lab 3's IShell.widgets signature at compile time.
+  // Lab 4 doesn't use IIterator anymore, but allows native iterables.
+  widgets(area?: string): any {
     if (area === 'top') {
-      return iter(this._top.widgets);
+      return iter
+        ? iter(this._top.widgets)
+        : this._top.widgets[Symbol.iterator]();
     }
-    return this._main.widgets();
+    return iter ? iter(this._main.widgets()) : this._main.widgets();
   }
 
   /**
