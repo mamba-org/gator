@@ -4,6 +4,7 @@ import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
+// TODO: Remove this compatibility block when dropping JupyterLab 3 support
 let iter: ((obj: any) => IterableIterator<Widget>) | undefined;
 
 try {
