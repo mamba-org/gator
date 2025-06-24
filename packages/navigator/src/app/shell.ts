@@ -84,13 +84,18 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
     // if (result.done) return null;
     // return result.value ?? null;
 
-    const widgets = this._main.widgets();
-    const first = widgets.next();
+    const first = this._main.widgets().next();
+    if (first === undefined || first === null) {
+      return null;
+    }
 
-    if (!first) return null;
+    // Lumino v2: `.next()` returns { value, done }
+    if (typeof first === 'object' && 'value' in first) {
+      return (first.value as Widget) ?? null;
+    }
 
-    return (first as any).value ?? first;
-  }
+    // Lumino v1: `.next()` returns the Widget directly
+    return first;
   }
 
   // TODO: JupyterLab 3 compatibility - clean signature when dropping Lab 3:
