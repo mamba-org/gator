@@ -1,23 +1,21 @@
-import asyncio
 import json
-import random
 import os
+import random
 import shutil
 import sys
 import tempfile
 import unittest
-import uuid
-
 import unittest.mock as mock
-
+import uuid
 from itertools import chain
-from nb_conda_kernels import CondaKernelSpecManager
 from unittest.mock import AsyncMock
-from traitlets.config import Config
+
+from nb_conda_kernels import CondaKernelSpecManager
+from notebook.tests.launchnotebook import assert_http_error
 
 from mamba_gator.envmanager import EnvManager
-from mamba_gator.handlers import AVAILABLE_CACHE, PackagesHandler
-from mamba_gator.tests.utils import ServerTest, assert_http_error
+from mamba_gator.handlers import AVAILABLE_CACHE
+from mamba_gator.tests.utils import ServerTest
 
 from .utils import has_mamba
 

@@ -1,5 +1,4 @@
-import { ReactWidget } from '@jupyterlab/apputils';
-
+import { ReactWidget } from '../utils';
 import {
   Graph,
   GraphData,

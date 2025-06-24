@@ -31,8 +31,8 @@ classifiers = [
 dependencies = [
     "jupyterlab>=3.6.7,<5.0.0",
     "jupyter_client",
-    "jupyter_server>=1.0.0,<3.0.0",
-    "jupyterlab_server>=2.0.0,<4.0.0",
+    "jupyter_server>=2.0.0,<3.0.0",
+    "jupyterlab_server>=2.0.0,<3.0.0",
     "packaging",
     "tornado",
     "traitlets",
