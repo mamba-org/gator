@@ -93,8 +93,8 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
   }
   }
 
-  // Matches Lab 3's IShell.widgets signature at compile time.
-  // Lab 4 doesn't use IIterator anymore, but allows native iterables.
+  // TODO: JupyterLab 3 compatibility - clean signature when dropping Lab 3:
+  // widgets(area?: string): IterableIterator<Widget> {
   widgets(area?: string): any {
     if (area === 'top') {
       return iter
