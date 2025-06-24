@@ -12,28 +12,25 @@ from typing import List
 from unittest.mock import patch
 
 import jupyter_core.paths
-from mamba_gator.handlers import NS
+from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
 
-# Shim for notebook server or jupyter_server
-#
-# Provides:
-#  - ServerTestBase
-#  - assert_http_error
-#  - url_escape
-#  - url_path_join
+from mamba_gator.handlers import NS
 
+# TODO: Remove this compatibility layer when migrating to JupyterLab 4
+# JupyterLab 4+ and Jupyter Notebook 7+ both use jupyter_server exclusively
 try:
-    from notebook.notebookapp import NotebookApp as ServerApp
-    from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
-    from notebook.tests.launchnotebook import assert_http_error
-    from notebook.utils import url_escape, url_path_join
+    from jupyter_server.auth import IdentityProvider
+    from jupyter_server.serverapp import ServerApp
+    from jupyter_server.utils import url_path_join
+    USE_JUPYTER_SERVER = True
 except ImportError:
-    from jupyter_server.serverapp import ServerApp  # noqa
-    from jupyter_server.tests.launchnotebook import assert_http_error  # noqa
-    from jupyter_server.tests.launchserver import ServerTestBase  # noqa
-    from jupyter_server.utils import url_escape, url_path_join  # noqa
+    # Legacy fallback for Jupyter Notebook 6.x - can be removed with JupyterLab 4 migration
+    from notebook.notebookapp import NotebookApp as ServerApp
+    from notebook.utils import url_path_join
+    USE_JUPYTER_SERVER = False
+
 
 
 TIMEOUT = 150
@@ -94,9 +91,12 @@ class JupyterCondaAPI(APITester):
 
 
 class ServerTest(ServerTestBase):
-
     # Force extension enabling - Disabled by parent class otherwise
-    config = Config({"NotebookApp": {"nbserver_extensions": {"mamba_gator": True}}})
+    # TODO: Remove NotebookApp config when migrating to JupyterLab 4
+    config = Config({
+        "NotebookApp": {"nbserver_extensions": {"mamba_gator": True}},
+        "ServerApp": {"jpserver_extensions": {"mamba_gator": True}}
+    })
 
     @classmethod
     def setup_class(cls):
@@ -144,6 +144,14 @@ class ServerTest(ServerTestBase):
         config.NotebookNotary.db_file = ":memory:"
 
         cls.token = hexlify(os.urandom(4)).decode("ascii")
+        
+        # TODO: Simplify this when migrating to JupyterLab 4 - only keep the jupyter_server branch
+        if USE_JUPYTER_SERVER:
+            config.ServerApp.identity_provider_class = IdentityProvider
+            config.IdentityProvider.token = cls.token
+            config.ServerApp.allow_unauthenticated_access = True
+        else:
+            config.NotebookApp.token = cls.token
 
         started = Event()
 
