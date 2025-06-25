@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}"
+          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
@@ -105,7 +105,7 @@ jobs:
         run: |
           mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
           conda activate test_gator
-          pip install "jupyterlab${{ matrix.jupyterlab-version }}"
+          pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
@@ -167,7 +167,7 @@ jobs:
       - name: Create conda environment
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}"
+          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
 
       - name: Install dependencies and Extension
         run: |
@@ -235,7 +235,7 @@ jobs:
         run: |
           mamba create -y -n test_gator -c conda-forge python=3.9 nb_conda_kernels
           conda activate test_gator
-          pip install "jupyterlab${{ matrix.jupyterlab-version }}"
+          pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           python --version
           jupyter --version
 
