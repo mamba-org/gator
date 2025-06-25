@@ -33,6 +33,7 @@ if [[ "$LAB" == "3.6.7" ]]; then
       "@jupyterlab/ui-components": "^3.6.8",
       "@jupyterlab/codemirror": "^3.6.8",
       "@jupyterlab/codeeditor": "^3.6.8",
+      "node-fetch": "^2.6.7",
       "react": "17.0.2",
       "react-dom": "17.0.2",
       "@types/react": "17.0.48"
@@ -56,6 +57,7 @@ else
       "@jupyterlab/codeeditor": "^4.0.0",
       "@lumino/widgets": "^2.0.0",
       "@lumino/coreutils": "^2.0.0",
+      "node-fetch": "^2.6.7",
       "react": "^18.3.1",
       "react-dom": "^18.3.1",
       "@types/react": "^18.3.3"

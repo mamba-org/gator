@@ -22,7 +22,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   moduleNameMapper,
   preset,
-  setupFilesAfterEnv,
+  setupFiles: [...(setupFiles || []), '<rootDir>/jest.setup.js'],
   setupFiles,
   testPathIgnorePatterns,
   transform: {

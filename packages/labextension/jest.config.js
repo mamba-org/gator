@@ -23,7 +23,7 @@ module.exports = {
   moduleNameMapper,
   preset,
   setupFilesAfterEnv,
-  setupFiles,
+  setupFiles: [...(setupFiles || []), '<rootDir>/jest.setup.js'],
   testPathIgnorePatterns,
   transform: {
     ...transform,
