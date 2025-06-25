@@ -65,35 +65,11 @@ else
   }' "$BACKUP" > "$PKG"
 fi
 
-if [ -f "$LOCKFILE" ]; then
-  echo "Restoring $LOCKFILE..."
-  cp "$LOCKFILE" yarn.lock
-else
-  echo "⚠️ No $LOCKFILE found. Will generate a fresh one."
-fi
-
 echo "Running yarn install for Lab $LAB..."
 yarn install
 
-echo "Checking for lockfile changes..."
-if [ -f "$LOCKFILE" ]; then
-  if ! diff -q yarn.lock "$LOCKFILE" >/dev/null; then
-    echo "⚠️ Detected changes in yarn.lock compared to $LOCKFILE:"
-    echo "────────────────────────────────────────────────────"
-    diff -u "$LOCKFILE" yarn.lock || true
-    echo "────────────────────────────────────────────────────"
-    echo "🔁 To update saved lockfile, install the package, and run:"
-    echo "    cp yarn.lock $LOCKFILE && git add $LOCKFILE"
-  fi
-else
-  echo "ℹ️ No existing $LOCKFILE snapshot found."
-fi
-
 echo "Running pip install -e .[test,dev]"
 pip install -e .[test,dev]
-
-echo "Updating $LOCKFILE snapshot..."
-cp yarn.lock "$LOCKFILE"
 
 echo "Cleaning up build artifacts..."
 rm -f package.json.backup
