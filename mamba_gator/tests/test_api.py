@@ -1113,7 +1113,6 @@ class TestPackagesHandler(JupyterCondaAPITest):
                 }
 
                 if has_mamba:
-                    # Change dummy to match mamba repoquery format
                     dummy = {
                         "result": {
                             "pkgs": list(chain(*dummy.values()))
@@ -1129,19 +1128,29 @@ class TestPackagesHandler(JupyterCondaAPITest):
                         )
                     local_name = local_channel.strip("/")
                     channels = {
-                        "channel_alias": {},
-                        "channels": [local_channel],
-                        "custom_multichannels": {},
-                        "custom_channels": {
-                            local_name: {
-                                "auth": None,
-                                "location": "",
-                                "name": local_name,
-                                "package_filename": None,
-                                "platform": None,
-                                "scheme": "file",
-                                "token": None,
-                            }
+                        "channel_alias": {
+                            "auth": None,
+                            "location": "conda.anaconda.org",
+                            "name": "",  # ← Change None to empty string
+                            "package_filename": None,
+                            "platform": None,
+                            "scheme": "https",
+                            "token": None,
+                        },
+                        "channels": ["defaults"],
+                        "custom_channels": {},
+                        "custom_multichannels": {
+                            "defaults": [
+                                {
+                                    "auth": None,
+                                    "location": "repo.anaconda.com",
+                                    "name": "pkgs/main",
+                                    "package_filename": None,
+                                    "platform": None,
+                                    "scheme": "https",
+                                    "token": None,
+                                }
+                            ]
                         },
                     }
 

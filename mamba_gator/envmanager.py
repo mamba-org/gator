@@ -6,27 +6,25 @@ import json
 import logging
 import os
 import re
-import subprocess
 import sys
 import tempfile
-from functools import partial, lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import tornado
 from jupyter_client.kernelspec import KernelSpecManager
-
-from packaging.version import parse, InvalidVersion
+from packaging.version import InvalidVersion, Version, parse
 
 try:
     import nb_conda_kernels
 except ImportError:
     nb_conda_kernels = None
 
-from .log import get_logger
 from jupyter_server.utils import url2path, url_path_join
 
+from .log import get_logger
 
 CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
 
@@ -90,6 +88,23 @@ def get_env_path(kernel_spec: Dict[str, Any]) -> Optional[str]:
             return match.groups()[0]
 
     return None
+
+
+def parse_version(version: str) -> Optional[Version]:
+    """Handle R-style and year-based versions"""
+    # Convert R package versions like "1.8_4" to "1.8.4"
+    version = version.replace('_', '.')
+
+    # Handle year-based versions like "2023d" -> "2023.4"
+    if re.match(r'^\d{4}[a-z]$', version):
+        letter = version[-1]
+        number = ord(letter) - ord('a') + 1
+        version = f"{version[:-1]}.{number}"
+
+    try:
+        return Version(version)
+    except InvalidVersion:
+        return None
 
 
 class EnvManager:
@@ -683,7 +698,7 @@ class EnvManager:
 
         if "error" not in query:
             for dep in query["result"]["pkgs"]:
-                if type(dep) is dict:
+                if isinstance(dep, dict):
                     deps = dep.get("depends", None)
                     if deps:
                         resp[dep["name"]] = deps
@@ -691,6 +706,7 @@ class EnvManager:
                         resp[dep["name"]] = []
 
         return resp
+
 
     async def list_available(self) -> Dict[str, List[Dict[str, str]]]:
         """List all available packages
@@ -721,9 +737,9 @@ class EnvManager:
             of "conda search --json".
             """
 
-            data_ = collections.defaultdict(lambda : [])
-            for entry in data['result']['pkgs']:
-                name = entry.get('name')
+            data_ = collections.defaultdict(lambda: [])
+            for entry in data["result"]["pkgs"]:
+                name = entry.get("name")
                 if name is not None:
                     data_[name].append(entry)
 
@@ -770,14 +786,13 @@ class EnvManager:
                     entry = normalize_pkg_info(entry)
                     if pkg_entry is None:
                         pkg_entry = entry
+                    version = parse_version(entry.get("version", ""))
 
-                    try:
-                        version = parse(entry.get("version", "")) 
-                    except InvalidVersion:
+                    if version is None:
                         name = entry.get("name")
-                        version = entry.get("version")
-                        self.log.warning(f"Unable to parse version '{version}' of '{name}'")
-                        continue
+                        original_version = entry.get("version")
+                        self.log.warning(f"Unable to parse version '{original_version}' of '{name}'")
+                        version = Version("0.0.0")
 
                     if version not in versions:
                         versions.append(version)
@@ -788,21 +803,13 @@ class EnvManager:
                         build_number = entry.get("build_number", 0)
                         if build_number > max_build_numbers[version_idx]:
                             max_build_numbers[version_idx] = build_number
-                            max_build_strings[version_idx] = entry.get(
-                                "build_string", ""
-                            )
+                            max_build_strings[version_idx] = entry.get("build_string", "")
 
-                sorted_versions_idx = sorted(
-                    range(len(versions)), key=versions.__getitem__
-                )
+                sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
 
                 pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
-                pkg_entry["build_number"] = [
-                    max_build_numbers[i] for i in sorted_versions_idx
-                ]
-                pkg_entry["build_string"] = [
-                    max_build_strings[i] for i in sorted_versions_idx
-                ]
+                pkg_entry["build_number"] = [max_build_numbers[i] for i in sorted_versions_idx]
+                pkg_entry["build_string"] = [max_build_strings[i] for i in sorted_versions_idx]
 
                 packages.append(pkg_entry)
             return packages
