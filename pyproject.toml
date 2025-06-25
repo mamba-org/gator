@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "hatchling>=1.9.0",
-    "jupyterlab<=4.0.0",
+    "jupyterlab>=3.6.7,<5.0.0",
     "jupyter-server",
     "setuptools",
 ]
@@ -19,6 +19,7 @@ classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
     "Framework :: Jupyter :: JupyterLab :: 3",
+    "Framework :: Jupyter :: JupyterLab :: 4",
     "Framework :: Jupyter :: JupyterLab :: Extensions",
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
     "License :: OSI Approved :: BSD License",
@@ -28,7 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
 ]
 dependencies = [
-    "jupyterlab<4.0.0",
+    "jupyterlab>=3.6.7,<5.0.0",
     "jupyter_client",
     "jupyter_server>=2.0.0,<3.0.0",
     "jupyterlab_server>=2.0.0,<3.0.0",
@@ -80,6 +81,7 @@ exclude = [
 path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
+skip_npm_install = true
 dependencies = [
     "hatch-jupyter-builder",
 ]

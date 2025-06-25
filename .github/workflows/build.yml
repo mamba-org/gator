@@ -8,11 +8,13 @@ on:
 
 jobs:
   test-backend-conda:
-    name: Test server with Conda Python ${{ matrix.python-version }}
+    name: Test server with Conda Python ${{ matrix.python-version }} on ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.8", "3.9"]
+        # Add JupyterLab 4 to the matrix
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,20 +52,23 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels
-          pip install .[test]
+          conda install -c conda-forge -n test_gator nb_conda_kernels jupyterlab==${{ matrix.jupyterlab-version }}
+          jupyter --version
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-backend-mamba:
-    name: Test server with Mamba Python ${{ matrix.python-version }}
+    name: Test server with Mamba Python ${{ matrix.python-version }} on ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         # Skip 3.9 as it is used for integration tests
         python-version: ["3.8"]
+        # Add JupyterLab 4 to the matrix
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,9 +86,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: ${{ matrix.python-version }}
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
-          activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -100,16 +103,20 @@ jobs:
           
       - name: Install dependencies
         run: |
-          conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels
-          pip install .[test]
+          mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
+          conda activate test_gator
+          pip install jupyterlab==${{ matrix.jupyterlab-version }}
+          jupyter --version
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
       - name: Test the server extension
-        run: python -m pytest -ra mamba_gator
+        run: |
+          conda activate test_gator
+          python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
   test-all-os:
-    name: Test Conda Python 3.8 on ${{ matrix.os }}
+    name: Test Conda Python 3.8 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
@@ -119,6 +126,8 @@ jobs:
         os: 
           - "macos-latest"
           - "windows-latest"
+        # Add JupyterLab 4 to the matrix
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -155,12 +164,14 @@ jobs:
           node-version: '18'
           cache: 'yarn'
           
-      - name: Install dependencies
+      - name: Create conda environment
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels
-          yarn install
-          python -m pip install -e .[test]
+          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
+
+      - name: Install dependencies and Extension
+        run: |
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
         shell: bash -l {0}
 
       - name: Install Playwright browsers
@@ -180,8 +191,12 @@ jobs:
         shell: bash -l {0}
 
   test-integration:
-    name: All tests on Ubuntu Mamba Python 3.9
+    name: All tests on Ubuntu Mamba Python 3.9 on ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Add JupyterLab 4 to the matrix
+        jupyterlab-version: ["3.6.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -200,9 +215,7 @@ jobs:
       - name: Setup Python 3.9
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.9"
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
-          activate-environment: test_gator
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -216,24 +229,32 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-          
-      - name: Install dependencies
+ 
+      - name: Create mamba environment
+        shell: bash -l {0}
         run: |
-          conda info
-          mamba install -c conda-forge -n test_gator nb_conda_kernels
-          yarn install
-          pip install -e .[test,dev]
+          mamba create -y -n test_gator -c conda-forge python=3.9 nb_conda_kernels
+          conda activate test_gator
+          pip install jupyterlab==${{ matrix.jupyterlab-version }}
+          python --version
+          jupyter --version
+
+      - name: Install Dependencies and Extension
+        run: |
+          conda activate test_gator
+          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
 
           # Check pip dependencies
           pip check
         shell: bash -l {0}
-      
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
         shell: bash -l {0}
 
       - name: Test the extension
         run: |
+          conda activate test_gator
           # Run linter
           hatch run lint:check
           yarn run eslint:check
