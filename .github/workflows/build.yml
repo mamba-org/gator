@@ -169,6 +169,16 @@ jobs:
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab==${{ matrix.jupyterlab-version }}"
 
+      - name: Upgrade conda dependencies on Windows (resolves OSError)
+        if: matrix.os == 'windows-latest'
+        run: >
+          conda install -c conda-forge -n test_gator
+          "websocket-client>=1.7"
+          "send2trash>=1.8.2"
+          "jupyter_server<3.0.0,>=2.0.0"
+          --yes
+        shell: bash -l {0}
+
       - name: Install dependencies and Extension
         run: |
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
