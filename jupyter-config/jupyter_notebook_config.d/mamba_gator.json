@@ -1,4 +1,5 @@
 {
+  "_comment": "TODO: Remove entire jupyter_notebook_config.d directory when dropping JupyterLab 3 support (JL4 config already exists in jupyter_server_config.d)",
   "NotebookApp": {
     "nbserver_extensions": {
       "mamba_gator": true
