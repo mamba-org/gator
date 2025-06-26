@@ -12,20 +12,20 @@ describe('KernelSpec JL3/4 Compatibility', () => {
 
     it('should be able to use KernelSpec.IManager as a type', () => {
       // This is the core compatibility test - can we use the interface?
-      const createMockManager = (): KernelSpec.IManager => ({
+      const manager = {
         specs: null,
         specsChanged: null as any,
         isReady: false,
         isDisposed: false,
+        isActive: false,
         ready: Promise.resolve(),
         serverSettings: { baseUrl: 'test/' } as any,
         connectionFailure: null as any,
         disposed: null as any,
         dispose: () => {},
         refreshSpecs: () => Promise.resolve()
-      });
+      } as KernelSpec.IManager;
 
-      const manager = createMockManager();
       expect(manager).toBeDefined();
       expect(typeof manager.dispose).toBe('function');
       expect(typeof manager.refreshSpecs).toBe('function');
@@ -65,11 +65,12 @@ describe('KernelSpec JL3/4 Compatibility', () => {
         testMethod(): void;
       }
 
-      const mockManager: TestManager = {
+      const mockManager = {
         specs: null,
         specsChanged: null as any,
         isReady: true,
         isDisposed: false,
+        isActive: false,
         ready: Promise.resolve(),
         serverSettings: { baseUrl: 'test/' } as any,
         connectionFailure: null as any,
@@ -77,7 +78,7 @@ describe('KernelSpec JL3/4 Compatibility', () => {
         dispose: jest.fn(),
         refreshSpecs: jest.fn().mockResolvedValue(undefined),
         testMethod: jest.fn()
-      };
+      } as TestManager;
 
       // Basic interface compliance
       expect(mockManager.isReady).toBe(true);
@@ -98,18 +99,19 @@ describe('KernelSpec JL3/4 Compatibility', () => {
         return kernelManager.isReady && !kernelManager.isDisposed;
       }
 
-      const mockManager: KernelSpec.IManager = {
+      const mockManager = {
         specs: { default: 'python3', kernelspecs: {} },
         specsChanged: null as any,
         isReady: true,
         isDisposed: false,
+        isActive: false,
         ready: Promise.resolve(),
         serverSettings: { baseUrl: 'test/' } as any,
         connectionFailure: null as any,
         disposed: null as any,
         dispose: () => {},
         refreshSpecs: () => Promise.resolve()
-      };
+      } as KernelSpec.IManager;
 
       // This verifies the function can accept KernelSpec.IManager
       const result = acceptsKernelSpecManager(mockManager);
