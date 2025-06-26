@@ -12,7 +12,6 @@ from typing import List
 from unittest.mock import patch
 
 import jupyter_core.paths
-from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
 from tornado.ioloop import IOLoop
 from traitlets.config import Config
 
@@ -31,6 +30,18 @@ except ImportError:
     from notebook.utils import url_path_join
     USE_JUPYTER_SERVER = False
 
+# TODO: Replace this entire compatibility block with direct import when dropping JupyterLab 3 support:
+# from jupyter_server.tests.utils import ServerTestBase
+if USE_JUPYTER_SERVER:
+    try:
+        from jupyter_server.tests.utils import expected_http_error as assert_http_error
+        from jupyter_server.tests.utils import ServerTestBase
+    except ImportError:
+        from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
+        from notebook.tests.launchnotebook import assert_http_error
+else:
+    from notebook.tests.launchnotebook import NotebookTestBase as ServerTestBase
+    from notebook.tests.launchnotebook import assert_http_error
 
 
 TIMEOUT = 150

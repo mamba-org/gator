@@ -11,11 +11,12 @@ from itertools import chain
 from unittest.mock import AsyncMock
 
 from nb_conda_kernels import CondaKernelSpecManager
-from notebook.tests.launchnotebook import assert_http_error
 
 from mamba_gator.envmanager import EnvManager
 from mamba_gator.handlers import AVAILABLE_CACHE
-from mamba_gator.tests.utils import ServerTest
+# TODO: When dropping JupyterLab 3 support, import assert_http_error directly:
+# from jupyter_server.tests.utils import expected_http_error as assert_http_error
+from mamba_gator.tests.utils import ServerTest, assert_http_error
 
 from .utils import has_mamba
 
