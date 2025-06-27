@@ -115,7 +115,9 @@ jobs:
         shell: bash -l {0}
 
       - name: Install Extension
-        run: pip install -e .[test,dev]
+        run: |
+          conda activate test_gator
+          pip install -e .[test,dev]
         shell: bash -l {0}
 
       - name: Test the server extension
@@ -189,6 +191,7 @@ jobs:
 
       - name: Install dependencies and Extension
         run: |
+          conda activate test_gator
           jlpm install
           pip install -e .[test,dev]
         shell: bash -l {0}
@@ -202,6 +205,7 @@ jobs:
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
+          conda activate test_gator
           python -m pytest mamba_gator
           yarn run test
           jupyter serverextension list
