@@ -1,7 +1,7 @@
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import { Settings } from '@jupyterlab/settingregistry';
-import { testEmission } from '@jupyterlab/testutils';
+import { testEmission } from '@jupyterlab/testing';
 
 import 'jest';
 import { platform } from 'os';
