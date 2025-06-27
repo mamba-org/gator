@@ -4,16 +4,6 @@ import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
-// TODO: Remove this compatibility block when dropping JupyterLab 3 support
-let iter: ((obj: any) => IterableIterator<Widget>) | undefined;
-
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const lumino = require('@lumino/algorithm');
-  iter = lumino.iter;
-} catch {
-  // No-op: running in Lumino 2 where `iter` no longer exists
-}
 
 export type IGatorShell = GatorShell;
 
@@ -79,34 +69,15 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
    * The current widget in the shell's main area.
    */
   get currentWidget(): Widget | null {
-    // TODO: JupyterLab 3 compatibility - replace entire method body with:
-    // const result = this._main.widgets().next();
-    // if (result.done) return null;
-    // return result.value ?? null;
-
-    const first = this._main.widgets().next();
-    if (first === undefined || first === null) {
-      return null;
-    }
-
-    // Lumino v2: `.next()` returns { value, done }
-    if (typeof first === 'object' && 'value' in first) {
-      return (first.value as Widget) ?? null;
-    }
-
-    // Lumino v1: `.next()` returns the Widget directly
-    return first;
+    const result = this._main.widgets().next();
+    if (result.done) return null;
+    return result.value ?? null;
   }
 
-  // TODO: JupyterLab 3 compatibility - clean signature when dropping Lab 3:
-  // widgets(area?: string): IterableIterator<Widget> {
-  widgets(area?: string): any {
-    if (area === 'top') {
-      return iter
-        ? iter(this._top.widgets)
-        : this._top.widgets[Symbol.iterator]();
-    }
-    return iter ? iter(this._main.widgets()) : this._main.widgets();
+  widgets(area?: string): IterableIterator<Widget> {
+    return area === 'top'
+    ? this._top.widgets.values()
+    : this._main.widgets();
   }
 
   /**
