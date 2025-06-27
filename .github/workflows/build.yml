@@ -52,13 +52,15 @@ jobs:
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          conda activate test_gator
           jupyter --version
-          yarn install
+          jlpm install
+        shell: bash -l {0}
 
       - name: Install Extension
         run: pip install -e .[test,dev]
-
         shell: bash -l {0}
+
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
@@ -109,12 +111,13 @@ jobs:
           conda activate test_gator
           pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
-          yarn install
+          jlpm install
+        shell: bash -l {0}
 
       - name: Install Extension
         run: pip install -e .[test,dev]
-
         shell: bash -l {0}
+
       - name: Test the server extension
         run: |
           conda activate test_gator
@@ -186,7 +189,7 @@ jobs:
 
       - name: Install dependencies and Extension
         run: |
-          yarn install
+          jlpm install
           pip install -e .[test,dev]
         shell: bash -l {0}
 
@@ -257,7 +260,7 @@ jobs:
       - name: Install Dependencies and Extension
         run: |
           conda activate test_gator
-          yarn install
+          jlpm install
           pip install -e .[test,dev]
 
           # Check pip dependencies
