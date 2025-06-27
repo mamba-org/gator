@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9"]
         jupyterlab-version: [">=4.0,<5.0"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,8 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Skip 3.9 as it is used for integration tests
-        python-version: ["3.8"]
+        python-version: ["3.9"]
         jupyterlab-version: [">=4.0,<5.0"]
     steps:
       - name: Checkout
@@ -127,7 +126,7 @@ jobs:
         shell: bash -l {0}
 
   test-all-os:
-    name: Test Conda Python 3.8 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
+    name: Test Conda Python 3.9 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
@@ -149,17 +148,17 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
+          key: ${{ matrix.os }}-conda-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.8-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
-            ${{ matrix.os }}-conda-3.8
+            ${{ matrix.os }}-conda-3.9-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
+            ${{ matrix.os }}-conda-3.9
 
-      - name: Setup Python 3.8
+      - name: Setup Python 3.9
         uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: test_gator
           channels: conda-forge
-          python-version: "3.8"
+          python-version: "3.9"
           show-channel-urls: true
           use-only-tar-bz2: true
 
