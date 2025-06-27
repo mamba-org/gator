@@ -55,11 +55,11 @@ jobs:
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+        shell: bash -l {0}
 
       - name: Pre-cache test packages
         run: |
-          conda create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
-          conda clean --tarballs --yes
+          conda create -n _test_cache -y -c conda-forge --download-only python=${{ matrix.python-version }} astroid ipykernel nb_conda_kernels
         shell: bash -l {0}
 
       - name: Test the server extension
@@ -117,11 +117,11 @@ jobs:
           pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+        shell: bash -l {0}
 
       - name: Pre-cache test packages
         run: |
-          mamba create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
-          mamba clean --tarballs --yes
+          mamba create -n _test_cache -y -c conda-forge --download-only python=${{ matrix.python-version }} astroid ipykernel nb_conda_kernels
         shell: bash -l {0}
 
       - name: Test the server extension
@@ -182,15 +182,16 @@ jobs:
           node-version: '18'
           cache: 'yarn'
           
-      - name: Create conda environment and pre-cache test packages
+      - name: Create conda environment
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
-          
+        shell: bash -l {0}
+
       - name: Pre-cache test packages
         run: |
-          conda create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
-          conda clean --tarballs --yes
+          conda create -n _test_cache -y -c conda-forge --download-only python=3.8 astroid ipykernel nb_conda_kernels
+        shell: bash -l {0}
 
       - name: Upgrade conda dependencies on Windows (resolves OSError)
         if: matrix.os == 'windows-latest'
@@ -265,7 +266,7 @@ jobs:
           node-version: '18'
           cache: 'yarn'
  
-      - name: Create mamba environment and pre-cache test packages
+      - name: Create mamba environment
         shell: bash -l {0}
         run: |
           mamba create -y -n test_gator -c conda-forge python=3.9 nb_conda_kernels
@@ -273,11 +274,11 @@ jobs:
           pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           python --version
           jupyter --version
-          
+
       - name: Pre-cache test packages
         run: |
-          mamba create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
-          mamba clean --tarballs --yes
+          mamba create -n _test_cache -y -c conda-forge --download-only python=${{ matrix.python-version }} astroid ipykernel nb_conda_kernels
+        shell: bash -l {0}
 
       - name: Install Dependencies and Extension
         run: |

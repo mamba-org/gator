@@ -26,15 +26,15 @@ from jupyter_server.utils import url2path, url_path_join
 
 from .log import get_logger
 
-CONDA_EXE = os.environ.get("CONDA_EXE", "conda")  # type: str
+CONDA_EXE: str = os.environ.get("CONDA_EXE", "conda")
 
 PATH_SEP = "\\" + os.path.sep
 CONDA_ENV_PATH = r"^(.*?" + PATH_SEP + r"envs" + PATH_SEP + r".+?)" + PATH_SEP
 
 # try to match lines of json
-JSONISH_RE = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'  # type: str
+JSONISH_RE: str = r'(^\s*["\{\}\[\],\d])|(["\}\}\[\],\d]\s*$)'
 
-MAX_LOG_OUTPUT = 6000  # type: int
+MAX_LOG_OUTPUT: int = 6000
 
 ROOT_ENV_NAME = "base"
 
