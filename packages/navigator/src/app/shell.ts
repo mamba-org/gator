@@ -4,7 +4,6 @@ import { classes, DockPanelSvg, LabIcon } from '@jupyterlab/ui-components';
 
 import { Panel, Widget, BoxLayout } from '@lumino/widgets';
 
-
 export type IGatorShell = GatorShell;
 
 /**
@@ -70,14 +69,14 @@ export class GatorShell extends Widget implements JupyterFrontEnd.IShell {
    */
   get currentWidget(): Widget | null {
     const result = this._main.widgets().next();
-    if (result.done) return null;
+    if (result.done) {
+      return null;
+    }
     return result.value ?? null;
   }
 
   widgets(area?: string): IterableIterator<Widget> {
-    return area === 'top'
-    ? this._top.widgets.values()
-    : this._main.widgets();
+    return area === 'top' ? this._top.widgets.values() : this._main.widgets();
   }
 
   /**

@@ -19,7 +19,7 @@ export class MainMenu extends MenuBar implements IMainMenu {
     const { commands } = options;
     this._helpMenu = new HelpMenu({ commands });
 
-    const menuToAdd: Menu = (this._helpMenu as any as Menu); // Cast to Menu since it extends Menu
+    const menuToAdd: Menu = this._helpMenu as any as Menu; // Cast to Menu since it extends Menu
 
     this.addMenu(menuToAdd);
   }
