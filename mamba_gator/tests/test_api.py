@@ -54,7 +54,7 @@ class JupyterCondaAPITest(ServerTest):
 
         return self.conda_api.post(
             ["environments"],
-            body={"name": new_name, "packages": packages or ["python!=3.10.0"]},
+            body={"name": new_name, "packages": packages or ["python=3.9"]},
         )
 
     def rm_env(self, name):
@@ -412,7 +412,7 @@ class TestEnvironmentsHandlerWhiteList(JupyterCondaAPITest):
     @mock.patch("nb_conda_kernels.manager.CACHE_TIMEOUT", 0)
     def test_get_whitelist(self):
         n = "banana"
-        self.wait_for_task(self.mk_env, n, packages=["ipykernel",])
+        self.wait_for_task(self.mk_env, n, packages=["python=3.9", "ipykernel"])
         manager = CondaKernelSpecManager()
         manager.whitelist = set(["conda-env-banana-py",])
         env_manager = TestEnvironmentsHandlerWhiteList.notebook.web_app.settings["env_manager"]

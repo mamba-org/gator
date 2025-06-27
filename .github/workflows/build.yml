@@ -55,8 +55,17 @@ jobs:
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+
+      - name: Pre-cache test packages
+        run: |
+          conda create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
+          conda clean --tarballs --yes
         shell: bash -l {0}
+
       - name: Test the server extension
+        env:
+          CONDA_OFFLINE: 1
+          CONDA_USE_LOCAL: "true"
         run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
@@ -108,8 +117,17 @@ jobs:
           pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
           ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+
+      - name: Pre-cache test packages
+        run: |
+          mamba create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
+          mamba clean --tarballs --yes
         shell: bash -l {0}
+
       - name: Test the server extension
+        env:
+          CONDA_OFFLINE: 1
+          CONDA_USE_LOCAL: "true"
         run: |
           conda activate test_gator
           python -m pytest -ra mamba_gator
@@ -164,10 +182,15 @@ jobs:
           node-version: '18'
           cache: 'yarn'
           
-      - name: Create conda environment
+      - name: Create conda environment and pre-cache test packages
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          
+      - name: Pre-cache test packages
+        run: |
+          conda create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
+          conda clean --tarballs --yes
 
       - name: Upgrade conda dependencies on Windows (resolves OSError)
         if: matrix.os == 'windows-latest'
@@ -192,6 +215,8 @@ jobs:
       - name: Test the extension
         env:
           OS_RUNNER: ${{ matrix.os }}
+          CONDA_OFFLINE: 1
+          CONDA_USE_LOCAL: "true"
         run: |
           python -m pytest mamba_gator
           yarn run test
@@ -240,7 +265,7 @@ jobs:
           node-version: '18'
           cache: 'yarn'
  
-      - name: Create mamba environment
+      - name: Create mamba environment and pre-cache test packages
         shell: bash -l {0}
         run: |
           mamba create -y -n test_gator -c conda-forge python=3.9 nb_conda_kernels
@@ -248,6 +273,11 @@ jobs:
           pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           python --version
           jupyter --version
+          
+      - name: Pre-cache test packages
+        run: |
+          mamba create -n _test_cache -y --download-only python=3.9 astroid ipykernel nb_conda_kernels jupyter_client jupyter_core traitlets
+          mamba clean --tarballs --yes
 
       - name: Install Dependencies and Extension
         run: |
@@ -263,6 +293,9 @@ jobs:
         shell: bash -l {0}
 
       - name: Test the extension
+        env:
+          CONDA_OFFLINE: 1
+          CONDA_USE_LOCAL: "true"
         run: |
           conda activate test_gator
           # Run linter
