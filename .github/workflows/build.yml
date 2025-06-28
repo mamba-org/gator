@@ -13,8 +13,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.9"]
-        # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["==3.6.7", ">=4.0,<5.0"]
+        jupyterlab-version: [">=4.0,<5.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,9 +52,15 @@ jobs:
         run: |
           conda info
           conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          conda activate test_gator
           jupyter --version
-          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+          jlpm install
         shell: bash -l {0}
+
+      - name: Install Extension
+        run: pip install -e .[test,dev]
+        shell: bash -l {0}
+
       - name: Test the server extension
         run: python -m pytest -ra mamba_gator
         shell: bash -l {0}
@@ -67,8 +72,7 @@ jobs:
       matrix:
         # Skip 3.9 as it is used for integration tests
         python-version: ["3.8"]
-        # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["==3.6.7", ">=4.0,<5.0"]
+        jupyterlab-version: [">=4.0,<5.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -107,8 +111,15 @@ jobs:
           conda activate test_gator
           pip install "jupyterlab${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
           jupyter --version
-          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+          jlpm install
         shell: bash -l {0}
+
+      - name: Install Extension
+        run: |
+          conda activate test_gator
+          pip install -e .[test,dev]
+        shell: bash -l {0}
+
       - name: Test the server extension
         run: |
           conda activate test_gator
@@ -126,8 +137,7 @@ jobs:
         os: 
           - "macos-latest"
           - "windows-latest"
-        # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["==3.6.7", ">=4.0,<5.0"]
+        jupyterlab-version: [">=4.0,<5.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -181,7 +191,9 @@ jobs:
 
       - name: Install dependencies and Extension
         run: |
-          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+          conda activate test_gator
+          jlpm install
+          pip install -e .[test,dev]
         shell: bash -l {0}
 
       - name: Install Playwright browsers
@@ -193,6 +205,7 @@ jobs:
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
+          conda activate test_gator
           python -m pytest mamba_gator
           yarn run test
           jupyter serverextension list
@@ -205,8 +218,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Add JupyterLab 4 to the matrix
-        jupyterlab-version: ["==3.6.7", ">=4.0,<5.0"]
+        jupyterlab-version: [">=4.0,<5.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -252,7 +264,8 @@ jobs:
       - name: Install Dependencies and Extension
         run: |
           conda activate test_gator
-          ./install-lab-version.sh "${{ matrix.jupyterlab-version }}"
+          jlpm install
+          pip install -e .[test,dev]
 
           # Check pip dependencies
           pip check

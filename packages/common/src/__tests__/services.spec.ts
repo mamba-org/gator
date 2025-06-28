@@ -1,9 +1,7 @@
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import { Settings } from '@jupyterlab/settingregistry';
-
-// Move back to @jupyterlab/testutils when JupyterLab 4 upgrade is complete
-import { testEmission } from './utils/testutils-local';
+import { testEmission } from '@jupyterlab/testing';
 
 import 'jest';
 import { platform } from 'os';
