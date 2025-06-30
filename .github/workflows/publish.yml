@@ -21,24 +21,23 @@ jobs:
       - name: Install Python build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build twine jupyterlab~=3.0 hatchling
+          pip install build twine jupyterlab=4.0 hatchling
 
       - name: Install frontend dependencies
         run: |
-          npm install -g yarn
-          yarn install
+          jlpm install
 
       - name: Build and publish NPM package
         if: ${{ startsWith(github.event.release.tag_name, 'npm') }}
         run: |
           if [[ ${PRE_RELEASE} == "true" ]]; then export TAG="next"; else export TAG="latest"; fi
           echo Publishing ${VERSION} with distribution tag ${TAG}
-          # yarn lerna version ${VERSION} --yes --no-git-tag-version
+          # jlpm lerna version ${VERSION} --yes --no-git-tag-version
           pushd packages/common
-          yarn run publish --access public --tag ${TAG}
+          jlpm run publish --access public --tag ${TAG}
           popd
           pushd packages/labextension
-          yarn run publish --access public --tag ${TAG}
+          jlpm run publish --access public --tag ${TAG}
           popd
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -50,6 +49,6 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          yarn build
+          jlpm build
           python -m build
           twine upload dist/*

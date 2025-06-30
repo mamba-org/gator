@@ -13,7 +13,6 @@
   },
   "author": "Jupyter Development Team",
   "license": "BSD-3-Clause",
-  "packageManager": "yarn@3.8.7",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -24,13 +23,13 @@
   "scripts": {
     "build": "lerna run build",
     "build:dev": "lerna run build:dev",
-    "build:prod": "yarn install && lerna run build:prod",
+    "build:prod": "jlpm install && lerna run build:prod",
     "clean": "lerna run clean",
     "eslint": "eslint . --fix --ext .ts,.tsx",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "prettier": "npx prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "prettier:check": "npx prettier --list-different \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
-    "publish": "yarn run clean && yarn run build && lerna publish",
+    "publish": "jlpm run clean && jlpm run build && lerna publish",
     "test": "lerna run test"
   },
   "devDependencies": {
