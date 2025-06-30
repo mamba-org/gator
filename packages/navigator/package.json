@@ -18,9 +18,9 @@
   "scripts": {
     "build": "tsc && webpack --mode=production",
     "build:dev": "tsc && webpack",
-    "build:prod": "yarn run build",
+    "build:prod": "jlpm run build",
     "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.* ../../mamba_gator/nbextension/static/*.*",
-    "prepublishOnly": "yarn run build",
+    "prepublishOnly": "jlpm run build",
     "watch:ts": "tsc -w --listEmittedFiles",
     "watch:webpack": "webpack --watch",
     "watch": "npm-run-all --parallel watch:ts watch:webpack"

@@ -8,7 +8,7 @@ Thank you for your interest in contributing to Gator! This document will help yo
 
 - Conda or Mamba (v1.x) package manager. Mamba v2.x is not currently supported.
 
-> **Note**: Python and Node.js will be automatically installed when you create the development environment. Yarn 3.x is managed via Corepack and will be automatically used based on the `packageManager` field in package.json.
+> **Note**: Python and Node.js will be automatically installed when you create the development environment.
 
 ### Project Structure
 
@@ -28,11 +28,11 @@ This project uses Lerna to manage multiple JavaScript/TypeScript packages in a m
 2. **Create and activate a conda environment**
    ```bash
    # Using conda
-   conda create -c conda-forge -n gator python=3.9 nodejs nb_conda_kernels
+   conda create -c conda-forge -n gator python=3.9 nodejs jupyterlab=4.0 nb_conda_kernels
    conda activate gator
 
    # Or using mamba
-   mamba create -c conda-forge -n gator python=3.9 nodejs nb_conda_kernels
+   mamba create -c conda-forge -n gator python=3.9 nodejs jupyterlab=4.0 nb_conda_kernels
    mamba activate gator
    ```
 
@@ -43,8 +43,7 @@ This project uses Lerna to manage multiple JavaScript/TypeScript packages in a m
 
 4. **Install Node.js dependencies**
    ```bash
-   # Corepack will automatically use yarn@3.x as specified in package.json
-   yarn install
+   jlpm install
    ```
 
 5. **Install the package in development mode**
@@ -57,40 +56,38 @@ This project uses Lerna to manage multiple JavaScript/TypeScript packages in a m
    jupyter labextension develop . --overwrite
    ```
 
-### Package Manager Notes
-
-This project uses **Yarn 3.x** as specified in the `packageManager` field in `package.json`. When you run `corepack enable`, Corepack will automatically manage the yarn version for you. You don't need to install yarn manually - just use the `yarn` commands and Corepack will handle the rest.
-
 ### Common Yarn Commands
 
-When working with the JavaScript/TypeScript packages, you can use these yarn commands. Note that while this project uses Lerna for monorepo management, the commands are wrapped in yarn scripts for convenience:
+When working with the JavaScript/TypeScript packages, you can use these yarn commands
+which are wrapped in to a command called jlpm. Note that while this project uses Lerna for monorepo management,
+the commands are also executed using jlpm:
 
 ```bash
 # Install dependencies for all packages (uses yarn workspaces)
-yarn install
+jlpm install
 
 # Build all packages (uses lerna run build internally)
-yarn run build
+jlpm run build
 
 # Build packages in development mode
-yarn run build:dev
+jlpm run build:dev
 
 # Build packages for production
-yarn run build:prod
+jlpm run build:prod
 
 # Run tests for all packages (uses lerna run test internally)
-yarn run test
+jlpm run test
 
 # Run linters
-yarn run eslint:check
-yarn run prettier:check
+jlpm run eslint:check
+jlpm run prettier:check
 
 # Fix linting issues
-yarn run eslint
-yarn run prettier
+jlpm run eslint
+jlpm run prettier
 
 # Clean build artifacts (uses lerna run clean internally)
-yarn run clean
+jlpm run clean
 ```
 
 ### Running Tests
@@ -102,11 +99,11 @@ To run the tests, you can use the following commands:
 python -m pytest mamba_gator
 
 # Run JavaScript tests
-yarn run test
+jlpm run test
 
 # Run linters
 flake8 setup.py mamba_gator
-yarn run eslint:check
+jlpm run eslint:check
 ```
 
 ### Verifying Installation
@@ -133,7 +130,7 @@ python -m jupyterlab.browser_check
 
 - Python code should follow PEP 8 guidelines
 - JavaScript code should pass ESLint checks
-- Run `flake8` and `yarn run eslint:check` before submitting changes
+- Run `flake8` and `jlpm run eslint:check` before submitting changes
 
 ## Need Help?
 

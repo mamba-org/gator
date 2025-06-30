@@ -207,7 +207,7 @@ jobs:
         run: |
           conda activate test_gator
           python -m pytest mamba_gator
-          yarn run test
+          jlpm run test
           jupyter serverextension list
           jupyter labextension list
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
@@ -280,12 +280,12 @@ jobs:
           conda activate test_gator
           # Run linter
           hatch run lint:check
-          yarn run eslint:check
+          jlpm run eslint:check
 
           # Run test
           coverage run -m pytest mamba_gator
           coverage report
-          yarn run test
+          jlpm run test
 
           jupyter serverextension list
           jupyter serverextension list 2>&1 | grep "mamba_gator.*OK"
