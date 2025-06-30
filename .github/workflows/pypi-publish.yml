@@ -1,0 +1,39 @@
+name: PyPI Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: 'Confirm this is a production release'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: pypi-publish
+    permissions:
+      id-token: write
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm_production == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+        with:
+          python_version: "3.9"
+
+      - name: Install Dependencies
+        run: |
+          pip install build hatch twine
+
+
+      - name: Build Package
+        run: |
+          python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
