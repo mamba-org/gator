@@ -14,8 +14,8 @@ Provides Conda/Mamba environment and package management as a [standalone applica
 
 _Requirements_
 
-- conda >= 4.5 or mamba >=0.5
-- JupyterLab 1.x, 2.x or 3.x (for the JupyterLab extension only)
+- conda >= 4.5 or mamba 1.x 
+- JupyterLab 4.0.x (for the JupyterLab extension only)
 
 > Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
 
@@ -29,12 +29,6 @@ To install in the JupyterLab:
 
 ```shell
 mamba install -c conda-forge jupyterlab mamba_gator
-```
-
-If you use JupyterLab 1.x or 2.x, you can install the extension with the following command:
-
-```shell
-jupyter labextension install @mamba-org/gator-lab
 ```
 
 > Optionally, you could install [`jupyterlab-tour`](https://github.com/fcollonval/jupyterlab-tour) to
@@ -90,26 +84,36 @@ Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybind
 
 ## Development
 
-```shell
-mamba create -c conda-forge -y -n gator python=3.9 nodejs "yarn<2.0.0" nb_conda_kernels
-conda activate gator
-pip install -e .
-jupyter server extension enable mamba_gator --sys-prefix
+To setup a development environment follow our [Contributing Guide](CONTRIBUTING.md).
 
-yarn install
-yarn run build:dev
-jupyter labextension link packages/common/ packages/labextension/
+If you would like to try a pre-release version:
+
+```shell
+conda create -c conda-forge -y -n gator python=3.13 nodejs jupyterlab=4.0 
+conda activate gator
+pip install git+https://github.com/mamba-org/gator.git
+jupyter lab
 ```
 
 ## Acknowledgements
 
-This work started as a fork by [@fcollonval](https://github.com/fcollonval/) of the Anaconda [nb_conda package](https://github.com/Anaconda-Platform/nb_conda). The decision to fork it came due
-to apparently dead status of the previous package and a need to integrate it within JupyterLab.
+This work started as a fork by [@fcollonval](https://github.com/fcollonval/) of the Anaconda [nb_conda package](https://github.com/Anaconda-Platform/nb_conda) to add
+JupyterLab support.
 
 Then with the [mamba initiative](https://medium.com/@QuantStack/open-software-packaging-for-science-61cecee7fc23) pushed by QuantStack it made
 sense to move the project in the `mamba-org` organization.
 
 ## Changelog
+
+### 6.0.0
+- Maintenance:
+  - Migrate from JupyterLab 3 to JupyterLab 4.0 support
+  - Migrate from Setuptools to Hatch
+  - Remove support for Python 3.7
+  - Add support for Python up to 3.13
+  - Update out of date GitHub Actions
+- Docs:
+  - Add Contributing Guide
 
 ### 5.1.2
 
