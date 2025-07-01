@@ -111,8 +111,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     } else if (pkg.version_selected !== 'none') {
       return (
         <FontAwesomeIcon
-          icon="square"
-          style={{ color: 'var(--jp-ui-font-color1)' }}
+          icon="check-square"
+          style={{ color: 'var(--jp-brand-color1)' }}
         />
       );
     }
