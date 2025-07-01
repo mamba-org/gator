@@ -3,7 +3,6 @@ requires = [
     "hatchling>=1.9.0",
     "jupyterlab>=3.6.7,<5.0.0",
     "jupyter-server",
-    "setuptools",
 ]
 build-backend = "hatchling.build"
 
@@ -82,6 +81,7 @@ path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 skip_npm_install = true
+skip-if-exists = ["mamba_gator/labextension/static/style.js"]
 path = "packages/labextension"
 dependencies = [
     "hatch-jupyter-builder",

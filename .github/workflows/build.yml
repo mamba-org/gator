@@ -296,3 +296,57 @@ jobs:
           jupyter labextension list 2>&1 | grep "@mamba-org/gator-lab.*OK"
           python -m jupyterlab.browser_check
         shell: bash -l {0}
+
+  make_sdist:
+    name: Make SDist
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+        with:
+          python_version: "3.9"
+
+      - name: Build SDist
+        run: |
+          pip install build
+          python -m build --sdist
+
+      - name: Upload sdist Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "sdist"
+          path: dist/*.tar.gz
+
+  test-offline-build:
+    name: Test building offline
+    runs-on: ubuntu-latest
+    needs: [make_sdist]
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Download sdist
+        uses: actions/download-artifact@v4
+
+      - name: Install From SDist
+        run: |
+          set -ex
+          cd sdist
+          mkdir test
+          tar --strip-components=1 -zxvf *.tar.gz -C ./test
+
+      - name: Test offline build with unshare
+        run: |
+          # Use unshare to create a network namespace that blocks network access
+          cd sdist/test
+          python -m venv .venv
+          .venv/bin/python -m pip install build jupyter-server hatch-jupyter-builder jupyterlab
+          sudo unshare --net bash -c ".venv/bin/python -m build --no-isolation --wheel"
