@@ -82,17 +82,17 @@ path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 skip_npm_install = true
+path = "packages/labextension"
 dependencies = [
     "hatch-jupyter-builder",
 ]
 ensured-targets = [
-    "packages/labextension/lib/index.js",
-    "mamba_gator/labextension/package.json",
+  "mamba_gator/labextension/static/style.js",
+  "mamba_gator/labextension/package.json",
 ]
 build-function = "hatch_jupyter_builder.npm_builder"
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
-path = "."
 build_cmd = "build:prod"
 npm = [
     "jlpm",
