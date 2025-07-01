@@ -1,9 +1,3 @@
-import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
-import { faCheckSquare } from '@fortawesome/free-solid-svg-icons/faCheckSquare';
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
-import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt';
-import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
-import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';
@@ -96,36 +90,36 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       if (pkg.version_selected === 'none') {
         return (
           <FontAwesomeIcon
-            icon={faMinusSquare as IconProp}
+            icon="minus-square"
             style={{ color: 'var(--jp-error-color1)' }}
           />
         );
       } else if (pkg.version_selected !== pkg.version_installed) {
         return (
           <FontAwesomeIcon
-            icon={faExternalLinkSquareAlt as IconProp}
+            icon="external-link-square-alt"
             style={{ color: 'var(--jp-accent-color1)' }}
           />
         );
       }
       return (
         <FontAwesomeIcon
-          icon={faCheckSquare as IconProp}
+          icon="check-square"
           style={{ color: 'var(--jp-brand-color1)' }}
         />
       );
     } else if (pkg.version_selected !== 'none') {
       return (
         <FontAwesomeIcon
-          icon={faCheckSquare as IconProp}
-          style={{ color: 'var(--jp-brand-color1)' }}
+          icon="square"
+          style={{ color: 'var(--jp-ui-font-color1)' }}
         />
       );
     }
 
     return (
       <FontAwesomeIcon
-        icon={faSquare as IconProp}
+        icon="square"
         style={{ color: 'var(--jp-ui-font-color2)' }}
       />
     );
@@ -155,7 +149,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {pkg.name} <FontAwesomeIcon icon={faExternalLinkAlt as IconProp} />
+          {pkg.name} <FontAwesomeIcon icon="external-link-alt" />
         </a>
       );
     }
