@@ -348,5 +348,5 @@ jobs:
           # Use unshare to create a network namespace that blocks network access
           cd sdist/test
           python -m venv .venv
-          .venv/bin/python -m pip install build jupyter-server hatch-jupyter-builder
+          .venv/bin/python -m pip install build jupyter-server hatch-jupyter-builder jupyterlab
           sudo unshare --net bash -c ".venv/bin/python -m build --no-isolation --wheel"
