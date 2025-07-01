@@ -82,6 +82,7 @@ path = "mamba_gator/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 skip_npm_install = true
+skip-if-exists = ["mamba_gator/labextension/static/style.js"]
 path = "packages/labextension"
 dependencies = [
     "hatch-jupyter-builder",
