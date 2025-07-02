@@ -2,6 +2,7 @@ import { ReactWidget, UseSignal } from './utils';
 import { Signal } from '@lumino/signaling';
 import { Widget } from '@lumino/widgets';
 import * as React from 'react';
+import './fontawesome-icons';
 import { NbConda } from './components/NbConda';
 import { IEnvironmentManager } from './tokens';
 

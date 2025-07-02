@@ -1,6 +1,3 @@
-import { faClone } from '@fortawesome/free-regular-svg-icons/faClone';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
-import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import {
@@ -67,7 +64,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           minimal
         >
           <FontAwesomeIcon
-            icon={faSyncAlt as IconProp}
+            icon="sync-alt"
             spin={props.isPending}
             style={{ color: 'var(--jp-inverse-layout-color3)' }}
           />
@@ -89,7 +86,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           minimal
         >
           <FontAwesomeIcon
-            icon={faClone as IconProp}
+            icon="clone"
             style={{ color: 'var(--jp-inverse-layout-color3)' }}
           />
         </Button>

@@ -1,8 +1,3 @@
-import { faCartArrowDown } from '@fortawesome/free-solid-svg-icons/faCartArrowDown';
-import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkSquareAlt';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
-import { faUndoAlt } from '@fortawesome/free-solid-svg-icons/faUndoAlt';
-import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
 import * as React from 'react';
@@ -103,7 +98,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         title="Update all packages"
       >
         <FontAwesomeIcon
-          icon={faExternalLinkSquareAlt as IconProp}
+          icon="external-link-square-alt"
           style={{
             color: props.hasUpdate
               ? 'var(--jp-accent-color0)'
@@ -119,7 +114,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         title="Apply package modifications"
       >
         <FontAwesomeIcon
-          icon={faCartArrowDown as IconProp}
+          icon="cart-arrow-down"
           style={{
             color: props.hasSelection
               ? 'var(--jp-brand-color0)'
@@ -135,7 +130,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         title="Clear package modifications"
       >
         <FontAwesomeIcon
-          icon={faUndoAlt as IconProp}
+          icon="undo-alt"
           style={{ color: 'var(--jp-inverse-layout-color3)' }}
         />
       </Button>
@@ -147,7 +142,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         title="Refresh available packages"
       >
         <FontAwesomeIcon
-          icon={faSyncAlt as IconProp}
+          icon="sync-alt"
           spin={props.isPending}
           style={{ color: 'var(--jp-inverse-layout-color3)' }}
         />
