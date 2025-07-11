@@ -1,8 +1,14 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
+import { HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
+import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import * as React from 'react';
 import { classes, style } from 'typestyle/lib';
 import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
+import {
+  cartArrowDownIcon,
+  externalLinkIcon,
+  syncAltIcon,
+  undoIcon
+} from '../icon';
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
@@ -90,63 +96,30 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         </div>
       </div>
       <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
-      <Button
-        className="jp-ToolbarButtonComponent"
-        disabled={!props.hasUpdate}
-        minimal
-        onMouseDown={props.onUpdateAll}
-        title="Update all packages"
-      >
-        <FontAwesomeIcon
-          icon="external-link-square-alt"
-          style={{
-            color: props.hasUpdate
-              ? 'var(--jp-accent-color0)'
-              : 'var(--jp-inverse-layout-color3)'
-          }}
-        />
-      </Button>
-      <Button
-        className="jp-ToolbarButtonComponent"
-        disabled={!props.hasSelection}
-        minimal
-        onMouseDown={props.onApply}
-        title="Apply package modifications"
-      >
-        <FontAwesomeIcon
-          icon="cart-arrow-down"
-          style={{
-            color: props.hasSelection
-              ? 'var(--jp-brand-color0)'
-              : 'var(--jp-inverse-layout-color3)'
-          }}
-        />
-      </Button>
-      <Button
-        className="jp-ToolbarButtonComponent"
-        disabled={!props.hasSelection}
-        minimal
-        onMouseDown={props.onCancel}
-        title="Clear package modifications"
-      >
-        <FontAwesomeIcon
-          icon="undo-alt"
-          style={{ color: 'var(--jp-inverse-layout-color3)' }}
-        />
-      </Button>
-      <Button
-        className="jp-ToolbarButtonComponent"
-        disabled={props.isPending}
-        minimal
-        onMouseDown={props.onRefreshPackages}
-        title="Refresh available packages"
-      >
-        <FontAwesomeIcon
-          icon="sync-alt"
-          spin={props.isPending}
-          style={{ color: 'var(--jp-inverse-layout-color3)' }}
-        />
-      </Button>
+      <ToolbarButtonComponent
+        icon={externalLinkIcon}
+        tooltip="Update all packages"
+        onClick={props.onUpdateAll}
+        enabled={props.hasUpdate}
+      />
+      <ToolbarButtonComponent
+        icon={cartArrowDownIcon}
+        tooltip="Apply package modifications"
+        onClick={props.onApply}
+        enabled={props.hasSelection}
+      />
+      <ToolbarButtonComponent
+        icon={undoIcon}
+        tooltip="Clear package modifications"
+        onClick={props.onCancel}
+        enabled={props.hasSelection}
+      />
+      <ToolbarButtonComponent
+        icon={syncAltIcon}
+        tooltip="Refresh available packages"
+        onClick={props.onRefreshPackages}
+        enabled={!props.isPending}
+      />
     </div>
   );
 };
