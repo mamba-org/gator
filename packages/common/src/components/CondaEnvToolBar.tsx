@@ -7,6 +7,7 @@ import {
   downloadIcon,
   fileUploadIcon
 } from '@jupyterlab/ui-components';
+import { cloneIcon } from '../icon';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from '../constants';
@@ -78,18 +79,12 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           tooltip="Create"
           onClick={props.onCreate}
         />
-        <Button
-          className="jp-ToolbarButtonComponent"
-          disabled={props.isBase}
-          onMouseDown={props.onClone}
-          title="Clone"
-          minimal
-        >
-          <FontAwesomeIcon
-            icon="clone"
-            style={{ color: 'var(--jp-inverse-layout-color3)' }}
-          />
-        </Button>
+        <ToolbarButtonComponent
+          icon={cloneIcon}
+          tooltip="Clone"
+          onClick={props.onClone}
+          enabled={!props.isBase}
+        />
         <ToolbarButtonComponent
           icon={fileUploadIcon}
           tooltip="Import"
