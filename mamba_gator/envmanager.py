@@ -805,7 +805,7 @@ class EnvManager:
                             max_build_numbers[version_idx] = build_number
                             max_build_strings[version_idx] = entry.get("build_string", "")
 
-                sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__)
+                sorted_versions_idx = sorted(range(len(versions)), key=versions.__getitem__, reverse=True)
 
                 pkg_entry["version"] = [str(versions[i]) for i in sorted_versions_idx]
                 pkg_entry["build_number"] = [max_build_numbers[i] for i in sorted_versions_idx]
