@@ -6,6 +6,7 @@
 .jp-NbConda-ToolbarPackages {
   align-items: center;
   height: 40px;
+  display: flex;
 }
 
 .jp-NbConda-ToolbarPackages.jp-Toolbar > .jp-Toolbar-item {
