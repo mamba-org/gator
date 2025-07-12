@@ -1,4 +1,5 @@
 .jp-NbConda-EnvToolbar {
+  display: flex;
   justify-content: space-evenly;
   box-shadow: none;
 }
