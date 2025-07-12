@@ -1,6 +1,7 @@
 import { LabIcon } from '@jupyterlab/ui-components';
 import condaSvgstr from '../style/conda.svg';
 import cloneSvgstr from '../style/clone.svg';
+import syncAltSvgstr from '../style/sync-alt.svg';
 
 export const condaIcon = new LabIcon({
   name: '@mamba-org/gator-lab:conda',
@@ -10,4 +11,9 @@ export const condaIcon = new LabIcon({
 export const cloneIcon = new LabIcon({
   name: '@mamba-org/gator-lab:clone',
   svgstr: cloneSvgstr
+});
+
+export const syncAltIcon = new LabIcon({
+  name: '@mamba-org/gator-lab:sync-alt',
+  svgstr: syncAltSvgstr
 });

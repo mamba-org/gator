@@ -1,13 +1,11 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import {
   addIcon,
-  Button,
   closeIcon,
   downloadIcon,
   fileUploadIcon
 } from '@jupyterlab/ui-components';
-import { cloneIcon } from '../icon';
+import { cloneIcon, syncAltIcon } from '../icon';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from '../constants';
@@ -58,7 +56,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
     <div className={Style.NoGrow}>
       <div className={Style.Title}>
         <span className={Style.Grow}>Conda environments</span>
-        <Button
+        {/* <Button
           className="jp-ToolbarButtonComponent"
           onMouseDown={props.onRefresh}
           title="Refresh environments"
@@ -69,7 +67,13 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
             spin={props.isPending}
             style={{ color: 'var(--jp-inverse-layout-color3)' }}
           />
-        </Button>
+        </Button> */}
+        <ToolbarButtonComponent
+          icon={syncAltIcon}
+          tooltip="Refresh environments"
+          onClick={props.onRefresh}
+          className={props.isPending ? Style.Spin : ''}
+        />
       </div>
       <div
         className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}
@@ -115,6 +119,10 @@ namespace Style {
   export const NoGrow = style({
     flexGrow: 0,
     flexShrink: 0
+  });
+
+  export const Spin = style({
+    animation: 'spin 1s linear infinite'
   });
 
   export const Title = style({
