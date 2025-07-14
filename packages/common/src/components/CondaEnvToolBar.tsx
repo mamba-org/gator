@@ -3,7 +3,7 @@ import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import {
   addIcon,
   Button,
-  closeIcon,
+  deleteIcon,
   downloadIcon,
   fileUploadIcon
 } from '@jupyterlab/ui-components';
@@ -101,7 +101,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           onClick={props.onExport}
         />
         <ToolbarButtonComponent
-          icon={closeIcon}
+          icon={deleteIcon}
           tooltip="Remove"
           onClick={props.onRemove}
           enabled={!props.isBase}
