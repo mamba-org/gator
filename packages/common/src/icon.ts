@@ -3,6 +3,7 @@ import condaSvgstr from '../style/conda.svg';
 import externalLinkSvgstr from '../style/external-link.svg';
 import cartArrowDownSvgstr from '../style/cart-arrow-down.svg';
 import undoSvgstr from '../style/undo.svg';
+import cloneSvgstr from '../style/clone.svg';
 import syncAltSvgstr from '../style/sync-alt.svg';
 
 export const condaIcon = new LabIcon({
@@ -23,6 +24,11 @@ export const cartArrowDownIcon = new LabIcon({
 export const undoIcon = new LabIcon({
   name: '@mamba-org/gator-lab:undo',
   svgstr: undoSvgstr
+});
+
+export const cloneIcon = new LabIcon({
+  name: '@mamba-org/gator-lab:clone',
+  svgstr: cloneSvgstr
 });
 
 export const syncAltIcon = new LabIcon({

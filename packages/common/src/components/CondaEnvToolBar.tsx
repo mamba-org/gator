@@ -1,12 +1,11 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import {
   addIcon,
-  Button,
-  closeIcon,
+  deleteIcon,
   downloadIcon,
   fileUploadIcon
 } from '@jupyterlab/ui-components';
+import { cloneIcon, syncAltIcon } from '../icon';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from '../constants';
@@ -57,18 +56,13 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
     <div className={Style.NoGrow}>
       <div className={Style.Title}>
         <span className={Style.Grow}>Conda environments</span>
-        <Button
-          className="jp-ToolbarButtonComponent"
-          onMouseDown={props.onRefresh}
-          title="Refresh environments"
-          minimal
-        >
-          <FontAwesomeIcon
-            icon="sync-alt"
-            spin={props.isPending}
-            style={{ color: 'var(--jp-inverse-layout-color3)' }}
+        <div data-loading={props.isPending}>
+          <ToolbarButtonComponent
+            icon={syncAltIcon}
+            tooltip="Refresh environments"
+            onClick={props.onRefresh}
           />
-        </Button>
+        </div>
       </div>
       <div
         className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}
@@ -78,18 +72,12 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           tooltip="Create"
           onClick={props.onCreate}
         />
-        <Button
-          className="jp-ToolbarButtonComponent"
-          disabled={props.isBase}
-          onMouseDown={props.onClone}
-          title="Clone"
-          minimal
-        >
-          <FontAwesomeIcon
-            icon="clone"
-            style={{ color: 'var(--jp-inverse-layout-color3)' }}
-          />
-        </Button>
+        <ToolbarButtonComponent
+          icon={cloneIcon}
+          tooltip="Clone"
+          onClick={props.onClone}
+          enabled={!props.isBase}
+        />
         <ToolbarButtonComponent
           icon={fileUploadIcon}
           tooltip="Import"
@@ -101,7 +89,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           onClick={props.onExport}
         />
         <ToolbarButtonComponent
-          icon={closeIcon}
+          icon={deleteIcon}
           tooltip="Remove"
           onClick={props.onRemove}
           enabled={!props.isBase}
@@ -120,6 +108,10 @@ namespace Style {
   export const NoGrow = style({
     flexGrow: 0,
     flexShrink: 0
+  });
+
+  export const Spin = style({
+    animation: 'spin 1s linear infinite'
   });
 
   export const Title = style({
