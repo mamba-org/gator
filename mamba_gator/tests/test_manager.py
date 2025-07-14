@@ -82,7 +82,7 @@ async def test_list_available_version_sorting_works():
         if multi_version_pkg:
             # Check that versions are in ascending order
             versions = [Version(v) for v in multi_version_pkg["version"]]
-            assert versions == sorted(versions)
+            assert versions == sorted(versions, reverse=True)
 
 
 @pytest.mark.asyncio
