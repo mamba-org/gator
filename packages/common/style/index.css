@@ -47,6 +47,14 @@
   background: var(--md-grey-400);
 }
 
+jp-button[title="Update all packages"][aria-disabled="false"] > svg {
+  color: var(--jp-accent-color0);
+}
+
+jp-button[title="Update all packages"][aria-disabled="true"] > svg {
+  color: var(--jp-inverse-layout-color3);
+}
+
 .jp-NbConda-search-wrapper input {
   background: transparent;
   font-size: var(--jp-ui-font-size1);
