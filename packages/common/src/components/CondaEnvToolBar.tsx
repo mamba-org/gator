@@ -56,24 +56,13 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
     <div className={Style.NoGrow}>
       <div className={Style.Title}>
         <span className={Style.Grow}>Conda environments</span>
-        {/* <Button
-          className="jp-ToolbarButtonComponent"
-          onMouseDown={props.onRefresh}
-          title="Refresh environments"
-          minimal
-        >
-          <FontAwesomeIcon
-            icon="sync-alt"
-            spin={props.isPending}
-            style={{ color: 'var(--jp-inverse-layout-color3)' }}
+        <div data-loading={props.isPending}>
+          <ToolbarButtonComponent
+            icon={syncAltIcon}
+            tooltip="Refresh environments"
+            onClick={props.onRefresh}
           />
-        </Button> */}
-        <ToolbarButtonComponent
-          icon={syncAltIcon}
-          tooltip="Refresh environments"
-          onClick={props.onRefresh}
-          className={props.isPending ? Style.Spin : ''}
-        />
+        </div>
       </div>
       <div
         className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}
