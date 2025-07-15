@@ -48,19 +48,19 @@
   background: var(--md-grey-400);
 }
 
-jp-button[title="Update all packages"][aria-disabled="false"] > svg {
+jp-button[data-action="update-all"][aria-disabled="false"] > svg {
   color: var(--jp-accent-color0);
 }
 
-jp-button[title="Update all packages"][aria-disabled="true"] > svg {
+jp-button[data-action="update-all"][aria-disabled="true"] > svg {
   color: var(--jp-inverse-layout-color3);
-}
+} 
 
-jp-button[title="Apply package modifications"][aria-disabled="false"] > svg {
+jp-button[data-action="apply-modifications"][aria-disabled="false"] > svg {
   color: var(--jp-brand-color0);
 }
 
-jp-button[title="Apply package modifications"][aria-disabled="true"] > svg {
+jp-button[data-action="apply-modifications"][aria-disabled="true"] > svg {
   color: var(--jp-inverse-layout-color3);
 }
 

@@ -101,12 +101,14 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         tooltip="Update all packages"
         onClick={props.onUpdateAll}
         enabled={props.hasUpdate}
+        dataset={{ 'data-action': 'update-all' }}
       />
       <ToolbarButtonComponent
         icon={cartArrowDownIcon}
         tooltip="Apply package modifications"
         onClick={props.onApply}
         enabled={props.hasSelection}
+        dataset={{ 'data-action': 'apply-modifications' }}
       />
       <ToolbarButtonComponent
         icon={undoIcon}
