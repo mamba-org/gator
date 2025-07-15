@@ -57,7 +57,7 @@ jp-button[title="Update all packages"][aria-disabled="true"] > svg {
 }
 
 jp-button[title="Apply package modifications"][aria-disabled="false"] > svg {
-  color: var(--jp-accent-color0);
+  color: var(--jp-brand-color0);
 }
 
 jp-button[title="Apply package modifications"][aria-disabled="true"] > svg {
