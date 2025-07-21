@@ -119,7 +119,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
     return (
       <FontAwesomeIcon
-        icon={['far', 'square']} 
+        icon={['far', 'square']}
         style={{ color: 'var(--jp-ui-font-color2)' }}
       />
     );
