@@ -6,6 +6,40 @@ import undoSvgstr from '../style/undo.svg';
 import cloneSvgstr from '../style/clone.svg';
 import syncAltSvgstr from '../style/sync-alt.svg';
 
+import { IconDefinition, library } from '@fortawesome/fontawesome-svg-core';
+import {
+  faClone,
+  faSyncAlt,
+  faCartArrowDown,
+  faExternalLinkAlt,
+  faExternalLinkSquareAlt,
+  faMinusSquare,
+  faUndoAlt,
+  faCheckSquare,
+  faSquare
+} from '@fortawesome/free-solid-svg-icons';
+
+import {
+  faClone as faCloneRegular,
+  faSquare as faSquareRegular
+} from '@fortawesome/free-regular-svg-icons';
+
+const icons: IconDefinition[] = [
+  faClone,
+  faSyncAlt,
+  faCartArrowDown,
+  faExternalLinkAlt,
+  faExternalLinkSquareAlt,
+  faMinusSquare,
+  faUndoAlt,
+  faCheckSquare,
+  faSquare,
+  faCloneRegular,
+  faSquareRegular
+];
+
+library.add(...icons);
+
 export const condaIcon = new LabIcon({
   name: '@mamba-org/gator-lab:conda',
   svgstr: condaSvgstr
