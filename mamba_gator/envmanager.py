@@ -101,6 +101,22 @@ def parse_version(version: str) -> Optional[Version]:
         number = ord(letter) - ord('a') + 1
         version = f"{version[:-1]}.{number}"
 
+    # Handle custom versions like "custom" -> "0.0.0"
+    if version == "custom":
+        version = "0.0.0"
+        return Version(version)
+
+    # Handle 
+      # OpenSSL style versions like "1.1.1j" -> "1.1.1.post10"
+      # Legacy short form versions like "9d" -> "9.post4"
+    # Assuming letter suffix implies patch level
+    matchOpenSSL = re.match(r'^(\d+\.\d+\.\d+)([a-z])$', version)
+    matchLegacy = re.match(r'^(\d+)([a-z])$', version)
+    if matchOpenSSL or matchLegacy:
+        base, letter = matchOpenSSL.groups() if matchOpenSSL else matchLegacy.groups()
+        patchlevel = ord(letter) - ord('a') + 1
+        version = f"{base}.post{patchlevel}"
+
     try:
         return Version(version)
     except InvalidVersion:
