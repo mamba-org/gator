@@ -504,7 +504,9 @@ export class CondaPkgPanel extends React.Component<
           onCancel={this.handleCancel}
           onRefreshPackages={this.handleRefreshPackages}
         />
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
           <CondaPkgList
             height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
             hasDescription={
