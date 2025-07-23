@@ -11,6 +11,7 @@ import {
 } from '@jupyterlab/apputils';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { ILauncher } from '@jupyterlab/launcher';
 import {
   CondaEnvironments,
   CondaEnvWidget,
@@ -34,7 +35,8 @@ async function activateCondaEnv(
   settingsRegistry: ISettingRegistry | null,
   palette: ICommandPalette | null,
   menu: IMainMenu | null,
-  restorer: ILayoutRestorer | null
+  restorer: ILayoutRestorer | null,
+  launcher: ILauncher | null
 ): Promise<IEnvironmentManager> {
   let tour: any;
   const { commands, shell } = app;
@@ -110,8 +112,17 @@ async function activateCondaEnv(
         shell.add(condaWidget, 'main');
       }
       shell.activateById(condaWidget.id);
-    }
+    },
+    icon: condaIcon
   });
+
+  if (launcher) {
+    launcher.add({
+      command,
+      category: 'Gator',
+      rank: 1
+    });
+  }
 
   // Add command to command palette
   if (palette) {
@@ -172,7 +183,13 @@ const condaManager: JupyterFrontEndPlugin<IEnvironmentManager> = {
   id: CONDAENVID,
   autoStart: true,
   activate: activateCondaEnv,
-  optional: [ISettingRegistry, ICommandPalette, IMainMenu, ILayoutRestorer],
+  optional: [
+    ISettingRegistry,
+    ICommandPalette,
+    IMainMenu,
+    ILayoutRestorer,
+    ILauncher
+  ],
   provides: IEnvironmentManager
 };
 
@@ -184,7 +201,7 @@ const companions: JupyterFrontEndPlugin<ICompanionValidator> = {
   autoStart: true,
   activate: activateCompanions,
   requires: [IEnvironmentManager, ISettingRegistry],
-  optional: [ICommandPalette],
+  optional: [ICommandPalette, ILauncher],
   provides: ICompanionValidator
 };
 
