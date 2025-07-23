@@ -226,9 +226,19 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
   render(): JSX.Element {
     return (
-      <div id={CONDA_PACKAGES_PANEL_ID} role="grid">
-        <AutoSizer disableHeight>
-          {({ width }: { width: number }): JSX.Element => {
+      <div
+        id={CONDA_PACKAGES_PANEL_ID}
+        role="grid"
+        style={{ flex: 1, display: 'flex' }}
+      >
+        <AutoSizer>
+          {({
+            width,
+            height
+          }: {
+            width: number;
+            height: number;
+          }): JSX.Element => {
             return (
               <>
                 <div
@@ -274,7 +284,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   </div>
                 </div>
                 <FixedSizeList
-                  height={Math.max(0, this.props.height - HEADER_HEIGHT)}
+                  height={Math.max(0, height - HEADER_HEIGHT)}
                   overscanCount={3}
                   itemCount={this.props.packages.length}
                   itemData={this.props.packages}
