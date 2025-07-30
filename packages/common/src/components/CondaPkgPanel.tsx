@@ -504,16 +504,20 @@ export class CondaPkgPanel extends React.Component<
           onCancel={this.handleCancel}
           onRefreshPackages={this.handleRefreshPackages}
         />
-        <CondaPkgList
-          height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
-          hasDescription={
-            this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
-          }
-          packages={searchPkgs}
-          onPkgClick={this.handleClick}
-          onPkgChange={this.handleVersionSelection}
-          onPkgGraph={this.handleDependenciesGraph}
-        />
+        <div
+          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
+          <CondaPkgList
+            height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
+            hasDescription={
+              this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
+            }
+            packages={searchPkgs}
+            onPkgClick={this.handleClick}
+            onPkgChange={this.handleVersionSelection}
+            onPkgGraph={this.handleDependenciesGraph}
+          />
+        </div>
       </div>
     );
   }
