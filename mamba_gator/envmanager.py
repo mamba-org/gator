@@ -106,14 +106,13 @@ def parse_version(version: str) -> Optional[Version]:
         version = "0.0.0"
         return Version(version)
 
-    # Handle 
-      # OpenSSL style versions like "1.1.1j" -> "1.1.1.post10"
-      # Legacy short form versions like "9d" -> "9.post4"
-    # Assuming letter suffix implies patch level
-    matchOpenSSL = re.match(r'^(\d+\.\d+\.\d+)([a-z])$', version)
-    matchLegacy = re.match(r'^(\d+)([a-z])$', version)
-    if matchOpenSSL or matchLegacy:
-        base, letter = matchOpenSSL.groups() if matchOpenSSL else matchLegacy.groups()
+    # Handle OpenSSL style versions like "1.1.1j" -> "1.1.1.post10"
+    # and legacy short form versions like "9d" -> "9.post4"
+    # Letter suffix implies patch level
+    match_openssl = re.match(r'^(\d+\.\d+\.\d+)([a-z])$', version)
+    match_legacy = re.match(r'^(\d+)([a-z])$', version)
+    if match_openssl or match_legacy:
+        base, letter = match_openssl.groups() if match_openssl else match_legacy.groups()
         patchlevel = ord(letter) - ord('a') + 1
         version = f"{base}.post{patchlevel}"
 
