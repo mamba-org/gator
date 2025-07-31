@@ -105,6 +105,16 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
+### 6.0.1
+- Maintenance:
+  - Clean up resolutions
+  - Fix offline builds
+- UI fixes and enhanvements:
+  - UI fixes for package and environment icons 
+  - Sort package versions in order from latest to oldest
+  - Fix package list not rendering on first load; no longer requires window resize
+  - Add launcher tile for Gator
+
 ### 6.0.0
 - Maintenance:
   - Migrate from JupyterLab 3 to JupyterLab 4.0 support
