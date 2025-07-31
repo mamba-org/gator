@@ -38,21 +38,24 @@ For production releases, use the dedicated PyPI workflow:
 
 ### Step-by-Step Process
 
-1. **Update Version** (Manual):
+1. **Update Version and Changelog** (Manual):
    ```bash
+   # Update Changelog in README.md
    # Update version in pyproject.toml and package.json
    # Example: Change from "5.2.1.dev0" to "5.2.1"
    ```
 
 2. **Commit and Tag**:
    ```bash
-   git add pyproject.toml package.json
+   # Commit changes
+   git add pyproject.toml package.json README.md
    git commit -m "Bump version to 5.2.1"
-   git push origin main
    
-   # Create and push tag
+   # Create tag
    git tag v5.2.1
-   git push origin v5.2.1
+
+   # Push changes and tag
+   git push upstream main --tags
    ```
 
 3. **Test Release** (GitHub Actions):
@@ -69,7 +72,7 @@ For production releases, use the dedicated PyPI workflow:
    # Example: Change from "5.2.1" to "5.2.2.dev0"
    git add pyproject.toml package.json
    git commit -m "Bump version to 5.2.2.dev0"
-   git push origin main
+   git push upstream main
    ```
 
 ## Version Management
@@ -77,7 +80,7 @@ For production releases, use the dedicated PyPI workflow:
 The project uses semantic versioning (X.Y.Z):
 
 - **X**: Major version (breaking changes)
-- **Y**: Minor version (new features, backward compatible)
+- **Y**: Minor version (new features, backward compatible)x 
 - **Z**: Patch version (bug fixes, backward compatible)
 
 ### Development Versions
