@@ -57,7 +57,7 @@ For production releases, use the dedicated PyPI workflow:
    git tag v5.2.1
 
    # Push changes and tag
-   git push upstream main --tags
+   git push origin main --tags
    ```
 
 3. **Test Release** (GitHub Actions):
@@ -74,7 +74,7 @@ For production releases, use the dedicated PyPI workflow:
    # Example: Change from "5.2.1" to "5.2.2.dev0"
    git add pyproject.toml package.json
    git commit -m "Bump version to 5.2.2.dev0"
-   git push upstream main
+   git push origin main
    ```
 
 ## Version Management
