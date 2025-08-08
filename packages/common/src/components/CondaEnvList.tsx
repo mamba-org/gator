@@ -4,6 +4,7 @@ import { CONDA_ENVIRONMENT_PANEL_ID } from '../constants';
 import { Conda } from '../tokens';
 import { CondaEnvItem } from './CondaEnvItem';
 import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from './CondaEnvToolBar';
+import { CommandRegistry } from '@lumino/commands';
 
 export const ENVIRONMENT_PANEL_WIDTH = 250;
 
@@ -38,7 +39,7 @@ export interface IEnvListProps {
   /**
    * Environment clone handler
    */
-  onClone(): void;
+  onClone(name: string): void;
   /**
    * Environment import handler
    */
@@ -46,7 +47,7 @@ export interface IEnvListProps {
   /**
    * Environment export handler
    */
-  onExport(): void;
+  onExport(name: string): void;
   /**
    * Refresh environment handler
    */
@@ -54,7 +55,8 @@ export interface IEnvListProps {
   /**
    * Environment remove handler
    */
-  onRemove(): void;
+  onRemove(name: string): void;
+  commands: CommandRegistry;
 }
 
 /**
@@ -77,6 +79,11 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         key={env.name}
         selected={props.selected ? env.name === props.selected : false}
         onClick={props.onSelectedChange}
+        onClone={props.onClone}
+        onRemove={props.onRemove}
+        onExport={props.onExport}
+        onRefresh={props.onRefresh}
+        commands={props.commands}
       />
     );
   });

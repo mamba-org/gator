@@ -94,7 +94,7 @@ async function activateCondaEnv(
 
       if (!condaWidget || condaWidget.isDisposed) {
         condaWidget = new MainAreaWidget({
-          content: new CondaEnvWidget(model) as any
+          content: new CondaEnvWidget(model, commands) as any
         });
         condaWidget.addClass(CONDA_WIDGET_CLASS);
         condaWidget.id = pluginNamespace;

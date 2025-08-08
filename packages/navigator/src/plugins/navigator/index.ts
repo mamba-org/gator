@@ -29,14 +29,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Request listing available package as quickly as possible
     Private.loadPackages(model);
 
-    const content = new CondaEnvWidget(model);
+    const content = new CondaEnvWidget(model, app.commands);
     content.addClass(CONDA_WIDGET_CLASS);
     content.id = DOMUtils.createDomID();
     content.title.label = 'Packages';
     content.title.caption = 'Conda Packages Manager';
     content.title.icon = condaIcon;
     const envModel = new CondaEnvironments();
-    const widget = new CondaEnvWidget(envModel) as any;
+    const widget = new CondaEnvWidget(envModel, app.commands) as any;
     widget.title.closable = false;
     app.shell.add(widget, 'main');
   }
