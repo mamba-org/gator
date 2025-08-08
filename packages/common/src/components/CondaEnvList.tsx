@@ -1,9 +1,11 @@
+/* eslint-disable react/prop-types */
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_PANEL_ID } from '../constants';
 import { Conda } from '../tokens';
-import { CondaEnvItem } from './CondaEnvItem';
+import { CondaEnvItem } from './CondaEnvItemWithMenu';
 import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from './CondaEnvToolBar';
+import { CommandRegistry } from '@lumino/commands';
 
 export const ENVIRONMENT_PANEL_WIDTH = 250;
 
@@ -55,6 +57,7 @@ export interface IEnvListProps {
    * Environment remove handler
    */
   onRemove(): void;
+  commands: CommandRegistry;
 }
 
 /**
@@ -77,6 +80,7 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         key={env.name}
         selected={props.selected ? env.name === props.selected : false}
         onClick={props.onSelectedChange}
+        commands={props.commands}
       />
     );
   });

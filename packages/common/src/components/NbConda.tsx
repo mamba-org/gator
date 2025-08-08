@@ -1,4 +1,5 @@
 import { Dialog, Notification, showDialog } from '@jupyterlab/apputils';
+import { CommandRegistry } from '@lumino/commands';
 import { Widget } from '@lumino/widgets';
 import * as React from 'react';
 import { style } from 'typestyle';
@@ -22,6 +23,7 @@ export interface ICondaEnvProps {
    * Environment manager
    */
   model: IEnvironmentManager;
+  commands: CommandRegistry;
 }
 
 /**
@@ -64,6 +66,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleExportEnvironment = this.handleExportEnvironment.bind(this);
     this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
     this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
+
+    this.props.commands.addCommand('gator-lab:refresh-envs', {
+      label: 'Refresh Environments',
+      execute: async () => {
+        await this.loadEnvironments();
+      }
+    });
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
@@ -414,6 +423,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           onExport={this.handleExportEnvironment}
           onRefresh={this.handleRefreshEnvironment}
           onRemove={this.handleRemoveEnvironment}
+          commands={this.props.commands}
         />
         <CondaPkgPanel
           height={this.props.height}

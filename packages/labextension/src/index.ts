@@ -12,6 +12,8 @@ import {
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ILauncher } from '@jupyterlab/launcher';
+import { deleteIcon, downloadIcon } from '@jupyterlab/ui-components';
+import { cloneIcon } from '@mamba-org/gator-common';
 import {
   CondaEnvironments,
   CondaEnvWidget,
@@ -94,7 +96,7 @@ async function activateCondaEnv(
 
       if (!condaWidget || condaWidget.isDisposed) {
         condaWidget = new MainAreaWidget({
-          content: new CondaEnvWidget(model) as any
+          content: new CondaEnvWidget(model, commands) as any
         });
         condaWidget.addClass(CONDA_WIDGET_CLASS);
         condaWidget.id = pluginNamespace;
@@ -114,6 +116,65 @@ async function activateCondaEnv(
       shell.activateById(condaWidget.id);
     },
     icon: condaIcon
+  });
+
+  commands.addCommand('gator-lab:clone-env', {
+    icon: cloneIcon,
+    label: 'Clone',
+    execute: async args => {
+      const name = args['name'] as string;
+      const newName = name + '-clone';
+
+      try {
+        await model.clone(name, newName);
+        app.commands.execute('gator-lab:refresh-envs');
+        Notification.success(`Environment "${newName}" created.`);
+      } catch (error) {
+        Notification.error(`Failed to clone "${name}": ${error}`);
+      }
+    }
+  });
+
+  commands.addCommand('gator-lab:remove-env', {
+    icon: deleteIcon,
+    label: 'Remove',
+    execute: async args => {
+      const name = args['name'] as string;
+
+      try {
+        await model.remove(name);
+        app.commands.execute('gator-lab:refresh-envs');
+        Notification.success(`Environment "${name}" removed.`);
+      } catch (error) {
+        Notification.error(`Failed to remove "${name}": ${error}`);
+      }
+    }
+  });
+
+  commands.addCommand('gator-lab:export-env', {
+    icon: downloadIcon,
+    label: 'Export',
+    execute: async args => {
+      const name = args['name'] as string;
+
+      try {
+        const response = await model.export(name);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        setTimeout(() => {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${name}.yml`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }, 0);
+
+        Notification.success(`Exported environment "${name}".`);
+      } catch (error) {
+        Notification.error(`Failed to export "${name}": ${error}`);
+      }
+    }
   });
 
   if (launcher) {

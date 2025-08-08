@@ -1,11 +1,6 @@
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
-import {
-  addIcon,
-  deleteIcon,
-  downloadIcon,
-  fileUploadIcon
-} from '@jupyterlab/ui-components';
-import { cloneIcon, syncAltIcon } from '../icon';
+import { addIcon, fileUploadIcon } from '@jupyterlab/ui-components';
+import { syncAltIcon } from '../icon';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_TOOLBAR_CLASS } from '../constants';
@@ -56,13 +51,6 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
     <div className={Style.NoGrow}>
       <div className={Style.Title}>
         <span className={Style.Grow}>Conda environments</span>
-        <div data-loading={props.isPending}>
-          <ToolbarButtonComponent
-            icon={syncAltIcon}
-            tooltip="Refresh environments"
-            onClick={props.onRefresh}
-          />
-        </div>
       </div>
       <div
         className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}
@@ -73,27 +61,17 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
           onClick={props.onCreate}
         />
         <ToolbarButtonComponent
-          icon={cloneIcon}
-          tooltip="Clone"
-          onClick={props.onClone}
-          enabled={!props.isBase}
-        />
-        <ToolbarButtonComponent
           icon={fileUploadIcon}
           tooltip="Import"
           onClick={props.onImport}
         />
-        <ToolbarButtonComponent
-          icon={downloadIcon}
-          tooltip="Export"
-          onClick={props.onExport}
-        />
-        <ToolbarButtonComponent
-          icon={deleteIcon}
-          tooltip="Remove"
-          onClick={props.onRemove}
-          enabled={!props.isBase}
-        />
+        <div data-loading={props.isPending}>
+          <ToolbarButtonComponent
+            icon={syncAltIcon}
+            tooltip="Refresh environments"
+            onClick={props.onRefresh}
+          />
+        </div>
       </div>
     </div>
   );
