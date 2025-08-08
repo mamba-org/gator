@@ -58,16 +58,12 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
   props: IEnvItemProps
 ) => {
   useEffect(() => {
-    console.log('commands instance:', props.commands);
-    console.log('hasCommand is function?', typeof props.commands.hasCommand);
-
     if (!props.commands.hasCommand('gator-lab:clone-env')) {
       props.commands.addCommand('gator-lab:clone-env', {
         icon: cloneIcon,
         label: 'Clone',
         execute: async args => {
           const name = args['name'] as string;
-          console.log('cloning environment:', name);
           props.onClone(name);
           props.onRefresh();
         }
@@ -80,7 +76,6 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
         label: 'Remove',
         execute: async args => {
           const name = args['name'] as string;
-          console.log('removing environment:', name);
           props.onRemove(name);
           props.onRefresh();
         }
@@ -93,7 +88,6 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
         label: 'Export',
         execute: async args => {
           const name = args['name'] as string;
-          console.log('exporting environment:', name);
           props.onExport(name);
         }
       });
