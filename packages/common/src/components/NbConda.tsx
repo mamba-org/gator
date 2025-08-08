@@ -5,6 +5,7 @@ import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
 import { CondaEnvList, ENVIRONMENT_PANEL_WIDTH } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
+import { CommandRegistry } from '@lumino/commands';
 
 /**
  * Jupyter Conda Component properties
@@ -22,6 +23,7 @@ export interface ICondaEnvProps {
    * Environment manager
    */
   model: IEnvironmentManager;
+  commands: CommandRegistry;
 }
 
 /**
@@ -139,10 +141,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async handleCloneEnvironment(): Promise<void> {
+  async handleCloneEnvironment(name: string): Promise<void> {
     let toastId = '';
     try {
-      const environmentName = this.state.currentEnvironment;
+      const environmentName = name ?? this.state.currentEnvironment;
       if (!environmentName) {
         return;
       }
@@ -276,9 +278,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async handleExportEnvironment(): Promise<void> {
+  async handleExportEnvironment(name: string): Promise<void> {
     try {
-      const environmentName = this.state.currentEnvironment;
+      const environmentName = name ?? this.state.currentEnvironment;
       if (!environmentName) {
         return;
       }
@@ -311,10 +313,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     await this.loadEnvironments();
   }
 
-  async handleRemoveEnvironment(): Promise<void> {
+  async handleRemoveEnvironment(name: string): Promise<void> {
     let toastId = '';
     try {
-      const environmentName = this.state.currentEnvironment;
+      const environmentName = name ?? this.state.currentEnvironment;
       if (!environmentName) {
         return;
       }
@@ -414,6 +416,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           onExport={this.handleExportEnvironment}
           onRefresh={this.handleRefreshEnvironment}
           onRemove={this.handleRemoveEnvironment}
+          commands={this.props.commands}
         />
         <CondaPkgPanel
           height={this.props.height}
