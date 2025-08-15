@@ -38,21 +38,29 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
 
 namespace Style {
   export const Item = style(GlobalStyle.ListItem, {
-    padding: '2px 0 5px 5px',
-
+    padding: '6px 8px',
+    backgroundColor: 'var(--jp-layout-color1)',
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '4px',
+    marginBottom: '4px',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
     $nest: {
       '&:hover': {
         backgroundColor: 'var(--jp-layout-color2)',
-        border: '1px solid var(--jp-border-color2)'
+        borderColor: 'var(--jp-border-color1)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)'
       }
     }
   });
 
   export const SelectedItem = style(GlobalStyle.ListItem, {
-    padding: '2px 0 5px 5px',
+    padding: '6px 8px',
     backgroundColor: 'var(--jp-brand-color1)',
     color: 'var(--jp-ui-inverse-font-color1)',
     border: '1px solid var(--jp-brand-color1)',
+    borderRadius: '4px',
+    marginBottom: '4px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.12)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
