@@ -51,11 +51,11 @@ export interface IEnvironmentManager extends IDisposable {
   /**
    * Signal emitted when an environment is removed.
    */
-  envRemoved: ISignal<IEnvironmentManager, string | undefined>;
+  envRemoved: ISignal<IEnvironmentManager, string>;
   /**
    * Emit a signal that an environment was removed.
    */
-  emitEnvRemoved(envName: string | undefined): void;
+  emitEnvRemoved(envName: string): void;
   /**
    * Export the packages list of an environment
    *
