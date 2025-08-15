@@ -25,25 +25,13 @@ export interface ICondaEnvToolBarProps {
    */
   onCreate(): void;
   /**
-   * Clone environment handler
-   */
-  onClone(): void;
-  /**
    * Import environment handler
    */
   onImport(): void;
   /**
-   * Export environment handler
-   */
-  onExport(): void;
-  /**
    * Refresh environment handler
    */
   onRefresh(): void;
-  /**
-   * Remove environment handler
-   */
-  onRemove(): void;
 }
 
 export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {

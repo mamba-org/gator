@@ -400,6 +400,19 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
+  /**
+   * Signal emitted when the current environment is removed.
+   */
+  private _envRemoved = new Signal<IEnvironmentManager, string | undefined>(
+    this
+  );
+  get envRemoved(): ISignal<IEnvironmentManager, string | undefined> {
+    return this._envRemoved;
+  }
+  emitEnvRemoved(envName: string | undefined): void {
+    this._envRemoved.emit(envName);
+  }
+
   // Resolve promise to disconnect signals at disposal
   private _clean: () => void = () => {
     return;
