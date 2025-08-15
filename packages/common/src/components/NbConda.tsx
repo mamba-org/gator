@@ -64,11 +64,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
     this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
 
-    this.props.commands.addCommand('gator-lab:refresh-envs', {
-      label: 'Refresh Environments',
-      execute: async () => {
-        await this.loadEnvironments();
-      }
+    this.props.model.refreshEnvs.connect(() => {
+      this.loadEnvironments();
     });
 
     this.props.model.envRemoved.connect((_, removedName) => {

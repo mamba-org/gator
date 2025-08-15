@@ -401,6 +401,16 @@ export class CondaEnvironments implements IEnvironmentManager {
   }
 
   /**
+   * Signal emitted when the environments need to be refreshed.
+   */
+  private _refreshEnvs = new Signal<IEnvironmentManager, void>(this);
+  get refreshEnvs(): ISignal<IEnvironmentManager, void> {
+    return this._refreshEnvs;
+  }
+  emitRefreshEnvs(): void {
+    this._refreshEnvs.emit();
+  }
+  /**
    * Signal emitted when the current environment is removed.
    */
   private _envRemoved = new Signal<IEnvironmentManager, string>(this);

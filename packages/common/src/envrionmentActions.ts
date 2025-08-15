@@ -4,8 +4,7 @@ import { IEnvironmentManager } from './tokens';
 
 export async function cloneEnvironment(
   model: IEnvironmentManager,
-  environmentName: string | undefined,
-  refresh?: () => void
+  environmentName: string | undefined
 ): Promise<void> {
   let toastId = '';
   try {
@@ -40,7 +39,7 @@ export async function cloneEnvironment(
         autoClose: 5000
       });
 
-      refresh?.();
+      model.emitRefreshEnvs();
     }
   } catch (error) {
     if (error !== 'cancelled') {
@@ -98,8 +97,7 @@ export async function exportEnvironment(
 
 export async function removeEnvironment(
   model: IEnvironmentManager,
-  environmentName: string,
-  refresh?: () => void
+  environmentName: string
 ): Promise<void> {
   let toastId = '';
   try {
@@ -130,7 +128,7 @@ export async function removeEnvironment(
         autoClose: 5000
       });
       model.emitEnvRemoved(environmentName);
-      refresh?.();
+      model.emitRefreshEnvs();
     }
   } catch (error) {
     if (error !== 'cancelled') {

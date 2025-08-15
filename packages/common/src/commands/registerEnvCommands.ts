@@ -12,15 +12,20 @@ export function registerEnvCommands(
   commands: CommandRegistry,
   model: IEnvironmentManager
 ) {
+  commands.addCommand('gator-lab:refresh-envs', {
+    label: 'Refresh Environments',
+    execute: async () => {
+      model.emitRefreshEnvs();
+    }
+  });
+
   commands.addCommand('gator-lab:clone-env', {
     icon: cloneIcon,
     label: 'Clone',
     execute: async args => {
       const name = args['name'] as string;
 
-      await cloneEnvironment(model, name, () => {
-        commands.execute('gator-lab:refresh-envs');
-      });
+      await cloneEnvironment(model, name);
     }
   });
 
@@ -30,9 +35,7 @@ export function registerEnvCommands(
     execute: async args => {
       const name = args['name'] as string;
 
-      await removeEnvironment(model, name, () => {
-        commands.execute('gator-lab:refresh-envs');
-      });
+      await removeEnvironment(model, name);
 
       model.emitEnvRemoved(name);
     }
