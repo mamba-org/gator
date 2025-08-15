@@ -2,13 +2,14 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { DOMUtils, Notification } from '@jupyterlab/apputils';
+import { DOMUtils, MainAreaWidget, Notification } from '@jupyterlab/apputils';
 import {
   CondaEnvironments,
   CondaEnvWidget,
   condaIcon,
   CONDA_WIDGET_CLASS
 } from '@mamba-org/gator-common';
+import { registerEnvCommands } from '@mamba-org/gator-common';
 
 /**
  * The command ids used by the main navigator plugin.
@@ -29,14 +30,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Request listing available package as quickly as possible
     Private.loadPackages(model);
 
-    const content = new CondaEnvWidget(model, app.commands);
+    const content = new CondaEnvWidget(model, app.commands) as any;
     content.addClass(CONDA_WIDGET_CLASS);
     content.id = DOMUtils.createDomID();
     content.title.label = 'Packages';
     content.title.caption = 'Conda Packages Manager';
     content.title.icon = condaIcon;
-    const envModel = new CondaEnvironments();
-    const widget = new CondaEnvWidget(envModel, app.commands) as any;
+    const widget = new MainAreaWidget({ content: content });
+    registerEnvCommands(app.commands, model);
     widget.title.closable = false;
     app.shell.add(widget, 'main');
   }
