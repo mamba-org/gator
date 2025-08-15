@@ -5,6 +5,7 @@ import * as React from 'react';
 import './icon';
 import { NbConda } from './components/NbConda';
 import { IEnvironmentManager } from './tokens';
+import { CommandRegistry } from '@lumino/commands';
 
 /**
  * Widget size interface
@@ -24,9 +25,10 @@ interface ISize {
  * Widget encapsulating the Conda Environments & Packages Manager
  */
 export class CondaEnvWidget extends ReactWidget {
-  constructor(envModel: IEnvironmentManager) {
+  constructor(envModel: IEnvironmentManager, commands: CommandRegistry) {
     super();
     this._envModel = envModel;
+    this._commands = commands;
   }
 
   protected onResize(msg: Widget.ResizeMessage): void {
@@ -46,6 +48,7 @@ export class CondaEnvWidget extends ReactWidget {
             height={size.height}
             width={size.width}
             model={this._envModel}
+            commands={this._commands}
           />
         )}
       </UseSignal>

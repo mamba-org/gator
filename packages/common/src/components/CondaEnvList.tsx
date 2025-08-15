@@ -1,9 +1,11 @@
+/* eslint-disable react/prop-types */
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_PANEL_ID } from '../constants';
 import { Conda } from '../tokens';
 import { CondaEnvItem } from './CondaEnvItem';
 import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from './CondaEnvToolBar';
+import { CommandRegistry } from '@lumino/commands';
 
 export const ENVIRONMENT_PANEL_WIDTH = 250;
 
@@ -36,25 +38,14 @@ export interface IEnvListProps {
    */
   onCreate(): void;
   /**
-   * Environment clone handler
-   */
-  onClone(): void;
-  /**
    * Environment import handler
    */
   onImport(): void;
   /**
-   * Environment export handler
-   */
-  onExport(): void;
-  /**
    * Refresh environment handler
    */
   onRefresh(): void;
-  /**
-   * Environment remove handler
-   */
-  onRemove(): void;
+  commands: CommandRegistry;
 }
 
 /**
@@ -77,6 +68,7 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         key={env.name}
         selected={props.selected ? env.name === props.selected : false}
         onClick={props.onSelectedChange}
+        commands={props.commands}
       />
     );
   });
@@ -87,11 +79,8 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         isBase={isDefault}
         isPending={props.isPending}
         onCreate={props.onCreate}
-        onClone={props.onClone}
         onImport={props.onImport}
-        onExport={props.onExport}
         onRefresh={props.onRefresh}
-        onRemove={props.onRemove}
       />
       <div
         id={CONDA_ENVIRONMENT_PANEL_ID}
