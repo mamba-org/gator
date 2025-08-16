@@ -82,15 +82,11 @@ button.jp-button-hide {
   display: none;
 }
 
-jp-button[data-loading="true"] > svg {
-  animation: gator-spin 1s linear infinite;
-}
-
 @keyframes gator-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-div[data-loading="true"] > jp-button[title="Refresh environments"] > svg {
+div[data-loading="true"] > jp-button[title="Refresh Environments"] > svg {
   animation: gator-spin 1s linear infinite;
 }

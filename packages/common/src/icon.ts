@@ -5,7 +5,7 @@ import cartArrowDownSvgstr from '../style/cart-arrow-down.svg';
 import undoSvgstr from '../style/undo.svg';
 import cloneSvgstr from '../style/clone.svg';
 import syncAltSvgstr from '../style/sync-alt.svg';
-
+import ellipsisVerticalSvgstr from '../style/ellipsis-vertical.svg';
 import { IconDefinition, library } from '@fortawesome/fontawesome-svg-core';
 import {
   faClone,
@@ -68,4 +68,9 @@ export const cloneIcon = new LabIcon({
 export const syncAltIcon = new LabIcon({
   name: '@mamba-org/gator-lab:sync-alt',
   svgstr: syncAltSvgstr
+});
+
+export const ellipsisVerticalIcon = new LabIcon({
+  name: '@mamba-org/gator-lab:ellipsis-vertical',
+  svgstr: ellipsisVerticalSvgstr
 });
