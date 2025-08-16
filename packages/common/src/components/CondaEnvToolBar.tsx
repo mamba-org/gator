@@ -33,7 +33,7 @@ export const CondaEnvToolBar = (props: ICondaEnvToolBarProps): JSX.Element => {
   return (
     <div className={Style.NoGrow}>
       <div
-        className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS}`}
+        className={`lm-Widget jp-Toolbar ${CONDA_ENVIRONMENT_TOOLBAR_CLASS} ${Style.Toolbar}`}
       >
         <ToolbarButtonComponent
           icon={addIcon}
@@ -54,5 +54,9 @@ namespace Style {
   export const NoGrow = style({
     flexGrow: 0,
     flexShrink: 0
+  });
+  export const Toolbar = style({
+    alignItems: 'center',
+    height: ENVIRONMENT_TOOLBAR_HEIGHT
   });
 }
