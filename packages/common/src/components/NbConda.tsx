@@ -278,6 +278,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
                 tooltip="Refresh Environments"
                 onClick={this.handleRefreshEnvironment}
                 label="Refresh Environments"
+                className={Style.RefeshEnvsIconLabelGap}
               />
             </div>
           </div>
@@ -347,5 +348,13 @@ namespace Style {
     display: 'inline-flex',
     alignItems: 'baseline',
     gap: '6px'
+  });
+
+  export const RefeshEnvsIconLabelGap = style({
+    $nest: {
+      '.jp-ToolbarButtonComponent-label': {
+        marginLeft: '6px'
+      }
+    }
   });
 }
