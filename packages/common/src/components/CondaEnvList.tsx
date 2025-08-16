@@ -41,10 +41,6 @@ export interface IEnvListProps {
    * Environment import handler
    */
   onImport(): void;
-  /**
-   * Refresh environment handler
-   */
-  onRefresh(): void;
   commands: CommandRegistry;
 }
 
@@ -80,7 +76,6 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
         isPending={props.isPending}
         onCreate={props.onCreate}
         onImport={props.onImport}
-        onRefresh={props.onRefresh}
       />
       <div
         id={CONDA_ENVIRONMENT_PANEL_ID}

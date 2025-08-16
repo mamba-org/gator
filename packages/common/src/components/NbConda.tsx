@@ -6,6 +6,8 @@ import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
 import { CondaEnvList, ENVIRONMENT_PANEL_WIDTH } from './CondaEnvList';
 import { CondaPkgPanel } from './CondaPkgPanel';
+import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
+import { syncAltIcon } from '../icon';
 
 /**
  * Jupyter Conda Component properties
@@ -263,25 +265,42 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
   render(): JSX.Element {
     return (
-      <div className={Style.Panel}>
-        <CondaEnvList
-          height={this.props.height}
-          isPending={this.state.isLoading}
-          environments={this.state.environments}
-          selected={this.state.currentEnvironment}
-          onSelectedChange={this.handleEnvironmentChange}
-          onCreate={this.handleCreateEnvironment}
-          onImport={this.handleImportEnvironment}
-          onRefresh={this.handleRefreshEnvironment}
-          commands={this.props.commands}
-        />
-        <CondaPkgPanel
-          height={this.props.height}
-          width={this.props.width - ENVIRONMENT_PANEL_WIDTH}
-          packageManager={this.props.model.getPackageManager(
-            this.state.currentEnvironment
-          )}
-        />
+      <div className={Style.HeaderContainer}>
+        <div className={Style.Grow}>
+          <div className={Style.Title}>Conda Environments</div>
+          <div className={Style.RefreshButton}>
+            <div
+              data-loading={this.state.isLoading}
+              className={Style.RefreshInner}
+            >
+              <ToolbarButtonComponent
+                icon={syncAltIcon}
+                tooltip="Refresh Environments"
+                onClick={this.handleRefreshEnvironment}
+                label="Refresh Environments"
+              />
+            </div>
+          </div>
+        </div>
+        <div className={Style.Panel}>
+          <CondaEnvList
+            height={this.props.height}
+            isPending={this.state.isLoading}
+            environments={this.state.environments}
+            selected={this.state.currentEnvironment}
+            onSelectedChange={this.handleEnvironmentChange}
+            onCreate={this.handleCreateEnvironment}
+            onImport={this.handleImportEnvironment}
+            commands={this.props.commands}
+          />
+          <CondaPkgPanel
+            height={this.props.height}
+            width={this.props.width - ENVIRONMENT_PANEL_WIDTH}
+            packageManager={this.props.model.getPackageManager(
+              this.state.currentEnvironment
+            )}
+          />
+        </div>
       </div>
     );
   }
@@ -293,5 +312,40 @@ namespace Style {
     display: 'flex',
     flexDirection: 'row',
     borderCollapse: 'collapse'
+  });
+
+  export const HeaderContainer = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px'
+  });
+
+  export const Grow = style({
+    display: 'flex',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    padding: '4px 8px',
+    backgroundColor: 'var(--jp-layout-color1)'
+  });
+
+  export const Title = style({
+    color: 'var(--jp-ui-font-color1)',
+    fontWeight: 600,
+    fontSize: 'var(--jp-ui-font-size2)',
+    lineHeight: 1.2,
+    whiteSpace: 'nowrap'
+  });
+
+  export const RefreshButton = style({
+    display: 'inline-flex',
+    alignItems: 'baseline',
+    gap: '8px',
+    whiteSpace: 'nowrap'
+  });
+
+  export const RefreshInner = style({
+    display: 'inline-flex',
+    alignItems: 'baseline',
+    gap: '6px'
   });
 }
