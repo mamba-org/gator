@@ -52,14 +52,13 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
 ) => {
   let isDefault = false;
   const listItems = props.environments.map((env, idx) => {
-    const selected = env.name === props.selected;
-    if (selected) {
-      // Forbid clone and removing the environment named "base" (base conda environment)
-      // and the default one (i.e. the one containing JupyterLab)
-      isDefault = env.is_default || env.name === 'base';
-    }
+    // Forbid clone and removing the environment named "base" (base conda environment)
+    // and the default one (i.e. the one containing JupyterLab)
+    isDefault = env.is_default || env.name === 'base';
+
     return (
       <CondaEnvItem
+        isDefault={isDefault}
         name={env.name}
         key={env.name}
         selected={props.selected ? env.name === props.selected : false}
