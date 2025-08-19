@@ -49,6 +49,22 @@ export interface IEnvironmentManager extends IDisposable {
    */
   environmentChanged: ISignal<IEnvironmentManager, Conda.IEnvironmentChange>;
   /**
+   * Signal emitted when an environment is removed.
+   */
+  envRemoved: ISignal<IEnvironmentManager, string>;
+  /**
+   * Emit a signal that an environment was removed.
+   */
+  emitEnvRemoved(envName: string): void;
+  /**
+   * Signal emitted when the environments need to be refreshed.
+   */
+  refreshEnvs: ISignal<IEnvironmentManager, void>;
+  /**
+   * Emit a signal that the environments need to be refreshed.
+   */
+  emitRefreshEnvs(): void;
+  /**
    * Export the packages list of an environment
    *
    * @param name Name of the environment to be exported
