@@ -9,6 +9,7 @@ This guide explains how to release mamba_gator packages.
 For testing releases, use the dedicated Test PyPI workflow:
 
 1. **Prepare the release**:
+   - Update the changelog in `README.md`
    - Update version in `pyproject.toml` and `package.json`
    - Commit and push changes
    - Create and push a git tag (e.g., `v5.2.1`)
@@ -23,6 +24,7 @@ For testing releases, use the dedicated Test PyPI workflow:
 For production releases, use the dedicated PyPI workflow:
 
 1. **Prepare the release** (Only necessary if not previously followed in the TestPyPI workflow):
+   - Update the changelog in `README.md`
    - Update version in `pyproject.toml` and `package.json`
    - Commit and push changes
    - Create and push a git tag (e.g., `v5.2.1`)
@@ -38,21 +40,24 @@ For production releases, use the dedicated PyPI workflow:
 
 ### Step-by-Step Process
 
-1. **Update Version** (Manual):
+1. **Update Version and Changelog** (Manual):
    ```bash
+   # Update Changelog in README.md
    # Update version in pyproject.toml and package.json
    # Example: Change from "5.2.1.dev0" to "5.2.1"
    ```
 
 2. **Commit and Tag**:
    ```bash
-   git add pyproject.toml package.json
+   # Commit changes
+   git add pyproject.toml package.json README.md
    git commit -m "Bump version to 5.2.1"
-   git push origin main
    
-   # Create and push tag
+   # Create tag
    git tag v5.2.1
-   git push origin v5.2.1
+
+   # Push changes and tag
+   git push origin main --tags
    ```
 
 3. **Test Release** (GitHub Actions):
