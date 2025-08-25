@@ -2,7 +2,6 @@ import { KernelSpecAPI, KernelSpec } from '@jupyterlab/services';
 import 'jest';
 
 describe('KernelSpec JL3/4 Compatibility', () => {
-
   describe('Import and Type Compatibility', () => {
     it('should be able to import KernelSpec namespace and types', () => {
       // This verifies our import pattern works in both JL3 and JL4
@@ -40,11 +39,23 @@ describe('KernelSpec JL3/4 Compatibility', () => {
             name: 'python3',
             display_name: 'Python 3',
             language: 'python',
-            argv: ['python', '-m', 'ipykernel_launcher', '-f', '{connection_file}'],
+            argv: [
+              'python',
+              '-m',
+              'ipykernel_launcher',
+              '-f',
+              '{connection_file}'
+            ],
             spec: {
               display_name: 'Python 3',
               language: 'python',
-              argv: ['python', '-m', 'ipykernel_launcher', '-f', '{connection_file}']
+              argv: [
+                'python',
+                '-m',
+                'ipykernel_launcher',
+                '-f',
+                '{connection_file}'
+              ]
             },
             resources: {}
           }
@@ -92,9 +103,9 @@ describe('KernelSpec JL3/4 Compatibility', () => {
     it('should be able to use the interface in function signatures', () => {
       // This tests the actual pattern we use in CompanionValidator
       function acceptsKernelSpecManager(
-          kernelManager: KernelSpec.IManager,
-          // Other params would go here but we don't want to import them
-          mockParam: any = null
+        kernelManager: KernelSpec.IManager,
+        // Other params would go here but we don't want to import them
+        mockParam: any = null
       ): boolean {
         return kernelManager.isReady && !kernelManager.isDisposed;
       }
@@ -136,11 +147,23 @@ describe('KernelSpec JL3/4 Compatibility', () => {
             name: 'python3',
             display_name: 'Python 3',
             language: 'python',
-            argv: ['python', '-m', 'ipykernel_launcher', '-f', '{connection_file}'],
+            argv: [
+              'python',
+              '-m',
+              'ipykernel_launcher',
+              '-f',
+              '{connection_file}'
+            ],
             spec: {
               display_name: 'Python 3',
               language: 'python',
-              argv: ['python', '-m', 'ipykernel_launcher', '-f', '{connection_file}']
+              argv: [
+                'python',
+                '-m',
+                'ipykernel_launcher',
+                '-f',
+                '{connection_file}'
+              ]
             },
             resources: {}
           },
@@ -148,11 +171,23 @@ describe('KernelSpec JL3/4 Compatibility', () => {
             name: 'conda-env-test',
             display_name: 'Python (test)',
             language: 'python',
-            argv: ['python', '-m', 'ipykernel_launcher', '-f', '{connection_file}'],
+            argv: [
+              'python',
+              '-m',
+              'ipykernel_launcher',
+              '-f',
+              '{connection_file}'
+            ],
             spec: {
               display_name: 'Python (test)',
               language: 'python',
-              argv: ['python', '-m', 'ipykernel_launcher', '-f', '{connection_file}']
+              argv: [
+                'python',
+                '-m',
+                'ipykernel_launcher',
+                '-f',
+                '{connection_file}'
+              ]
             },
             resources: {}
           }
@@ -160,8 +195,9 @@ describe('KernelSpec JL3/4 Compatibility', () => {
       };
 
       expect(Object.keys(multiSpecs.kernelspecs)).toHaveLength(2);
-      expect(multiSpecs.kernelspecs['conda-env-test'].display_name).toBe('Python (test)');
+      expect(multiSpecs.kernelspecs['conda-env-test'].display_name).toBe(
+        'Python (test)'
+      );
     });
   });
 });
-
