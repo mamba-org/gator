@@ -66,7 +66,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.state = {
       environments: [],
       currentEnvironment: undefined,
-      isLoading: false
+      isLoading: false,
+      envName: props.envName
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
@@ -92,7 +93,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleEnvironmentChange(name: string): Promise<void> {
     this.setState({
       currentEnvironment: name,
-      channels: await this.props.model.getChannels(name)
+      channels: await this.props.model.getChannels(name),
+      envName: name
     });
   }
 
