@@ -315,7 +315,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       <div>
         <div className={Style.HeaderContainer}>
           <div className={Style.Grow}>
-            <div className={Style.Title}>Conda Environments</div>
+            <div className={Style.Title}>Environments</div>
             <div className={Style.RefreshButton}>
               <div
                 data-loading={this.state.isLoading}
@@ -326,7 +326,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
                   tooltip="Refresh Environments"
                   onClick={this.handleRefreshEnvironment}
                   label="Refresh Environments"
-                  className={Style.RefeshEnvsIconLabelGap}
+                  className={Style.RefreshEnvsIconLabelGap}
                 />
               </div>
             </div>
@@ -383,13 +383,16 @@ namespace Style {
 
   export const Grow = style({
     display: 'flex',
-    alignItems: 'baseline',
+    alignItems: 'center',
     justifyContent: 'space-between',
     padding: '4px 8px',
     backgroundColor: 'var(--jp-layout-color1)'
   });
 
   export const Title = style({
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: '15px',
     color: 'var(--jp-ui-font-color1)',
     fontWeight: 600,
     fontSize: 'var(--jp-ui-font-size2)',
@@ -410,7 +413,7 @@ namespace Style {
     gap: '6px'
   });
 
-  export const RefeshEnvsIconLabelGap = style({
+  export const RefreshEnvsIconLabelGap = style({
     $nest: {
       '.jp-ToolbarButtonComponent-label': {
         marginLeft: '6px'
