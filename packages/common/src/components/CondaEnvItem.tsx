@@ -11,6 +11,10 @@ import { ellipsisVerticalIcon } from '../icon';
  */
 export interface IEnvItemProps {
   /**
+   * Is the environment the default one?
+   */
+  isDefault?: boolean;
+  /**
    * Environment name
    */
   name: string;
@@ -26,18 +30,21 @@ export interface IEnvItemProps {
 }
 
 export const createMenu = (
+  isDefault: boolean,
   commands: CommandRegistry,
   envName: string
 ): Menu => {
   const menu = new Menu({ commands });
-  menu.addItem({
-    command: 'gator-lab:remove-env',
-    args: { name: envName }
-  });
-  menu.addItem({
-    command: 'gator-lab:clone-env',
-    args: { name: envName }
-  });
+  if (!isDefault) {
+    menu.addItem({
+      command: 'gator-lab:remove-env',
+      args: { name: envName }
+    });
+    menu.addItem({
+      command: 'gator-lab:clone-env',
+      args: { name: envName }
+    });
+  }
   menu.addItem({
     command: 'gator-lab:export-env',
     args: { name: envName }
@@ -65,7 +72,7 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
     const x = rect?.left ?? event.clientX;
     const y = (rect?.bottom ?? event.clientY) + 4;
 
-    const menu = createMenu(props.commands, props.name);
+    const menu = createMenu(props.isDefault, props.commands, props.name);
     menu.open(x, y);
   };
 
