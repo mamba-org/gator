@@ -312,13 +312,15 @@ namespace Style {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    borderCollapse: 'collapse'
+    borderCollapse: 'collapse',
+    minHeight: 0
   });
 
   export const HeaderContainer = style({
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px'
+    gap: '6px',
+    minHeight: 0
   });
 
   export const Grow = style({

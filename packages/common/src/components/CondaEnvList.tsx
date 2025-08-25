@@ -96,7 +96,8 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    width: ENVIRONMENT_PANEL_WIDTH
+    width: ENVIRONMENT_PANEL_WIDTH,
+    minHeight: 0
   });
 
   export const ListEnvs = (height: number): string =>
@@ -104,6 +105,7 @@ namespace Style {
       height: height,
       overflowY: 'auto',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      minHeight: 0
     });
 }
