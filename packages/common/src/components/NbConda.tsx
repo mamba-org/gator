@@ -26,6 +26,10 @@ export interface ICondaEnvProps {
    */
   model: IEnvironmentManager;
   commands: CommandRegistry;
+  /**
+   * Environment name
+   */
+  envName?: string;
 }
 
 /**
@@ -48,6 +52,10 @@ export interface ICondaEnvState {
    * Is the environment list loading?
    */
   isLoading: boolean;
+  /**
+   * Environment name
+   */
+  envName?: string;
 }
 
 /** Top level React component for Jupyter Conda Manager */
@@ -58,14 +66,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.state = {
       environments: [],
       currentEnvironment: undefined,
-      isLoading: false
+      isLoading: false,
+      envName: props.envName
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
     this.handleCreateEnvironment = this.handleCreateEnvironment.bind(this);
     this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
     this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
-
     this.props.model.refreshEnvs.connect(() => {
       this.loadEnvironments();
     });
@@ -75,12 +83,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.setState({ currentEnvironment: undefined, channels: undefined });
       }
     });
+
+    if (props.envName) {
+      console.log('Setting current environment to', props.envName);
+      this.handleEnvironmentChange(props.envName);
+    }
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
     this.setState({
       currentEnvironment: name,
-      channels: await this.props.model.getChannels(name)
+      channels: await this.props.model.getChannels(name),
+      envName: name
     });
   }
 

@@ -60,7 +60,8 @@ async function activateCondaEnv(
 
   commands.addCommand(command, {
     label: 'Conda Packages Manager',
-    execute: () => {
+    execute: envNamePayload => {
+      const { envName } = envNamePayload;
       app.restored.then(() => {
         let timeout = 0;
 
@@ -95,7 +96,11 @@ async function activateCondaEnv(
 
       if (!condaWidget || condaWidget.isDisposed) {
         condaWidget = new MainAreaWidget({
-          content: new CondaEnvWidget(model, commands) as any
+          content: new CondaEnvWidget(
+            model,
+            commands,
+            envName as string | undefined
+          ) as any
         });
         condaWidget.addClass(CONDA_WIDGET_CLASS);
         condaWidget.id = pluginNamespace;
