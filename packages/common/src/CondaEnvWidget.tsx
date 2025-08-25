@@ -25,10 +25,15 @@ interface ISize {
  * Widget encapsulating the Conda Environments & Packages Manager
  */
 export class CondaEnvWidget extends ReactWidget {
-  constructor(envModel: IEnvironmentManager, commands: CommandRegistry) {
+  constructor(
+    envModel: IEnvironmentManager,
+    commands: CommandRegistry,
+    envName?: string
+  ) {
     super();
     this._envModel = envModel;
     this._commands = commands;
+    this._envName = envName;
   }
 
   protected onResize(msg: Widget.ResizeMessage): void {
@@ -49,6 +54,7 @@ export class CondaEnvWidget extends ReactWidget {
             width={size.width}
             model={this._envModel}
             commands={this._commands}
+            envName={this._envName}
           />
         )}
       </UseSignal>
