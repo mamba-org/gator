@@ -25,7 +25,12 @@ export interface ICondaEnvProps {
    * Environment manager
    */
   model: IEnvironmentManager;
+<<<<<<< HEAD
   commands: CommandRegistry;
+=======
+
+  envName?: string;
+>>>>>>> 530570a (feature: open with env)
 }
 
 /**
@@ -65,6 +70,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.handleCreateEnvironment = this.handleCreateEnvironment.bind(this);
     this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
     this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
+<<<<<<< HEAD
 
     this.props.model.refreshEnvs.connect(() => {
       this.loadEnvironments();
@@ -75,6 +81,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.setState({ currentEnvironment: undefined, channels: undefined });
       }
     });
+=======
+    this.handleRemoveEnvironment = this.handleRemoveEnvironment.bind(this);
+
+    if (props.envName) {
+      console.log("Setting current environment to", props.envName);
+      this.handleEnvironmentChange(props.envName)
+    } 
+>>>>>>> 530570a (feature: open with env)
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
