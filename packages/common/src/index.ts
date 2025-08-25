@@ -7,5 +7,5 @@ export {
   cloneEnvironment,
   exportEnvironment,
   removeEnvironment
-} from './envrionmentActions';
+} from './environmentActions';
 export { registerEnvCommands } from './commands/registerEnvCommands';

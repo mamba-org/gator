@@ -1,12 +1,12 @@
 channels:
   - conda-forge
 dependencies:
-  - python >=3.6,<3.9
-  - jupyterlab =3
+  - python >=3.8,<=3.9
+  - jupyterlab =4
   - jupyter-packaging >=0.7.9,<0.8.0
   - jupyter-server-proxy
   - nb_conda_kernels >=2.2.3
   - nodejs >=14
-  - yarn
+  - yarn =3
   - notebook >=4.3.1
   - packaging

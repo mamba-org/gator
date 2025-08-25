@@ -25,7 +25,7 @@ export async function cloneEnvironment(
     });
     if (response.button.accept) {
       if (nameInput.value.length === 0) {
-        throw new Error('A environment name should be provided.');
+        throw new Error('An environment name should be provided.');
       }
       toastId = Notification.emit(
         `Cloning environment ${environmentName}`,

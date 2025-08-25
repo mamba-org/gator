@@ -4,7 +4,7 @@ import {
   cloneEnvironment,
   exportEnvironment,
   removeEnvironment
-} from '../envrionmentActions';
+} from '../environmentActions';
 import { cloneIcon } from '../icon';
 import { deleteIcon, downloadIcon } from '@jupyterlab/ui-components';
 
