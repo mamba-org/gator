@@ -85,9 +85,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     });
 
     if (props.envName) {
-      console.log("Setting current environment to", props.envName);
-      this.handleEnvironmentChange(props.envName)
-    } 
+      console.log('Setting current environment to', props.envName);
+      this.handleEnvironmentChange(props.envName);
+    }
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
