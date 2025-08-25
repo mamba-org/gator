@@ -25,7 +25,11 @@ interface ISize {
  * Widget encapsulating the Conda Environments & Packages Manager
  */
 export class CondaEnvWidget extends ReactWidget {
-  constructor(envModel: IEnvironmentManager, commands: CommandRegistry, envName?: string) {
+  constructor(
+    envModel: IEnvironmentManager,
+    commands: CommandRegistry,
+    envName?: string
+  ) {
     super();
     this._envModel = envModel;
     this._commands = commands;
