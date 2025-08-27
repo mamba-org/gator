@@ -64,7 +64,10 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
 
   return (
     <div className={Style.Panel}>
-      <div id={CONDA_ENVIRONMENT_PANEL_ID} className={Style.ListEnvs}>
+      <div
+        id={CONDA_ENVIRONMENT_PANEL_ID}
+        className={Style.ListEnvs(props.height)}
+      >
         {listItems}
       </div>
     </div>
@@ -78,12 +81,16 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    width: ENVIRONMENT_PANEL_WIDTH
+    width: ENVIRONMENT_PANEL_WIDTH,
+    minHeight: 0
   });
 
-  export const ListEnvs = style({
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column'
-  });
+  export const ListEnvs = (height: number): string =>
+    style({
+      height: height,
+      overflowY: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0
+    });
 }

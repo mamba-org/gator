@@ -29,6 +29,10 @@ export interface ICondaEnvProps {
    */
   model: IEnvironmentManager;
   commands: CommandRegistry;
+  /**
+   * Environment name
+   */
+  envName?: string;
 }
 
 /**
@@ -51,6 +55,10 @@ export interface ICondaEnvState {
    * Is the environment list loading?
    */
   isLoading: boolean;
+  /**
+   * Environment name
+   */
+  envName?: string;
 }
 
 /** Top level React component for Jupyter Conda Manager */
@@ -61,7 +69,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     this.state = {
       environments: [],
       currentEnvironment: undefined,
-      isLoading: false
+      isLoading: false,
+      envName: props.envName
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
@@ -79,12 +88,18 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.setState({ currentEnvironment: undefined, channels: undefined });
       }
     });
+
+    if (props.envName) {
+      console.log('Setting current environment to', props.envName);
+      this.handleEnvironmentChange(props.envName);
+    }
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
     this.setState({
       currentEnvironment: name,
-      channels: await this.props.model.getChannels(name)
+      channels: await this.props.model.getChannels(name),
+      envName: name
     });
   }
 
@@ -340,13 +355,15 @@ namespace Style {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    borderCollapse: 'collapse'
+    borderCollapse: 'collapse',
+    minHeight: 0
   });
 
   export const HeaderContainer = style({
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px'
+    gap: '6px',
+    minHeight: 0
   });
 
   export const Grow = style({
