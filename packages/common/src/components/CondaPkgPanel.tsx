@@ -505,7 +505,12 @@ export class CondaPkgPanel extends React.Component<
           onRefreshPackages={this.handleRefreshPackages}
         />
         <div
-          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+          style={{
+            display: 'flex',
+            flex: '1 1 auto',
+            minHeight: 0,
+            overflow: 'hidden'
+          }}
         >
           <CondaPkgList
             height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
@@ -528,7 +533,11 @@ export class CondaPkgPanel extends React.Component<
 
 namespace Style {
   export const Panel = style({
-    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+    flex: '1 1 auto',
+    overflow: 'hidden',
     borderLeft: '1px solid var(--jp-border-color2)'
   });
 }
