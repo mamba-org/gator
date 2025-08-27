@@ -6,10 +6,11 @@ import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
 import { CondaEnvList, ENVIRONMENT_PANEL_WIDTH } from './CondaEnvList';
 import { PACKAGE_TOOLBAR_HEIGHT } from './CondaPkgToolBar';
-import { CreateEnvDialog } from './CreateEnvDialog';
+import { CreateEnvButton } from './CreateEnvButton';
 import { CondaPkgPanel } from './CondaPkgPanel';
 import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import { syncAltIcon } from '../icon';
+import { openCreateEnvDialog } from './CreateEnvDialog';
 
 /**
  * Jupyter Conda Component properties
@@ -88,46 +89,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   }
 
   async handleOpenCreateEnvDialog(): Promise<void> {
-    this.handleNewEnvironment();
-  }
-
-  async handleNewEnvironment(): Promise<void> {
-    const toastId = '';
-    try {
-      const body = document.createElement('div');
-      const result = await showDialog({
-        title: 'New Environment',
-        body: new Widget({ node: body }),
-        buttons: [
-          Dialog.createButton({ label: 'Create' }),
-          Dialog.okButton({ label: 'Import' }),
-          Dialog.cancelButton()
-        ]
-      });
-
-      if (result.button.accept && result.button.label === 'Create') {
-        await this.handleCreateEnvironment();
-      } else if (result.button.accept && result.button.label === 'Import') {
-        await this.handleImportEnvironment();
-      }
-    } catch (error) {
-      if (error !== 'cancelled') {
-        console.error(error);
-        if (toastId) {
-          Notification.update({
-            id: toastId,
-            message: (error as any).message,
-            type: 'error',
-            autoClose: false
-          });
-        } else {
-          Notification.error((error as any).message);
-        }
-      } else {
-        if (toastId) {
-          Notification.dismiss(toastId);
-        }
-      }
+    const choice = await openCreateEnvDialog();
+    if (choice === 'manual') {
+      this.handleCreateEnvironment();
+    } else if (choice === 'import') {
+      this.handleImportEnvironment();
+    } else {
+      return;
     }
   }
 
@@ -339,7 +307,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             <div
               className={`lm-Widget ${Style.LeftToolbar} ${Style.ToggleCreateEnvDialogButton}`}
             >
-              <CreateEnvDialog onOpen={this.handleOpenCreateEnvDialog} />
+              <CreateEnvButton onOpen={this.handleOpenCreateEnvDialog} />
             </div>
 
             <CondaEnvList
