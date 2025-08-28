@@ -1,17 +1,31 @@
 import { CommandRegistry } from '@lumino/commands';
 import { IEnvironmentManager } from '../tokens';
 import {
+  createEnvironment,
   cloneEnvironment,
   exportEnvironment,
-  removeEnvironment
+  removeEnvironment,
+  importEnvironment
 } from '../environmentActions';
 import { cloneIcon } from '../icon';
-import { deleteIcon, downloadIcon } from '@jupyterlab/ui-components';
+import {
+  deleteIcon,
+  downloadIcon,
+  fileUploadIcon
+} from '@jupyterlab/ui-components';
 
 export function registerEnvCommands(
   commands: CommandRegistry,
   model: IEnvironmentManager
 ) {
+  commands.addCommand('gator-lab:create-env', {
+    label: 'Create Environment',
+    execute: async args => {
+      const name = args['name'] as string;
+      await createEnvironment(model, name);
+    }
+  });
+
   commands.addCommand('gator-lab:refresh-envs', {
     label: 'Refresh Environments',
     execute: async () => {
@@ -36,8 +50,6 @@ export function registerEnvCommands(
       const name = args['name'] as string;
 
       await removeEnvironment(model, name);
-
-      model.emitEnvRemoved(name);
     }
   });
 
@@ -48,6 +60,16 @@ export function registerEnvCommands(
       const name = args['name'] as string;
 
       await exportEnvironment(model, name);
+    }
+  });
+
+  commands.addCommand('gator-lab:import-env', {
+    icon: fileUploadIcon,
+    label: 'Import',
+    execute: async args => {
+      const name = args['name'] as string;
+
+      await importEnvironment(model, name);
     }
   });
 }

@@ -1,6 +1,7 @@
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
 import { ISignal } from '@lumino/signaling';
+import { IEnvAdded } from './services';
 
 export const IEnvironmentManager = new Token<IEnvironmentManager>(
   '@mamba-org/gator-lab:IEnvironmentManager'
@@ -43,7 +44,20 @@ export interface IEnvironmentManager extends IDisposable {
    * @param name name of the new environment
    * @param type type of environment to create
    */
-  create(name: string, type?: string): Promise<void>;
+  create(name: string, kernelType?: string): Promise<void>;
+
+  /**
+   * Emit a signal that an environment was created.
+   *
+   * @param name name of the environment created
+   * @param type type of environment created
+   */
+  emitEnvAdded(name: string, origin?: string): void;
+  /**
+   * Signal emitted when an environment is added.
+   */
+  envAdded: ISignal<IEnvironmentManager, IEnvAdded>;
+
   /**
    * Signal emitted when a environment is changed.
    */
