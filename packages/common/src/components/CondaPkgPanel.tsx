@@ -490,7 +490,7 @@ export class CondaPkgPanel extends React.Component<
     }
 
     return (
-      <div className={Style.Panel}>
+      <div className={Style.PackagePanel}>
         <CondaPkgToolBar
           isPending={this.state.isLoading}
           category={this.state.activeFilter}
@@ -532,7 +532,7 @@ export class CondaPkgPanel extends React.Component<
 }
 
 namespace Style {
-  export const Panel = style({
+  export const PackagePanel = style({
     display: 'flex',
     flexDirection: 'column',
     minHeight: 0,

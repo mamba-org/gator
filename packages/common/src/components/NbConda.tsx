@@ -327,6 +327,7 @@ namespace Style {
     display: 'flex',
     flexDirection: 'row',
     borderCollapse: 'collapse',
+    height: '100%',
     minHeight: 0
   });
 
