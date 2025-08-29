@@ -335,6 +335,7 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
+    height: '100%',
     minHeight: 0
   });
 

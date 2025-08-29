@@ -309,6 +309,7 @@ namespace Style {
     flex: '1 1 auto',
     flexDirection: 'column',
     minHeight: 0,
+    height: '100%',
     overflow: 'hidden'
   });
 
