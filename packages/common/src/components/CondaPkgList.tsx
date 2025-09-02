@@ -229,7 +229,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       <div
         id={CONDA_PACKAGES_PANEL_ID}
         role="grid"
-        style={{ flex: 1, display: 'flex' }}
+        className={classes(Style.Container)}
       >
         <AutoSizer>
           {({
@@ -304,6 +304,15 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 }
 
 namespace Style {
+  export const Container = style({
+    display: 'flex',
+    flex: '1 1 auto',
+    flexDirection: 'column',
+    minHeight: 0,
+    height: '100%',
+    overflow: 'hidden'
+  });
+
   const row: NestedCSSProperties = {
     display: 'flex',
     flexDirection: 'row',

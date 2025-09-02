@@ -327,6 +327,7 @@ namespace Style {
     display: 'flex',
     flexDirection: 'row',
     borderCollapse: 'collapse',
+    height: '100%',
     minHeight: 0
   });
 
@@ -334,6 +335,7 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
+    height: '100%',
     minHeight: 0
   });
 
