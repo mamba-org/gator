@@ -83,11 +83,6 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.setState({ currentEnvironment: undefined, channels: undefined });
       }
     });
-
-    if (props.envName) {
-      console.log('Setting current environment to', props.envName);
-      this.handleEnvironmentChange(props.envName);
-    }
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
@@ -252,16 +247,31 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         const newState: Partial<ICondaEnvState> = {
           environments: await this.props.model.environments
         };
-        if (this.state.currentEnvironment === undefined) {
+
+        let targetEnv: string | undefined =
+          this.props.envName || this.state.currentEnvironment;
+
+        if (!targetEnv) {
           newState.environments.forEach(env => {
             if (env.is_default) {
-              newState.currentEnvironment = env.name;
+              targetEnv = env.name;
             }
           });
-          newState.channels = await this.props.model.getChannels(
-            newState.currentEnvironment
-          );
+
+          // If no default environment found, fallback to base
+          if (!targetEnv) {
+            const baseEnv = newState.environments.find(
+              env => env.name === 'base'
+            );
+            targetEnv = baseEnv ? baseEnv.name : newState.environments[0]?.name;
+          }
         }
+
+        if (targetEnv && targetEnv !== this.state.currentEnvironment) {
+          newState.currentEnvironment = targetEnv;
+          newState.channels = await this.props.model.getChannels(targetEnv);
+        }
+
         newState.isLoading = false;
         this.setState(newState as ICondaEnvState);
       } catch (error) {
@@ -314,6 +324,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             packageManager={this.props.model.getPackageManager(
               this.state.currentEnvironment
             )}
+            environmentName={this.state.currentEnvironment}
           />
         </div>
       </div>
