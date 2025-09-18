@@ -18,7 +18,8 @@ import {
   condaIcon,
   CONDA_WIDGET_CLASS,
   IEnvironmentManager,
-  registerEnvCommands
+  registerEnvCommands,
+  registerPkgCommands
 } from '@mamba-org/gator-common';
 import { managerTour } from './tour';
 import {
@@ -47,6 +48,23 @@ async function activateCondaEnv(
   const settings = await settingsRegistry?.load(CONDAENVID);
   const model = new CondaEnvironments(settings);
 
+  let defaultEnvironment: string | undefined = undefined;
+  try {
+    const environments = await model.environments;
+    const defaultEnv = environments.find(env => env.is_default);
+    if (defaultEnv) {
+      defaultEnvironment = defaultEnv.name;
+      console.log('Detected current active environment:', defaultEnvironment);
+    }
+  } catch (error) {
+    console.warn('Could not detect current active environment:', error);
+  }
+
+  model.environmentSelectionChanged.connect((_, envName) => {
+    console.log('Environment selection changed to:', envName);
+    currentEnvironment = envName;
+  });
+
   // Request listing available package as quickly as possible
   if (settings?.get('backgroundCaching').composite ?? true) {
     Private.loadPackages(model);
@@ -57,6 +75,8 @@ async function activateCondaEnv(
     namespace: pluginNamespace
   });
   let condaWidget: MainAreaWidget<any>;
+
+  let currentEnvironment: string | undefined = undefined;
 
   commands.addCommand(command, {
     label: 'Conda Packages Manager',
@@ -95,12 +115,16 @@ async function activateCondaEnv(
       });
 
       if (!condaWidget || condaWidget.isDisposed) {
+        const widgetEnvName =
+          (envName as string | undefined) || defaultEnvironment;
+
+        currentEnvironment = widgetEnvName;
+
+        if (currentEnvironment) {
+          model.getPackageManager(currentEnvironment);
+        }
         condaWidget = new MainAreaWidget({
-          content: new CondaEnvWidget(
-            model,
-            commands,
-            envName as string | undefined
-          ) as any
+          content: new CondaEnvWidget(model, commands, widgetEnvName) as any
         });
         condaWidget.addClass(CONDA_WIDGET_CLASS);
         condaWidget.id = pluginNamespace;
@@ -123,6 +147,16 @@ async function activateCondaEnv(
   });
 
   registerEnvCommands(commands, model);
+
+  registerPkgCommands({
+    commands,
+    getSelectedNames: () => [], // TODO: Get from widget state
+    getActiveEnvName: () =>
+      currentEnvironment ||
+      defaultEnvironment ||
+      model.getPackageManager().environment,
+    model
+  });
 
   if (launcher) {
     launcher.add({

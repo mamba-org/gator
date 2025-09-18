@@ -1,6 +1,7 @@
 import { Token } from '@lumino/coreutils';
 import { IDisposable } from '@lumino/disposable';
 import { ISignal } from '@lumino/signaling';
+import { PkgFilters } from './components/CondaPkgToolBar';
 
 export const IEnvironmentManager = new Token<IEnvironmentManager>(
   '@mamba-org/gator-lab:IEnvironmentManager'
@@ -56,6 +57,14 @@ export interface IEnvironmentManager extends IDisposable {
    * Emit a signal that an environment was removed.
    */
   emitEnvRemoved(envName: string): void;
+  /**
+   * Signal emitted when the current environment selection changes.
+   */
+  environmentSelectionChanged: ISignal<IEnvironmentManager, string>;
+  /**
+   * Emit a signal that the environment selection changed.
+   */
+  emitEnvironmentSelectionChanged(envName: string): void;
   /**
    * Signal emitted when the environments need to be refreshed.
    */
@@ -153,6 +162,8 @@ export namespace Conda {
      * TODO remove => better use mandatory environment in args
      */
     environment?: string;
+    stateUpdateSignal: ISignal<IPackageManager, Conda.IPackageUpdate>;
+    emitState(update: Conda.IPackageUpdate): void;
     /**
      * Refresh packages list of the environment
      *
@@ -281,5 +292,26 @@ export namespace Conda {
      * Packages modified
      */
     packages: string[];
+  }
+
+  export interface IPackageUpdate {
+    /**
+     * Name of the environment changed
+     */
+    environment: string;
+    /**
+     * Packages modified
+     */
+    packages?: IPackage[];
+    phase: 'starting' | 'resolving' | 'applying' | 'success' | 'error';
+    selected?: IPackage[];
+    searchTerm?: string;
+    activeFilter?: PkgFilters;
+    isLoading?: boolean;
+    hasUpdate?: boolean;
+    hasDescription?: boolean;
+    isApplyingChanges?: boolean;
+    mode?: 'selected' | 'all';
+    message?: string;
   }
 }

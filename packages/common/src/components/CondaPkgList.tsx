@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { HTMLSelect } from '@jupyterlab/ui-components';
+import { HTMLSelect, ToolbarButtonComponent } from '@jupyterlab/ui-components';
+import { Menu } from '@lumino/widgets';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -10,6 +11,8 @@ import {
   CONDA_PACKAGE_SELECT_CLASS
 } from '../constants';
 import { Conda } from '../tokens';
+import { CommandRegistry } from '@lumino/commands';
+import { ellipsisVerticalIcon } from '../icon';
 
 const HEADER_HEIGHT = 29;
 
@@ -41,7 +44,97 @@ export interface IPkgListProps {
    * Package item graph dependencies handler
    */
   onPkgGraph: (pkg: Conda.IPackage) => void;
+  /**
+   * Command registry for menu actions
+   */
+  commands: CommandRegistry;
+  /**
+   * Environment name
+   */
+  envName: string;
 }
+
+const toArray = <T,>(x: T | T[] | null | undefined): T[] =>
+  Array.isArray(x) ? x : x === null ? [] : [x];
+
+const toStr = (x: unknown) => (x === null ? '' : String(x));
+
+const getVersions = (pkg: Conda.IPackage) =>
+  toArray<string>(pkg.version).map(toStr);
+
+export const createMenu = (
+  commands: CommandRegistry,
+  envName: string,
+  packages: Conda.IPackage[]
+): Menu => {
+  console.log('createMenu called with:', { commands, envName, packages });
+
+  const menu = new Menu({ commands });
+  const packageNames = packages.map(pkg => pkg.name);
+  console.log('Package names for menu:', packageNames);
+
+  console.log('Available commands:', commands.listCommands());
+
+  const commandsToAdd = [
+    'gator-lab:pkg-update-all-confirm',
+    'gator-lab:pkg-update',
+    'gator-lab:pkg-refresh-available',
+    'gator-lab:pkg-apply-modifications'
+  ];
+
+  commandsToAdd.forEach(cmd => {
+    if (commands.hasCommand(cmd)) {
+      console.log(`Adding command: ${cmd}`);
+    } else {
+      console.warn(`Command not found: ${cmd}`);
+    }
+  });
+
+  // menu.addItem({
+  //   command: 'gator-lab:pkg-update-all-confirm',
+  //   args: { names: packageNames }
+  // });
+
+  menu.addItem({
+    command: 'gator-lab:pkg-update',
+    args: { env: envName, names: packageNames }
+  });
+
+  // menu.addItem({
+  //   command: 'gator-lab:pkg-refresh-available',
+  //   args: {}
+  // });
+
+  menu.addItem({
+    command: 'gator-lab:pkg-apply-modifications',
+    args: { env: envName, pkgNames: packageNames }
+  });
+
+  // Ensure menu has proper styling
+  menu.node.classList.add('lm-Menu', 'jp-Menu');
+  menu.node.style.minWidth = '200px';
+
+  console.log('Menu items added:', menu.items.length);
+  console.log('Menu node after adding items:', menu.node);
+  console.log('Menu node children:', menu.node.children);
+  console.log('Menu node innerHTML:', menu.node.innerHTML);
+
+  setTimeout(() => {
+    console.log('Menu node after timeout:', menu.node);
+    console.log('Menu node children after timeout:', menu.node.children);
+    console.log('Menu node innerHTML after timeout:', menu.node.innerHTML);
+
+    const menuItems = menu.node.querySelectorAll('.lm-Menu-item');
+    console.log('Found menu items:', menuItems.length);
+    menuItems.forEach((item, index) => {
+      console.log(`Menu item ${index}:`, item);
+      console.log(`Menu item ${index} text:`, item.textContent);
+      console.log(`Menu item ${index} classes:`, item.className);
+    });
+  }, 100);
+
+  return menu;
+};
 
 /** React component for the package list */
 export class CondaPkgList extends React.Component<IPkgListProps> {
@@ -50,40 +143,163 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     packages: []
   };
 
-  protected changeRender = (pkg: Conda.IPackage): JSX.Element => (
-    <div className={'lm-Widget'}>
-      <HTMLSelect
-        className={classes(Style.VersionSelection, CONDA_PACKAGE_SELECT_CLASS)}
-        value={pkg.version_selected}
-        onClick={(evt: React.MouseEvent): void => {
-          evt.stopPropagation();
-        }}
-        onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
-          this.props.onPkgChange(pkg, evt.target.value)
-        }
-        aria-label="Package versions"
-      >
-        <option key="-3" value={'none'}>
-          Remove
-        </option>
-        {!pkg.version_installed && (
-          <option key="-2" value={''}>
-            Install
+  protected handleMenuClick = (
+    event: React.MouseEvent,
+    pkg: Conda.IPackage
+  ) => {
+    console.log('handleMenuClick', pkg);
+    event.preventDefault();
+    event.stopPropagation();
+
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+
+    const x = rect.left;
+    const y = rect.bottom + 4;
+
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    console.log('Menu position options:', {
+      rect,
+      buttonPos: { x, y },
+      mousePos: { x: mouseX, y: mouseY }
+    });
+
+    const menu = createMenu(this.props.commands, this.props.envName, [pkg]);
+    console.log('Menu created:', menu);
+
+    menu.node.style.zIndex = '9999';
+    menu.node.style.position = 'fixed';
+
+    menu.node.classList.remove('lm-mod-hidden');
+
+    // Try positioning relative to the button first
+    try {
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      // Adjust x and x position if it would be off-screen
+      let adjustedX = x;
+      if (x > viewportWidth - 200) {
+        adjustedX = viewportWidth - 220;
+      }
+
+      let adjustedY = y;
+      if (y > viewportHeight - 150) {
+        adjustedY = rect.top - 150;
+      }
+
+      console.log('Adjusted position:', {
+        original: { x, y },
+        adjusted: { x: adjustedX, y: adjustedY },
+        viewport: { width: viewportWidth, height: viewportHeight }
+      });
+
+      menu.open(adjustedX, adjustedY);
+
+      // Check for menu items after opening
+      setTimeout(() => {
+        const menuItems = menu.node.querySelectorAll('.lm-Menu-item');
+        menuItems.forEach((item, index) => {
+          console.log(`Opened menu item ${index}:`, item.textContent);
+        });
+      }, 50);
+    } catch (error) {
+      console.error('Failed to open menu at button position:', error);
+      // Fallback to mouse position
+      try {
+        menu.open(mouseX, mouseY);
+        console.log('Menu opened at mouse position:', mouseX, mouseY);
+        console.log('Menu node after fallback opening:', menu.node);
+        console.log('Menu node classes:', menu.node.className);
+        console.log('Menu node style:', menu.node.style.cssText);
+        console.log(
+          'Menu node children after fallback opening:',
+          menu.node.children
+        );
+        console.log(
+          'Menu node innerHTML after fallback opening:',
+          menu.node.innerHTML
+        );
+
+        // Check for menu items after fallback opening
+        setTimeout(() => {
+          const menuItems = menu.node.querySelectorAll('.lm-Menu-item');
+          menuItems.forEach((item, index) => {
+            console.log(`Fallback menu item ${index}:`, item.textContent);
+          });
+        }, 50);
+      } catch (fallbackError) {
+        console.error('Failed to open menu at mouse position:', fallbackError);
+      }
+    }
+  };
+
+  protected handleContextMenu = (
+    event: React.MouseEvent,
+    pkg: Conda.IPackage
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const menu = createMenu(this.props.commands, this.props.envName, [pkg]);
+
+    menu.node.style.zIndex = '9999';
+    menu.node.style.position = 'fixed';
+
+    menu.node.classList.remove('lm-mod-hidden');
+
+    menu.open(event.clientX, event.clientY);
+
+    setTimeout(() => {
+      const menuItems = menu.node.querySelectorAll('.lm-Menu-item');
+      menuItems.forEach((item, index) => {
+        console.log(`Context menu item ${index}:`, item.textContent);
+      });
+    }, 50);
+  };
+
+  protected changeRender = (pkg: Conda.IPackage): JSX.Element => {
+    const versions = getVersions(pkg);
+    return (
+      <div className={'lm-Widget'}>
+        <HTMLSelect
+          className={classes(
+            Style.VersionSelection,
+            CONDA_PACKAGE_SELECT_CLASS
+          )}
+          value={pkg.version_selected}
+          onClick={(evt: React.MouseEvent): void => {
+            evt.stopPropagation();
+          }}
+          onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
+            this.props.onPkgChange(pkg, evt.target.value)
+          }
+          aria-label="Package versions"
+        >
+          <option key="-3" value={'none'}>
+            Remove
           </option>
-        )}
-        {pkg.updatable && (
-          <option key="-1" value={''}>
-            Update
-          </option>
-        )}
-        {pkg.version.map((v: string) => (
-          <option key={v} value={v}>
-            {v}
-          </option>
-        ))}
-      </HTMLSelect>
-    </div>
-  );
+          {!pkg.version_installed && (
+            <option key="-2" value={''}>
+              Install
+            </option>
+          )}
+          {pkg.updatable && (
+            <option key="-1" value="">
+              Update
+            </option>
+          )}
+          {versions.map(v => (
+            <option key={v} value={v}>
+              {v}
+            </option>
+          ))}
+        </HTMLSelect>
+      </div>
+    );
+  };
 
   protected iconRender = (pkg: Conda.IPackage): JSX.Element => {
     if (pkg.version_installed) {
@@ -183,6 +399,15 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
     const { data, index, style } = props;
     const pkg = data[index] as Conda.IPackage;
+
+    if (!pkg) {
+      return (
+        <div style={style} role="row">
+          <div>Loading...</div>
+        </div>
+      );
+    }
+
     return (
       <div
         className={this.rowClassName(index, pkg)}
@@ -190,6 +415,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         onClick={(): void => {
           this.props.onPkgClick(pkg);
         }}
+        onContextMenu={(event: React.MouseEvent) =>
+          this.handleContextMenu(event, pkg)
+        }
         role="row"
       >
         <div className={classes(Style.Cell, Style.StatusSize)} role="gridcell">
@@ -208,9 +436,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           </div>
         )}
         <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
-          {this.versionRender(pkg)}
-        </div>
-        <div className={classes(Style.Cell, Style.ChangeSize)} role="gridcell">
           {this.changeRender(pkg)}
         </div>
         <div
@@ -220,11 +445,46 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         >
           {pkg.channel}
         </div>
+        <div
+          className={classes(Style.Cell, Style.ChangeSize)}
+          role="gridcell"
+        ></div>
+        <div
+          className={Style.KebabButton}
+          onClick={(event: React.MouseEvent) =>
+            this.handleMenuClick(event, pkg)
+          }
+          title="Package actions"
+          aria-label={`Actions for ${pkg.name} package`}
+          aria-haspopup="menu"
+        >
+          <ToolbarButtonComponent icon={ellipsisVerticalIcon} />
+        </div>
       </div>
     );
   };
 
   render(): JSX.Element {
+    const items = Array.isArray(this.props.packages) ? this.props.packages : [];
+
+    // Early return if no items to prevent render issues
+    if (!items || items.length === 0) {
+      return (
+        <div
+          id={CONDA_PACKAGES_PANEL_ID}
+          role="grid"
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div>No packages available</div>
+        </div>
+      );
+    }
+
     return (
       <div
         id={CONDA_PACKAGES_PANEL_ID}
@@ -274,21 +534,21 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                     className={classes(Style.Cell, Style.ChangeSize)}
                     role="columnheader"
                   >
-                    Change To
+                    Channel
                   </div>
                   <div
                     className={classes(Style.Cell, Style.ChannelSize)}
                     role="columnheader"
                   >
-                    Channel
+                    Build
                   </div>
                 </div>
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
                   overscanCount={3}
-                  itemCount={this.props.packages.length}
-                  itemData={this.props.packages}
-                  itemKey={(index, data): React.Key => data[index].name}
+                  itemCount={items.length}
+                  itemData={items}
+                  itemKey={(index, data) => data[index]?.name ?? String(index)}
                   itemSize={40}
                   width={width}
                 >
@@ -394,5 +654,25 @@ namespace Style {
 
   export const VersionSelection = style({
     width: '100%'
+  });
+
+  export const ActionSize = style({
+    flex: '0 0 28px',
+    display: 'flex',
+    justifyContent: 'flex-end'
+  });
+
+  export const KebabButton = style({
+    width: 24,
+    height: 24,
+    lineHeight: '24px',
+    textAlign: 'center',
+    border: 'none',
+    cursor: 'pointer',
+    color: 'var(--jp-ui-font-color2)',
+    $nest: {
+      '&:hover': { color: 'var(--jp-ui-font-color1)' },
+      '&:focus': { outline: '2px solid var(--jp-brand-color1)' }
+    }
   });
 }
