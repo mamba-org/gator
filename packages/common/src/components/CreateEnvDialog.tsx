@@ -8,13 +8,99 @@ export type CreateChoice = 'import' | 'manual' | 'cancel';
 class CreateEnvironment extends React.PureComponent<{
   onChoose: (c: Exclude<CreateChoice, 'cancel'>) => void;
 }> {
+  private importButtonRef = React.createRef<HTMLButtonElement>();
+  private handleKeyDown = (
+    event: React.KeyboardEvent,
+    choice: Exclude<CreateChoice, 'cancel'>
+  ) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.props.onChoose(choice);
+    }
+  };
+
+  componentDidMount() {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (this.importButtonRef.current) {
+          this.importButtonRef.current.focus();
+        }
+      }, 50);
+    });
+
+    // Add targeted global handler that only works when dialog is open
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      // Only handle events if the dialog is actually open
+      const dialogElement = document.querySelector('.jp-NbConda-CreateDialog');
+      if (!dialogElement) {
+        return; // Dialog not open, ignore all events
+      }
+
+      // Only handle events within the dialog
+      if (!dialogElement.contains(event.target as Node)) {
+        return;
+      }
+
+      const target = event.target as HTMLElement;
+      if (target && target.classList.contains('gator-OptionCard')) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          event.stopPropagation();
+          if (target.getAttribute('aria-label')?.includes('Import')) {
+            this.props.onChoose('import');
+          } else if (target.getAttribute('aria-label')?.includes('Create')) {
+            this.props.onChoose('manual');
+          }
+        }
+        return;
+      }
+
+      if (event.key === 'Enter' && event.target === document.activeElement) {
+        const activeElement = document.activeElement as HTMLElement;
+        if (
+          activeElement &&
+          activeElement.classList.contains('gator-OptionCard')
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (activeElement.getAttribute('aria-label')?.includes('Import')) {
+            this.props.onChoose('import');
+          } else if (
+            activeElement.getAttribute('aria-label')?.includes('Create')
+          ) {
+            this.props.onChoose('manual');
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeyDown, true);
+
+    (this as any)._globalKeyHandler = handleGlobalKeyDown;
+  }
+
+  componentWillUnmount() {
+    if ((this as any)._globalKeyHandler) {
+      document.removeEventListener(
+        'keydown',
+        (this as any)._globalKeyHandler,
+        true
+      );
+    }
+  }
   render() {
     return (
       <div className="gator-CreateDialogBody">
         <div className="gator-OptionGrid gator-TwoOptions">
           <button
+            ref={this.importButtonRef}
             className="gator-OptionCard"
             onClick={() => this.props.onChoose('import')}
+            onKeyDown={e => this.handleKeyDown(e, 'import')}
+            tabIndex={0}
+            type="button"
+            aria-label="Import environment from file"
           >
             <div className="gator-OptionIcon">
               <fileUploadIcon.react tag="span" />
@@ -25,6 +111,10 @@ class CreateEnvironment extends React.PureComponent<{
           <button
             className="gator-OptionCard"
             onClick={() => this.props.onChoose('manual')}
+            onKeyDown={e => this.handleKeyDown(e, 'manual')}
+            tabIndex={0}
+            type="button"
+            aria-label="Create environment manually"
           >
             <div className="gator-OptionIcon">
               <addIcon.react tag="span" />

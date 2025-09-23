@@ -162,15 +162,19 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     } catch (error) {
       if (error !== 'cancelled') {
         console.error(error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : String(error) || 'An unknown error occurred';
         if (toastId) {
           Notification.update({
             id: toastId,
-            message: (error as any).message,
+            message: errorMessage,
             type: 'error',
             autoClose: false
           });
         } else {
-          Notification.error((error as any).message);
+          Notification.error(errorMessage);
         }
       } else {
         if (toastId) {
@@ -239,15 +243,19 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     } catch (error) {
       if (error !== 'cancelled') {
         console.error(error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : String(error) || 'An unknown error occurred';
         if (toastId) {
           Notification.update({
             id: toastId,
-            message: (error as any).message,
+            message: errorMessage,
             type: 'error',
             autoClose: false
           });
         } else {
-          Notification.error((error as any).message);
+          Notification.error(errorMessage);
         }
       } else {
         if (toastId) {

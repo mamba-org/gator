@@ -130,6 +130,25 @@ div[data-loading="true"] > jp-button[title="Refresh Environments"] > svg {
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
+.gator-OptionCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  border-color: var(--jp-border-color1);
+}
+
+.gator-OptionCard:focus-visible {
+  outline: 2px solid var(--jp-brand-color2);
+  outline-offset: 2px;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  border-color: var(--jp-brand-color2);
+}
+
+.gator-OptionCard:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
 .gator-OptionIcon {
   flex-grow: 1;
   display: flex;
