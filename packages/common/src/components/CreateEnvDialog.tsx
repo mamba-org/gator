@@ -1,5 +1,5 @@
 import { Dialog, ReactWidget } from '@jupyterlab/apputils';
-import { fileUploadIcon, addIcon } from '@jupyterlab/ui-components'; // TODO: editIcon
+import { fileUploadIcon, editIcon } from '@jupyterlab/ui-components'; // TODO: editIcon
 import * as React from 'react';
 
 /** dialog return options */
@@ -29,15 +29,12 @@ class CreateEnvironment extends React.PureComponent<{
       }, 50);
     });
 
-    // Add targeted global handler that only works when dialog is open
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      // Only handle events if the dialog is actually open
       const dialogElement = document.querySelector('.jp-NbConda-CreateDialog');
       if (!dialogElement) {
-        return; // Dialog not open, ignore all events
+        return;
       }
 
-      // Only handle events within the dialog
       if (!dialogElement.contains(event.target as Node)) {
         return;
       }
@@ -117,7 +114,7 @@ class CreateEnvironment extends React.PureComponent<{
             aria-label="Create environment manually"
           >
             <div className="gator-OptionIcon">
-              <addIcon.react tag="span" />
+              <editIcon.react tag="span" />
             </div>
             <div className="gator-OptionText">Create Manually</div>
           </button>
