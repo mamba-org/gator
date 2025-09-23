@@ -1,5 +1,5 @@
 import { Dialog, ReactWidget } from '@jupyterlab/apputils';
-import { fileUploadIcon, editIcon } from '@jupyterlab/ui-components'; // TODO: editIcon
+import { fileUploadIcon, editIcon } from '@jupyterlab/ui-components';
 import * as React from 'react';
 
 /** dialog return options */
