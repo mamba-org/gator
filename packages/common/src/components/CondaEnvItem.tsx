@@ -80,6 +80,7 @@ export const CondaEnvItem: React.FunctionComponent<IEnvItemProps> = (
     <div
       className={props.selected ? Style.SelectedItem : Style.Item}
       onClick={handleItemClick}
+      data-environment-name={props.name}
     >
       <span>{props.name}</span>
       <div
