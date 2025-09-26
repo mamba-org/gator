@@ -1,6 +1,5 @@
-import { Dialog, Notification, showDialog } from '@jupyterlab/apputils';
+import { Notification } from '@jupyterlab/apputils';
 import { CommandRegistry } from '@lumino/commands';
-import { Widget } from '@lumino/widgets';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
@@ -74,13 +73,15 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
-    this.handleCreateEnvironment = this.handleCreateEnvironment.bind(this);
-    this.handleImportEnvironment = this.handleImportEnvironment.bind(this);
     this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
     this.handleOpenCreateEnvDialog = this.handleOpenCreateEnvDialog.bind(this);
 
     this.props.model.refreshEnvs.connect(() => {
       this.loadEnvironments();
+    });
+
+    this.props.model.envAdded.connect((_, { name }) => {
+      this.setState({ currentEnvironment: name });
     });
 
     this.props.model.envRemoved.connect((_, removedName) => {
@@ -106,162 +107,11 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleOpenCreateEnvDialog(): Promise<void> {
     const choice = await openCreateEnvDialog();
     if (choice === 'manual') {
-      this.handleCreateEnvironment();
+      await this.props.commands.execute('gator-lab:create-env');
     } else if (choice === 'import') {
-      this.handleImportEnvironment();
+      await this.props.commands.execute('gator-lab:import-env');
     } else {
       return;
-    }
-  }
-
-  async handleCreateEnvironment(): Promise<void> {
-    let toastId = '';
-    try {
-      const body = document.createElement('div');
-      const nameLabel = document.createElement('label');
-      nameLabel.textContent = 'Name : ';
-      const nameInput = document.createElement('input');
-      body.appendChild(nameLabel);
-      body.appendChild(nameInput);
-
-      const typeLabel = document.createElement('label');
-      typeLabel.textContent = 'Type : ';
-      const typeInput = document.createElement('select');
-      for (const type of this.props.model.environmentTypes) {
-        const option = document.createElement('option');
-        option.setAttribute('value', type);
-        option.innerText = type;
-        typeInput.appendChild(option);
-      }
-      body.appendChild(typeLabel);
-      body.appendChild(typeInput);
-
-      const response = await showDialog({
-        title: 'New Environment',
-        body: new Widget({ node: body }),
-        buttons: [Dialog.cancelButton(), Dialog.okButton()]
-      });
-      if (response.button.accept) {
-        if (nameInput.value.length === 0) {
-          throw new Error('A environment name should be provided.');
-        }
-        toastId = Notification.emit(
-          `Creating environment ${nameInput.value}`,
-          'in-progress'
-        );
-        await this.props.model.create(nameInput.value, typeInput.value);
-        Notification.update({
-          id: toastId,
-          message: `Environment ${nameInput.value} has been created.`,
-          type: 'success',
-          autoClose: 5000
-        });
-        this.setState({ currentEnvironment: nameInput.value });
-        this.loadEnvironments();
-      }
-    } catch (error) {
-      if (error !== 'cancelled') {
-        console.error(error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : String(error) || 'An unknown error occurred';
-        if (toastId) {
-          Notification.update({
-            id: toastId,
-            message: errorMessage,
-            type: 'error',
-            autoClose: false
-          });
-        } else {
-          Notification.error(errorMessage);
-        }
-      } else {
-        if (toastId) {
-          Notification.dismiss(toastId);
-        }
-      }
-    }
-  }
-
-  private _readText(file: Blob): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = function (event: any): void {
-        resolve(event.target.result);
-      };
-      reader.readAsText(file);
-    });
-  }
-
-  async handleImportEnvironment(): Promise<void> {
-    let toastId = '';
-    try {
-      const body = document.createElement('div');
-      const nameLabel = document.createElement('label');
-      nameLabel.textContent = 'Name : ';
-      const nameInput = document.createElement('input');
-      body.appendChild(nameLabel);
-      body.appendChild(nameInput);
-
-      const fileLabel = document.createElement('label');
-      fileLabel.textContent = 'File : ';
-      const fileInput = document.createElement('input');
-      fileInput.setAttribute('type', 'file');
-
-      body.appendChild(fileLabel);
-      body.appendChild(fileInput);
-
-      const response = await showDialog({
-        title: 'Import Environment',
-        body: new Widget({ node: body }),
-        buttons: [Dialog.cancelButton(), Dialog.okButton()]
-      });
-      if (response.button.accept) {
-        if (nameInput.value.length === 0) {
-          throw new Error('A environment name should be provided.');
-        }
-        if ((fileInput.files?.length ?? 0) === 0) {
-          throw new Error('A environment file should be selected.');
-        }
-        toastId = Notification.emit(
-          `Import environment ${nameInput.value}`,
-          'in-progress'
-        );
-        const selectedFile = fileInput.files![0];
-        const file = await this._readText(selectedFile);
-        await this.props.model.import(nameInput.value, file, selectedFile.name);
-        Notification.update({
-          id: toastId,
-          message: `Environment ${nameInput.value} created.`,
-          type: 'success',
-          autoClose: 5000
-        });
-        this.setState({ currentEnvironment: nameInput.value });
-        this.loadEnvironments();
-      }
-    } catch (error) {
-      if (error !== 'cancelled') {
-        console.error(error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : String(error) || 'An unknown error occurred';
-        if (toastId) {
-          Notification.update({
-            id: toastId,
-            message: errorMessage,
-            type: 'error',
-            autoClose: false
-          });
-        } else {
-          Notification.error(errorMessage);
-        }
-      } else {
-        if (toastId) {
-          Notification.dismiss(toastId);
-        }
-      }
     }
   }
 

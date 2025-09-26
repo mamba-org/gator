@@ -2,6 +2,72 @@ import { Dialog, Notification, showDialog } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IEnvironmentManager } from './tokens';
 
+export async function createEnvironment(
+  model: IEnvironmentManager,
+  environmentName: string | undefined
+): Promise<void> {
+  let toastId = '';
+  try {
+    const body = document.createElement('div');
+    const nameLabel = document.createElement('label');
+    nameLabel.textContent = 'Name : ';
+    const nameInput = document.createElement('input');
+    body.appendChild(nameLabel);
+    body.appendChild(nameInput);
+
+    const typeLabel = document.createElement('label');
+    typeLabel.textContent = 'Type : ';
+    const typeInput = document.createElement('select');
+    for (const kernelType of model.environmentTypes) {
+      const option = document.createElement('option');
+      option.setAttribute('value', kernelType);
+      option.innerText = kernelType;
+      typeInput.appendChild(option);
+    }
+    body.appendChild(typeLabel);
+    body.appendChild(typeInput);
+
+    const response = await showDialog({
+      title: 'New Environment',
+      body: new Widget({ node: body }),
+      buttons: [Dialog.cancelButton(), Dialog.okButton()]
+    });
+    if (response.button.accept) {
+      if (nameInput.value.length === 0) {
+        throw new Error('A environment name should be provided.');
+      }
+      toastId = Notification.emit(
+        `Creating environment ${nameInput.value}`,
+        'in-progress'
+      );
+      await model.create(nameInput.value, typeInput.value);
+      Notification.update({
+        id: toastId,
+        message: `Environment ${nameInput.value} has been created.`,
+        type: 'success',
+        autoClose: 5000
+      });
+    }
+  } catch (error) {
+    if (error !== 'cancelled') {
+      console.error(error);
+      if (toastId) {
+        Notification.update({
+          id: toastId,
+          message: (error as any).message,
+          type: 'error',
+          autoClose: false
+        });
+      } else {
+        Notification.error((error as any).message);
+      }
+    } else {
+      if (toastId) {
+        Notification.dismiss(toastId);
+      }
+    }
+  }
+}
 export async function cloneEnvironment(
   model: IEnvironmentManager,
   environmentName: string | undefined
@@ -38,8 +104,6 @@ export async function cloneEnvironment(
         type: 'success',
         autoClose: 5000
       });
-
-      model.emitRefreshEnvs();
     }
   } catch (error) {
     if (error !== 'cancelled') {
@@ -127,8 +191,88 @@ export async function removeEnvironment(
         type: 'success',
         autoClose: 5000
       });
-      model.emitEnvRemoved(environmentName);
-      model.emitRefreshEnvs();
+    }
+  } catch (error) {
+    if (error !== 'cancelled') {
+      console.error(error);
+      if (toastId) {
+        Notification.update({
+          id: toastId,
+          message: (error as any).message,
+          type: 'error',
+          autoClose: false
+        });
+      } else {
+        Notification.error((error as any).message);
+      }
+    } else {
+      if (toastId) {
+        Notification.dismiss(toastId);
+      }
+    }
+  }
+}
+
+async function _readFileAsText(file: Blob): Promise<string> {
+  // Prefer the built-in Promise API when available
+  if ((file as any).text) {
+    return (file as any as File).text();
+  }
+  // Fallback for older environments
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.readAsText(file);
+  });
+}
+
+export async function importEnvironment(
+  model: IEnvironmentManager,
+  environmentName: string
+): Promise<void> {
+  let toastId = '';
+  try {
+    const body = document.createElement('div');
+    const nameLabel = document.createElement('label');
+    nameLabel.textContent = 'Name : ';
+    const nameInput = document.createElement('input');
+    body.appendChild(nameLabel);
+    body.appendChild(nameInput);
+
+    const fileLabel = document.createElement('label');
+    fileLabel.textContent = 'File : ';
+    const fileInput = document.createElement('input');
+    fileInput.setAttribute('type', 'file');
+
+    body.appendChild(fileLabel);
+    body.appendChild(fileInput);
+
+    const response = await showDialog({
+      title: 'Import Environment',
+      body: new Widget({ node: body }),
+      buttons: [Dialog.cancelButton(), Dialog.okButton()]
+    });
+    if (response.button.accept) {
+      if (nameInput.value.length === 0) {
+        throw new Error('A environment name should be provided.');
+      }
+      if ((fileInput.files?.length ?? 0) === 0) {
+        throw new Error('A environment file should be selected.');
+      }
+      toastId = Notification.emit(
+        `Import environment ${nameInput.value}`,
+        'in-progress'
+      );
+      const selectedFile = fileInput.files![0];
+      const file = await _readFileAsText(selectedFile);
+      await model.import(nameInput.value, file, selectedFile.name);
+      Notification.update({
+        id: toastId,
+        message: `Environment ${nameInput.value} created.`,
+        type: 'success',
+        autoClose: 5000
+      });
     }
   } catch (error) {
     if (error !== 'cancelled') {
