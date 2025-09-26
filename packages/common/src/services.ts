@@ -104,8 +104,14 @@ export class CondaEnvironments implements IEnvironmentManager {
     return this._environmentChanged;
   }
 
+  get environmentSelectionChanged(): ISignal<IEnvironmentManager, string> {
+    return this._environmentSelectionChanged;
+  }
+
   getPackageManager(name?: string): Conda.IPackageManager {
+    console.log('getPackageManager name', name);
     this._packageManager.environment = name;
+    console.log('getPackageManager environment set to: ', name);
     return this._packageManager;
   }
 
@@ -421,6 +427,10 @@ export class CondaEnvironments implements IEnvironmentManager {
     this._envRemoved.emit(envName);
   }
 
+  emitEnvironmentSelectionChanged(envName: string): void {
+    this._environmentSelectionChanged.emit(envName);
+  }
+
   // Resolve promise to disconnect signals at disposal
   private _clean: () => void = () => {
     return;
@@ -429,6 +439,10 @@ export class CondaEnvironments implements IEnvironmentManager {
   private _environmentChanged = new Signal<
     IEnvironmentManager,
     Conda.IEnvironmentChange
+  >(this);
+  private _environmentSelectionChanged = new Signal<
+    IEnvironmentManager,
+    string
   >(this);
   private _environments: Array<Conda.IEnvironment>;
   private _environmentsTimer = -1;
@@ -455,6 +469,22 @@ export class CondaPackage implements Conda.IPackageManager {
     return this._packageChanged;
   }
 
+  get stateUpdateSignal(): ISignal<
+    Conda.IPackageManager,
+    Conda.IPackageUpdate
+  > {
+    return this._stateUpdateSignal;
+  }
+
+  private _stateUpdateSignal = new Signal<
+    Conda.IPackageManager,
+    Conda.IPackageUpdate
+  >(this);
+
+  emitState(update: Conda.IPackageUpdate): void {
+    this._stateUpdateSignal.emit(update); // only the owner emits
+  }
+
   /**
    * Refresh the package list.
    *
@@ -467,12 +497,20 @@ export class CondaPackage implements Conda.IPackageManager {
     includeAvailable = true,
     environment?: string
   ): Promise<Array<Conda.IPackage>> {
-    const theEnvironment = environment || this.environment;
+    console.log('refresh: includeAvailable is', includeAvailable);
+    console.log('refresh: environment is', environment);
+    console.log('refresh: this.environment is', this.environment);
+    // const theEnvironment = environment || this.environment;
+    const theEnvironment = environment ?? this.environment;
+    console.log('refresh: this.environment is', this.environment);
     if (theEnvironment === undefined) {
+      console.warn('refresh: theEnvironment is undefined');
       return Promise.resolve([]);
     }
 
+    console.log('refresh: _cancelTasks called');
     this._cancelTasks('default');
+    console.log('refresh: _cancelTasks called END');
 
     try {
       const request: RequestInit = {
@@ -493,6 +531,7 @@ export class CondaPackage implements Conda.IPackageManager {
       const installedPkgs = data.packages;
 
       const allPackages: Array<Conda.IPackage> = [];
+      console.log('refresh: includeAvailable is', includeAvailable);
       if (includeAvailable) {
         // Get all available packages
         allPackages.push(...(await this._getAvailablePackages()));
@@ -553,8 +592,9 @@ export class CondaPackage implements Conda.IPackageManager {
           }
         }
 
+        const channel = String(pkg.channel ?? '');
         // Simplify the package channel name
-        const splitUrl = pkg.channel.split('/');
+        const splitUrl = channel.split('/');
         if (splitUrl.length > 2) {
           let firstNotEmpty = 0;
           if (
@@ -579,9 +619,38 @@ export class CondaPackage implements Conda.IPackageManager {
           pkg.channel += '/' + splitUrl[pos];
         }
 
+        if (allPackages[availableIdx]) {
+          const apkg = allPackages[availableIdx] as any;
+          apkg.version = Array.isArray(apkg.version)
+            ? apkg.version
+            : [String(apkg.version ?? '')];
+          apkg.build_number = Array.isArray(apkg.build_number)
+            ? apkg.build_number
+            : [Number(apkg.build_number ?? 0)];
+          apkg.build_string = Array.isArray(apkg.build_string)
+            ? apkg.build_string
+            : [String(apkg.build_string ?? '')];
+        }
         finalList.push(pkg);
         availableIdx += 1;
       }
+
+      // this._stateUpdateSignal.emit({
+      //   environment: theEnvironment,
+      //   isLoading: true,
+      //   phase: 'resolving'
+      // });
+
+      console.log('refresh: finalList is', finalList);
+      // console.log('emitState will include finalList under packages');
+      // this._stateUpdateSignal.emit({
+      //   environment: theEnvironment,
+      //   phase: 'success',
+      //   isLoading: false,
+      //   // hasUpdate: hasUpdates,
+      //   hasDescription: this.hasDescription(),
+      //   packages: finalList
+      // });
 
       return finalList;
     } catch (error) {

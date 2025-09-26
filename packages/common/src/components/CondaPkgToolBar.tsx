@@ -1,14 +1,14 @@
 import { HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
-import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
+// import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import * as React from 'react';
 import { classes, style } from 'typestyle/lib';
 import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
-import {
-  cartArrowDownIcon,
-  externalLinkIcon,
-  syncAltIcon,
-  undoIcon
-} from '../icon';
+// import {
+//   cartArrowDownIcon,
+//   externalLinkIcon,
+//   syncAltIcon,
+//   undoIcon
+// } from '../icon';
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
@@ -96,32 +96,35 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         </div>
       </div>
       <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
-      <ToolbarButtonComponent
+      {/* <ToolbarButtonComponent
         icon={externalLinkIcon}
         tooltip="Update all packages"
         onClick={props.onUpdateAll}
         enabled={props.hasUpdate}
         dataset={{ 'data-action': 'update-all' }}
-      />
-      <ToolbarButtonComponent
+      /> */}
+      {/* Conditionally show the apply modifications button */}
+      {/* <ToolbarButtonComponent
         icon={cartArrowDownIcon}
         tooltip="Apply package modifications"
         onClick={props.onApply}
         enabled={props.hasSelection}
         dataset={{ 'data-action': 'apply-modifications' }}
-      />
-      <ToolbarButtonComponent
+      /> */}
+      {/* Conditionally show the clear modifications button */}
+      {/* <ToolbarButtonComponent
         icon={undoIcon}
         tooltip="Clear package modifications"
         onClick={props.onCancel}
         enabled={props.hasSelection}
-      />
-      <ToolbarButtonComponent
+      /> */}
+      {/* Move this functionality to the be with the Refresh environments button -> drop down actions  */}
+      {/* <ToolbarButtonComponent
         icon={syncAltIcon}
         tooltip="Refresh available packages"
         onClick={props.onRefreshPackages}
         enabled={!props.isPending}
-      />
+      /> */}
     </div>
   );
 };

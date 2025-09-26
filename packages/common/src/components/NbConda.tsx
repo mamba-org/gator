@@ -101,6 +101,14 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       channels: await this.props.model.getChannels(name),
       envName: name
     });
+
+    this.props.model.emitEnvironmentSelectionChanged(name);
+
+    const packageManager = this.props.model.getPackageManager(name);
+    if (packageManager) {
+      const { primePackages } = await import('../packageActions');
+      primePackages(this.props.model, name);
+    }
   }
 
   async handleOpenCreateEnvDialog(): Promise<void> {
@@ -351,6 +359,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             packageManager={this.props.model.getPackageManager(
               this.state.currentEnvironment
             )}
+            commands={this.props.commands}
+            envName={this.state.currentEnvironment || ''}
           />
         </div>
       </div>
