@@ -9,6 +9,7 @@ class CreateEnvironment extends React.PureComponent<{
   onChoose: (c: Exclude<CreateChoice, 'cancel'>) => void;
 }> {
   private importButtonRef = React.createRef<HTMLButtonElement>();
+  private globalKeyHandler?: (event: KeyboardEvent) => void;
   private handleKeyDown = (
     event: React.KeyboardEvent,
     choice: Exclude<CreateChoice, 'cancel'>
