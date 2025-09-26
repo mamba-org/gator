@@ -113,6 +113,7 @@ class CreateEnvironment extends React.PureComponent<{
             tabIndex={0}
             type="button"
             aria-label="Create environment manually"
+            data-choice="manual"
           >
             <div className="gator-OptionIcon">
               <editIcon.react tag="span" />
