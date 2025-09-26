@@ -75,16 +75,12 @@ class CreateEnvironment extends React.PureComponent<{
 
     document.addEventListener('keydown', handleGlobalKeyDown, true);
 
-    (this as any)._globalKeyHandler = handleGlobalKeyDown;
+    this.globalKeyHandler = handleGlobalKeyDown;
   }
 
   componentWillUnmount() {
-    if ((this as any)._globalKeyHandler) {
-      document.removeEventListener(
-        'keydown',
-        (this as any)._globalKeyHandler,
-        true
-      );
+    if (this.globalKeyHandler) {
+      document.removeEventListener('keydown', this.globalKeyHandler, true);
     }
   }
   render() {
