@@ -90,3 +90,83 @@ button.jp-button-hide {
 div[data-loading="true"] > jp-button[title="Refresh Environments"] > svg {
   animation: gator-spin 1s linear infinite;
 }
+
+/* === Create Environment Styles === */
+.jp-NbConda-CreateDialog .jp-Dialog {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  min-width: 500px;
+  max-width: 560px;
+}
+
+.jp-NbConda-CreateDialog .jp-Dialog-body {
+  background: var(--jp-layout-color2);
+  padding: 20px 24px 28px;
+}
+
+.gator-OptionGrid.gator-TwoOptions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  justify-items: center;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.gator-OptionCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 140px;
+  height: 100px;
+  padding: 12px 8px;
+  background: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.gator-OptionCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  border-color: var(--jp-border-color1);
+}
+
+.gator-OptionCard:focus-visible {
+  outline: 2px solid var(--jp-brand-color2);
+  outline-offset: 2px;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  border-color: var(--jp-brand-color2);
+}
+
+.gator-OptionCard:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.gator-OptionIcon {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.gator-OptionIcon svg {
+  width: 24px !important;
+  height: 24px !important;
+  color: var(--jp-ui-font-color1);
+}
+
+.gator-OptionText {
+  margin-top: auto;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--jp-ui-font-color1);
+}
+/* ==================================== */

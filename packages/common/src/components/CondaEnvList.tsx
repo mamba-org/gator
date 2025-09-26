@@ -1,10 +1,8 @@
-/* eslint-disable react/prop-types */
 import * as React from 'react';
 import { style } from 'typestyle';
 import { CONDA_ENVIRONMENT_PANEL_ID } from '../constants';
 import { Conda } from '../tokens';
 import { CondaEnvItem } from './CondaEnvItem';
-import { CondaEnvToolBar, ENVIRONMENT_TOOLBAR_HEIGHT } from './CondaEnvToolBar';
 import { CommandRegistry } from '@lumino/commands';
 
 export const ENVIRONMENT_PANEL_WIDTH = 250;
@@ -34,13 +32,9 @@ export interface IEnvListProps {
    */
   onSelectedChange(name: string): void;
   /**
-   * Environment creation handler
+   * Environment creation dialog open handler
    */
-  onCreate(): void;
-  /**
-   * Environment import handler
-   */
-  onImport(): void;
+  onOpen(): void;
   commands: CommandRegistry;
 }
 
@@ -52,14 +46,13 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
 ) => {
   let isDefault = false;
   const listItems = props.environments.map((env, idx) => {
-    const selected = env.name === props.selected;
-    if (selected) {
-      // Forbid clone and removing the environment named "base" (base conda environment)
-      // and the default one (i.e. the one containing JupyterLab)
-      isDefault = env.is_default || env.name === 'base';
-    }
+    // Forbid clone and removing the environment named "base" (base conda environment)
+    // and the default one (i.e. the one containing JupyterLab)
+    isDefault = env.is_default || env.name === 'base';
+
     return (
       <CondaEnvItem
+        isDefault={isDefault}
         name={env.name}
         key={env.name}
         selected={props.selected ? env.name === props.selected : false}
@@ -71,17 +64,9 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
 
   return (
     <div className={Style.Panel}>
-      <CondaEnvToolBar
-        isBase={isDefault}
-        isPending={props.isPending}
-        onCreate={props.onCreate}
-        onImport={props.onImport}
-      />
       <div
         id={CONDA_ENVIRONMENT_PANEL_ID}
-        className={Style.ListEnvs(
-          props.height - ENVIRONMENT_TOOLBAR_HEIGHT - 32
-        )}
+        className={Style.ListEnvs(props.height)}
       >
         {listItems}
       </div>
