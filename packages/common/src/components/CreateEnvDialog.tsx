@@ -98,6 +98,7 @@ class CreateEnvironment extends React.PureComponent<{
             tabIndex={0}
             type="button"
             aria-label="Import environment from file"
+            data-choice="import"
           >
             <div className="gator-OptionIcon">
               <fileUploadIcon.react tag="span" />
