@@ -5,6 +5,14 @@ import * as React from 'react';
 /** dialog return options */
 export type CreateChoice = 'import' | 'manual' | 'cancel';
 
+function creationChoice(element: HTMLElement) {
+  const choice = element.getAttribute('data-choice');
+  if (choice === 'import') {
+    return 'import';
+  } else {
+    return 'manual';
+  }
+}
 class CreateEnvironment extends React.PureComponent<{
   onChoose: (c: Exclude<CreateChoice, 'cancel'>) => void;
 }> {
@@ -45,11 +53,8 @@ class CreateEnvironment extends React.PureComponent<{
         if (event.key === 'Enter') {
           event.preventDefault();
           event.stopPropagation();
-          if (target.getAttribute('aria-label')?.includes('Import')) {
-            this.props.onChoose('import');
-          } else if (target.getAttribute('aria-label')?.includes('Create')) {
-            this.props.onChoose('manual');
-          }
+          const choice = creationChoice(target);
+          this.props.onChoose(choice);
         }
         return;
       }
