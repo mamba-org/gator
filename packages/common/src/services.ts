@@ -12,6 +12,13 @@ interface IType {
   [key: string]: string[];
 }
 
+export type EnvOrigin = 'create' | 'clone' | 'import';
+
+export interface IEnvAdded {
+  name: string;
+  origin?: EnvOrigin;
+}
+
 namespace RESTAPI {
   /**
    * Description of the REST API response when loading environments
@@ -206,6 +213,8 @@ export class CondaEnvironments implements IEnvironmentManager {
           source: target,
           type: 'clone'
         });
+        this.emitEnvAdded(name, 'clone');
+        this.emitRefreshEnvs();
       }
     } catch (error) {
       let message: string = (error as any).message || (error as any).toString();
@@ -236,6 +245,8 @@ export class CondaEnvironments implements IEnvironmentManager {
           source: packages,
           type: 'create'
         });
+        this.emitEnvAdded(name, 'create');
+        this.emitRefreshEnvs();
       }
     } catch (error) {
       let message: string = (error as any).message || (error as any).toString();
@@ -299,6 +310,8 @@ export class CondaEnvironments implements IEnvironmentManager {
           source: fileContent,
           type: 'import'
         });
+        this.emitEnvAdded(name, 'import');
+        this.emitRefreshEnvs();
       }
     } catch (error) {
       let message: string = (error as any).message || (error as any).toString();
@@ -353,6 +366,8 @@ export class CondaEnvironments implements IEnvironmentManager {
           source: null,
           type: 'remove'
         });
+        this.emitEnvRemoved(name);
+        this.emitRefreshEnvs();
       }
     } catch (error) {
       let message: string = (error as any).message || (error as any).toString();
@@ -410,6 +425,18 @@ export class CondaEnvironments implements IEnvironmentManager {
   emitRefreshEnvs(): void {
     this._refreshEnvs.emit();
   }
+
+  /**
+   * Signal emitted when an environment is created.
+   */
+  private _envAdded = new Signal<IEnvironmentManager, IEnvAdded>(this);
+  get envAdded(): ISignal<IEnvironmentManager, IEnvAdded> {
+    return this._envAdded;
+  }
+  emitEnvAdded(name: string, origin?: EnvOrigin): void {
+    this._envAdded.emit({ name, origin });
+  }
+
   /**
    * Signal emitted when the current environment is removed.
    */
