@@ -105,12 +105,22 @@ export class CondaPkgPanel extends React.Component<
   }
 
   private async _updatePackages(): Promise<void> {
+    const environmentName = this._currentEnvironment || this._model.environment;
+    if (!environmentName) {
+      return;
+    }
+
     this.setState({
       isLoading: true,
       hasUpdate: false,
       packages: [],
       selected: []
     });
+
+    const loadingNotification = Notification.emit(
+      `Loading packages for ${environmentName}...`,
+      'in-progress'
+    );
 
     try {
       const environmentLoading =
@@ -150,13 +160,28 @@ export class CondaPkgPanel extends React.Component<
         packages: available,
         hasUpdate
       });
+
+      Notification.update({
+        id: loadingNotification,
+        message: `Packages loaded successfully for ${environmentName}`,
+        type: 'success',
+        autoClose: 3000
+      });
     } catch (error) {
       if ((error as any).message !== 'cancelled') {
         this.setState({
           isLoading: false
         });
         console.error(error);
-        Notification.error((error as any).message);
+
+        Notification.update({
+          id: loadingNotification,
+          message: `Failed to load packages for ${environmentName}`,
+          type: 'error',
+          autoClose: 0
+        });
+      } else {
+        Notification.dismiss(loadingNotification);
       }
     }
   }
@@ -444,11 +469,37 @@ export class CondaPkgPanel extends React.Component<
   }
 
   async handleRefreshPackages(): Promise<void> {
+    const environmentName = this._currentEnvironment || this._model.environment;
+    if (!environmentName) {
+      return;
+    }
+
+    const refreshNotification = Notification.emit(
+      `Refreshing available packages for ${environmentName}...`,
+      'in-progress'
+    );
+
     try {
       await this._model.refreshAvailablePackages();
+
+      Notification.update({
+        id: refreshNotification,
+        message: `Available packages refreshed for ${environmentName}`,
+        type: 'success',
+        autoClose: 3000
+      });
     } catch (error) {
       if ((error as any).message !== 'cancelled') {
         console.error('Error when refreshing the available packages.', error);
+
+        Notification.update({
+          id: refreshNotification,
+          message: `Failed to refresh available packages for ${environmentName}`,
+          type: 'error',
+          autoClose: 0
+        });
+      } else {
+        Notification.dismiss(refreshNotification);
       }
     }
     this._updatePackages();
@@ -522,6 +573,7 @@ export class CondaPkgPanel extends React.Component<
               this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
             }
             packages={searchPkgs}
+            isLoading={this.state.isLoading}
             onPkgClick={this.handleClick}
             onPkgChange={this.handleVersionSelection}
             onPkgGraph={this.handleDependenciesGraph}
