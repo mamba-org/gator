@@ -30,6 +30,10 @@ export interface IPkgPanelProps {
    * Package manager for the selected environment
    */
   packageManager: Conda.IPackageManager;
+  /**
+   * Current environment name
+   */
+  environmentName?: string;
 }
 
 /**

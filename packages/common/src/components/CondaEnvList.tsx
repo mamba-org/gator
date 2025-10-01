@@ -44,6 +44,23 @@ export interface IEnvListProps {
 export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
   props: IEnvListProps
 ) => {
+  const listRef = React.useRef<HTMLDivElement>(null);
+
+  // Scroll selected environment into view
+  React.useEffect(() => {
+    if (props.selected && listRef.current) {
+      const selectedElement = listRef.current.querySelector(
+        `[data-environment-name="${props.selected}"]`
+      );
+      if (selectedElement) {
+        selectedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }
+    }
+  }, [props.selected]);
+
   let isDefault = false;
   const listItems = props.environments.map((env, idx) => {
     // Forbid clone and removing the environment named "base" (base conda environment)
@@ -65,6 +82,7 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
   return (
     <div className={Style.Panel}>
       <div
+        ref={listRef}
         id={CONDA_ENVIRONMENT_PANEL_ID}
         className={Style.ListEnvs(props.height)}
       >
