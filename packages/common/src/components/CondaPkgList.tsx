@@ -30,6 +30,10 @@ export interface IPkgListProps {
    */
   packages: Conda.IPackage[];
   /**
+   * Is the package list loading?
+   */
+  isLoading: boolean;
+  /**
    * Package item click handler
    */
   onPkgClick: (pkg: Conda.IPackage) => void;
@@ -47,8 +51,26 @@ export interface IPkgListProps {
 export class CondaPkgList extends React.Component<IPkgListProps> {
   public static defaultProps: Partial<IPkgListProps> = {
     hasDescription: false,
-    packages: []
+    packages: [],
+    isLoading: false
   };
+
+  componentDidMount(): void {
+    if (
+      typeof document !== 'undefined' &&
+      !document.getElementById('spinner-keyframes')
+    ) {
+      const style = document.createElement('style');
+      style.id = 'spinner-keyframes';
+      style.textContent = `
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
 
   protected changeRender = (pkg: Conda.IPackage): JSX.Element => (
     <div className={'lm-Widget'}>
@@ -239,6 +261,20 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             width: number;
             height: number;
           }): JSX.Element => {
+            if (this.props.isLoading) {
+              return (
+                <div
+                  className={Style.LoadingContainer}
+                  style={{ height: height, width: width }}
+                >
+                  <div className={Style.LoadingSpinner}>
+                    <div className={Style.Spinner}></div>
+                    <div className={Style.LoadingText}>Loading packages...</div>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <>
                 <div
@@ -403,5 +439,38 @@ namespace Style {
 
   export const VersionSelection = style({
     width: '100%'
+  });
+
+  export const LoadingContainer = style({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: '100%',
+    minHeight: '200px'
+  });
+
+  export const LoadingSpinner = style({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '16px'
+  });
+
+  export const Spinner = style({
+    width: '40px',
+    height: '40px',
+    border: '4px solid var(--jp-layout-color3)',
+    borderTop: '4px solid var(--jp-brand-color1)',
+    borderRadius: '50%',
+    flexShrink: 0,
+    animation: 'spin 1s linear infinite'
+  });
+
+  export const LoadingText = style({
+    color: 'var(--jp-ui-font-color1)',
+    fontSize: 'var(--jp-ui-font-size1)',
+    fontWeight: '500',
+    textAlign: 'center'
   });
 }
