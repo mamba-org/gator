@@ -3,12 +3,7 @@ import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import * as React from 'react';
 import { classes, style } from 'typestyle/lib';
 import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
-import {
-  cartArrowDownIcon,
-  externalLinkIcon,
-  syncAltIcon,
-  undoIcon
-} from '../icon';
+import { cartArrowDownIcon, externalLinkIcon, undoIcon } from '../icon';
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
@@ -115,12 +110,6 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         tooltip="Clear package modifications"
         onClick={props.onCancel}
         enabled={props.hasSelection}
-      />
-      <ToolbarButtonComponent
-        icon={syncAltIcon}
-        tooltip="Refresh available packages"
-        onClick={props.onRefreshPackages}
-        enabled={!props.isPending}
       />
     </div>
   );

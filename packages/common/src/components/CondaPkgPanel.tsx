@@ -34,6 +34,10 @@ export interface IPkgPanelProps {
    * Current environment name
    */
   environmentName?: string;
+  /**
+   * Package loading state
+   */
+  isPackageLoading?: boolean;
 }
 
 /**
@@ -510,6 +514,15 @@ export class CondaPkgPanel extends React.Component<
       this._currentEnvironment = this.props.packageManager.environment;
       this._updatePackages();
     }
+
+    if (prevProps.isPackageLoading !== this.props.isPackageLoading) {
+      if (
+        this.props.isPackageLoading === false &&
+        prevProps.isPackageLoading === true
+      ) {
+        this._updatePackages();
+      }
+    }
   }
 
   render(): JSX.Element {
@@ -547,7 +560,11 @@ export class CondaPkgPanel extends React.Component<
     return (
       <div className={Style.PackagePanel}>
         <CondaPkgToolBar
-          isPending={this.state.isLoading}
+          isPending={
+            this.props.isPackageLoading !== undefined
+              ? this.props.isPackageLoading
+              : this.state.isLoading
+          }
           category={this.state.activeFilter}
           hasSelection={this.state.selected.length > 0}
           hasUpdate={this.state.hasUpdate}

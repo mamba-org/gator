@@ -12,10 +12,6 @@ export const ENVIRONMENT_PANEL_WIDTH = 250;
  */
 export interface IEnvListProps {
   /**
-   * Component height
-   */
-  height: number;
-  /**
    * Is the environment list loading?
    */
   isPending: boolean;
@@ -84,7 +80,7 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
       <div
         ref={listRef}
         id={CONDA_ENVIRONMENT_PANEL_ID}
-        className={Style.ListEnvs(props.height)}
+        className={Style.ListEnvs}
       >
         {listItems}
       </div>
@@ -94,21 +90,19 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
 
 namespace Style {
   export const Panel = style({
-    flexGrow: 0,
-    flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
+    height: '100%',
     width: ENVIRONMENT_PANEL_WIDTH,
-    minHeight: 0
+    minHeight: 0,
+    overflow: 'hidden'
   });
 
-  export const ListEnvs = (height: number): string =>
-    style({
-      height: height,
-      overflowY: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: 0
-    });
+  export const ListEnvs = style({
+    flex: '1 1 auto',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0
+  });
 }

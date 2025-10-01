@@ -33,17 +33,18 @@ export const CreateEnvButton = (props: ICreateEnvButtonProps): JSX.Element => {
 namespace Style {
   export const EnvToolbar = style({
     display: 'flex',
-    alignItems: 'stretch',
+    alignItems: 'center',
     justifyContent: 'center',
-    width: '100%'
+    width: '100%',
+    height: '100%'
   });
 
   export const ToolbarButton = style({
     display: 'flex',
-    alignItems: 'stretch',
+    alignItems: 'center',
     justifyContent: 'center',
     width: '80%',
-    height: '90%',
+    height: '100%',
     boxSizing: 'border-box',
     margin: 0,
     background: 'var(--jp-layout-color1)',
