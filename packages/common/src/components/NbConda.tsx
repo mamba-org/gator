@@ -1,5 +1,6 @@
-import { Notification } from '@jupyterlab/apputils';
+import { Notification, ToolbarButtonComponent } from '@jupyterlab/apputils';
 import { CommandRegistry } from '@lumino/commands';
+import { Menu } from '@lumino/widgets';
 import * as React from 'react';
 import { style } from 'typestyle';
 import { Conda, IEnvironmentManager } from '../tokens';
@@ -7,7 +8,6 @@ import { CondaEnvList, ENVIRONMENT_PANEL_WIDTH } from './CondaEnvList';
 import { PACKAGE_TOOLBAR_HEIGHT } from './CondaPkgToolBar';
 import { CreateEnvButton } from './CreateEnvButton';
 import { CondaPkgPanel } from './CondaPkgPanel';
-import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import { syncAltIcon } from '../icon';
 import { openCreateEnvDialog } from './CreateEnvDialog';
 
@@ -55,6 +55,10 @@ export interface ICondaEnvState {
    */
   isLoading: boolean;
   /**
+   * Is the package list loading?
+   */
+  isPackageLoading: boolean;
+  /**
    * Environment name
    */
   envName?: string;
@@ -62,6 +66,8 @@ export interface ICondaEnvState {
 
 /** Top level React component for Jupyter Conda Manager */
 export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
+  private iconRef = React.createRef<HTMLDivElement>();
+
   constructor(props: ICondaEnvProps) {
     super(props);
 
@@ -69,11 +75,11 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       environments: [],
       currentEnvironment: undefined,
       isLoading: false,
+      isPackageLoading: false,
       envName: props.envName
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
-    this.handleRefreshEnvironment = this.handleRefreshEnvironment.bind(this);
     this.handleOpenCreateEnvDialog = this.handleOpenCreateEnvDialog.bind(this);
 
     this.props.model.refreshEnvs.connect(() => {
@@ -89,6 +95,57 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
         this.setState({ currentEnvironment: undefined, channels: undefined });
       }
     });
+  }
+
+  createRefreshMenu(): Menu {
+    const menu = new Menu({ commands: this.props.commands });
+
+    const refreshEnvsCommandId = 'temp-refresh-envs';
+    const refreshPackagesCommandId = 'temp-refresh-packages';
+
+    if (!this.props.commands.hasCommand(refreshEnvsCommandId)) {
+      this.props.commands.addCommand(refreshEnvsCommandId, {
+        label: 'Refresh Environments',
+        execute: () => {
+          setTimeout(() => {
+            this.loadEnvironments();
+          }, 0);
+        }
+      });
+    }
+
+    if (!this.props.commands.hasCommand(refreshPackagesCommandId)) {
+      this.props.commands.addCommand(refreshPackagesCommandId, {
+        label: 'Refresh Packages',
+        execute: () => {
+          setTimeout(async () => {
+            if (this.state.currentEnvironment) {
+              this.setState({ isPackageLoading: true });
+
+              const packageManager = this.props.model.getPackageManager(
+                this.state.currentEnvironment
+              );
+              if (packageManager) {
+                try {
+                  await packageManager.refresh();
+                } catch (error) {
+                  console.error('Error refreshing packages:', error);
+                } finally {
+                  this.setState({ isPackageLoading: false });
+                }
+              } else {
+                this.setState({ isPackageLoading: false });
+              }
+            }
+          }, 0);
+        }
+      });
+    }
+
+    menu.addItem({ command: refreshEnvsCommandId });
+    menu.addItem({ command: refreshPackagesCommandId });
+
+    return menu;
   }
 
   async handleEnvironmentChange(name: string): Promise<void> {
@@ -110,8 +167,56 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     }
   }
 
-  async handleRefreshEnvironment(): Promise<void> {
-    await this.loadEnvironments();
+  async handleRefreshMenuClick(
+    iconRef: React.RefObject<HTMLDivElement>,
+    event?: React.MouseEvent
+  ): Promise<void> {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const rect = iconRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+
+    let x = rect.left;
+    let y = rect.bottom + 4;
+
+    const menu = this.createRefreshMenu();
+
+    document.body.appendChild(menu.node);
+    menu.node.style.visibility = 'hidden';
+    menu.node.style.position = 'absolute';
+    menu.node.style.top = '0';
+    menu.node.style.left = '0';
+
+    menu.node.offsetHeight;
+
+    const menuRect = menu.node.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    if (x + menuRect.width > viewportWidth) {
+      x = viewportWidth - menuRect.width - 10; // 10px margin from edge
+    }
+    if (y + menuRect.height > viewportHeight) {
+      y = rect.top - menuRect.height - 4; // Above the button
+
+      // If still off-screen, position at top of viewport
+      if (y < 0) {
+        y = 10; // 10px margin from top
+      }
+    }
+
+    document.body.removeChild(menu.node);
+    menu.node.style.visibility = '';
+    menu.node.style.position = '';
+    menu.node.style.top = '';
+    menu.node.style.left = '';
+
+    menu.open(x, y);
   }
 
   async loadEnvironments(): Promise<void> {
@@ -151,20 +256,21 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
   render(): JSX.Element {
     return (
-      <div>
-        <div className={Style.HeaderContainer}>
-          <div className={Style.Grow}>
-            <div className={Style.Title}>Environments</div>
-            <div className={Style.RefreshButton}>
-              <div
-                data-loading={this.state.isLoading}
-                className={Style.RefreshInner}
-              >
+      <div className={Style.HeaderContainer}>
+        <div className={Style.Grow}>
+          <div className={Style.Title}>Environments</div>
+          <div className={Style.RefreshButton}>
+            <div
+              data-loading={this.state.isLoading}
+              className={Style.RefreshInner}
+            >
+              <div ref={this.iconRef}>
                 <ToolbarButtonComponent
                   icon={syncAltIcon}
-                  tooltip="Refresh Environments"
-                  onClick={this.handleRefreshEnvironment}
-                  label="Refresh Environments"
+                  onClick={() => {
+                    this.handleRefreshMenuClick(this.iconRef);
+                  }}
+                  label="Refresh"
                   className={Style.RefreshEnvsIconLabelGap}
                 />
               </div>
@@ -181,15 +287,16 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
               <CreateEnvButton onOpen={this.handleOpenCreateEnvDialog} />
             </div>
 
-            <CondaEnvList
-              height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
-              isPending={this.state.isLoading}
-              environments={this.state.environments}
-              selected={this.state.currentEnvironment}
-              onSelectedChange={this.handleEnvironmentChange}
-              onOpen={this.handleOpenCreateEnvDialog}
-              commands={this.props.commands}
-            />
+            <div className={Style.EnvListContainer}>
+              <CondaEnvList
+                isPending={this.state.isLoading}
+                environments={this.state.environments}
+                selected={this.state.currentEnvironment}
+                onSelectedChange={this.handleEnvironmentChange}
+                onOpen={this.handleOpenCreateEnvDialog}
+                commands={this.props.commands}
+              />
+            </div>
           </div>
 
           {/* RIGHT COLUMN */}
@@ -200,6 +307,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
               this.state.currentEnvironment
             )}
             environmentName={this.state.currentEnvironment}
+            isPackageLoading={this.state.isPackageLoading}
           />
         </div>
       </div>
@@ -269,7 +377,9 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     width: ENVIRONMENT_PANEL_WIDTH,
-    minWidth: ENVIRONMENT_PANEL_WIDTH
+    minWidth: ENVIRONMENT_PANEL_WIDTH,
+    height: '100%',
+    minHeight: 0
   });
 
   export const LeftToolbar = style({
@@ -280,16 +390,17 @@ namespace Style {
   });
 
   export const ToggleCreateEnvDialogButton = style({
-    flex: '1 1 auto',
-    width: '100%',
-    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 0,
+    width: '100%',
+    height: PACKAGE_TOOLBAR_HEIGHT,
+    flexShrink: 0,
     $nest: {
       '& > .jp-ToolbarButtonComponent, & > jp-button.jp-ToolbarButtonComponent':
         {
-          flex: '1 1 0% !important',
           width: '100% !important',
+          height: '100% !important',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -301,5 +412,11 @@ namespace Style {
         whiteSpace: 'nowrap'
       }
     }
+  });
+
+  export const EnvListContainer = style({
+    flex: '1 1 auto',
+    minHeight: 0,
+    overflow: 'hidden'
   });
 }
