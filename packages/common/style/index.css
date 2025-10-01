@@ -87,7 +87,7 @@ button.jp-button-hide {
   to { transform: rotate(360deg); }
 }
 
-div[data-loading="true"] > jp-button[title="Refresh Environments"] > svg {
+div[data-loading="true"] > jp-button[title="Environments"] > svg {
   animation: gator-spin 1s linear infinite;
 }
 

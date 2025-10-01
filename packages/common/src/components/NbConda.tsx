@@ -105,7 +105,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
     if (!this.props.commands.hasCommand(refreshEnvsCommandId)) {
       this.props.commands.addCommand(refreshEnvsCommandId, {
-        label: 'Refresh Environments',
+        label: 'Environments',
         execute: () => {
           setTimeout(() => {
             this.loadEnvironments();
@@ -116,7 +116,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
     if (!this.props.commands.hasCommand(refreshPackagesCommandId)) {
       this.props.commands.addCommand(refreshPackagesCommandId, {
-        label: 'Refresh Packages',
+        label: 'Packages',
         execute: () => {
           setTimeout(async () => {
             if (this.state.currentEnvironment) {
@@ -176,10 +176,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       event.stopPropagation();
     }
 
-    const rect = iconRef.current?.getBoundingClientRect();
+    const buttonElement = iconRef.current?.parentElement as HTMLElement;
+    const rect = buttonElement?.getBoundingClientRect();
     if (!rect) {
       return;
     }
+
+    const buttonBottomLeft = { x: rect.left, y: rect.bottom };
 
     let x = rect.left;
     let y = rect.bottom + 4;
@@ -191,6 +194,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     menu.node.style.position = 'absolute';
     menu.node.style.top = '0';
     menu.node.style.left = '0';
+    menu.node.style.maxWidth = '125px';
 
     menu.node.offsetHeight;
 
@@ -216,6 +220,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     menu.node.style.top = '';
     menu.node.style.left = '';
 
+    // Override x position
+    x = buttonBottomLeft.x - 25;
     menu.open(x, y);
   }
 
@@ -263,13 +269,13 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             <div
               data-loading={this.state.isLoading}
               className={Style.RefreshInner}
+              onClick={() => {
+                this.handleRefreshMenuClick(this.iconRef);
+              }}
             >
               <div ref={this.iconRef}>
                 <ToolbarButtonComponent
                   icon={syncAltIcon}
-                  onClick={() => {
-                    this.handleRefreshMenuClick(this.iconRef);
-                  }}
                   label="Refresh"
                   className={Style.RefreshEnvsIconLabelGap}
                 />
@@ -362,7 +368,24 @@ namespace Style {
   export const RefreshInner = style({
     display: 'inline-flex',
     alignItems: 'baseline',
-    gap: '6px'
+    gap: '6px',
+    background: 'var(--jp-layout-color1)',
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '6px',
+    padding: '2px 6px',
+    cursor: 'pointer',
+    transition:
+      'background-color .15s ease, border-color .15s ease, box-shadow .15s ease',
+    $nest: {
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color2)',
+        borderColor: 'var(--jp-border-color1)',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+      },
+      '&:active': {
+        backgroundColor: 'var(--jp-layout-color3)'
+      }
+    }
   });
 
   export const RefreshEnvsIconLabelGap = style({
