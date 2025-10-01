@@ -248,24 +248,12 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           environments: await this.props.model.environments
         };
 
-        let targetEnv: string | undefined =
-          this.props.envName || this.state.currentEnvironment;
-
-        if (!targetEnv) {
-          newState.environments.forEach(env => {
-            if (env.is_default) {
-              targetEnv = env.name;
-            }
-          });
-
-          // If no default environment found, fallback to base
-          if (!targetEnv) {
-            const baseEnv = newState.environments.find(
-              env => env.name === 'base'
-            );
-            targetEnv = baseEnv ? baseEnv.name : newState.environments[0]?.name;
-          }
-        }
+        const targetEnv: string | undefined =
+          this.props.envName ||
+          this.state.currentEnvironment ||
+          newState.environments.find(env => env.is_default)?.name ||
+          newState.environments.find(env => env.name === 'base')?.name ||
+          newState.environments[0]?.name;
 
         if (targetEnv && targetEnv !== this.state.currentEnvironment) {
           newState.currentEnvironment = targetEnv;
