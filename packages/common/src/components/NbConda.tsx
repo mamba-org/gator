@@ -228,12 +228,6 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async loadEnvironments(): Promise<void> {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
-
-      const refreshNotification = Notification.emit(
-        'Loading environments...',
-        'in-progress'
-      );
-
       try {
         const newState: Partial<ICondaEnvState> = {
           environments: await this.props.model.environments
@@ -253,24 +247,10 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
         newState.isLoading = false;
         this.setState(newState as ICondaEnvState);
-
-        Notification.update({
-          id: refreshNotification,
-          message: 'Environments loaded successfully',
-          type: 'success',
-          autoClose: 3000
-        });
       } catch (error) {
         if (error !== 'cancelled') {
           console.error(error);
-          Notification.update({
-            id: refreshNotification,
-            message: `Failed to load environments: ${(error as any).message}`,
-            type: 'error',
-            autoClose: 0
-          });
-        } else {
-          Notification.dismiss(refreshNotification);
+          Notification.error((error as any).message);
         }
       }
     }

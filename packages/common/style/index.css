@@ -87,7 +87,7 @@ button.jp-button-hide {
   to { transform: rotate(360deg); }
 }
 
-div[data-loading="true"] > jp-button[title="Refresh"] > svg {
+div[data-loading="true"] jp-button[aria-label="Refresh"] svg {
   animation: gator-spin 1s linear infinite;
 }
 
