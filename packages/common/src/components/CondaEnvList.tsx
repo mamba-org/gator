@@ -45,18 +45,14 @@ export const CondaEnvList: React.FunctionComponent<IEnvListProps> = (
   // Scroll selected environment into view
   React.useEffect(() => {
     if (props.selected && listRef.current) {
-      console.log('props.selected', props.selected);
-      console.log('listRef.current', listRef.current);
       const selectedElement = listRef.current.querySelector(
         `[data-environment-name="${props.selected}"]`
       );
       if (selectedElement) {
-        console.log('selectedElement', selectedElement);
         selectedElement.scrollIntoView({
           behavior: 'smooth',
           block: 'nearest'
         });
-        console.log('scrolled to selected element');
       }
     }
   }, [props.selected]);
