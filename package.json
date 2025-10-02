@@ -1,6 +1,6 @@
 {
   "name": "mamba-gator",
-  "version": "6.0.2",
+  "version": "6.1.0.dev0",
   "description": "Manage your conda environments.",
   "keywords": [
     "jupyter",
