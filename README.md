@@ -105,6 +105,22 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
+### 6.0.2
+- Features:
+  - Add spinner for loading packages
+  - Add create environment command and signal for environment management
+  - Add ability to open main window with preselected environment name
+- UI fixes and improvements:
+  - Fix package list height and scrolling issues
+  - Fix environment list scrolling with proper minimum height
+  - Update refresh button styling and layout
+  - Improve environment creation workflow and component styling
+  - Update target environment logic and selection
+- Maintenance:
+  - Refactor environment actions and signal handling
+  - Update Python version requirements for Binder
+  - Improve release documentation and workflow
+
 ### 6.0.1
 - Maintenance:
   - Clean up resolutions
