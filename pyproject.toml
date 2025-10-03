@@ -54,6 +54,10 @@ test = [
     "requests",
     "notebook >=4.3.1,!=6.1.0",
 ]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+]
 
 [project.scripts]
 gator = "mamba_gator.navigator.main:main"
