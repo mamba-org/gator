@@ -14,7 +14,7 @@ export function registerPkgCommands(
 ) {
   commands.addCommand('gator-lab:update-all-packages', {
     label: 'Update All Packages',
-    execute: async () => {;
+    execute: async () => {
       await updateAllPackages(pkgModel);
     }
   });
