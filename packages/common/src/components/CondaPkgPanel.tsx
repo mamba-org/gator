@@ -10,6 +10,12 @@ import {
   PkgFilters
 } from './CondaPkgToolBar';
 import { PkgGraphWidget } from './PkgGraph';
+import {
+  updateAllPackages,
+  applyPackageChanges,
+  cancelPackageChanges,
+  refreshAvailablePackages as refreshAvailablePkgs
+} from '../packageActions';
 
 // Minimal panel width to show package description
 const PANEL_SMALL_WIDTH = 500;
@@ -121,11 +127,6 @@ export class CondaPkgPanel extends React.Component<
       selected: []
     });
 
-    const loadingNotification = Notification.emit(
-      `Loading packages for ${environmentName}...`,
-      'in-progress'
-    );
-
     try {
       const environmentLoading =
         this._currentEnvironment || this._model.environment;
@@ -165,12 +166,6 @@ export class CondaPkgPanel extends React.Component<
         hasUpdate
       });
 
-      Notification.update({
-        id: loadingNotification,
-        message: `Packages loaded successfully for ${environmentName}`,
-        type: 'success',
-        autoClose: 3000
-      });
     } catch (error) {
       if ((error as any).message !== 'cancelled') {
         this.setState({
@@ -179,13 +174,11 @@ export class CondaPkgPanel extends React.Component<
         console.error(error);
 
         Notification.update({
-          id: loadingNotification,
+          id: 'loading-packages-error',
           message: `Failed to load packages for ${environmentName}`,
           type: 'error',
           autoClose: 0
         });
-      } else {
-        Notification.dismiss(loadingNotification);
       }
     }
   }
@@ -295,50 +288,14 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    let toastId = '';
     try {
       this.setState({
         searchTerm: '',
-        activeFilter: PkgFilters.Updatable
+        activeFilter: PkgFilters.Updatable,
+        isApplyingChanges: true
       });
 
-      const confirmation = await showDialog({
-        title: 'Update all',
-        body: 'Please confirm you want to update all packages? Conda enforces environment consistency. So maybe only a subset of the available updates will be applied.'
-      });
-
-      if (confirmation.button.accept) {
-        this.setState({
-          isApplyingChanges: true
-        });
-        toastId = Notification.emit('Updating packages', 'in-progress');
-        await this._model.update(['--all'], this._currentEnvironment);
-
-        Notification.update({
-          id: toastId,
-          message: 'Package updated successfully.',
-          type: 'success',
-          autoClose: 5000
-        });
-      }
-    } catch (error) {
-      if (error !== 'cancelled') {
-        console.error(error);
-        if (toastId) {
-          Notification.update({
-            id: toastId,
-            message: (error as any).message,
-            type: 'error',
-            autoClose: 0
-          });
-        } else {
-          Notification.error((error as any).message);
-        }
-      } else {
-        if (toastId) {
-          Notification.dismiss(toastId);
-        }
-      }
+      await updateAllPackages(this._model, this._currentEnvironment);
     } finally {
       this.setState({
         isApplyingChanges: false,
@@ -360,91 +317,18 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    let toastId = '';
     try {
       this.setState({
         searchTerm: '',
-        activeFilter: PkgFilters.Selected
+        activeFilter: PkgFilters.Selected,
+        isApplyingChanges: true
       });
 
-      const confirmation = await showDialog({
-        title: 'Packages actions',
-        body: 'Please confirm you want to apply the selected actions?'
-      });
-
-      if (confirmation.button.accept) {
-        this.setState({
-          isApplyingChanges: true
-        });
-        toastId = Notification.emit('Starting packages actions', 'in-progress');
-
-        // Get modified pkgs
-        const toRemove: Array<string> = [];
-        const toUpdate: Array<string> = [];
-        const toInstall: Array<string> = [];
-        this.state.selected.forEach(pkg => {
-          if (pkg.version_installed && pkg.version_selected === 'none') {
-            toRemove.push(pkg.name);
-          } else if (pkg.updatable && pkg.version_selected === '') {
-            toUpdate.push(pkg.name);
-          } else {
-            toInstall.push(
-              pkg.version_selected
-                ? pkg.name + '=' + pkg.version_selected
-                : pkg.name
-            );
-          }
-        });
-
-        if (toRemove.length > 0) {
-          Notification.update({
-            id: toastId,
-            message: 'Removing selected packages'
-          });
-          await this._model.remove(toRemove, this._currentEnvironment);
-        }
-
-        if (toUpdate.length > 0) {
-          Notification.update({
-            id: toastId,
-            message: 'Updating selected packages'
-          });
-          await this._model.update(toUpdate, this._currentEnvironment);
-        }
-
-        if (toInstall.length > 0) {
-          Notification.update({
-            id: toastId,
-            message: 'Installing new packages'
-          });
-          await this._model.install(toInstall, this._currentEnvironment);
-        }
-
-        Notification.update({
-          id: toastId,
-          message: 'Package actions successfully done.',
-          type: 'success',
-          autoClose: 5000
-        });
-      }
-    } catch (error) {
-      if (error !== 'cancelled') {
-        console.error(error);
-        if (toastId) {
-          Notification.update({
-            id: toastId,
-            message: (error as any).message,
-            type: 'error',
-            autoClose: 0
-          });
-        } else {
-          Notification.error((error as any).message);
-        }
-      } else {
-        if (toastId) {
-          Notification.dismiss(toastId);
-        }
-      }
+      await applyPackageChanges(
+        this._model,
+        this.state.selected,
+        this._currentEnvironment
+      );
     } finally {
       this.setState({
         isApplyingChanges: false,
@@ -460,12 +344,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    this.state.selected.forEach(
-      pkg =>
-        (pkg.version_selected = pkg.version_installed
-          ? pkg.version_installed
-          : 'none')
-    );
+    cancelPackageChanges(this.state.selected);
 
     this.setState({
       selected: []
@@ -473,40 +352,11 @@ export class CondaPkgPanel extends React.Component<
   }
 
   async handleRefreshPackages(): Promise<void> {
-    const environmentName = this._currentEnvironment || this._model.environment;
-    if (!environmentName) {
-      return;
-    }
-
-    const refreshNotification = Notification.emit(
-      `Refreshing available packages for ${environmentName}...`,
-      'in-progress'
-    );
-
     try {
-      await this._model.refreshAvailablePackages();
-
-      Notification.update({
-        id: refreshNotification,
-        message: `Available packages refreshed for ${environmentName}`,
-        type: 'success',
-        autoClose: 3000
-      });
-    } catch (error) {
-      if ((error as any).message !== 'cancelled') {
-        console.error('Error when refreshing the available packages.', error);
-
-        Notification.update({
-          id: refreshNotification,
-          message: `Failed to refresh available packages for ${environmentName}`,
-          type: 'error',
-          autoClose: 0
-        });
-      } else {
-        Notification.dismiss(refreshNotification);
-      }
+      await refreshAvailablePkgs(this._model, this._currentEnvironment);
+    } finally {
+      this._updatePackages();
     }
-    this._updatePackages();
   }
 
   componentDidUpdate(prevProps: IPkgPanelProps): void {

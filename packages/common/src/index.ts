@@ -8,4 +8,5 @@ export {
   exportEnvironment,
   removeEnvironment
 } from './environmentActions';
+export * from './packageActions';
 export { registerEnvCommands } from './commands/registerEnvCommands';

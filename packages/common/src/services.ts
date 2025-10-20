@@ -483,6 +483,25 @@ export class CondaPackage implements Conda.IPackageManager {
   }
 
   /**
+   * Signal emitted when bulk package actions are executed.
+   */
+  get packageActionSignal(): ISignal<
+    Conda.IPackageManager,
+    Conda.IPackageAction
+  > {
+    return this._packageActionSignal;
+  }
+
+  /**
+   * Emit a package action signal.
+   *
+   * @param action The package action to emit.
+   */
+  emitPackageAction(action: Conda.IPackageAction): void {
+    this._packageActionSignal.emit(action);
+  }
+
+  /**
    * Refresh the package list.
    *
    * @param includeAvailable Include available package list
@@ -889,6 +908,8 @@ export class CondaPackage implements Conda.IPackageManager {
 
   private _packageChanged: Signal<CondaPackage, Conda.IPackageChange> =
     new Signal<this, Conda.IPackageChange>(this);
+  private _packageActionSignal: Signal<CondaPackage, Conda.IPackageAction> =
+    new Signal<this, Conda.IPackageAction>(this);
   private _cancellableStack: Array<ICancellableAction> = [];
   private static _availablePackages: Array<Conda.IPackage> = null;
   private static _hasDescription = false;
