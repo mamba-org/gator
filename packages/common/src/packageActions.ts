@@ -4,14 +4,14 @@ import { Conda } from './tokens';
 /**
  * Update all packages in an environment
  *
- * @param model Package manager
+ * @param pkgModel Package manager
  * @param environment Environment name
  */
 export async function updateAllPackages(
-  model: Conda.IPackageManager,
+  pkgModel: Conda.IPackageManager,
   environment?: string
 ): Promise<void> {
-  const theEnvironment = environment || model.environment;
+  const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
     return;
   }
@@ -25,14 +25,14 @@ export async function updateAllPackages(
 
     if (confirmation.button.accept) {
       // Emit started signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'update-all',
         status: 'started'
       });
 
       toastId = Notification.emit('Updating packages', 'in-progress');
-      await model.update(['--all'], theEnvironment);
+      await pkgModel.update(['--all'], theEnvironment);
 
       Notification.update({
         id: toastId,
@@ -42,7 +42,7 @@ export async function updateAllPackages(
       });
 
       // Emit completed signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'update-all',
         status: 'completed'
@@ -63,7 +63,7 @@ export async function updateAllPackages(
       }
 
       // Emit failed signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'update-all',
         status: 'failed',
@@ -82,16 +82,16 @@ export async function updateAllPackages(
 /**
  * Apply package changes (remove, update, and install packages)
  *
- * @param model Package manager
+ * @param pkgModel Package manager
  * @param selectedPackages List of packages with pending changes
  * @param environment Environment name
  */
 export async function applyPackageChanges(
-  model: Conda.IPackageManager,
+  pkgModel: Conda.IPackageManager,
   selectedPackages: Conda.IPackage[],
   environment?: string
 ): Promise<void> {
-  const theEnvironment = environment || model.environment;
+  const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
     return;
   }
@@ -105,7 +105,7 @@ export async function applyPackageChanges(
 
     if (confirmation.button.accept) {
       // Emit started signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'apply-changes',
         status: 'started',
@@ -139,7 +139,7 @@ export async function applyPackageChanges(
           id: toastId,
           message: 'Removing selected packages'
         });
-        await model.remove(toRemove, theEnvironment);
+        await pkgModel.remove(toRemove, theEnvironment);
       }
 
       if (toUpdate.length > 0) {
@@ -147,26 +147,27 @@ export async function applyPackageChanges(
           id: toastId,
           message: 'Updating selected packages'
         });
-        await model.update(toUpdate, theEnvironment);
+        await pkgModel.update(toUpdate, theEnvironment);
       }
 
       if (toInstall.length > 0) {
         Notification.update({
           id: toastId,
-          message: 'InstaAlling new packages'
+          message: 'Installing new packages'
         });
-        await model.install(toInstall, theEnvironment);
+        await pkgModel.install(toInstall, theEnvironment);
       }
 
       Notification.update({
         id: toastId,
-        message: 'Package actions successfully done.',
+        message:
+          'Package actions successfully done for ' + theEnvironment + '.',
         type: 'success',
         autoClose: 5000
       });
 
       // Emit completed signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'apply-changes',
         status: 'completed',
@@ -190,7 +191,7 @@ export async function applyPackageChanges(
       }
 
       // Emit failed signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'apply-changes',
         status: 'failed',
@@ -208,30 +209,16 @@ export async function applyPackageChanges(
 }
 
 /**
- * Cancel package changes (reset selection state)
- *
- * @param selectedPackages List of packages with pending changes
- */
-export function cancelPackageChanges(selectedPackages: Conda.IPackage[]): void {
-  selectedPackages.forEach(
-    pkg =>
-      (pkg.version_selected = pkg.version_installed
-        ? pkg.version_installed
-        : 'none')
-  );
-}
-
-/**
  * Refresh the available packages list
  *
- * @param model Package manager
+ * @param pkgModel Package manager
  * @param environment Environment name
  */
 export async function refreshAvailablePackages(
-  model: Conda.IPackageManager,
+  pkgModel: Conda.IPackageManager,
   environment?: string
 ): Promise<void> {
-  const theEnvironment = environment || model.environment;
+  const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
     return;
   }
@@ -243,13 +230,13 @@ export async function refreshAvailablePackages(
 
   try {
     // Emit started signal
-    model.emitPackageAction({
+    pkgModel.emitPackageAction({
       environment: theEnvironment,
       type: 'refresh-packages',
       status: 'started'
     });
 
-    await model.refreshAvailablePackages();
+    await pkgModel.refreshAvailablePackages();
 
     Notification.update({
       id: refreshNotification,
@@ -259,7 +246,7 @@ export async function refreshAvailablePackages(
     });
 
     // Emit completed signal
-    model.emitPackageAction({
+    pkgModel.emitPackageAction({
       environment: theEnvironment,
       type: 'refresh-packages',
       status: 'completed'
@@ -276,7 +263,7 @@ export async function refreshAvailablePackages(
       });
 
       // Emit failed signal
-      model.emitPackageAction({
+      pkgModel.emitPackageAction({
         environment: theEnvironment,
         type: 'refresh-packages',
         status: 'failed',

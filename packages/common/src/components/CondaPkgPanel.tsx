@@ -13,7 +13,6 @@ import { PkgGraphWidget } from './PkgGraph';
 import {
   updateAllPackages,
   applyPackageChanges,
-  cancelPackageChanges,
   refreshAvailablePackages as refreshAvailablePkgs
 } from '../packageActions';
 
@@ -165,7 +164,6 @@ export class CondaPkgPanel extends React.Component<
         packages: available,
         hasUpdate
       });
-
     } catch (error) {
       if ((error as any).message !== 'cancelled') {
         this.setState({
@@ -181,6 +179,20 @@ export class CondaPkgPanel extends React.Component<
         });
       }
     }
+  }
+
+  /**
+   * Cancel package changes (reset selection state)
+   *
+   * @param selectedPackages List of packages with pending changes
+   */
+  private _cancelPackageChanges(selectedPackages: Conda.IPackage[]): void {
+    selectedPackages.forEach(
+      pkg =>
+        (pkg.version_selected = pkg.version_installed
+          ? pkg.version_installed
+          : 'none')
+    );
   }
 
   handleCategoryChanged(event: React.ChangeEvent<HTMLSelectElement>): void {
@@ -344,7 +356,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    cancelPackageChanges(this.state.selected);
+    this._cancelPackageChanges(this.state.selected);
 
     this.setState({
       selected: []
