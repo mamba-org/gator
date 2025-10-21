@@ -52,6 +52,8 @@ class JupyterCondaAPITest(ServerTest):
             self.wait_for_task(self.rm_env, new_name)
         self.env_names.append(new_name)
 
+        # TODO: Remove this once we have a way to test the environment creation with packages from different channels
+        # or once packages are available in the default channel
         return self.conda_api.post(
             ["environments"],
             body={"name": new_name, "packages": packages or ["python!=3.14.0"]},
