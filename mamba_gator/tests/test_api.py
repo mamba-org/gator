@@ -54,7 +54,7 @@ class JupyterCondaAPITest(ServerTest):
 
         return self.conda_api.post(
             ["environments"],
-            body={"name": new_name, "packages": packages or ["python!=3.10.0"]},
+            body={"name": new_name, "packages": packages or ["python!=3.14.0"]},
         )
 
     def rm_env(self, name):
