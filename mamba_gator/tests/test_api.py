@@ -643,7 +643,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
                 v = tuple(map(int, p["version"].split(".")))
                 break
         self.assertGreaterEqual(v, (3, 10, 5))
-        self.assertLess(v, (3, 10, 7)
+        self.assertLess(v, (3, 10, 7))
 
     def test_package_install_development_mode(self):
         n = generate_name()
