@@ -29,7 +29,7 @@ class JupyterCondaAPITest(ServerTest):
     def setUp(self):
         super(JupyterCondaAPITest, self).setUp()
         self.env_names = []
-        self.pkg_name = "astroid"
+        self.pkg_name = "requests"
 
     def tearDown(self):
         # Remove created environment
@@ -262,11 +262,11 @@ channels:
 - defaults
 dependencies:
 - python=3.9
-- astroid
+- requests
 prefix: /home/user/.conda/envs/lab_conda
         """
 
-        expected_packages = ["python", "astroid"]
+        expected_packages = ["python", "requests"]
 
         def g():
             return self.conda_api.post(
@@ -293,10 +293,10 @@ prefix: /home/user/.conda/envs/lab_conda
         content = """# This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 python=3.9
-astroid
+requests
         """
 
-        expected_packages = ["python", "astroid"]
+        expected_packages = ["python", "requests"]
 
         def g():
             return self.conda_api.post(
@@ -323,11 +323,11 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- astroid
+- requests
 prefix: /home/user/.conda/envs/lab_conda
         """
 
-        expected_packages = ["astroid"]
+        expected_packages = ["requests"]
 
         def g():
             return self.conda_api.patch(
@@ -359,11 +359,11 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- astroid
+- requests
 prefix: /home/user/.conda/envs/lab_conda
         """
 
-        expected_packages = ["astroid"]
+        expected_packages = ["requests"]
 
         def g():
             return self.conda_api.patch(["environments", n], body={"file": content},)
@@ -387,7 +387,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
         content = """# This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
-astroid
+requests
         """
 
         def g():
@@ -483,7 +483,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         self.wait_for_task(
             self.conda_api.post,
             ["environments"],
-            body={"name": n, "packages": ["python=3.9", "astroid"]},
+            body={"name": n, "packages": ["python=3.9", "requests"]},
         )
 
         r = self.wait_for_task(
@@ -493,7 +493,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         body = r.json()
         # The response should contain an "updates" key, even if empty
         self.assertIn("updates", body)
-        # If updates are available, astroid should be among them
+        # If updates are available, requests should be among them
         if len(body["updates"]) > 0:
             names = [p["name"] for p in body["updates"]]
             # Check that we got a valid updates list (could be empty if no updates available)
@@ -591,14 +591,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         self.assertIsNone(v)
 
     def test_pkg_install_with_version_constraints(self):
-        test_pkg = "astroid"
+        test_pkg = "requests"
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
 
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + "==2.14.2"]},
+            body={"packages": [test_pkg + "==2.32.3"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -608,14 +608,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = p
                 break
-        self.assertEqual(v["version"], "2.14.2")
+        self.assertEqual(v["version"], "2.32.3")
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=2.14.0"]},
+            body={"packages": [test_pkg + ">=2.32.3"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -632,7 +632,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=2.14.0,<3.0.0"]},
+            body={"packages": [test_pkg + ">=2.32.3,<2.32.5"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
