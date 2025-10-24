@@ -238,6 +238,14 @@ export namespace Conda {
      * Signal emitted when some package actions are executed.
      */
     packageChanged: ISignal<IPackageManager, Conda.IPackageChange>;
+    /**
+     * Signal emitted when bulk package actions are executed.
+     */
+    packageActionSignal: ISignal<IPackageManager, Conda.IPackageAction>;
+    /**
+     * Emit a bulk action signal
+     */
+    emitPackageAction(action: Conda.IPackageAction): void;
   }
 
   /**
@@ -295,5 +303,15 @@ export namespace Conda {
      * Packages modified
      */
     packages: string[];
+  }
+
+  export interface IPackageAction {
+    environment: string;
+    type: 'update-all' | 'apply-changes' | 'refresh-packages';
+    status: 'started' | 'completed' | 'failed';
+    details?: {
+      packagesAffected?: number;
+      error?: string;
+    };
   }
 }
