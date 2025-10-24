@@ -1,5 +1,5 @@
 import { HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
-import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
+import { ToolbarButtonComponent, addIcon } from '@jupyterlab/ui-components';
 import * as React from 'react';
 import { classes, style } from 'typestyle/lib';
 import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
@@ -59,6 +59,10 @@ export interface ICondaPkgToolBarProps {
    * Refresh available packages handler
    */
   onRefreshPackages: () => void;
+  /**
+   * Add package handler (opens the package drawer)
+   */
+  onAddPackages: () => void;
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
@@ -109,6 +113,14 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         onClick={props.onCancel}
         enabled={props.hasSelection}
       />
+      <ToolbarButtonComponent
+        icon={addIcon}
+        label="Packages"
+        tooltip="Add packages"
+        onClick={props.onAddPackages}
+        dataset={{ 'data-action': 'add-packages' }}
+        className={Style.AddPackagesButton}
+      />
     </div>
   );
 };
@@ -125,5 +137,26 @@ namespace Style {
 
   export const Search = style({
     padding: '4px'
+  });
+
+  export const AddPackagesButton = style({
+    gap: '6px',
+    background: 'var(--jp-layout-color1)',
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '6px',
+    padding: '2px 6px',
+    cursor: 'pointer',
+    transition:
+      'background-color .15s ease, border-color .15s ease, box-shadow .15s ease',
+    $nest: {
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color2)',
+        borderColor: 'var(--jp-border-color1)',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+      },
+      '&:active': {
+        backgroundColor: 'var(--jp-layout-color3)'
+      }
+    }
   });
 }
