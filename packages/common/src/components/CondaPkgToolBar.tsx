@@ -8,7 +8,6 @@ import { cartArrowDownIcon, externalLinkIcon, undoIcon } from '../icon';
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
 export enum PkgFilters {
-  All = 'ALL',
   Installed = 'INSTALLED',
   Available = 'AVAILABLE',
   Updatable = 'UPDATABLE',
@@ -71,7 +70,6 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           onChange={props.onCategoryChanged}
           aria-label="Package filter"
         >
-          <option value={PkgFilters.All}>All</option>
           <option value={PkgFilters.Installed}>Installed</option>
           <option value={PkgFilters.Available}>Not installed</option>
           <option value={PkgFilters.Updatable}>Updatable</option>

@@ -98,7 +98,7 @@ export class CondaPkgPanel extends React.Component<
       packages: [],
       selected: [],
       searchTerm: '',
-      activeFilter: PkgFilters.All
+      activeFilter: PkgFilters.Installed
     };
 
     this._model = this.props.packageManager;
@@ -308,7 +308,7 @@ export class CondaPkgPanel extends React.Component<
       this.setState({
         isApplyingChanges: false,
         selected: [],
-        activeFilter: PkgFilters.All
+        activeFilter: PkgFilters.Installed
       });
       this._updatePackages();
     }
@@ -342,7 +342,7 @@ export class CondaPkgPanel extends React.Component<
       this.setState({
         isApplyingChanges: false,
         selected: [],
-        activeFilter: PkgFilters.All
+        activeFilter: PkgFilters.Installed
       });
       this._updatePackages();
     }
@@ -390,9 +390,7 @@ export class CondaPkgPanel extends React.Component<
 
   render(): JSX.Element {
     let filteredPkgs: Conda.IPackage[] = [];
-    if (this.state.activeFilter === PkgFilters.All) {
-      filteredPkgs = this.state.packages;
-    } else if (this.state.activeFilter === PkgFilters.Installed) {
+    if (this.state.activeFilter === PkgFilters.Installed) {
       filteredPkgs = this.state.packages.filter(pkg => pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Available) {
       filteredPkgs = this.state.packages.filter(pkg => !pkg.version_installed);
