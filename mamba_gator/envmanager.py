@@ -367,13 +367,13 @@ class EnvManager:
         
         return self._clean_conda_json(output)
 
-    async def create_env(self, env: str, channels: Optional[List[str]] = None, *args) -> Dict[str, str]:
+    async def create_env(self, env: str, *args, channels: Optional[List[str]] = None) -> Dict[str, str]:
         """Create a environment from a list of packages.
 
         Args:
             env (str): Name of the environment
-            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
             *args (List[str]): optional, packages to install
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Create command output
