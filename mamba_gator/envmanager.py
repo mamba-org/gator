@@ -340,18 +340,25 @@ class EnvManager:
         _, output = ans
         return self._clean_conda_json(output)
 
-    async def clone_env(self, env: str, name: str) -> Dict[str, str]:
+    async def clone_env(self, env: str, name: str, channels: Optional[List[str]] = None) -> Dict[str, str]:
         """Clone an environment.
 
         Args:
             env (str): To-be-cloned environment name
             name (str): New environment name
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Clone command output.
         """
+        cmd_args = ["-y", "-q", "--json", "-n", name]
+
+        if channels:
+            for channel in channels:
+                cmd_args.extend(["-c", channel])
+        
         ans = await self._execute(
-            self.manager, "create", "-y", "-q", "--json", "-n", name, "--clone", env
+            self.manager, "create", *cmd_args, "--clone", env
         )
 
         rcode, output = ans
@@ -360,18 +367,25 @@ class EnvManager:
         
         return self._clean_conda_json(output)
 
-    async def create_env(self, env: str, *args) -> Dict[str, str]:
+    async def create_env(self, env: str, channels: Optional[List[str]] = None, *args) -> Dict[str, str]:
         """Create a environment from a list of packages.
 
         Args:
             env (str): Name of the environment
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
             *args (List[str]): optional, packages to install
 
         Returns:
             Dict[str, str]: Create command output
         """
+        cmd_args = ["-y", "-q", "--json", "-n", env]
+
+        if channels:
+            for channel in channels:
+                cmd_args.extend(["-c", channel])
+        
         ans = await self._execute(
-            self.manager, "create", "-y", "-q", "--json", "-n", env, *args
+            self.manager, "create", *cmd_args, *args
         )
 
         rcode, output = ans

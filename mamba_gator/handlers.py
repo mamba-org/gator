@@ -191,6 +191,7 @@ class EnvironmentsHandler(EnvBaseHandler):
             twin (str): optional, environment name to clone
             file (str): optional, environment file (TXT or YAML format)
             filename (str): optional, environment filename of the `file` content
+            channels (List[str]): optional, channel priority list (e.g., ["conda-forge", "defaults"])
         }
         """
         data = self.get_json_body()
@@ -199,17 +200,18 @@ class EnvironmentsHandler(EnvBaseHandler):
         twin = data.get("twin", None)
         file_content = data.get("file", None)
         file_name = data.get("filename", "environment.txt")
+        channels = data.get("channels", None)
 
         if packages is not None:
-            idx = self._stack.put(self.env_manager.create_env, name, *packages)
+            idx = self._stack.put(self.env_manager.create_env, name, *packages, channels=channels)
         elif twin is not None:
-            idx = self._stack.put(self.env_manager.clone_env, twin, name)
+            idx = self._stack.put(self.env_manager.clone_env, twin, name, channels=channels)
         elif file_content is not None:
             idx = self._stack.put(
                 self.env_manager.import_env, name, file_content, file_name
             )
         else:
-            idx = self._stack.put(self.env_manager.create_env, name)
+            idx = self._stack.put(self.env_manager.create_env, name, channels=channels)
 
         self.redirect_to_task(idx)
 
