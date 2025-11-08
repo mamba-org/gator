@@ -75,7 +75,6 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           aria-label="Package filter"
         >
           <option value={PkgFilters.Installed}>Installed</option>
-          <option value={PkgFilters.Available}>Not installed</option>
           <option value={PkgFilters.Updatable}>Updatable</option>
           <option value={PkgFilters.Selected}>Selected</option>
         </HTMLSelect>
