@@ -597,10 +597,12 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
 
+        body = {"packages": [test_pkg + "==2.14.2"], "channels": ["conda-forge", "defaults"]}
+
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + "==2.14.2"]}, channels=["conda-forge", "defaults"]
+            body=body
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
