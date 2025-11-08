@@ -77,12 +77,13 @@ class ActionsStack:
         else:
             return None
 
-    def put(self, task: Callable, *args) -> int:
+    def put(self, task: Callable, *args, **kwargs) -> int:
         """Add a asynchronous task into the queue.
 
         Args:
             task (Callable): Asynchronous task
             *args : arguments of the task
+            **kwargs : keyword arguments of the task
 
         Returns:
             int: Task id
@@ -90,10 +91,10 @@ class ActionsStack:
         ActionsStack.__last_index += 1
         idx = ActionsStack.__last_index
 
-        async def execute_task(idx, f, *args) -> Any:
+        async def execute_task(idx, f, *args, **kwargs) -> Any:
             try:
                 get_logger().debug("Will execute task {}.".format(idx))
-                result = await f(*args)
+                result = await f(*args, **kwargs)
             except asyncio.CancelledError:
                 raise
             except Exception as e:
@@ -110,7 +111,7 @@ class ActionsStack:
 
             return result
 
-        self.__tasks[idx] = asyncio.ensure_future(execute_task(idx, task, *args))
+        self.__tasks[idx] = asyncio.ensure_future(execute_task(idx, task, *args, **kwargs))
         return idx
 
     def __del__(self):
