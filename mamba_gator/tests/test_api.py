@@ -562,7 +562,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         n = generate_name()
         self.wait_for_task(self.mk_env, n, channels=["conda-forge", "defaults"])
 
-        body = {"packages": [self.pkg_name], channels: ["conda-forge", "defaults"]}
+        body = {"packages": [self.pkg_name], "channels": ["conda-forge", "defaults"]}
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
