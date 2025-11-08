@@ -54,7 +54,7 @@ class JupyterCondaAPITest(ServerTest):
 
         # TODO: Remove this once we have a way to test the environment creation with packages from different channels
         # or once packages are available in the default channel
-        body = {"name": new_name, "packages": packages or ["python!=3.10.0"]}
+        body = {"name": new_name, "packages": packages or ["python"]}
         if channels:
             body["channels"] = channels
         return self.conda_api.post(["environments"], body=body)
@@ -263,7 +263,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- python=3.9
+- python
 - astroid
 prefix: /home/user/.conda/envs/lab_conda
         """
@@ -294,7 +294,7 @@ prefix: /home/user/.conda/envs/lab_conda
         self.env_names.append(n)
         content = """# This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
-python=3.9
+python
 astroid
         """
 
@@ -317,7 +317,7 @@ astroid
             self.skipTest("FIXME not working with mamba")
 
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.9"])
+        response = self.wait_for_task(self.mk_env, n, ["python"])
         self.assertEqual(response.status_code, 200)
 
         content = """name: test_conda
@@ -353,7 +353,7 @@ prefix: /home/user/.conda/envs/lab_conda
             self.skipTest("FIXME not working with mamba")
             
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.9"])
+        response = self.wait_for_task(self.mk_env, n, ["python"])
         self.assertEqual(response.status_code, 200)
 
         content = """name: test_conda
@@ -384,7 +384,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
     def test_update_env_txt(self):
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.9"])
+        response = self.wait_for_task(self.mk_env, n, ["python"])
         self.assertEqual(response.status_code, 200)
 
         content = """# This file may be used to create an environment using:
@@ -485,7 +485,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         self.wait_for_task(
             self.conda_api.post,
             ["environments"],
-            body={"name": n, "packages": ["python=3.9", "astroid"]},
+            body={"name": n, "packages": ["python", "astroid"]},
         )
 
         r = self.wait_for_task(
@@ -516,7 +516,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
     def test_env_export_history(self):
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"])
         r = self.conda_api.get(
             ["environments", n], params={"download": 1, "history": 1}
         )
@@ -596,7 +596,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
     def test_pkg_install_with_version_constraints(self):
         test_pkg = "astroid"
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"])
 
         body = {"packages": [test_pkg + "==2.14.2"], "channels": ["conda-forge", "defaults"]}
 
@@ -616,7 +616,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         self.assertEqual(v["version"], "2.14.2")
 
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"], channels=["conda-forge", "defaults"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
@@ -633,7 +633,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         self.assertGreaterEqual(v, (2, 14, 0))
 
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
