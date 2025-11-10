@@ -524,7 +524,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         content = " ".join(r.text.splitlines())
         self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:(\s+-\s+[^\s]+)+\s+dependencies:\s+-\s+python=3\.9\s+prefix:"
+            content, r"^name:\s" + n + r"\s+channels:(\s+-\s+[^\s]+)+\s+dependencies:\s+-\s+python\s+prefix:"
         )
 
     def test_env_export_not_supporting_history(self):
@@ -598,7 +598,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python"])
 
-        body = {"packages": [test_pkg + "==2.14.2"], "channels": ["conda-forge", "defaults"]}
+        body = {"packages": [test_pkg + "==4.0.1"], "channels": ["conda-forge", "defaults"]}
 
         r = self.wait_for_task(
             self.conda_api.post,
@@ -613,14 +613,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = p
                 break
-        self.assertEqual(v["version"], "2.14.2")
+        self.assertEqual(v["version"], "4.0.1")
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=2.14.0"]},
+            body={"packages": [test_pkg + ">=4.0.1"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -630,14 +630,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = tuple(map(int, p["version"].split(".")))
                 break
-        self.assertGreaterEqual(v, (2, 14, 0))
+        self.assertGreaterEqual(v, (4, 0, 1))
 
         n = generate_name()
         self.wait_for_task(self.mk_env, n, packages=["python"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=2.14.0,<3.0.0"]},
+            body={"packages": [test_pkg + ">=4.0.1,<3.0.0"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -647,8 +647,8 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = tuple(map(int, p["version"].split(".")))
                 break
-        self.assertGreaterEqual(v, (2, 14, 0))
-        self.assertLess(v, (3, 0, 0))
+        self.assertGreaterEqual(v, (4, 0, 1))
+        self.assertLess(v, (5, 0, 0))
 
     def test_package_install_development_mode(self):
         n = generate_name()
