@@ -384,7 +384,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
     def test_update_env_txt(self):
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.11"], channels=["conda-forge", "defaults"])
+        response = self.wait_for_task(self.mk_env, n, ["python"], channels=["conda-forge", "defaults"])
         self.assertEqual(response.status_code, 200)
 
         content = """# This file may be used to create an environment using:
@@ -560,7 +560,7 @@ class TestCondaVersion(JupyterCondaAPITest):
 class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
     def test_pkg_install_and_remove(self):
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.11"], channels=["conda-forge", "defaults"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
 
         body = {"packages": [self.pkg_name], "channels": ["conda-forge", "defaults"]}
         r = self.wait_for_task(
@@ -596,7 +596,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
     def test_pkg_install_with_version_constraints(self):
         test_pkg = "astroid"
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.11"], channels=["conda-forge", "defaults"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
 
         body = {"packages": [test_pkg + "==4.0.1"], "channels": ["conda-forge", "defaults"]}
 
@@ -616,7 +616,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         self.assertEqual(v["version"], "4.0.1")
 
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.11"], channels=["conda-forge", "defaults"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
@@ -633,7 +633,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
         self.assertGreaterEqual(v, (4, 0, 1))
 
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.11"], channels=["conda-forge", "defaults"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
