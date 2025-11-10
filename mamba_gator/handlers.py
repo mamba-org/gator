@@ -273,13 +273,15 @@ class EnvironmentHandler(EnvBaseHandler):
         {
             file (str): optional, environment file (TXT or YAML format)
             filename (str): optional, environment filename of the `file` content
+            channels (List[str]): optional, channel priority list (e.g., ["conda-forge", "defaults"])
         }
         """
         data = self.get_json_body()
         file_content = data["file"]
         file_name = data.get("filename", "environment.yml")
+        channels = data.get("channels", None)
 
-        idx = self._stack.put(self.env_manager.update_env, env, file_content, file_name)
+        idx = self._stack.put(self.env_manager.update_env, env, file_content, file_name, channels=channels)
 
         self.redirect_to_task(idx)
 
@@ -310,11 +312,13 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         Request json body:
         {
             packages (List[str]): optional, list of packages to update
+            channels (List[str]): optional, channel priority list (e.g., ["conda-forge", "defaults"])
         }
         """
         body = self.get_json_body() or {}
         packages = body.get("packages", ["--all"])
-        idx = self._stack.put(self.env_manager.update_packages, env, packages)
+        channels = body.get("channels", None)
+        idx = self._stack.put(self.env_manager.update_packages, env, packages, channels=channels)
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
@@ -330,16 +334,18 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         Request json body:
         {
             packages (List[str]): list of packages to install
+            channels (List[str]): optional, channel priority list (e.g., ["conda-forge", "defaults"])
         }
         """
         body = self.get_json_body()
         packages = body["packages"]
+        channels = body.get("channels", None)
         develop = int(self.get_query_argument("develop", 0))
 
         if develop:
             idx = self._stack.put(self.env_manager.develop_packages, env, packages)
         else:
-            idx = self._stack.put(self.env_manager.install_packages, env, packages)
+            idx = self._stack.put(self.env_manager.install_packages, env, packages, channels=channels)
         self.redirect_to_task(idx)
 
 

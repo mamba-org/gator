@@ -384,7 +384,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
     def test_update_env_txt(self):
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python"])
+        response = self.wait_for_task(self.mk_env, n, ["python"], channels=["conda-forge", "defaults"])
         self.assertEqual(response.status_code, 200)
 
         content = """# This file may be used to create an environment using:
@@ -394,7 +394,7 @@ astroid
 
         def g():
             return self.conda_api.patch(
-                ["environments", n], body={"file": content, "filename": "testenv.txt"},
+                ["environments", n], body={"file": content, "filename": "testenv.txt", "channels": ["conda-forge", "defaults"]},
             )
 
         response = self.wait_for_task(g)
@@ -596,7 +596,7 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
     def test_pkg_install_with_version_constraints(self):
         test_pkg = "astroid"
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
 
         body = {"packages": [test_pkg + "==4.0.1"], "channels": ["conda-forge", "defaults"]}
 
