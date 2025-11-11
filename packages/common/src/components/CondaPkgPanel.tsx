@@ -185,7 +185,7 @@ export class CondaPkgPanel extends React.Component<
           if (
             pkg.version_installed &&
             semver.gt(
-              semver.coerce(pkg.version[pkg.version.length - 1]),
+              semver.coerce(pkg.version[0]),
               semver.coerce(pkg.version_installed)
             )
           ) {
