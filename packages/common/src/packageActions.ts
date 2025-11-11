@@ -281,3 +281,110 @@ export async function refreshAvailablePackages(
     }
   }
 }
+
+/**
+ * Delete a package from an environment
+ *
+ * @param pkgModel Package manager
+ * @param packageName Package name
+ * @param environment Environment name
+ */
+export async function deletePackage(
+  pkgModel: Conda.IPackageManager,
+  packageName: string,
+  environment?: string
+): Promise<void> {
+  const theEnvironment = environment || pkgModel.environment;
+  if (!theEnvironment) {
+    return;
+  }
+
+  const deleteNotification = Notification.emit(
+    `Deleting package ${packageName} in ${theEnvironment}.`,
+    'in-progress'
+  );
+
+  try {
+    await pkgModel.remove([packageName], theEnvironment);
+
+    Notification.update({
+      id: deleteNotification,
+      message: `Deleted package ${packageName} in ${theEnvironment}`,
+      type: 'success',
+      autoClose: 3000
+    });
+  } catch (error) {
+    if ((error as any).message !== 'cancelled') {
+      console.error('Error when deleting the available packages.', error);
+
+      Notification.update({
+        id: deleteNotification,
+        message: `Failed to delete package ${packageName} in ${theEnvironment}`,
+        type: 'error',
+        autoClose: 0
+      });
+    } else {
+      Notification.dismiss(deleteNotification);
+    }
+  }
+}
+
+/**
+ * Update a package in an environment
+ *
+ * @param pkgModel Package manager
+ * @param packageName Package name
+ * @param version Package version
+ * @param environment Environment name
+ */
+export async function updatePackage(
+  pkgModel: Conda.IPackageManager,
+  packageName: string,
+  version?: string,
+  environment?: string
+): Promise<void> {
+  const theEnvironment = environment || pkgModel.environment;
+  if (!theEnvironment) {
+    return;
+  }
+
+  let toastId = '';
+  try {
+    const confirmation = await showDialog({
+      title: 'Update package',
+      body: 'Please confirm you want to update ${packageName} to ${version}?'
+    });
+
+    if (confirmation.button.accept) {
+      toastId = Notification.emit('Updating package', 'in-progress');
+
+      const packageSpec = version ? `${packageName}=${version}` : packageName;
+      await pkgModel.update([packageSpec], theEnvironment);
+
+      Notification.update({
+        id: toastId,
+        message: 'Package ${packageName} updated to ${version} successfully.',
+        type: 'success',
+        autoClose: 5000
+      });
+    }
+  } catch (error) {
+    if (error !== 'cancelled') {
+      console.error(error);
+      if (toastId) {
+        Notification.update({
+          id: toastId,
+          message: (error as any).message,
+          type: 'error',
+          autoClose: 0
+        });
+      } else {
+        Notification.error((error as any).message);
+      }
+    } else {
+      if (toastId) {
+        Notification.dismiss(toastId);
+      }
+    }
+  }
+}
