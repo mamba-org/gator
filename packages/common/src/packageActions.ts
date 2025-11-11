@@ -299,21 +299,30 @@ export async function deletePackage(
     return;
   }
 
-  const deleteNotification = Notification.emit(
-    `Deleting package ${packageName} in ${theEnvironment}.`,
-    'in-progress'
-  );
+  let deleteNotification = '';
 
   try {
-    await pkgModel.remove([packageName], theEnvironment);
-
-    Notification.update({
-      id: deleteNotification,
-      message: `Deleted package ${packageName} in ${theEnvironment}`,
-      type: 'success',
-      autoClose: 3000
+    const confirmation = await showDialog({
+      title: 'Delete package',
+      body: `Please confirm you want to delete ${packageName}?`
     });
-  } catch (error) {
+
+    if (confirmation.button.accept) {
+      const deleteNotification = Notification.emit(
+        `Deleting package ${packageName} in ${theEnvironment}.`,
+        'in-progress'
+      );
+
+      await pkgModel.remove([packageName], theEnvironment);
+
+      Notification.update({
+        id: deleteNotification,
+        message: `Deleted package ${packageName} in ${theEnvironment}`,
+        type: 'success',
+        autoClose: 3000
+      });
+    }
+} catch (error) {
     if ((error as any).message !== 'cancelled') {
       console.error('Error when deleting the available packages.', error);
 
@@ -352,18 +361,20 @@ export async function updatePackage(
   try {
     const confirmation = await showDialog({
       title: 'Update package',
-      body: 'Please confirm you want to update ${packageName} to ${version}?'
+      body: `Please confirm you want to update ${packageName}?`
     });
 
     if (confirmation.button.accept) {
       toastId = Notification.emit('Updating package', 'in-progress');
 
+      // TODO: Support for package version when updating/modifying,
+      // even if it's not the latest version
       const packageSpec = version ? `${packageName}=${version}` : packageName;
       await pkgModel.update([packageSpec], theEnvironment);
 
       Notification.update({
         id: toastId,
-        message: 'Package ${packageName} updated to ${version} successfully.',
+        message: `Package ${packageName} updated successfully.`,
         type: 'success',
         autoClose: 5000
       });
