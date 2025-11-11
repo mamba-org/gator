@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { HTMLSelect } from '@jupyterlab/ui-components';
+import { Menu } from '@lumino/widgets';
+import { HTMLSelect, ToolbarButtonComponent } from '@jupyterlab/ui-components';
+import { CommandRegistry } from '@lumino/commands';
+import { ellipsisVerticalIcon } from '../icon';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -45,6 +48,14 @@ export interface IPkgListProps {
    * Package item graph dependencies handler
    */
   onPkgGraph: (pkg: Conda.IPackage) => void;
+  /**
+   * Command registry
+   */
+  commands?: CommandRegistry;
+  /**
+   * Environment name
+   */
+  envName?: string;
 }
 
 /** React component for the package list */
@@ -202,9 +213,60 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     }
   };
 
+  private createPackageMenu = (
+    pkg: Conda.IPackage,
+    commands: CommandRegistry
+  ): Menu => {
+    const menu = new Menu({ commands });
+
+    if (pkg.version_installed) {
+      menu.addItem({
+        command: 'gator-lab:remove-pkg',
+        args: { name: pkg.name }
+      });
+
+      if (pkg.updatable) {
+        menu.addItem({
+          command: 'gator-lab:update-pkg',
+          args: { name: pkg.name }
+        });
+      }
+    }
+
+    return menu;
+  };
+
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
     const { data, index, style } = props;
     const pkg = data[index] as Conda.IPackage;
+    const iconRef = React.useRef<HTMLDivElement>();
+
+    const handleMenuClick = (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!this.props.commands || !this.props.envName) {
+        return;
+      }
+
+      const rect = iconRef.current?.getBoundingClientRect();
+      if (!rect) {
+        return;
+      }
+
+      console.log('rect', rect);
+
+      const menu = this.createPackageMenu(pkg, this.props.commands);
+
+      const menuWidth = 90;
+
+      // Position menu so it opens to the LEFT of the icon
+      const x = rect.left - menuWidth;
+      const y = rect.bottom + 4;
+
+      menu.open(x, y);
+    };
+
     return (
       <div
         className={this.rowClassName(index, pkg)}
@@ -242,6 +304,20 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         >
           {pkg.channel}
         </div>
+        {this.props.commands && this.props.envName && (
+          <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
+            <div
+              ref={iconRef}
+              onClick={handleMenuClick}
+              className={Style.Kebab}
+              title="Package actions"
+              aria-label={`Actions for ${pkg.name} package`}
+              aria-haspopup="menu"
+            >
+              <ToolbarButtonComponent icon={ellipsisVerticalIcon} />
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -318,6 +394,12 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   >
                     Channel
                   </div>
+                  {this.props.commands && this.props.envName && (
+                    <div
+                      className={classes(Style.Cell, Style.KebabSize)}
+                      role="columnheader"
+                    ></div>
+                  )}
                 </div>
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
@@ -400,6 +482,7 @@ namespace Style {
   export const VersionSize = style({ flex: '0 0 90px' });
   export const ChangeSize = style({ flex: '0 0 120px' });
   export const ChannelSize = style({ flex: '1 1 120px' });
+  export const KebabSize = style({ flex: '0 0 40px' });
 
   export const CellSummary = style({
     margin: '0px 2px',
@@ -472,5 +555,13 @@ namespace Style {
     fontSize: 'var(--jp-ui-font-size1)',
     fontWeight: '500',
     textAlign: 'center'
+  });
+
+  export const Kebab = style({
+    cursor: 'pointer',
+    padding: '0 5px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   });
 }
