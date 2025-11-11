@@ -35,20 +35,22 @@ export const createMenu = (
   envName: string
 ): Menu => {
   const menu = new Menu({ commands });
-  if (!isDefault) {
-    menu.addItem({
-      command: 'gator-lab:remove-env',
-      args: { name: envName }
-    });
-    menu.addItem({
-      command: 'gator-lab:clone-env',
-      args: { name: envName }
-    });
-  }
   menu.addItem({
     command: 'gator-lab:export-env',
     args: { name: envName }
   });
+
+  if (!isDefault) {
+    menu.addItem({
+      command: 'gator-lab:clone-env',
+      args: { name: envName }
+    });
+
+    menu.addItem({
+      command: 'gator-lab:remove-env',
+      args: { name: envName }
+    });
+  }
   return menu;
 };
 
