@@ -140,21 +140,50 @@ namespace Style {
 
   export const AddPackagesButton = style({
     gap: '6px',
-    background: 'var(--jp-layout-color1)',
-    border: '1px solid var(--jp-border-color2)',
+    color: 'var(--jp-ui-inverse-font-color1) !important',
+    border: '1px solid var(--jp-brand-color1)',
+    backgroundColor: 'var(--jp-brand-color1)',
     borderRadius: '6px',
     padding: '2px 6px',
     cursor: 'pointer',
     transition:
       'background-color .15s ease, border-color .15s ease, box-shadow .15s ease',
     $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '& .jp-icon3': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '& svg': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '& svg path': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '& .jp-ToolbarButtonComponent-icon': {
+        color: 'var(--jp-ui-inverse-font-color1) !important'
+      },
       '&:hover': {
-        backgroundColor: 'var(--jp-layout-color2)',
-        borderColor: 'var(--jp-border-color1)',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+        backgroundColor: 'var(--jp-brand-color2)',
+        borderColor: 'var(--jp-brand-color2)',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+      },
+      '&:hover .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '&:hover .jp-icon3': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '&:hover svg': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '&:hover svg path': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
       },
       '&:active': {
-        backgroundColor: 'var(--jp-layout-color3)'
+        backgroundColor: 'var(--jp-brand-color3)',
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
       }
     }
   });
