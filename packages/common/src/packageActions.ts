@@ -308,7 +308,7 @@ export async function deletePackage(
     });
 
     if (confirmation.button.accept) {
-      const deleteNotification = Notification.emit(
+      deleteNotification = Notification.emit(
         `Deleting package ${packageName} in ${theEnvironment}.`,
         'in-progress'
       );
@@ -322,7 +322,7 @@ export async function deletePackage(
         autoClose: 3000
       });
     }
-} catch (error) {
+  } catch (error) {
     if ((error as any).message !== 'cancelled') {
       console.error('Error when deleting the available packages.', error);
 
