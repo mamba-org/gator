@@ -220,17 +220,16 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     const menu = new Menu({ commands });
 
     if (pkg.version_installed) {
-      menu.addItem({
-        command: 'gator-lab:remove-pkg',
-        args: { name: pkg.name }
-      });
-
       if (pkg.updatable) {
         menu.addItem({
           command: 'gator-lab:update-pkg',
           args: { name: pkg.name }
         });
       }
+      menu.addItem({
+        command: 'gator-lab:remove-pkg',
+        args: { name: pkg.name }
+      });
     }
 
     return menu;
