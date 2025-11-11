@@ -370,7 +370,7 @@ namespace Style {
     alignItems: 'baseline',
     gap: '6px',
     background: 'var(--jp-layout-color1)',
-    border: '1px solid var(--jp-border-color2)',
+    border: 'none',
     borderRadius: '6px',
     padding: '2px 6px',
     cursor: 'pointer',
