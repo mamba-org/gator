@@ -37,6 +37,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     content.title.caption = 'Conda Packages Manager';
     content.title.icon = condaIcon;
     const widget = new MainAreaWidget({ content: content });
+    widget.id = 'mamba-gator-navigator';
     registerEnvCommands(app.commands, model);
     widget.title.closable = false;
     app.shell.add(widget, 'main');
