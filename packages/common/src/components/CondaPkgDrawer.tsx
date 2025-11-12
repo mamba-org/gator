@@ -44,10 +44,6 @@ export interface ICondaPkgDrawerProps {
    */
   onPkgClick: (pkg: Conda.IPackage) => void;
   /**
-   * Package version selection handler
-   */
-  onPkgChange: (pkg: Conda.IPackage, version: string) => void;
-  /**
    * Callback called when packages are installed successfully
    */
   onPackagesInstalled?: () => void;
@@ -93,7 +89,6 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
     } else {
       setSelectedPackages(selectedPackages.filter(p => p !== pkg));
     }
-    props.onPkgChange(pkg, version);
   };
 
   const handlePackageSelection = (pkg: Conda.IPackage) => {

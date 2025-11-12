@@ -492,7 +492,6 @@ export class CondaPkgPanel extends React.Component<
               packages={uninstalledPkgs}
               isLoading={this.state.isLoading}
               onPkgClick={this.handleClick}
-              onPkgChange={this.handleVersionSelection}
               onPkgGraph={this.handleDependenciesGraph}
               onClose={this.handleCloseDrawer}
               onPackagesInstalled={this.handlePackagesInstalled}
