@@ -314,6 +314,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             )}
             environmentName={this.state.currentEnvironment}
             isPackageLoading={this.state.isPackageLoading}
+            commands={this.props.commands}
           />
         </div>
       </div>
@@ -370,7 +371,7 @@ namespace Style {
     alignItems: 'baseline',
     gap: '6px',
     background: 'var(--jp-layout-color1)',
-    border: '1px solid var(--jp-border-color2)',
+    border: 'none',
     borderRadius: '6px',
     padding: '2px 6px',
     cursor: 'pointer',

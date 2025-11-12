@@ -48,19 +48,19 @@
   background: var(--md-grey-400);
 }
 
-jp-button[data-action="update-all"][aria-disabled="false"] > svg {
+jp-button[data-action='update-all'][aria-disabled='false'] > svg {
   color: var(--jp-accent-color0);
 }
 
-jp-button[data-action="update-all"][aria-disabled="true"] > svg {
+jp-button[data-action='update-all'][aria-disabled='true'] > svg {
   color: var(--jp-inverse-layout-color3);
-} 
+}
 
-jp-button[data-action="apply-modifications"][aria-disabled="false"] > svg {
+jp-button[data-action='apply-modifications'][aria-disabled='false'] > svg {
   color: var(--jp-brand-color0);
 }
 
-jp-button[data-action="apply-modifications"][aria-disabled="true"] > svg {
+jp-button[data-action='apply-modifications'][aria-disabled='true'] > svg {
   color: var(--jp-inverse-layout-color3);
 }
 
@@ -83,11 +83,15 @@ button.jp-button-hide {
 }
 
 @keyframes gator-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-div[data-loading="true"] jp-button[aria-label="Refresh"] svg {
+div[data-loading='true'] jp-button[aria-label='Refresh'] svg {
   animation: gator-spin 1s linear infinite;
 }
 
@@ -95,7 +99,7 @@ div[data-loading="true"] jp-button[aria-label="Refresh"] svg {
 .jp-NbConda-CreateDialog .jp-Dialog {
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
   min-width: 500px;
   max-width: 560px;
 }
@@ -126,8 +130,9 @@ div[data-loading="true"] jp-button[aria-label="Refresh"] svg {
   border: 1px solid var(--jp-border-color2);
   border-radius: 12px;
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease,
+    border-color 120ms ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .gator-OptionCard:hover {
@@ -170,3 +175,22 @@ div[data-loading="true"] jp-button[aria-label="Refresh"] svg {
   color: var(--jp-ui-font-color1);
 }
 /* ==================================== */
+
+/* Make remove package command red */
+.lm-Menu-item[data-command="gator-lab:remove-pkg"] .lm-Menu-itemLabel {
+  color: var(--jp-error-color1) !important;
+}
+
+.lm-Menu-item[data-command="gator-lab:remove-pkg"] .lm-Menu-itemIcon svg,
+.lm-Menu-item[data-command="gator-lab:remove-pkg"] .lm-Menu-itemIcon path {
+  fill: var(--jp-error-color1) !important;
+}
+/* Make remove environment command red */
+.lm-Menu-item[data-command="gator-lab:remove-env"] .lm-Menu-itemLabel {
+  color: var(--jp-error-color1) !important;
+}
+
+.lm-Menu-item[data-command="gator-lab:remove-env"] .lm-Menu-itemIcon svg,
+.lm-Menu-item[data-command="gator-lab:remove-env"] .lm-Menu-itemIcon path {
+  fill: var(--jp-error-color1) !important;
+}
