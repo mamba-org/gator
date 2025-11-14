@@ -179,8 +179,6 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
   handleEnvironmentCreated = (envName: string) => {
     this.setState({ showCreateEnvDrawer: false });
-    // Refresh environments list
-    this.loadEnvironments();
   };
 
   async handleRefreshMenuClick(
