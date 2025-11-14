@@ -126,7 +126,7 @@ namespace Style {
   });
 
   export const Drawer = style({
-    // TODO: remove size constraints for width/height/padding, set to 100%and make the drawer full screen
+    // TODO: remove size constraints for width/height/padding, set to 100% and make the drawer full screen
     width: '50%',
     height: '50%',
     backgroundColor: 'var(--jp-layout-color0)',
