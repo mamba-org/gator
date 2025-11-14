@@ -4,50 +4,24 @@ import { IEnvironmentManager } from './tokens';
 
 export async function createEnvironment(
   model: IEnvironmentManager,
-  environmentName: string | undefined
+  name: string,
+  type?: string
 ): Promise<void> {
   let toastId = '';
+
   try {
-    const body = document.createElement('div');
-    const nameLabel = document.createElement('label');
-    nameLabel.textContent = 'Name : ';
-    const nameInput = document.createElement('input');
-    body.appendChild(nameLabel);
-    body.appendChild(nameInput);
+    toastId = Notification.emit(`Creating environment ${name}`, 'in-progress');
 
-    const typeLabel = document.createElement('label');
-    typeLabel.textContent = 'Type : ';
-    const typeInput = document.createElement('select');
-    for (const kernelType of model.environmentTypes) {
-      const option = document.createElement('option');
-      option.setAttribute('value', kernelType);
-      option.innerText = kernelType;
-      typeInput.appendChild(option);
-    }
-    body.appendChild(typeLabel);
-    body.appendChild(typeInput);
+    await model.create(name, type);
 
-    const response = await showDialog({
-      title: 'New Environment',
-      body: new Widget({ node: body }),
-      buttons: [Dialog.cancelButton(), Dialog.okButton()]
+    Notification.update({
+      id: toastId,
+      message: `Environment ${name} has been created.`,
+      type: 'success',
+      autoClose: 5000
     });
-    if (response.button.accept) {
-      if (nameInput.value.length === 0) {
-        throw new Error('A environment name should be provided.');
-      }
-      toastId = Notification.emit(
-        `Creating environment ${nameInput.value}`,
-        'in-progress'
-      );
-      await model.create(nameInput.value, typeInput.value);
-      Notification.update({
-        id: toastId,
-        message: `Environment ${nameInput.value} has been created.`,
-        type: 'success',
-        autoClose: 5000
-      });
-    }
+
+    // create calls model.refreshEnvs() already AND emits signal envAdded
   } catch (error) {
     if (error !== 'cancelled') {
       console.error(error);
@@ -68,6 +42,7 @@ export async function createEnvironment(
     }
   }
 }
+
 export async function cloneEnvironment(
   model: IEnvironmentManager,
   environmentName: string | undefined
