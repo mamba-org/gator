@@ -359,18 +359,21 @@ export class CondaPkgPanel extends React.Component<
         isApplyingChanges: true
       });
 
-      await applyPackageChanges(
+      const wasApplied = await applyPackageChanges(
         this._model,
         this.state.selected,
         this._currentEnvironment
       );
+
+      if (wasApplied) {
+        this._updatePackages();
+      }
     } finally {
       this.setState({
         isApplyingChanges: false,
         selected: [],
         activeFilter: PkgFilters.Installed
       });
-      this._updatePackages();
     }
   }
 

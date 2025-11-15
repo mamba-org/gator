@@ -85,15 +85,16 @@ export async function updateAllPackages(
  * @param pkgModel Package manager
  * @param selectedPackages List of packages with pending changes
  * @param environment Environment name
+ * @returns True if the changes were applied successfully, false otherwise
  */
 export async function applyPackageChanges(
   pkgModel: Conda.IPackageManager,
   selectedPackages: Conda.IPackage[],
   environment?: string
-): Promise<void> {
+): Promise<boolean> {
   const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
-    return;
+    return false;
   }
 
   let toastId = '';
@@ -175,6 +176,8 @@ export async function applyPackageChanges(
           packagesAffected: selectedPackages.length
         }
       });
+
+      return true;
     }
   } catch (error) {
     if (error !== 'cancelled') {
@@ -205,6 +208,8 @@ export async function applyPackageChanges(
         Notification.dismiss(toastId);
       }
     }
+
+    return false;
   }
 }
 

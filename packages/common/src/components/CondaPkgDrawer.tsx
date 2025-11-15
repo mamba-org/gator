@@ -130,25 +130,27 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
 
     try {
       if (selectedPackages.length > 0) {
-        await applyPackageChanges(
+        const wasApplied = await applyPackageChanges(
           props.pkgModel,
           selectedPackages,
           props.envName
         );
 
-        // Reset version_selected for all selected packages
-        selectedPackages.forEach(pkg => {
-          pkg.version_selected = 'none';
-        });
+        if (wasApplied) {
+          // Reset version_selected for all selected packages
+          selectedPackages.forEach(pkg => {
+            pkg.version_selected = 'none';
+          });
 
-        setSelectedPackages([]);
+          setSelectedPackages([]);
 
-        if (props.onPackagesInstalled) {
-          props.onPackagesInstalled();
+          if (props.onPackagesInstalled) {
+            props.onPackagesInstalled();
+          }
+
+          props.onClose();
         }
       }
-
-      props.onClose();
     } catch (error) {
       console.error('Failed to install packages:', error);
     } finally {
@@ -284,7 +286,11 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
         </div>
 
         <div style={Style.Footer}>
-          <button className={Style.CancelButton} onClick={handleClose} disabled={isApplyingChanges}>
+          <button
+            className={Style.CancelButton}
+            onClick={handleClose}
+            disabled={isApplyingChanges}
+          >
             Cancel
           </button>
           <button
