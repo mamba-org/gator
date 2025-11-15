@@ -4,6 +4,7 @@ import semver from 'semver';
 import { style } from 'typestyle';
 import { Conda } from '../tokens';
 import { CondaPkgList } from './CondaPkgList';
+import { CondaPkgDrawer } from './CondaPkgDrawer';
 import {
   CondaPkgToolBar,
   PACKAGE_TOOLBAR_HEIGHT,
@@ -81,6 +82,10 @@ export interface IPkgPanelState {
    * Current search term
    */
   searchTerm: string;
+  /**
+   * Is the package drawer open?
+   */
+  isDrawerOpen: boolean;
 }
 
 /** Top level React component for widget */
@@ -98,7 +103,8 @@ export class CondaPkgPanel extends React.Component<
       packages: [],
       selected: [],
       searchTerm: '',
-      activeFilter: PkgFilters.Installed
+      activeFilter: PkgFilters.Installed,
+      isDrawerOpen: false
     };
 
     this._model = this.props.packageManager;
@@ -111,6 +117,26 @@ export class CondaPkgPanel extends React.Component<
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleRefreshPackages = this.handleRefreshPackages.bind(this);
+
+    this.handleCloseDrawer = this.handleCloseDrawer.bind(this);
+    this.handleAddPackages = this.handleAddPackages.bind(this);
+    this.handlePackagesInstalled = this.handlePackagesInstalled.bind(this);
+  }
+
+  handlePackagesInstalled(): void {
+    this._updatePackages();
+  }
+
+  handleCloseDrawer(): void {
+    this.setState({
+      isDrawerOpen: false
+    });
+  }
+
+  handleAddPackages(): void {
+    this.setState({
+      isDrawerOpen: true
+    });
   }
 
   private async _updatePackages(): Promise<void> {
@@ -333,18 +359,21 @@ export class CondaPkgPanel extends React.Component<
         isApplyingChanges: true
       });
 
-      await applyPackageChanges(
+      const wasApplied = await applyPackageChanges(
         this._model,
         this.state.selected,
         this._currentEnvironment
       );
+
+      if (wasApplied) {
+        this._updatePackages();
+      }
     } finally {
       this.setState({
         isApplyingChanges: false,
         selected: [],
         activeFilter: PkgFilters.Installed
       });
-      this._updatePackages();
     }
   }
 
@@ -392,8 +421,6 @@ export class CondaPkgPanel extends React.Component<
     let filteredPkgs: Conda.IPackage[] = [];
     if (this.state.activeFilter === PkgFilters.Installed) {
       filteredPkgs = this.state.packages.filter(pkg => pkg.version_installed);
-    } else if (this.state.activeFilter === PkgFilters.Available) {
-      filteredPkgs = this.state.packages.filter(pkg => !pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Updatable) {
       filteredPkgs = this.state.packages.filter(pkg => pkg.updatable);
     } else if (this.state.activeFilter === PkgFilters.Selected) {
@@ -401,6 +428,10 @@ export class CondaPkgPanel extends React.Component<
         pkg => this.state.selected.indexOf(pkg) >= 0
       );
     }
+
+    const uninstalledPkgs: Conda.IPackage[] = this.state.packages.filter(
+      (pkg: Conda.IPackage) => !pkg.version_installed
+    );
 
     let searchPkgs: Conda.IPackage[] = [];
     if (this.state.searchTerm === null) {
@@ -436,6 +467,7 @@ export class CondaPkgPanel extends React.Component<
           onApply={this.handleApply}
           onCancel={this.handleCancel}
           onRefreshPackages={this.handleRefreshPackages}
+          onAddPackages={this.handleAddPackages}
         />
         <div
           style={{
@@ -445,17 +477,37 @@ export class CondaPkgPanel extends React.Component<
             overflow: 'hidden'
           }}
         >
-          <CondaPkgList
-            height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
-            hasDescription={
-              this.state.hasDescription && this.props.width > PANEL_SMALL_WIDTH
-            }
-            packages={searchPkgs}
-            isLoading={this.state.isLoading}
-            onPkgClick={this.handleClick}
-            onPkgChange={this.handleVersionSelection}
-            onPkgGraph={this.handleDependenciesGraph}
-          />
+          {/* Show drawer for adding packages or default list viewing installed packages */}
+          {this.state.isDrawerOpen ? (
+            <CondaPkgDrawer
+              pkgModel={this._model}
+              envName={this._currentEnvironment}
+              height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
+              hasDescription={
+                this.state.hasDescription &&
+                this.props.width > PANEL_SMALL_WIDTH
+              }
+              packages={uninstalledPkgs}
+              isLoading={this.state.isLoading}
+              onPkgClick={this.handleClick}
+              onPkgGraph={this.handleDependenciesGraph}
+              onClose={this.handleCloseDrawer}
+              onPackagesInstalled={this.handlePackagesInstalled}
+            />
+          ) : (
+            <CondaPkgList
+              height={this.props.height - PACKAGE_TOOLBAR_HEIGHT}
+              hasDescription={
+                this.state.hasDescription &&
+                this.props.width > PANEL_SMALL_WIDTH
+              }
+              packages={searchPkgs}
+              isLoading={this.state.isLoading}
+              onPkgClick={this.handleClick}
+              onPkgChange={this.handleVersionSelection}
+              onPkgGraph={this.handleDependenciesGraph}
+            />
+          )}
         </div>
       </div>
     );
