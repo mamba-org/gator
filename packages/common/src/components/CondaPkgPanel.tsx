@@ -126,9 +126,8 @@ export class CondaPkgPanel extends React.Component<
   handlePackagesInstalled(): void {
     this._updatePackages();
 
-    // Drawer remains open to allow follow-up package installations.
-    // To auto-close after install, uncomment:
-    // this.setState({ isDrawerOpen: false });
+    // Note: The drawer is automatically closed by the CondaPkgDrawer component
+    // via the onClose() callback after successful installation.
   }
 
   handleCloseDrawer(): void {
