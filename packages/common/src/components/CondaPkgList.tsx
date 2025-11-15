@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { HTMLSelect } from '@jupyterlab/ui-components';
+import { Menu } from '@lumino/widgets';
+import { HTMLSelect, ToolbarButtonComponent } from '@jupyterlab/ui-components';
+import { CommandRegistry } from '@lumino/commands';
+import { ellipsisVerticalIcon } from '../icon';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -45,6 +48,18 @@ export interface IPkgListProps {
    * Package item graph dependencies handler
    */
   onPkgGraph: (pkg: Conda.IPackage) => void;
+  /**
+   * Command registry
+   */
+  commands?: CommandRegistry;
+  /**
+   * Environment name
+   */
+  envName?: string;
+  /**
+   * Is the package list in drawer mode?
+   */
+  isDrawerMode?: boolean;
 }
 
 /** React component for the package list */
@@ -178,20 +193,103 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return <span>{pkg.name}</span>;
   };
 
-  protected versionRender = (pkg: Conda.IPackage): JSX.Element => (
-    <a
-      className={pkg.updatable ? Style.Updatable : undefined}
-      href="#"
-      onClick={(evt): void => {
-        evt.stopPropagation();
-        this.props.onPkgGraph(pkg);
-      }}
-      rel="noopener noreferrer"
-      title="Show dependency graph"
-    >
-      {pkg.version_installed}
-    </a>
-  );
+  protected versionRender = (pkg: Conda.IPackage): JSX.Element => {
+    const currentVersion = pkg.version_selected || pkg.version_installed;
+
+    if (this.props.isDrawerMode) {
+      return (
+        <div className={'lm-Widget'}>
+          <div className={Style.VersionSelectWrapper}>
+            <span className={Style.VersionDisplayText}>
+              {pkg.version_selected && pkg.version_selected !== 'none'
+                ? pkg.version_selected
+                : 'auto'}
+            </span>
+
+            <span className={Style.VersionDropdownArrow}>▼</span>
+
+            {/* Actual select overlay (invisible but functional) */}
+            <HTMLSelect
+              className={classes(
+                Style.VersionSelectionOverlay,
+                CONDA_PACKAGE_SELECT_CLASS
+              )}
+              value={pkg.version_selected || 'auto'}
+              onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
+                this.props.onPkgChange(pkg, evt.target.value)
+              }
+              onClick={(evt: React.MouseEvent): void => {
+                evt.stopPropagation();
+              }}
+              aria-label="Package versions"
+            >
+              <option value="auto">auto</option>
+              {pkg.version.map((v: string, idx: number) => (
+                <option key={v} value={v}>
+                  {v}
+                  {idx === 0 ? ' (Latest)' : ''}
+                </option>
+              ))}
+            </HTMLSelect>
+          </div>
+        </div>
+      );
+    }
+
+    // Default Package List view mode
+    return (
+      <div className={'lm-Widget'}>
+        <div className={Style.VersionSelectWrapper}>
+          {pkg.updatable && <span className={Style.UpdatableIcon}>↗️</span>}
+
+          <span className={Style.VersionDisplayText}>
+            {currentVersion || 'auto'}
+          </span>
+
+          <span className={Style.VersionDropdownArrow}>▼</span>
+
+          {/* Actual select overlay (invisible but functional) */}
+          <HTMLSelect
+            className={classes(
+              Style.VersionSelectionOverlay,
+              CONDA_PACKAGE_SELECT_CLASS
+            )}
+            value={currentVersion || 'auto'}
+            onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
+              this.props.onPkgChange(pkg, evt.target.value)
+            }
+            onClick={(evt: React.MouseEvent): void => {
+              evt.stopPropagation();
+            }}
+            aria-label="Package versions"
+          >
+            {pkg.version_installed && <option value="none">Remove</option>}
+            <option value="auto">auto</option>
+            {pkg.version.map((v: string, idx: number) => {
+              const isLatest = idx === 0;
+              const isInstalled = v === pkg.version_installed;
+
+              let annotation = '';
+              if (isLatest && isInstalled) {
+                annotation = ' (Latest, Installed)';
+              } else if (isLatest) {
+                annotation = ' (Latest)';
+              } else if (isInstalled) {
+                annotation = ' (Installed)';
+              }
+
+              return (
+                <option key={v} value={v}>
+                  {v}
+                  {annotation}
+                </option>
+              );
+            })}
+          </HTMLSelect>
+        </div>
+      </div>
+    );
+  };
 
   protected rowClassName = (index: number, pkg: Conda.IPackage): string => {
     if (index >= 0) {
@@ -202,9 +300,59 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     }
   };
 
+  private createPackageMenu = (
+    pkg: Conda.IPackage,
+    commands: CommandRegistry
+  ): Menu => {
+    const menu = new Menu({ commands });
+
+    if (pkg.version_installed) {
+      if (pkg.updatable) {
+        menu.addItem({
+          command: 'gator-lab:update-pkg',
+          args: { name: pkg.name }
+        });
+      }
+      menu.addItem({
+        command: 'gator-lab:remove-pkg',
+        args: { name: pkg.name }
+      });
+    }
+
+    return menu;
+  };
+
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
     const { data, index, style } = props;
     const pkg = data[index] as Conda.IPackage;
+    const iconRef = React.useRef<HTMLDivElement>();
+
+    const handleMenuClick = (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!this.props.commands || !this.props.envName) {
+        return;
+      }
+
+      const rect = iconRef.current?.getBoundingClientRect();
+      if (!rect) {
+        return;
+      }
+
+      console.log('rect', rect);
+
+      const menu = this.createPackageMenu(pkg, this.props.commands);
+
+      const menuWidth = 90;
+
+      // Position menu so it opens to the LEFT of the icon
+      const x = rect.left - menuWidth;
+      const y = rect.bottom + 4;
+
+      menu.open(x, y);
+    };
+
     return (
       <div
         className={this.rowClassName(index, pkg)}
@@ -232,9 +380,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
           {this.versionRender(pkg)}
         </div>
-        <div className={classes(Style.Cell, Style.ChangeSize)} role="gridcell">
-          {this.changeRender(pkg)}
-        </div>
         <div
           className={classes(Style.Cell, Style.ChannelSize)}
           role="gridcell"
@@ -242,6 +387,20 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         >
           {pkg.channel}
         </div>
+        {this.props.commands && this.props.envName && (
+          <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
+            <div
+              ref={iconRef}
+              onClick={handleMenuClick}
+              className={Style.Kebab}
+              title="Package actions"
+              aria-label={`Actions for ${pkg.name} package`}
+              aria-haspopup="menu"
+            >
+              <ToolbarButtonComponent icon={ellipsisVerticalIcon} />
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -307,17 +466,17 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                     Version
                   </div>
                   <div
-                    className={classes(Style.Cell, Style.ChangeSize)}
-                    role="columnheader"
-                  >
-                    Change To
-                  </div>
-                  <div
                     className={classes(Style.Cell, Style.ChannelSize)}
                     role="columnheader"
                   >
                     Channel
                   </div>
+                  {this.props.commands && this.props.envName && (
+                    <div
+                      className={classes(Style.Cell, Style.KebabSize)}
+                      role="columnheader"
+                    ></div>
+                  )}
                 </div>
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
@@ -397,9 +556,9 @@ namespace Style {
   export const StatusSize = style({ flex: '0 0 12px', padding: '0px 2px' });
   export const NameSize = style({ flex: '1 1 200px' });
   export const DescriptionSize = style({ flex: '5 5 250px' });
-  export const VersionSize = style({ flex: '0 0 90px' });
-  export const ChangeSize = style({ flex: '0 0 120px' });
+  export const VersionSize = style({ flex: '0 0 150px' });
   export const ChannelSize = style({ flex: '1 1 120px' });
+  export const KebabSize = style({ flex: '0 0 40px' });
 
   export const CellSummary = style({
     margin: '0px 2px',
@@ -437,10 +596,6 @@ namespace Style {
     }
   });
 
-  export const VersionSelection = style({
-    width: '100%'
-  });
-
   export const LoadingContainer = style({
     display: 'flex',
     alignItems: 'center',
@@ -472,5 +627,79 @@ namespace Style {
     fontSize: 'var(--jp-ui-font-size1)',
     fontWeight: '500',
     textAlign: 'center'
+  });
+
+  export const Kebab = style({
+    cursor: 'pointer',
+    padding: '0 5px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  });
+  export const VersionSelectWrapper = style({
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '3px',
+    padding: '2px 20px 2px 6px',
+    backgroundColor: 'var(--jp-layout-color1)',
+    cursor: 'pointer',
+    minHeight: '24px',
+    minWidth: '80px',
+    maxWidth: '120px',
+    $nest: {
+      '&:hover': {
+        borderColor: 'var(--jp-border-color1)',
+        backgroundColor: 'var(--jp-layout-color2)'
+      }
+    }
+  });
+
+  export const VersionDisplayText = style({
+    fontSize: 'var(--jp-ui-font-size1)',
+    color: 'var(--jp-ui-font-color1)',
+    pointerEvents: 'none', // Allow clicks to pass through to select
+    whiteSpace: 'nowrap',
+    flex: '1 1 auto'
+  });
+
+  export const UpdatableIcon = style({
+    fontSize: '10px',
+    marginRight: '2px',
+    pointerEvents: 'none'
+  });
+
+  export const VersionDropdownArrow = style({
+    position: 'absolute',
+    right: '6px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    fontSize: '8px',
+    color: 'var(--jp-ui-font-color2)',
+    pointerEvents: 'none' // Allow clicks to pass through to select
+  });
+
+  export const VersionSelectionOverlay = style({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0,
+    cursor: 'pointer',
+    $nest: {
+      // Remove default select styling
+      '&, &:focus': {
+        border: 'none',
+        outline: 'none',
+        background: 'transparent'
+      }
+    }
+  });
+
+  export const VersionSelection = style({
+    width: '100%',
+    fontSize: 'var(--jp-ui-font-size1)'
   });
 }

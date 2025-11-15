@@ -3,8 +3,11 @@ import { Conda } from '../tokens';
 import {
   updateAllPackages,
   applyPackageChanges,
-  refreshAvailablePackages as refreshAvailablePkgs
+  refreshAvailablePackages as refreshAvailablePkgs,
+  deletePackage,
+  updatePackage
 } from '../packageActions';
+import { deleteIcon } from '@jupyterlab/ui-components';
 
 export function registerPkgCommands(
   commands: CommandRegistry,
@@ -33,6 +36,23 @@ export function registerPkgCommands(
     execute: async args => {
       const environment = args['environment'] as string;
       await refreshAvailablePkgs(pkgModel, environment);
+    }
+  });
+
+  commands.addCommand('gator-lab:remove-pkg', {
+    icon: deleteIcon,
+    label: 'Remove',
+    execute: async args => {
+      const packageName = args['name'] as string;
+      await deletePackage(pkgModel, packageName, environment);
+    }
+  });
+
+  commands.addCommand('gator-lab:update-pkg', {
+    label: 'Update',
+    execute: async args => {
+      const packageName = args['name'] as string;
+      await updatePackage(pkgModel, packageName, environment);
     }
   });
 }
