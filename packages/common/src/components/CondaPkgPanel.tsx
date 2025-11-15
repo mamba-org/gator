@@ -166,13 +166,13 @@ export class CondaPkgPanel extends React.Component<
       });
     } catch (error) {
       if ((error as any).message !== 'cancelled') {
-        this.setState({
-          isLoading: false
-        });
         console.error(error);
-
         Notification.error(`Failed to load packages for ${environmentName}`);
       }
+    } finally {
+      this.setState({
+        isLoading: false
+      });
     }
   }
 
@@ -295,6 +295,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
+    // TODO: Handle the case where the user cancels the update: show a notification here rather than in the packageActions.ts file
     try {
       this.setState({
         searchTerm: '',
@@ -324,6 +325,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
+    // TODO: Handle the case where the user cancels the modifications: show a notification here rather than in the packageActions.ts file
     try {
       this.setState({
         searchTerm: '',
@@ -359,6 +361,10 @@ export class CondaPkgPanel extends React.Component<
   }
 
   async handleRefreshPackages(): Promise<void> {
+    if (this.state.isApplyingChanges) {
+      return;
+    }
+
     try {
       await refreshAvailablePkgs(this._model, this._currentEnvironment);
     } finally {
