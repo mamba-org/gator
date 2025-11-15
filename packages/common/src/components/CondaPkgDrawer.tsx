@@ -227,7 +227,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
     <div style={Style.Overlay}>
       <div style={Style.Drawer}>
         <div style={Style.Header}>
-          <h3>Add Packages to &lsquo;{props.envName}&lsquo;</h3>
+          <h3>Add Packages to &lsquo;{props.envName}&rsquo;</h3>
           <button
             className={Style.CloseButton}
             onClick={handleClose}
