@@ -171,12 +171,7 @@ export class CondaPkgPanel extends React.Component<
         });
         console.error(error);
 
-        Notification.update({
-          id: 'loading-packages-error',
-          message: `Failed to load packages for ${environmentName}`,
-          type: 'error',
-          autoClose: 0
-        });
+        Notification.error(`Failed to load packages for ${environmentName}`);
       }
     }
   }
