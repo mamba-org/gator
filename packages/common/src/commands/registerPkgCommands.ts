@@ -8,27 +8,31 @@ import {
 
 export function registerPkgCommands(
   commands: CommandRegistry,
-  pkgModel: Conda.IPackageManager,
-  selectedPackages: Conda.IPackage[],
-  environment: string
+  pkgModel: Conda.IPackageManager
 ) {
   commands.addCommand('gator-lab:update-all-packages', {
     label: 'Update All Packages',
-    execute: async () => {
-      await updateAllPackages(pkgModel);
+    execute: async args => {
+      const environment = args['environment'] as string;
+      await updateAllPackages(pkgModel, environment);
     }
   });
 
   commands.addCommand('gator-lab:apply-package-changes', {
     label: 'Apply Package Changes',
-    execute: async () => {
+    execute: async args => {
+      const selectedPackages = args[
+        'selectedPackages'
+      ] as unknown as Conda.IPackage[];
+      const environment = args['environment'] as string;
       await applyPackageChanges(pkgModel, selectedPackages, environment);
     }
   });
   commands.addCommand('gator-lab:refresh-available-packages', {
     label: 'Refresh Available Packages',
-    execute: async () => {
-      await refreshAvailablePkgs(pkgModel);
+    execute: async args => {
+      const environment = args['environment'] as string;
+      await refreshAvailablePkgs(pkgModel, environment);
     }
   });
 }

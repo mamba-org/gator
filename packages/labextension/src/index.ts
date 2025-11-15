@@ -124,7 +124,7 @@ async function activateCondaEnv(
   });
 
   registerEnvCommands(commands, model);
-  registerPkgCommands(commands, model.getPackageManager(), [], '');
+  registerPkgCommands(commands, model.getPackageManager());
 
   if (launcher) {
     launcher.add({

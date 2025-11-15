@@ -41,7 +41,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     content.title.icon = condaIcon;
     const widget = new MainAreaWidget({ content: content });
     registerEnvCommands(app.commands, model);
-    registerPkgCommands(app.commands, model.getPackageManager(), [], '');
+    registerPkgCommands(app.commands, model.getPackageManager());
     widget.title.closable = false;
     app.shell.add(widget, 'main');
   }
