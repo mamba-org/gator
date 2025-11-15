@@ -123,25 +123,34 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
       return;
     }
 
-    if (selectedPackages.length > 0) {
-      setIsApplyingChanges(true);
-      await applyPackageChanges(
-        props.pkgModel,
-        selectedPackages,
-        props.envName
-      );
+    setIsApplyingChanges(true);
 
-      // Reset version_selected for all selected packages
-      selectedPackages.forEach(pkg => {
-        pkg.version_selected = 'none';
-      });
+    try {
+      if (selectedPackages.length > 0) {
+        await applyPackageChanges(
+          props.pkgModel,
+          selectedPackages,
+          props.envName
+        );
 
-      setSelectedPackages([]);
-      setIsApplyingChanges(false);
+        // Reset version_selected for all selected packages
+        selectedPackages.forEach(pkg => {
+          pkg.version_selected = 'none';
+        });
 
-      if (props.onPackagesInstalled) {
-        props.onPackagesInstalled();
+        setSelectedPackages([]);
+        setIsApplyingChanges(false);
+
+        if (props.onPackagesInstalled) {
+          props.onPackagesInstalled();
+        }
       }
+
+      props.onClose();
+    } catch (error) {
+      console.error('Failed to install packages: ', error);
+    } finally {
+      setIsApplyingChanges(false);
     }
   };
 
@@ -278,9 +287,9 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
           <button
             className={Style.InstallButton}
             onClick={handleInstall}
-            disabled={selectedPackages.length === 0}
+            disabled={selectedPackages.length === 0 || isApplyingChanges}
           >
-            Install Selected
+            {isApplyingChanges ? 'Installing...' : 'Install Selected'}
           </button>
         </div>
       </div>
