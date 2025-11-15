@@ -149,7 +149,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
 
       props.onClose();
     } catch (error) {
-      console.error('Failed to install packages: ', error);
+      console.error('Failed to install packages:', error);
     } finally {
       setIsApplyingChanges(false);
     }
