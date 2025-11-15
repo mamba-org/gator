@@ -282,7 +282,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
         </div>
 
         <div style={Style.Footer}>
-          <button className={Style.CancelButton} onClick={handleClose}>
+          <button className={Style.CancelButton} onClick={handleClose} disabled={isApplyingChanges}>
             Cancel
           </button>
           <button
