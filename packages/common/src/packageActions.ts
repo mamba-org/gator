@@ -36,7 +36,7 @@ export async function updateAllPackages(
 
       Notification.update({
         id: toastId,
-        message: 'Package updated successfully.',
+        message: 'Packages updated successfully.',
         type: 'success',
         autoClose: 5000
       });
