@@ -140,7 +140,6 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
         });
 
         setSelectedPackages([]);
-        setIsApplyingChanges(false);
 
         if (props.onPackagesInstalled) {
           props.onPackagesInstalled();
