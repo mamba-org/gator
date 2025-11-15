@@ -274,6 +274,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
               <button
                 className={Style.ClearButton}
                 onClick={handleClearSelection}
+                disabled={selectedPackages.length === 0 || isApplyingChanges}
               >
                 Clear
               </button>
