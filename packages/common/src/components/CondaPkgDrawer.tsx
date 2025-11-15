@@ -355,6 +355,11 @@ namespace Style {
     $nest: {
       '&:hover': {
         color: 'var(--jp-ui-font-color0)'
+      },
+      '&:disabled': {
+        opacity: 0.5,
+        cursor: 'not-allowed',
+        color: 'var(--jp-ui-font-color3)'
       }
     }
   });
