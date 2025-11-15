@@ -429,8 +429,7 @@ export class CondaPkgPanel extends React.Component<
       );
     }
 
-    let uninstalledPkgs: Conda.IPackage[] = [];
-    uninstalledPkgs = this.state.packages.filter(
+    const uninstalledPkgs: Conda.IPackage[] = this.state.packages.filter(
       (pkg: Conda.IPackage) => !pkg.version_installed
     );
 
