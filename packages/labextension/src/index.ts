@@ -18,7 +18,8 @@ import {
   condaIcon,
   CONDA_WIDGET_CLASS,
   IEnvironmentManager,
-  registerEnvCommands
+  registerEnvCommands,
+  registerPkgCommands
 } from '@mamba-org/gator-common';
 import { managerTour } from './tour';
 import {
@@ -123,6 +124,7 @@ async function activateCondaEnv(
   });
 
   registerEnvCommands(commands, model);
+  registerPkgCommands(commands, model.getPackageManager());
 
   if (launcher) {
     launcher.add({

@@ -9,7 +9,10 @@ import {
   condaIcon,
   CONDA_WIDGET_CLASS
 } from '@mamba-org/gator-common';
-import { registerEnvCommands } from '@mamba-org/gator-common';
+import {
+  registerEnvCommands,
+  registerPkgCommands
+} from '@mamba-org/gator-common';
 
 /**
  * The command ids used by the main navigator plugin.
@@ -39,6 +42,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const widget = new MainAreaWidget({ content: content });
     widget.id = 'mamba-gator-navigator';
     registerEnvCommands(app.commands, model);
+    registerPkgCommands(app.commands, model.getPackageManager());
     widget.title.closable = false;
     app.shell.add(widget, 'main');
   }
