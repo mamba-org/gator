@@ -103,7 +103,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
       pkg.version_selected = 'none';
       setSelectedPackages(selectedPackages.filter(p => p !== pkg));
     } else {
-      // It's currently not selected, so select with 'Any' version
+      // It's currently not selected, so select with empty string (represents "Any" version)
       pkg.version_selected = '';
       setSelectedPackages([...selectedPackages, pkg]);
     }
