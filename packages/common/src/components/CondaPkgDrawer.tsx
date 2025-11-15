@@ -83,11 +83,12 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
     pkg.version_selected = version;
 
     if (version !== 'none') {
-      if (!selectedPackages.includes(pkg)) {
-        setSelectedPackages([...selectedPackages, pkg]);
-      }
+      setSelectedPackages(prev => {
+        if (prev.includes(pkg)) return prev;
+        return [...prev, pkg];
+      });
     } else {
-      setSelectedPackages(selectedPackages.filter(p => p !== pkg));
+      setSelectedPackages(prev => prev.filter(p => p !== pkg));
     }
   };
 
