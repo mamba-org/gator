@@ -54,7 +54,8 @@ export function registerPkgCommands(
     execute: async args => {
       const packageName = args['name'] as string;
       const environment = args['environment'] as string;
-      await updatePackage(pkgModel, packageName, environment);
+      const version = args['version'] as string;
+      await updatePackage(pkgModel, packageName, version, environment);
     }
   });
 }

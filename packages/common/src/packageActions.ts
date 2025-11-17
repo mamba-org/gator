@@ -370,10 +370,14 @@ export async function updatePackage(
     if (confirmation.button.accept) {
       toastId = Notification.emit('Updating package', 'in-progress');
 
-      // TODO: Support for package version when updating/modifying,
-      // even if it's not the latest version
-      const packageSpec = version ? `${packageName}=${version}` : packageName;
-      await pkgModel.update([packageSpec], theEnvironment);
+      if (version) {
+        // When a specific version is requested, use conda install
+        const packageSpec = `${packageName}=${version}`;
+        await pkgModel.install([packageSpec], theEnvironment);
+      } else {
+        // When no version specified, use conda update
+        await pkgModel.update([packageName], theEnvironment);
+      }
 
       Notification.update({
         id: toastId,
