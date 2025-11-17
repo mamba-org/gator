@@ -253,7 +253,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         return;
       }
 
-      console.log('rect', rect);
 
       const menu = this.createPackageMenu(pkg, this.props.commands);
 
