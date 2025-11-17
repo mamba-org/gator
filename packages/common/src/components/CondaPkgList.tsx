@@ -223,12 +223,12 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       if (pkg.updatable) {
         menu.addItem({
           command: 'gator-lab:update-pkg',
-          args: { name: pkg.name }
+          args: { name: pkg.name, environment: this.props.envName }
         });
       }
       menu.addItem({
         command: 'gator-lab:remove-pkg',
-        args: { name: pkg.name }
+        args: { name: pkg.name, environment: this.props.envName }
       });
     }
 

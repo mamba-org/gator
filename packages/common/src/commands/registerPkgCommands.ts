@@ -44,6 +44,7 @@ export function registerPkgCommands(
     label: 'Remove',
     execute: async args => {
       const packageName = args['name'] as string;
+      const environment = args['environment'] as string;
       await deletePackage(pkgModel, packageName, environment);
     }
   });
@@ -52,6 +53,7 @@ export function registerPkgCommands(
     label: 'Update',
     execute: async args => {
       const packageName = args['name'] as string;
+      const environment = args['environment'] as string;
       await updatePackage(pkgModel, packageName, environment);
     }
   });
