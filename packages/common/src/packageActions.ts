@@ -327,7 +327,7 @@ export async function deletePackage(
     }
   } catch (error) {
     if ((error as any).message !== 'cancelled') {
-      console.error('Error when deleting the available packages.', error);
+      console.error('Error when deleting the package.', error);
 
       Notification.update({
         id: deleteNotification,
