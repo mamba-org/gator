@@ -178,6 +178,9 @@ export async function applyPackageChanges(
       });
 
       return true;
+    } else {
+      // User cancelled the dialog, return false
+      return false;
     }
   } catch (error) {
     if (error !== 'cancelled') {

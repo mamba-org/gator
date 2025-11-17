@@ -383,11 +383,21 @@ export class CondaPkgPanel extends React.Component<
 
       if (wasApplied) {
         this._updatePackages();
+        this.setState({
+          isApplyingChanges: false,
+          selected: [],
+          activeFilter: PkgFilters.Installed
+        });
+      } else {
+        // User cancelled, keep the selections
+        this.setState({
+          isApplyingChanges: false,
+          activeFilter: PkgFilters.Installed
+        });
       }
-    } finally {
+    } catch (error) {
       this.setState({
         isApplyingChanges: false,
-        selected: [],
         activeFilter: PkgFilters.Installed
       });
     }
