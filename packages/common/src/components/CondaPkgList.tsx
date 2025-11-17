@@ -238,7 +238,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
     const { data, index, style } = props;
     const pkg = data[index] as Conda.IPackage;
-    const iconRef = React.useRef<HTMLDivElement>();
+    let iconRef: HTMLDivElement | null = null;
 
     const handleMenuClick = (event: React.MouseEvent) => {
       event.preventDefault();
@@ -248,11 +248,10 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         return;
       }
 
-      const rect = iconRef.current?.getBoundingClientRect();
+      const rect = iconRef?.getBoundingClientRect();
       if (!rect) {
         return;
       }
-
 
       const menu = this.createPackageMenu(pkg, this.props.commands);
 
@@ -305,7 +304,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         {this.props.commands && this.props.envName && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
             <div
-              ref={iconRef}
+              ref={el => {
+                iconRef = el;
+              }}
               onClick={handleMenuClick}
               className={Style.Kebab}
               title="Package actions"
