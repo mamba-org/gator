@@ -301,7 +301,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         >
           {pkg.channel}
         </div>
-        {this.props.commands && this.props.envName && (
+        {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
             <div
               ref={el => {
