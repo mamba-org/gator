@@ -261,7 +261,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             }}
             aria-label="Package versions"
           >
-            {pkg.version_installed && <option value="none">Remove</option>}
             <option value="auto">auto</option>
             {pkg.version.map((v: string, idx: number) => {
               const isLatest = idx === 0;
