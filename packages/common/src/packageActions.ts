@@ -178,6 +178,9 @@ export async function applyPackageChanges(
       });
 
       return true;
+    } else {
+      // User cancelled the dialog, return false
+      return false;
     }
   } catch (error) {
     if (error !== 'cancelled') {
@@ -278,6 +281,128 @@ export async function refreshAvailablePackages(
       });
     } else {
       Notification.dismiss(refreshNotification);
+    }
+  }
+}
+
+/**
+ * Delete a package from an environment
+ *
+ * @param pkgModel Package manager
+ * @param packageName Package name
+ * @param environment Environment name
+ */
+export async function deletePackage(
+  pkgModel: Conda.IPackageManager,
+  packageName: string,
+  environment?: string
+): Promise<void> {
+  const theEnvironment = environment || pkgModel.environment;
+  if (!theEnvironment) {
+    return;
+  }
+
+  let deleteNotification = '';
+
+  try {
+    const confirmation = await showDialog({
+      title: 'Delete package',
+      body: `Please confirm you want to delete ${packageName}?`
+    });
+
+    if (confirmation.button.accept) {
+      deleteNotification = Notification.emit(
+        `Deleting package ${packageName} in ${theEnvironment}.`,
+        'in-progress'
+      );
+
+      await pkgModel.remove([packageName], theEnvironment);
+
+      Notification.update({
+        id: deleteNotification,
+        message: `Deleted package ${packageName} in ${theEnvironment}`,
+        type: 'success',
+        autoClose: 3000
+      });
+    }
+  } catch (error) {
+    if ((error as any).message !== 'cancelled') {
+      console.error('Error when deleting the package.', error);
+
+      Notification.update({
+        id: deleteNotification,
+        message: `Failed to delete package ${packageName} in ${theEnvironment}`,
+        type: 'error',
+        autoClose: 0
+      });
+    } else {
+      Notification.dismiss(deleteNotification);
+    }
+  }
+}
+
+/**
+ * Update a package in an environment
+ *
+ * @param pkgModel Package manager
+ * @param packageName Package name
+ * @param version Package version
+ * @param environment Environment name
+ */
+export async function updatePackage(
+  pkgModel: Conda.IPackageManager,
+  packageName: string,
+  version?: string,
+  environment?: string
+): Promise<void> {
+  const theEnvironment = environment || pkgModel.environment;
+  if (!theEnvironment) {
+    return;
+  }
+
+  let toastId = '';
+  try {
+    const confirmation = await showDialog({
+      title: 'Update package',
+      body: `Please confirm you want to update ${packageName}?`
+    });
+
+    if (confirmation.button.accept) {
+      toastId = Notification.emit('Updating package', 'in-progress');
+
+      if (version) {
+        // When a specific version is requested, use conda install
+        const packageSpec = `${packageName}=${version}`;
+        await pkgModel.install([packageSpec], theEnvironment);
+      } else {
+        // When no version specified, use conda update
+        await pkgModel.update([packageName], theEnvironment);
+      }
+
+      Notification.update({
+        id: toastId,
+        message: `Package ${packageName} updated successfully.`,
+        type: 'success',
+        autoClose: 5000
+      });
+    }
+  } catch (error) {
+    if (error !== 'cancelled') {
+      console.error(error);
+      if (toastId) {
+        Notification.update({
+          id: toastId,
+          message: (error as any).message,
+          type: 'error',
+          autoClose: 0
+        });
+      } else {
+        Notification.error((error as any).message);
+      }
+    } else {
+      if (toastId) {
+        Notification.dismiss(toastId);
+      }
     }
   }
 }

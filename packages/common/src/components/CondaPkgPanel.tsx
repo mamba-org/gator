@@ -1,3 +1,4 @@
+import { CommandRegistry } from '@lumino/commands';
 import { showDialog, Dialog, Notification } from '@jupyterlab/apputils';
 import * as React from 'react';
 import semver from 'semver';
@@ -44,6 +45,10 @@ export interface IPkgPanelProps {
    * Package loading state
    */
   isPackageLoading?: boolean;
+  /**
+   * Command registry
+   */
+  commands?: CommandRegistry;
 }
 
 /**
@@ -121,11 +126,22 @@ export class CondaPkgPanel extends React.Component<
     this.handleCloseDrawer = this.handleCloseDrawer.bind(this);
     this.handleAddPackages = this.handleAddPackages.bind(this);
     this.handlePackagesInstalled = this.handlePackagesInstalled.bind(this);
+    this._model.packageChanged.connect(this.handlePackageChanged);
   }
 
   handlePackagesInstalled(): void {
     this._updatePackages();
   }
+
+  handlePackageChanged = (
+    _: Conda.IPackageManager,
+    change: Conda.IPackageChange
+  ): void => {
+    // Refresh packages when they're modified
+    if (['remove', 'update', 'install'].includes(change.type)) {
+      this._updatePackages();
+    }
+  };
 
   handleCloseDrawer(): void {
     this.setState({
@@ -169,7 +185,7 @@ export class CondaPkgPanel extends React.Component<
           if (
             pkg.version_installed &&
             semver.gt(
-              semver.coerce(pkg.version[pkg.version.length - 1]),
+              semver.coerce(pkg.version[0]),
               semver.coerce(pkg.version_installed)
             )
           ) {
@@ -367,11 +383,21 @@ export class CondaPkgPanel extends React.Component<
 
       if (wasApplied) {
         this._updatePackages();
+        this.setState({
+          isApplyingChanges: false,
+          selected: [],
+          activeFilter: PkgFilters.Installed
+        });
+      } else {
+        // User cancelled, keep the selections
+        this.setState({
+          isApplyingChanges: false,
+          activeFilter: PkgFilters.Installed
+        });
       }
-    } finally {
+    } catch (error) {
       this.setState({
         isApplyingChanges: false,
-        selected: [],
         activeFilter: PkgFilters.Installed
       });
     }
@@ -415,6 +441,10 @@ export class CondaPkgPanel extends React.Component<
         this._updatePackages();
       }
     }
+  }
+
+  componentWillUnmount(): void {
+    this._model.packageChanged.disconnect(this.handlePackageChanged);
   }
 
   render(): JSX.Element {
@@ -506,6 +536,8 @@ export class CondaPkgPanel extends React.Component<
               onPkgClick={this.handleClick}
               onPkgChange={this.handleVersionSelection}
               onPkgGraph={this.handleDependenciesGraph}
+              commands={this.props.commands}
+              envName={this._currentEnvironment}
             />
           )}
         </div>
