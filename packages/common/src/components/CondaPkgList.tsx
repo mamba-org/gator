@@ -530,9 +530,10 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                     <div
                       className={classes(Style.Cell, Style.KebabSize)}
                       role="columnheader"
-                    ></div>
+                    >
+                      Actions
+                    </div>
                   )}
-                  Actions
                 </div>
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
