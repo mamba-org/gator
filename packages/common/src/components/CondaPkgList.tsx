@@ -348,17 +348,22 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       const x = rect.left - menuWidth;
       const y = rect.bottom + 4;
 
-      const closeMenuOnEvent = () => {
-        menu.close();
+      let cleanedUp = false;
+      const cleanup = () => {
+        if (cleanedUp) return;
+        cleanedUp = true;
         window.removeEventListener('resize', closeMenuOnEvent);
         window.removeEventListener('scroll', closeMenuOnEvent, true);
+      };
+      const closeMenuOnEvent = () => {
+        menu.close();
+        cleanup();
       };
       window.addEventListener('resize', closeMenuOnEvent);
       window.addEventListener('scroll', closeMenuOnEvent, true);
 
       menu.aboutToClose.connect(() => {
-        window.removeEventListener('resize', closeMenuOnEvent);
-        window.removeEventListener('scroll', closeMenuOnEvent, true);
+        cleanup();
       });
 
       menu.open(x, y);
