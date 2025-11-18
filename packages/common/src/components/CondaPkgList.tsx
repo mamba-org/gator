@@ -400,21 +400,51 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
-            {pkg.updatable && (
-              <span
-                className={Style.UpdateLink}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  this.props.commands?.execute('gator-lab:update-pkg', {
-                    name: pkg.name,
-                    environment: this.props.envName
-                  });
-                }}
-                title={`Update ${pkg.name} to latest version`}
-              >
-                update
-              </span>
-            )}
+            {pkg.updatable &&
+              (() => {
+                // Check if the selected version is the same as installed
+                const selectedVersion =
+                  pkg.version_selected || pkg.version_installed;
+                const isDisabled =
+                  selectedVersion !== 'auto' &&
+                  selectedVersion === pkg.version_installed;
+
+                return (
+                  <span
+                    className={
+                      isDisabled ? Style.UpdateLinkDisabled : Style.UpdateLink
+                    }
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      if (isDisabled) {
+                        return;
+                      }
+                      // Use the version from the dropdown: 'auto' means unpinned update
+                      const version =
+                        pkg.version_selected === 'auto' || !pkg.version_selected
+                          ? undefined
+                          : pkg.version_selected;
+                      this.props.commands?.execute('gator-lab:update-pkg', {
+                        name: pkg.name,
+                        environment: this.props.envName,
+                        version: version
+                      });
+                    }}
+                    title={
+                      isDisabled
+                        ? `Already on version ${pkg.version_installed}`
+                        : `Update ${pkg.name} to ${
+                            pkg.version_selected === 'auto' ||
+                            !pkg.version_selected
+                              ? 'latest version'
+                              : pkg.version_selected
+                          }`
+                    }
+                  >
+                    update
+                  </span>
+                );
+              })()}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}
@@ -637,6 +667,19 @@ namespace Style {
     $nest: {
       '&:hover': {
         textDecoration: 'underline'
+      }
+    }
+  });
+
+  export const UpdateLinkDisabled = style({
+    color: 'var(--jp-ui-font-color3)',
+    cursor: 'not-allowed',
+    fontSize: '12px',
+    whiteSpace: 'nowrap',
+    opacity: 0.5,
+    $nest: {
+      '&:hover': {
+        textDecoration: 'none'
       }
     }
   });
