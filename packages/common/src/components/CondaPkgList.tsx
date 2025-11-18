@@ -240,8 +240,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return (
       <div className={'lm-Widget'}>
         <div className={Style.VersionSelectWrapper}>
-          {pkg.updatable && <span className={Style.UpdatableIcon}>↗️</span>}
-
           <span className={Style.VersionDisplayText}>
             {currentVersion || 'auto'}
           </span>
@@ -402,6 +400,21 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
+            {pkg.updatable && (
+              <span
+                className={Style.UpdateLink}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  this.props.commands?.execute('gator-lab:update-pkg', {
+                    name: pkg.name,
+                    environment: this.props.envName
+                  });
+                }}
+                title={`Update ${pkg.name} to latest version`}
+              >
+                update
+              </span>
+            )}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}
@@ -489,6 +502,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                       role="columnheader"
                     ></div>
                   )}
+                  Actions
                 </div>
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
@@ -570,7 +584,14 @@ namespace Style {
   export const DescriptionSize = style({ flex: '5 5 250px' });
   export const VersionSize = style({ flex: '0 0 150px' });
   export const ChannelSize = style({ flex: '1 1 120px' });
-  export const KebabSize = style({ flex: '0 0 40px' });
+
+  export const KebabSize = style({
+    flex: '0 0 90px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: '4px'
+  });
 
   export const CellSummary = style({
     margin: '0px 2px',
@@ -604,6 +625,18 @@ namespace Style {
       '&::before': {
         content: "'↗️'",
         paddingRight: 2
+      }
+    }
+  });
+
+  export const UpdateLink = style({
+    color: 'var(--jp-brand-color1)',
+    cursor: 'pointer',
+    fontSize: '12px',
+    whiteSpace: 'nowrap',
+    $nest: {
+      '&:hover': {
+        textDecoration: 'underline'
       }
     }
   });
@@ -643,11 +676,13 @@ namespace Style {
 
   export const Kebab = style({
     cursor: 'pointer',
-    padding: '0 5px',
+    padding: '0 2px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexShrink: 0
   });
+
   export const VersionSelectWrapper = style({
     position: 'relative',
     display: 'inline-flex',
@@ -674,12 +709,6 @@ namespace Style {
     pointerEvents: 'none', // Allow clicks to pass through to select
     whiteSpace: 'nowrap',
     flex: '1 1 auto'
-  });
-
-  export const UpdatableIcon = style({
-    fontSize: '10px',
-    marginRight: '2px',
-    pointerEvents: 'none'
   });
 
   export const VersionDropdownArrow = style({
