@@ -325,9 +325,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
     const { data, index, style } = props;
     const pkg = data[index] as Conda.IPackage;
-    let iconRef: HTMLDivElement | null = null;
 
-    const handleMenuClick = (event: React.MouseEvent) => {
+    const handleMenuClick = (event: React.MouseEvent<HTMLDivElement>) => {
       event.preventDefault();
       event.stopPropagation();
 
@@ -335,8 +334,11 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         return;
       }
 
-      const rect = iconRef?.getBoundingClientRect();
-      if (!rect) {
+      const target = event.currentTarget;
+      const rect = target.getBoundingClientRect();
+
+      if (!rect || rect.width === 0 || rect.height === 0) {
+        console.warn('Invalid bounding rect for kebab menu:', rect);
         return;
       }
 
@@ -347,6 +349,19 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       // Position menu so it opens to the LEFT of the icon
       const x = rect.left - menuWidth;
       const y = rect.bottom + 4;
+
+      const closeMenuOnEvent = () => {
+        menu.close();
+        window.removeEventListener('resize', closeMenuOnEvent);
+        window.removeEventListener('scroll', closeMenuOnEvent, true);
+      };
+      window.addEventListener('resize', closeMenuOnEvent);
+      window.addEventListener('scroll', closeMenuOnEvent, true);
+
+      menu.aboutToClose.connect(() => {
+        window.removeEventListener('resize', closeMenuOnEvent);
+        window.removeEventListener('scroll', closeMenuOnEvent, true);
+      });
 
       menu.open(x, y);
     };
@@ -388,9 +403,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
             <div
-              ref={el => {
-                iconRef = el;
-              }}
               onClick={handleMenuClick}
               className={Style.Kebab}
               title="Package actions"
