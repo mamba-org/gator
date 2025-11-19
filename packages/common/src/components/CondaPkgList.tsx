@@ -349,7 +349,9 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
       let cleanedUp = false;
       const cleanup = () => {
-        if (cleanedUp) return;
+        if (cleanedUp) {
+          return;
+        }
         cleanedUp = true;
         window.removeEventListener('resize', closeMenuOnEvent);
         window.removeEventListener('scroll', closeMenuOnEvent, true);
@@ -404,51 +406,54 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
-            {pkg.updatable &&
-              (() => {
-                // Check if the selected version is the same as installed
-                const selectedVersion =
-                  pkg.version_selected || pkg.version_installed;
-                const isDisabled =
-                  selectedVersion !== 'auto' &&
-                  selectedVersion === pkg.version_installed;
+            {(() => {
+              const hasUserSelection =
+                pkg.version_selected !== undefined &&
+                pkg.version_selected !== null &&
+                pkg.version_selected !== pkg.version_installed;
+              const isAutoSelected = pkg.version_selected === 'auto';
 
-                return (
-                  <span
-                    className={
-                      isDisabled ? Style.UpdateLinkDisabled : Style.UpdateLink
-                    }
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      if (isDisabled) {
-                        return;
-                      }
-                      // Use the version from the dropdown: 'auto' means unpinned update
-                      const version =
-                        pkg.version_selected === 'auto' || !pkg.version_selected
-                          ? undefined
-                          : pkg.version_selected;
-                      this.props.commands?.execute('gator-lab:update-pkg', {
-                        name: pkg.name,
-                        environment: this.props.envName,
-                        version: version
-                      });
-                    }}
-                    title={
-                      isDisabled
-                        ? `Already on version ${pkg.version_installed}`
-                        : `Update ${pkg.name} to ${
-                            pkg.version_selected === 'auto' ||
-                            !pkg.version_selected
-                              ? 'latest version'
-                              : pkg.version_selected
-                          }`
-                    }
-                  >
-                    update
-                  </span>
-                );
-              })()}
+              // Show button if:
+              // 1. Package is updatable (upgrade available), OR
+              // 2. User selected a different version (downgrade/change), OR
+              // 3. User selected 'auto' (unpinned update)
+              const showAction =
+                pkg.updatable || hasUserSelection || isAutoSelected;
+
+              if (!showAction) {
+                return null;
+              }
+
+              const actionLabel = pkg.updatable ? 'update' : 'modify';
+
+              return (
+                <span
+                  className={Style.UpdateLink}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    // Use the version from the dropdown: 'auto' means unpinned update
+                    const version =
+                      pkg.version_selected === 'auto' || !pkg.version_selected
+                        ? undefined
+                        : pkg.version_selected;
+                    this.props.commands?.execute('gator-lab:update-pkg', {
+                      name: pkg.name,
+                      environment: this.props.envName,
+                      version: version
+                    });
+                  }}
+                  title={`${actionLabel === 'update' ? 'Update' : 'Modify'} ${
+                    pkg.name
+                  } to ${
+                    pkg.version_selected === 'auto' || !pkg.version_selected
+                      ? 'latest version'
+                      : pkg.version_selected
+                  }`}
+                >
+                  {actionLabel}
+                </span>
+              );
+            })()}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}

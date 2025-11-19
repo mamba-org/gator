@@ -249,32 +249,50 @@ export class CondaPkgPanel extends React.Component<
 
     const selectIdx = this.state.selected.indexOf(pkg);
     const selection = this.state.selected;
-    if (selectIdx >= 0) {
+    const wasSelected = selectIdx >= 0;
+
+    if (wasSelected) {
       this.state.selected.splice(selectIdx, 1);
     }
 
     if (pkg.version_installed) {
-      if (pkg.version_installed === pkg.version_selected) {
-        if (pkg.updatable) {
-          pkg.version_selected = ''; // Set for update
-          selection.push(pkg);
-        } else {
-          pkg.version_selected = 'none'; // Set for removal
-          selection.push(pkg);
+      const isUnchanged = 
+        pkg.version_selected === pkg.version_installed || 
+        !pkg.version_selected;
+        // Note: 'auto' means "conda update pacakge_name", could *potentially* update the package
+
+      if (isUnchanged) {
+        if (!wasSelected) {    // Click selected package
+          if (pkg.updatable) {
+            pkg.version_selected = ''; // Set for update (unpinned)
+            selection.push(pkg);
+          } else {
+            pkg.version_selected = 'none'; // Set for removal (click selection)
+            selection.push(pkg);
+          }
         }
       } else {
-        if (pkg.version_selected === 'none') {
-          pkg.version_selected = pkg.version_installed;
-        } else {
-          pkg.version_selected = 'none'; // Set for removal
+        // Package has been modified (specific version, 'auto', 'none', or '')
+        if (!wasSelected) {
+          // Not in selection, clicking adds it
+          // But this shouldn't happen - if version changed, it should already be in selection
+          // via handleVersionSelection
           selection.push(pkg);
+        } else {
+          // Was in selection, clicking deselects and resets
+          if (pkg.version_selected === 'none') {
+            pkg.version_selected = pkg.version_installed;
+          } else {
+            // Reset 'auto', specific version, or '' back to installed
+            pkg.version_selected = pkg.version_installed;
+          }
         }
       }
     } else {
       if (pkg.version_selected !== 'none') {
         pkg.version_selected = 'none'; // Unselect
       } else {
-        pkg.version_selected = ''; // Select 'Any'
+        pkg.version_selected = ''; // Select 'Any' (unpinned install)
         selection.push(pkg);
       }
     }
