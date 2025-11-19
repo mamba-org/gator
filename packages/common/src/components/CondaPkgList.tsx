@@ -87,41 +87,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     }
   }
 
-  protected changeRender = (pkg: Conda.IPackage): JSX.Element => (
-    <div className={'lm-Widget'}>
-      <HTMLSelect
-        className={classes(Style.VersionSelection, CONDA_PACKAGE_SELECT_CLASS)}
-        value={pkg.version_selected}
-        onClick={(evt: React.MouseEvent): void => {
-          evt.stopPropagation();
-        }}
-        onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
-          this.props.onPkgChange(pkg, evt.target.value)
-        }
-        aria-label="Package versions"
-      >
-        <option key="-3" value={'none'}>
-          Remove
-        </option>
-        {!pkg.version_installed && (
-          <option key="-2" value={''}>
-            Install
-          </option>
-        )}
-        {pkg.updatable && (
-          <option key="-1" value={''}>
-            Update
-          </option>
-        )}
-        {pkg.version.map((v: string) => (
-          <option key={v} value={v}>
-            {v}
-          </option>
-        ))}
-      </HTMLSelect>
-    </div>
-  );
-
   protected iconRender = (pkg: Conda.IPackage): JSX.Element => {
     if (pkg.version_installed) {
       if (pkg.version_selected === 'none') {
