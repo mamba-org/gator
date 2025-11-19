@@ -248,11 +248,11 @@ export class CondaPkgPanel extends React.Component<
     }
 
     const selectIdx = this.state.selected.indexOf(pkg);
-    const selection = this.state.selected;
+    let selection = [...this.state.selected];
     const wasSelected = selectIdx >= 0;
 
     if (wasSelected) {
-      this.state.selected.splice(selectIdx, 1);
+      selection.splice(selectIdx, 1);
     }
 
     if (pkg.version_installed) {
@@ -309,9 +309,9 @@ export class CondaPkgPanel extends React.Component<
     }
 
     const selectIdx = this.state.selected.indexOf(pkg);
-    const selection = this.state.selected;
+    let selection = [...this.state.selected];
     if (selectIdx >= 0) {
-      this.state.selected.splice(selectIdx, 1);
+      selection.splice(selectIdx, 1);
     }
 
     if (pkg.version_installed) {
