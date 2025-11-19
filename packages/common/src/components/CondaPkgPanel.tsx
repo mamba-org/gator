@@ -258,20 +258,17 @@ export class CondaPkgPanel extends React.Component<
     if (pkg.version_installed) {
       const isUnchanged = 
         pkg.version_selected === pkg.version_installed || 
-        !pkg.version_selected;
-        // Note: 'auto' means "conda update pacakge_name", could *potentially* update the package
+        pkg.version_selected === undefined ||
+        pkg.version_selected === null;
+        // Note: Empty string '' means "update to latest", which IS a change!
 
-      if (isUnchanged) {
-        if (!wasSelected) {    // Click selected package
-          if (pkg.updatable) {
-            pkg.version_selected = ''; // Set for update (unpinned)
-            selection.push(pkg);
-          } else {
+        if (isUnchanged) {
+          if (!wasSelected) {    // Click to select package
+            // Always mark for removal on first click, regardless of updatable status
             pkg.version_selected = 'none'; // Set for removal (click selection)
             selection.push(pkg);
           }
-        }
-      } else {
+        } else {
         // Package has been modified (specific version, 'auto', 'none', or '')
         if (!wasSelected) {
           // Not in selection, clicking adds it
@@ -296,7 +293,7 @@ export class CondaPkgPanel extends React.Component<
         selection.push(pkg);
       }
     }
-
+  
     this.setState({
       packages: this.state.packages,
       selected: selection
