@@ -20,6 +20,6 @@ jobs:
     steps:
       - uses: readthedocs/actions/preview@v1
         with:
-          project-slug: 'gator'
+          project-slug: 'mamba-gator'
           single-version: true
           single-language: true
