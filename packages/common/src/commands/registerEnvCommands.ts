@@ -22,7 +22,7 @@ export function registerEnvCommands(
     label: 'Create Environment',
     execute: async args => {
       const name = args['name'] as string;
-      const type = args['type'] as string;
+      const type = args['type'] as string | undefined;
 
       await createEnvironment(model, name, type);
     }
