@@ -59,7 +59,7 @@ docs = [
     "sphinx-book-theme",
     "myst_parser",
     "linkify-it-py",
-    ""sphinx-design"
+    "sphinx-design"
 ]
 
 [project.scripts]
