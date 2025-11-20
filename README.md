@@ -105,7 +105,6 @@ sense to move the project in the `mamba-org` organization.
 
 ## Changelog
 
-## Changelog
 
 - [Changelog file](docs/source/changelog.md) (in this repository)
 - [Rendered documentation](https://mamba-gator.readthedocs.io/en/latest/changelog.html)
