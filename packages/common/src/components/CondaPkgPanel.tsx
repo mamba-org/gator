@@ -248,33 +248,49 @@ export class CondaPkgPanel extends React.Component<
     }
 
     const selectIdx = this.state.selected.indexOf(pkg);
-    const selection = this.state.selected;
-    if (selectIdx >= 0) {
-      this.state.selected.splice(selectIdx, 1);
+    let selection = [...this.state.selected];
+    const wasSelected = selectIdx >= 0;
+
+    if (wasSelected) {
+      selection.splice(selectIdx, 1);
     }
 
     if (pkg.version_installed) {
-      if (pkg.version_installed === pkg.version_selected) {
-        if (pkg.updatable) {
-          pkg.version_selected = ''; // Set for update
-          selection.push(pkg);
-        } else {
-          pkg.version_selected = 'none'; // Set for removal
+      const isUnchanged =
+        pkg.version_selected === pkg.version_installed ||
+        pkg.version_selected === undefined ||
+        pkg.version_selected === null;
+      // Note: Empty string '' means "update to latest", which IS a change!
+
+      if (isUnchanged) {
+        if (!wasSelected) {
+          // Click to select package
+          // Always mark for removal on first click, regardless of updatable status
+          pkg.version_selected = 'none'; // Set for removal (click selection)
           selection.push(pkg);
         }
       } else {
-        if (pkg.version_selected === 'none') {
-          pkg.version_selected = pkg.version_installed;
-        } else {
-          pkg.version_selected = 'none'; // Set for removal
+        // Package has been modified (specific version, 'auto', 'none', or '')
+        if (!wasSelected) {
+          // Not in selection, clicking adds it
+          // But this shouldn't happen - if version changed, it should already be in selection
+          // via handleVersionSelection
           selection.push(pkg);
+        } else {
+          // Was in selection, clicking deselects and resets
+          if (pkg.version_selected === 'none') {
+            pkg.version_selected = pkg.version_installed;
+          } else {
+            // Reset 'auto', specific version, or '' back to installed
+            pkg.version_selected = pkg.version_installed;
+          }
         }
       }
     } else {
       if (pkg.version_selected !== 'none') {
         pkg.version_selected = 'none'; // Unselect
       } else {
-        pkg.version_selected = ''; // Select 'Any'
+        pkg.version_selected = ''; // Select 'Any' (unpinned install)
         selection.push(pkg);
       }
     }
@@ -291,9 +307,9 @@ export class CondaPkgPanel extends React.Component<
     }
 
     const selectIdx = this.state.selected.indexOf(pkg);
-    const selection = this.state.selected;
+    let selection = [...this.state.selected];
     if (selectIdx >= 0) {
-      this.state.selected.splice(selectIdx, 1);
+      selection.splice(selectIdx, 1);
     }
 
     if (pkg.version_installed) {

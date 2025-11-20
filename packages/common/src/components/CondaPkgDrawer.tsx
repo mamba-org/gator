@@ -261,6 +261,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
                 onPkgClick={handlePackageSelection}
                 onPkgChange={handleVersionSelection}
                 onPkgGraph={props.onPkgGraph}
+                isDrawerMode={true}
               />
             </div>
           </div>

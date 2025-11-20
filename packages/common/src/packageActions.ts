@@ -128,7 +128,7 @@ export async function applyPackageChanges(
           toUpdate.push(pkg.name);
         } else {
           toInstall.push(
-            pkg.version_selected
+            pkg.version_selected && pkg.version_selected !== 'auto'
               ? pkg.name + '=' + pkg.version_selected
               : pkg.name
           );
