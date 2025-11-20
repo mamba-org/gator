@@ -14,7 +14,22 @@ release = '6.0.2'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",      # module index
+    "sphinx.ext.autosummary",
+]
+
+source_suffix = {
+    '.md': 'markdown',
+}
+
+myst_enable_extensions = [
+    "colon_fence", # ::: directives
+    "deflist",
+    "linkify",
+    "substitution"
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
