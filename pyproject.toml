@@ -56,9 +56,10 @@ test = [
 ]
 docs = [
     "sphinx",
-    "sphinx_rtd_theme",
+    "sphinx-book-theme",
     "myst_parser",
     "linkify-it-py",
+    "sphinx-design"
 ]
 
 [project.scripts]
