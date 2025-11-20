@@ -20,7 +20,7 @@
 - Maintenance:
   - Clean up resolutions
   - Fix offline builds
-- UI fixes and enhanvements:
+- UI fixes and enhancements:
   - UI fixes for package and environment icons 
   - Sort package versions in order from latest to oldest
   - Fix package list not rendering on first load; no longer requires window resize
