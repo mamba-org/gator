@@ -2,7 +2,7 @@ name: 'Add a documentation preview link to the PRs description'
 
 concurrency:
   cancel-in-progress: true
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
 
 on:
   pull_request_target:
