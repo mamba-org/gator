@@ -126,9 +126,8 @@ namespace Style {
   });
 
   export const Drawer = style({
-    // TODO: remove size constraints for width/height/padding, set to 100% and make the drawer full screen
-    width: '50%',
-    height: '50%',
+    width: '100%',
+    height: '100%',
     backgroundColor: 'var(--jp-layout-color0)',
     display: 'flex',
     flexDirection: 'column',
