@@ -10,7 +10,7 @@ Welcome to Gator, a JupyterLab extension and standalone UI for managing conda en
 getting-started
 user-guide/index
 api/index
-changelog.md
+changelog
 
 ```
 
