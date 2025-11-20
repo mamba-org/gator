@@ -1,0 +1,224 @@
+# Changelog
+
+## 6.0.2
+- Features:
+  - Add spinner for loading packages
+  - Add create environment command and signal for environment management
+  - Add ability to open main window with preselected environment name
+- UI fixes and improvements:
+  - Fix package list height and scrolling issues
+  - Fix environment list scrolling with proper minimum height
+  - Update refresh button styling and layout
+  - Improve environment creation workflow and component styling
+  - Update target environment logic and selection
+- Maintenance:
+  - Refactor environment actions and signal handling
+  - Update Python version requirements for Binder
+  - Improve release documentation and workflow
+
+## 6.0.1
+- Maintenance:
+  - Clean up resolutions
+  - Fix offline builds
+- UI fixes and enhanvements:
+  - UI fixes for package and environment icons 
+  - Sort package versions in order from latest to oldest
+  - Fix package list not rendering on first load; no longer requires window resize
+  - Add launcher tile for Gator
+
+## 6.0.0
+- Maintenance:
+  - Migrate from JupyterLab 3 to JupyterLab 4.0 support
+  - Migrate from Setuptools to Hatch
+  - Remove support for Python 3.7
+  - Add support for Python up to 3.13
+  - Update out of date GitHub Actions
+- Docs:
+  - Add Contributing Guide
+
+## 5.1.2
+
+- Security updates:
+  - Bump handlebars from 4.7.6 to 4.7.7 (#143)
+  - Bump hosted-git-info from 2.8.8 to 2.8.9 (#144)
+  - Bump lodash from 4.17.20 to 4.17.21 (#145)
+  - Bump browserslist from 4.16.1 to 4.16.6 (#146)
+  - Bump ws from 7.4.2 to 7.4.6 (#148)
+  - Bump postcss from 7.0.35 to 7.0.36 (#149)
+  - Bump tar from 4.4.13 to 4.4.15 (#151)
+  - Bump path-parse from 1.0.6 to 1.0.7 (#152)
+  - Bump tar from 4.4.15 to 4.4.19 (#153)
+- Maintenance:
+  - Add keywords and PyPI classifiers
+
+## 5.1.1
+
+- Bug fix
+  - Fix gator not displayed after updating or re-installing [#139](https://github.com/mamba-org/gator/issues/139)
+
+## 5.1.0
+
+- Feature
+  - Use much faster `mamba repoquery search` command to list packages instead of `conda search` [#133](https://github.com/mamba-org/gator/pull/133) (Thanks to @ericpre)
+- Bug fix
+  - Fix mamba detection on Windows [#135](https://github.com/mamba-org/gator/pull/135) (Thanks to @ericpre)
+
+## 5.0.0
+
+- Features
+  - Update to JupyterLab 3 and the new Jupyter Server  
+  You don't need to install anything more than the pip or conda package.
+  - Drop support for the classical notebook.
+
+## 4.1.0
+
+- Features
+  - Dependencies graph (by clicking on the installed version for now)  [#83](https://github.com/mamba-org/gator/issues/83)
+- Bug fix
+  - Fix missing classical notebook extension [#115](https://github.com/mamba-org/gator/issues/115)
+  - Fix mamba not detected on Windows [#119](https://github.com/mamba-org/gator/issues/119)
+
+## 4.0.0
+
+- Features
+  - Moving to mamba-org
+  - Integrate a standalone application
+  - Common frontend for JupyterLab, classical Notebook and Gator
+  - Depend optionally on `nb_conda_kernels`
+
+## 3.4.1
+
+- Features
+  - Better logger
+- Bugs
+  - Reduce UI freezing time by running expensive code in asynchronous executor
+
+## 3.4.0
+
+- Features
+  - Use `mamba` if available. Otherwise use `conda` [#46](https://github.com/mamba-org/gator/issues/46)
+  - Move to GitHub workflow (extend coverage to JupyterLab code)
+- Bugs
+  - Fix wrong redirection url in classic notebook [#47](https://github.com/mamba-org/gator/issues/47)
+  - Fix channel given by full URL not properly handle [#55](https://github.com/mamba-org/gator/issues/55)
+
+## 3.3.1
+
+- Bugs
+  - Fix export always from history (settings ignored)
+
+## 3.3.0
+
+- Features
+  - Add a settings `fromHistory` to export an environment using [`--from-history`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#exporting-an-environment-file-across-platforms) (available for conda >= 4.7.12) [#39](https://github.com/mamba-org/gator/pull/39)
+- Bugs
+  - Fixes absent `channeldata.json` file [#36](https://github.com/mamba-org/gator/issues/36)
+  - Fixes environment update absent from public API [#37](https://github.com/mamba-org/gator/pull/37)
+- Documentation
+  - Start REST API description with Swagger
+
+## 3.2.0
+
+- Available package cache file is now writable for everybody to avoid trouble in multi-user context. [#25](https://github.com/mamba-org/gator/pull/25)
+- Add update environment from file through REST endpoint PATCH /environments/ [#26](https://github.com/mamba-org/gator/pull/26)
+- Switch to newer Python syntax async-await
+- To improve UI reactivity in Jupyterlab:
+
+  - Long running task can now be cancelled #32
+  - The available packages list is used to find updatable package. conda update --dry-run --all is not used any longer. But it is still used if the user request updating all possible packages.
+
+## 3.1.0
+
+- Request environment list accept now `whitelist`=0 or 1 query arguments. If 1, the environment
+  list is filtered to respect `KernelSpecManager.whitelist`. Default is 0, but it could be modified
+  in user settings.
+- JupyterLab extension
+  - `IEnvironmentManager.getPackageManager()` returns always the same `Conda.IPackageManager`
+    otherwise signaling package operations would have been meaningless.
+  - Add ability to specify kernel companions; i.e. check that if some packages are installed in a
+    kernel, they must respect a certain version range. Companions can be specified through user
+    settings.
+  - Small UI tweaks
+
+## 3.0.0
+
+- Rework the server/client API to be more RESTful and returns 202 status for long operations
+- Cache available packages list in temp directory
+- Improve greatly the coverage for the server extension
+- JupyterLab extension only:
+  - Allow the user to change the proposed environment when creating one from scratch
+  - Add signals to handle environnements and packages changes (see `labextension\src\__tests__\services.spec.ts`)
+  - Improve the UI reactivity by using `react-virtualized` for the packages list
+  - Improve the look and feel
+- Available packages truncation has been removed.
+
+## 2.5.1
+
+- Catch SSLError when requesting `channeldata.json` file
+
+## 2.5.0
+
+- Export in YAML format the environment (import in the older format is still supported).
+- Improve responsiveness by loading first installed packages. Then request available one.
+- BUG error is prompt when an environment is deleted although everything went well
+- Cache some API requests (GET environments, GET channels and GET available packages).
+- Available packages are now truncated to 100.
+  - Use query argument `$skip` to skip N first packages
+  - If the list is longer than 100, a entry `$next` in the response is returned. This
+    is the request url to use to get the next batch of packages.
+- Report full error message in web browser console to ease debugging.
+
+## 2.4.2
+
+- BUG environment not shown
+- BUG Installing package in develop mode fails if in user home or containing spaces
+- Improve error feedback from API to frontend
+
+## 2.4.1
+
+- BUG `conda search` crashes for conda 4.6
+
+## 2.4.0
+
+- Add installation of package in development mode (through `pip`)
+
+## 2.3.x
+
+- Add JupyterLab extension inspired by Anaconda Navigator
+  - Retrieve conda package description
+  - Add link to package website (if available)
+- Support conda >=4.5
+- Make all conda request asynchronously
+- Use the automatic installation for Jupyter Notebook extension (see [here](https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.html))
+
+## 2.2.1
+
+- fix bug in check updates feature
+
+## 2.2.0
+
+- support conda 4.3
+- support notebook security fix introduced in notebook 4.3.1
+
+## 2.1.0
+
+- fix environment export button
+- allow environment names with one letter and validate against "suspicious" characters
+
+## 2.0.0
+
+- update to new jupyter_conda_kernels naming scheme
+- namespace all API calls into `/conda/`
+
+## 1.1.0
+
+- fix usage in root environment
+
+## 1.0.1
+
+- minor build changes
+
+## 1.0.0
+
+- Update to notebook 4.2
+
