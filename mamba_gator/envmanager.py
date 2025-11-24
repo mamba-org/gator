@@ -340,18 +340,25 @@ class EnvManager:
         _, output = ans
         return self._clean_conda_json(output)
 
-    async def clone_env(self, env: str, name: str) -> Dict[str, str]:
+    async def clone_env(self, env: str, name: str, channels: Optional[List[str]] = None) -> Dict[str, str]:
         """Clone an environment.
 
         Args:
             env (str): To-be-cloned environment name
             name (str): New environment name
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Clone command output.
         """
+        cmd_args = ["-y", "-q", "--json", "-n", name]
+
+        if channels:
+            for channel in channels:
+                cmd_args.extend(["-c", channel])
+        
         ans = await self._execute(
-            self.manager, "create", "-y", "-q", "--json", "-n", name, "--clone", env
+            self.manager, "create", *cmd_args, "--clone", env
         )
 
         rcode, output = ans
@@ -360,18 +367,25 @@ class EnvManager:
         
         return self._clean_conda_json(output)
 
-    async def create_env(self, env: str, *args) -> Dict[str, str]:
+    async def create_env(self, env: str, *args, channels: Optional[List[str]] = None) -> Dict[str, str]:
         """Create a environment from a list of packages.
 
         Args:
             env (str): Name of the environment
             *args (List[str]): optional, packages to install
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Create command output
         """
+        cmd_args = ["-y", "-q", "--json", "-n", env]
+
+        if channels:
+            for channel in channels:
+                cmd_args.extend(["-c", channel])
+        
         ans = await self._execute(
-            self.manager, "create", "-y", "-q", "--json", "-n", env, *args
+            self.manager, "create", *cmd_args, *args
         )
 
         rcode, output = ans
@@ -565,7 +579,7 @@ class EnvManager:
         return {"environments": envs_list}
 
     async def update_env(
-        self, env: str, file_content: str, file_name: str = "environment.yml"
+        self, env: str, file_content: str, file_name: str = "environment.yml", channels: Optional[List[str]] = None
     ) -> Dict[str, str]:
         """Update a environment from a file.
 
@@ -573,6 +587,7 @@ class EnvManager:
             env (str): Name of the environment
             file_content (str): File content
             file_name (str): optional, Original filename
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Update command output
@@ -590,9 +605,14 @@ class EnvManager:
         if file_name.endswith('.txt'):
             # For .txt files (explicit package lists), use conda install
             self.log.debug(f"Updating environment {env} with txt file using conda install")
-            ans = await self._execute(
-                self.manager, "install", "-y", "-q", "--json", "-n", env, "--file", name
-            )
+            cmd_args = ["-y", "-q", "--json", "-n", env]
+            
+            if channels:
+                for channel in channels:
+                    cmd_args.extend(["-c", channel])
+            
+            cmd_args.extend(["--file", name])
+            ans = await self._execute(self.manager, "install", *cmd_args)
         else:
             # For .yml files (environment definitions), use conda env update
             self.log.debug(f"Updating environment {env} with yml file using conda env update")
@@ -1032,19 +1052,26 @@ class EnvManager:
             # no action plan returned means everything is already up to date
             return {"updates": []}
 
-    async def install_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
+    async def install_packages(self, env: str, packages: List[str], channels: Optional[List[str]] = None) -> Dict[str, str]:
         """Install packages in an environment.
 
         Args:
             env (str): Environment name
             packages (List[str]): List of packages to install
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Install command output.
         """
-        ans = await self._execute(
-            self.manager, "install", "-y", "-q", "--json", "-n", env, *packages
-        )
+        cmd_args = ["-y", "-q", "--json", "-n", env]
+        
+        if channels:
+            for channel in channels:
+                cmd_args.extend(["-c", channel])
+        
+        cmd_args.extend(packages)
+        
+        ans = await self._execute(self.manager, "install", *cmd_args)
         _, output = ans
         return self._clean_conda_json(output)
 
@@ -1134,19 +1161,26 @@ class EnvManager:
 
         return {"packages": result}
 
-    async def update_packages(self, env: str, packages: List[str]) -> Dict[str, str]:
+    async def update_packages(self, env: str, packages: List[str], channels: Optional[List[str]] = None) -> Dict[str, str]:
         """Update packages in an environment.
 
         Args:
             env (str): Environment name
             packages (List[str]): List of packages to update
+            channels (List[str], optional): Channel priority list (e.g., ["conda-forge", "defaults"])
 
         Returns:
             Dict[str, str]: Update command output.
         """
-        ans = await self._execute(
-            self.manager, "update", "-y", "-q", "--json", "-n", env, *packages
-        )
+        cmd_args = ["-y", "-q", "--json", "-n", env]
+        
+        if channels:
+            for channel in channels:
+                cmd_args.extend(["-c", channel])
+        
+        cmd_args.extend(packages)
+        
+        ans = await self._execute(self.manager, "update", *cmd_args)
         _, output = ans
         return self._clean_conda_json(output)
 

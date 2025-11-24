@@ -44,7 +44,7 @@ class JupyterCondaAPITest(ServerTest):
         self.assertRegex(location, r"^/conda/tasks/\d+$")
         return self.wait_task(location)
 
-    def mk_env(self, name=None, packages=None, remove_if_exists=True):
+    def mk_env(self, name=None, packages=None, remove_if_exists=True, channels=None):
         envs = self.conda_api.envs()
         env_names = map(lambda env: env["name"], envs["environments"])
         new_name = name or generate_name()
@@ -54,10 +54,10 @@ class JupyterCondaAPITest(ServerTest):
 
         # TODO: Remove this once we have a way to test the environment creation with packages from different channels
         # or once packages are available in the default channel
-        return self.conda_api.post(
-            ["environments"],
-            body={"name": new_name, "packages": packages or ["python!=3.14.0"]},
-        )
+        body = {"name": new_name, "packages": packages or ["python"]}
+        if channels:
+            body["channels"] = channels
+        return self.conda_api.post(["environments"], body=body)
 
     def rm_env(self, name):
         answer = self.conda_api.delete(["environments", name])
@@ -263,7 +263,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- python=3.9
+- python
 - astroid
 prefix: /home/user/.conda/envs/lab_conda
         """
@@ -294,7 +294,7 @@ prefix: /home/user/.conda/envs/lab_conda
         self.env_names.append(n)
         content = """# This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
-python=3.9
+python
 astroid
         """
 
@@ -317,7 +317,7 @@ astroid
             self.skipTest("FIXME not working with mamba")
 
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.9"])
+        response = self.wait_for_task(self.mk_env, n, ["python"])
         self.assertEqual(response.status_code, 200)
 
         content = """name: test_conda
@@ -353,7 +353,7 @@ prefix: /home/user/.conda/envs/lab_conda
             self.skipTest("FIXME not working with mamba")
             
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.9"])
+        response = self.wait_for_task(self.mk_env, n, ["python"])
         self.assertEqual(response.status_code, 200)
 
         content = """name: test_conda
@@ -384,7 +384,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
     def test_update_env_txt(self):
         n = generate_name()
-        response = self.wait_for_task(self.mk_env, n, ["python=3.9"])
+        response = self.wait_for_task(self.mk_env, n, ["python"], channels=["conda-forge", "defaults"])
         self.assertEqual(response.status_code, 200)
 
         content = """# This file may be used to create an environment using:
@@ -394,7 +394,7 @@ astroid
 
         def g():
             return self.conda_api.patch(
-                ["environments", n], body={"file": content, "filename": "testenv.txt"},
+                ["environments", n], body={"file": content, "filename": "testenv.txt", "channels": ["conda-forge", "defaults"]},
             )
 
         response = self.wait_for_task(g)
@@ -485,7 +485,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
         self.wait_for_task(
             self.conda_api.post,
             ["environments"],
-            body={"name": n, "packages": ["python=3.9", "astroid"]},
+            body={"name": n, "packages": ["python", "astroid"]},
         )
 
         r = self.wait_for_task(
@@ -516,7 +516,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
     def test_env_export_history(self):
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"])
         r = self.conda_api.get(
             ["environments", n], params={"download": 1, "history": 1}
         )
@@ -524,7 +524,7 @@ class TestEnvironmentHandler(JupyterCondaAPITest):
 
         content = " ".join(r.text.splitlines())
         self.assertRegex(
-            content, r"^name:\s" + n + r"\s+channels:(\s+-\s+[^\s]+)+\s+dependencies:\s+-\s+python=3\.9\s+prefix:"
+            content, r"^name:\s" + n + r"\s+channels:(\s+-\s+[^\s]+)+\s+dependencies:\s+-\s+python\s+prefix:"
         )
 
     def test_env_export_not_supporting_history(self):
@@ -560,12 +560,13 @@ class TestCondaVersion(JupyterCondaAPITest):
 class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
     def test_pkg_install_and_remove(self):
         n = generate_name()
-        self.wait_for_task(self.mk_env, n)
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
 
+        body = {"packages": [self.pkg_name], "channels": ["conda-forge", "defaults"]}
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [self.pkg_name]},
+            body=body,
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -595,12 +596,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
     def test_pkg_install_with_version_constraints(self):
         test_pkg = "astroid"
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
+
+        body = {"packages": [test_pkg + "==4.0.1"], "channels": ["conda-forge", "defaults"]}
 
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + "==2.14.2"]},
+            body=body
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -610,14 +613,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = p
                 break
-        self.assertEqual(v["version"], "2.14.2")
+        self.assertEqual(v["version"], "4.0.1")
 
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=2.14.0"]},
+            body={"packages": [test_pkg + ">=4.0.1"], "channels": ["conda-forge", "defaults"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -627,14 +630,14 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = tuple(map(int, p["version"].split(".")))
                 break
-        self.assertGreaterEqual(v, (2, 14, 0))
+        self.assertGreaterEqual(v, (4, 0, 1))
 
         n = generate_name()
-        self.wait_for_task(self.mk_env, n, packages=["python=3.9"])
+        self.wait_for_task(self.mk_env, n, packages=["python"], channels=["conda-forge", "defaults"])
         r = self.wait_for_task(
             self.conda_api.post,
             ["environments", n, "packages"],
-            body={"packages": [test_pkg + ">=2.14.0,<3.0.0"]},
+            body={"packages": [test_pkg + ">=4.0.1,<5.0.0"], "channels": ["conda-forge", "defaults"]},
         )
         self.assertEqual(r.status_code, 200)
         r = self.conda_api.get(["environments", n])
@@ -644,8 +647,8 @@ class TestPackagesEnvironmentHandler(JupyterCondaAPITest):
             if p["name"] == test_pkg:
                 v = tuple(map(int, p["version"].split(".")))
                 break
-        self.assertGreaterEqual(v, (2, 14, 0))
-        self.assertLess(v, (3, 0, 0))
+        self.assertGreaterEqual(v, (4, 0, 1))
+        self.assertLess(v, (5, 0, 0))
 
     def test_package_install_development_mode(self):
         n = generate_name()
