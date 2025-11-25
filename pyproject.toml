@@ -54,7 +54,7 @@ test = [
     "pytest",
     "pytest-asyncio",
     "requests",
-    "notebook >=4.3.1,!=6.1.0",
+    "notebook>=7",
 ]
 docs = [
     "sphinx",

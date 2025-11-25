@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab=${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab=${{ matrix.jupyterlab-version }}" "notebook>=7"
           conda activate test_gator
           jupyter --version
           jlpm install
@@ -109,7 +109,7 @@ jobs:
         run: |
           mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
           conda activate test_gator
-          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" "notebook>=7"
           jupyter --version
           jlpm install
         shell: bash -l {0}
@@ -177,7 +177,7 @@ jobs:
       - name: Create conda environment
         run: |
           conda info
-          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab=${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          conda install -c conda-forge -n test_gator nb_conda_kernels "jupyterlab=${{ matrix.jupyterlab-version }}" "notebook>=7"
 
       - name: Upgrade conda dependencies on Windows (resolves OSError)
         if: matrix.os == 'windows-latest'
@@ -257,7 +257,7 @@ jobs:
         run: |
           mamba create -y -n test_gator -c conda-forge python=3.11 nb_conda_kernels
           conda activate test_gator
-          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" "notebook>=6.5.4,<7"
+          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" "notebook>=7"
           python --version
           jupyter --version
 
