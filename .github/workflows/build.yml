@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
-        jupyterlab-version: ["4.0", "4.5"]
+        python-version: ["3.14"]
+        jupyterlab-version: ["4.5"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,9 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Skip 3.11 as it is used for integration tests
-        python-version: ["3.10"]
-        jupyterlab-version: ["4.0", "4.5"]
+        python-version: ["3.14"]
+        jupyterlab-version: ["4.5"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,7 +126,7 @@ jobs:
         shell: bash -l {0}
 
   test-all-os:
-    name: Test Conda Python 3.10 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
+    name: Test Conda Python 3.14 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
@@ -137,7 +136,7 @@ jobs:
         os: 
           - "macos-latest"
           - "windows-latest"
-        jupyterlab-version: ["4.0", "4.5"]
+        jupyterlab-version: ["4.5"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -149,17 +148,17 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ matrix.os }}-conda-3.10-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
+          key: ${{ matrix.os }}-conda-3.14-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ matrix.os }}-conda-3.10-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
-            ${{ matrix.os }}-conda-3.10
+            ${{ matrix.os }}-conda-3.14-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
+            ${{ matrix.os }}-conda-3.14
 
-      - name: Setup Python 3.10
+      - name: Setup Python 3.14
         uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: test_gator
           channels: conda-forge
-          python-version: "3.10"
+          python-version: "3.14"
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -214,11 +213,11 @@ jobs:
         shell: bash -l {0}
 
   test-integration:
-    name: All tests on Ubuntu Mamba Python 3.11 on ${{ matrix.jupyterlab-version }}
+    name: All tests on Ubuntu Mamba Python 3.14 on ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jupyterlab-version: ["4.0", "4.5"]
+        jupyterlab-version: ["4.5"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -229,12 +228,12 @@ jobs:
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-mamba-3.11-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
+          key: ${{ runner.os }}-mamba-3.14-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-mamba-3.11-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
-            ${{ runner.os }}-mamba-3.11
+            ${{ runner.os }}-mamba-3.14-${{ env.CACHE_NUMBER }}-${{ hashFiles('pyproject.toml') }}
+            ${{ runner.os }}-mamba-3.14
 
-      - name: Setup Python 3.11
+      - name: Setup Python 3.14
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
@@ -255,7 +254,7 @@ jobs:
       - name: Create mamba environment
         shell: bash -l {0}
         run: |
-          mamba create -y -n test_gator -c conda-forge python=3.11 nb_conda_kernels
+          mamba create -y -n test_gator -c conda-forge python=3.14 nb_conda_kernels
           conda activate test_gator
           pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*" "notebook>=7"
           python --version
@@ -308,7 +307,7 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
         with:
-          python_version: "3.10"
+          python_version: "3.14"
 
       - name: Build SDist
         run: |
