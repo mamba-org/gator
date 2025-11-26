@@ -35,7 +35,7 @@ jobs:
           activate-environment: test_gator
           channels: conda-forge
           show-channel-urls: true
-          use-only-tar-bz2: true
+          use-only-tar-bz2: false
 
       - name: Install and enable Corepack
         run: |
@@ -92,7 +92,7 @@ jobs:
         with:
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
           show-channel-urls: true
-          use-only-tar-bz2: true
+          use-only-tar-bz2: false
 
       - name: Install and enable Corepack
         run: |
@@ -161,7 +161,7 @@ jobs:
           channels: conda-forge
           python-version: "3.10"
           show-channel-urls: true
-          use-only-tar-bz2: true
+          use-only-tar-bz2: false
 
       - name: Install and enable Corepack
         run: |
@@ -239,7 +239,7 @@ jobs:
         with:
           miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
           show-channel-urls: true
-          use-only-tar-bz2: true
+          use-only-tar-bz2: false
 
       - name: Install and enable Corepack
         run: |
