@@ -27,28 +27,44 @@ def jp_server_config(jp_server_config):
 
 
 @pytest.fixture
-def conda_fetch(jp_fetch):
+def conda_fetch(jp_fetch, jp_base_url):
     """Wrapper around jp_fetch with longer timeout for conda operations.
     
     Supports a 'params' keyword argument for query parameters.
+    Query params are added to the URL after path construction to avoid 
+    double URL-encoding.
     """
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, urljoin
+    from tornado.httpclient import AsyncHTTPClient, HTTPRequest
+    from jupyter_server.utils import url_path_join
     
     async def _fetch(*args, **kwargs):
         # Set a longer timeout for conda operations (default 20s is too short)
         if "request_timeout" not in kwargs:
             kwargs["request_timeout"] = 120
         
-        # Handle query parameters
+        # Handle query parameters separately to avoid URL encoding issues
         params = kwargs.pop("params", None)
-        if params:
-            # Append query string to last path segment
-            args = list(args)
-            if args:
-                args[-1] = args[-1] + "?" + urlencode(params)
-                args = tuple(args)
         
-        return await jp_fetch(*args, **kwargs)
+        if params:
+            # Build URL manually to add query params without double-encoding
+            # Get the path from args
+            path = url_path_join(*args) if args else ""
+            # Construct full URL with query string (not URL-encoded)
+            full_url = url_path_join(jp_base_url, path) + "?" + urlencode(params)
+            
+            # Make request directly with tornado
+            client = AsyncHTTPClient()
+            request = HTTPRequest(
+                full_url,
+                method=kwargs.get("method", "GET"),
+                body=kwargs.get("body"),
+                request_timeout=kwargs.get("request_timeout", 120),
+                headers=kwargs.get("headers"),
+            )
+            return await client.fetch(request, raise_error=True)
+        else:
+            return await jp_fetch(*args, **kwargs)
     return _fetch
 
 
