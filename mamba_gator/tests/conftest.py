@@ -28,11 +28,26 @@ def jp_server_config(jp_server_config):
 
 @pytest.fixture
 def conda_fetch(jp_fetch):
-    """Wrapper around jp_fetch with longer timeout for conda operations."""
+    """Wrapper around jp_fetch with longer timeout for conda operations.
+    
+    Supports a 'params' keyword argument for query parameters.
+    """
+    from urllib.parse import urlencode
+    
     async def _fetch(*args, **kwargs):
         # Set a longer timeout for conda operations (default 20s is too short)
         if "request_timeout" not in kwargs:
             kwargs["request_timeout"] = 120
+        
+        # Handle query parameters
+        params = kwargs.pop("params", None)
+        if params:
+            # Append query string to last path segment
+            args = list(args)
+            if args:
+                args[-1] = args[-1] + "?" + urlencode(params)
+                args = tuple(args)
+        
         return await jp_fetch(*args, **kwargs)
     return _fetch
 

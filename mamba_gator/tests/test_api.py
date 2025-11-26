@@ -548,7 +548,7 @@ async def test_get_whitelist(conda_fetch, wait_for_task, jp_serverapp):
         env_manager = jp_serverapp.web_app.settings["env_manager"]
         env_manager._kernel_spec_manager = manager
 
-        response = await conda_fetch(NS, "environments?whitelist=1", method="GET")
+        response = await conda_fetch(NS, "environments", method="GET", params={"whitelist": "1"})
         assert response.code == 200
         
         envs = json.loads(response.body)
@@ -570,7 +570,7 @@ async def test_get_whitelist(conda_fetch, wait_for_task, jp_serverapp):
         await create_env(conda_fetch, wait_for_task, other_name)
         
         try:
-            response = await conda_fetch(NS, "environments?whitelist=1", method="GET")
+            response = await conda_fetch(NS, "environments", method="GET", params={"whitelist": "1"})
             assert response.code == 200
             envs = json.loads(response.body)
             assert len(envs["environments"]) == found_env
@@ -638,7 +638,7 @@ async def test_environment_get_has_update(conda_fetch, wait_for_task):
         await wait_for_task(location)
 
         response = await conda_fetch(
-            NS, "environments", env_name + "?status=has_update", method="GET"
+            NS, "environments", env_name, method="GET", params={"status": "has_update"}
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -662,7 +662,7 @@ async def test_env_export(conda_fetch, wait_for_task):
     
     try:
         response = await conda_fetch(
-            NS, "environments", env_name + "?download=1&history=0", method="GET"
+            NS, "environments", env_name, method="GET", params={"download": "1", "history": "0"}
         )
         assert response.code == 200
 
@@ -684,7 +684,7 @@ async def test_env_export_history(conda_fetch, wait_for_task):
     
     try:
         response = await conda_fetch(
-            NS, "environments", env_name + "?download=1&history=1", method="GET"
+            NS, "environments", env_name, method="GET", params={"download": "1", "history": "1"}
         )
         assert response.code == 200
 
@@ -706,7 +706,7 @@ async def test_env_export_not_supporting_history(conda_fetch, wait_for_task):
     try:
         EnvManager._conda_version = (4, 6, 0)
         response = await conda_fetch(
-            NS, "environments", env_name + "?download=1&history=1", method="GET"
+            NS, "environments", env_name, method="GET", params={"download": "1", "history": "1"}
         )
         assert response.code == 200
 
@@ -892,7 +892,8 @@ async def test_package_install_development_mode(conda_fetch, wait_for_task):
 
             body = {"packages": [temp_folder]}
             response = await conda_fetch(
-                NS, "environments", env_name, "packages?develop=1",
+                NS, "environments", env_name, "packages",
+                params={"develop": "1"},
                 method="POST", body=json.dumps(body)
             )
             assert response.code == 202
@@ -982,7 +983,7 @@ async def test_package_search(conda_fetch, wait_for_task):
     """Test GET /packages?query=<pkg>."""
     pkg_name = "astroid"
     
-    response = await conda_fetch(NS, f"packages?query={pkg_name}", method="GET")
+    response = await conda_fetch(NS, "packages", method="GET", params={"query": pkg_name})
     assert response.code == 202
     location = response.headers.get("Location")
     response = await wait_for_task(location)
