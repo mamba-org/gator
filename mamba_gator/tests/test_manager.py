@@ -56,7 +56,6 @@ def test_parse_standard_semantic_version_unchanged():
     assert result == Version("1.21.0")
 
 
-@pytest.mark.asyncio
 async def test_list_available_returns_valid_structure():
     """Test that list_available returns the expected data structure."""
     manager = EnvManager("", None)
@@ -65,7 +64,6 @@ async def test_list_available_returns_valid_structure():
     assert "with_description" in result
 
 
-@pytest.mark.asyncio
 async def test_list_available_version_sorting_works():
     """Test that version sorting works correctly after parsing in list_available."""
     manager = EnvManager("", None)
@@ -85,7 +83,6 @@ async def test_list_available_version_sorting_works():
             assert versions == sorted(versions, reverse=True)
 
 
-@pytest.mark.asyncio
 async def test_list_available_handles_invalid_versions_gracefully():
     """Test that list_available doesn't crash with invalid versions and logs warnings."""
     manager = EnvManager("", None)
@@ -98,7 +95,6 @@ async def test_list_available_handles_invalid_versions_gracefully():
     assert isinstance(result["packages"], list)
 
 
-@pytest.mark.asyncio
 async def test_list_available_preserves_package_metadata():
     """Test that version parsing doesn't break other package metadata."""
     manager = EnvManager("", None)
@@ -115,7 +111,6 @@ async def test_list_available_preserves_package_metadata():
         assert all(isinstance(v, str) for v in package["version"])
 
 
-@pytest.mark.asyncio
 async def test_list_available_version_parsing_integration():
     """Test the full integration of version parsing within list_available."""
     manager = EnvManager("", None)
@@ -138,7 +133,6 @@ async def test_list_available_version_parsing_integration():
                         pytest.fail(f"Version '{version_str}' from package '{package['name']}' is not valid after parsing")
 
 
-@pytest.mark.asyncio
 async def test_list_available_build_metadata_preserved():
     """Test that build numbers and strings are correctly aligned with parsed versions."""
     manager = EnvManager("", None)
