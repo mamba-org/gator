@@ -109,7 +109,7 @@ jobs:
         run: |
           mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
           conda activate test_gator
-          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" "notebook>=7"
+          pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*" "notebook>=7"
           jupyter --version
           jlpm install
         shell: bash -l {0}
@@ -257,7 +257,7 @@ jobs:
         run: |
           mamba create -y -n test_gator -c conda-forge python=3.11 nb_conda_kernels
           conda activate test_gator
-          pip install "jupyterlab==${{ matrix.jupyterlab-version }}" "notebook>=7"
+          pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*" "notebook>=7"
           python --version
           jupyter --version
 
