@@ -20,6 +20,37 @@ SLEEP = 1
 
 
 @pytest.fixture
+def jp_environ():
+    """Ensure conda environment variables are available to the test server.
+    
+    This is critical for conda commands to work properly in tests.
+    """
+    env = {}
+    
+    # Preserve important conda-related environment variables
+    conda_vars = [
+        "CONDA_EXE",
+        "CONDA_PREFIX", 
+        "CONDA_PYTHON_EXE",
+        "CONDA_DEFAULT_ENV",
+        "CONDA_SHLVL",
+        "PATH",
+        "HOME",
+        "SHELL",
+        # macOS-specific
+        "DYLD_LIBRARY_PATH",
+        # Linux-specific
+        "LD_LIBRARY_PATH",
+    ]
+    
+    for var in conda_vars:
+        if var in os.environ:
+            env[var] = os.environ[var]
+    
+    return env
+
+
+@pytest.fixture
 def jp_server_config(jp_server_config):
     """Configure the server to load mamba_gator extension."""
     jp_server_config["ServerApp"]["jpserver_extensions"] = {"mamba_gator": True}
