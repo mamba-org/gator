@@ -8,7 +8,6 @@ import pytest
 from mamba_gator.handlers import ActionsStack
 
 
-@pytest.mark.asyncio
 async def test_ActionsStack_cancel():
     a = ActionsStack()
     dt = 0.01
@@ -37,7 +36,6 @@ async def test_ActionsStack_cancel():
             await asyncio.sleep(dt)  # Wait for task cancellation completion
 
 
-@pytest.mark.asyncio
 async def test_ActionsStack_cancel_subprocess():
     a = ActionsStack()
     dt = 0.01
@@ -76,7 +74,6 @@ async def test_ActionsStack_cancel_subprocess():
             await asyncio.sleep(dt)  # Wait for task cancellation completion
 
 
-@pytest.mark.asyncio
 async def test_ActionsStack_put_get():
     a = ActionsStack()
     dt = 0.01
@@ -98,7 +95,6 @@ async def test_ActionsStack_put_get():
     assert r
 
 
-@pytest.mark.asyncio
 async def test_ActionsStack_put_result():
     a = ActionsStack()
 
