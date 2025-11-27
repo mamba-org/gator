@@ -933,8 +933,8 @@ async def test_package_install_development_mode_url_path(conda_fetch, wait_for_t
 
         body = {"packages": [pkg_name]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages?develop=1",
-            method="POST", body=json.dumps(body)
+            NS, "environments", env_name, "packages",
+            method="POST", body=json.dumps(body), params={"develop": "1"}
         )
         assert response.code == 202
         location = response.headers.get("Location")

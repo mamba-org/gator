@@ -58,44 +58,26 @@ def jp_server_config(jp_server_config):
 
 
 @pytest.fixture
-def conda_fetch(jp_fetch, jp_base_url):
+def conda_fetch(jp_fetch):
     """Wrapper around jp_fetch with longer timeout for conda operations.
     
-    Supports a 'params' keyword argument for query parameters.
-    Query params are added to the URL after path construction to avoid 
-    double URL-encoding.
+    Also supports DELETE requests with body (required for package removal API).
     """
-    from urllib.parse import urlencode, urljoin
-    from tornado.httpclient import AsyncHTTPClient, HTTPRequest
-    from jupyter_server.utils import url_path_join
     
     async def _fetch(*args, **kwargs):
         # Set a longer timeout for conda operations (default 20s is too short)
         if "request_timeout" not in kwargs:
             kwargs["request_timeout"] = 120
         
-        # Handle query parameters separately to avoid URL encoding issues
-        params = kwargs.pop("params", None)
+        # Support DELETE with body (needed for package removal API)
+        # Tornado's simple HTTP client doesn't allow this by default
+        method = kwargs.get("method", "GET")
+        body = kwargs.get("body")
+        if method == "DELETE" and body is not None:
+            kwargs["allow_nonstandard_methods"] = True
         
-        if params:
-            # Build URL manually to add query params without double-encoding
-            # Get the path from args
-            path = url_path_join(*args) if args else ""
-            # Construct full URL with query string (not URL-encoded)
-            full_url = url_path_join(jp_base_url, path) + "?" + urlencode(params)
-            
-            # Make request directly with tornado
-            client = AsyncHTTPClient()
-            request = HTTPRequest(
-                full_url,
-                method=kwargs.get("method", "GET"),
-                body=kwargs.get("body"),
-                request_timeout=kwargs.get("request_timeout", 120),
-                headers=kwargs.get("headers"),
-            )
-            return await client.fetch(request, raise_error=True)
-        else:
-            return await jp_fetch(*args, **kwargs)
+        return await jp_fetch(*args, **kwargs)
+    
     return _fetch
 
 
