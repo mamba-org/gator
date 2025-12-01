@@ -434,7 +434,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
         body = {"file": content, "filename": "testenv.yml"}
         response = await conda_fetch(
-            NS, "environments", env_name, method="PATCH", body=json.dumps(body)
+            "environments", env_name, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -474,7 +474,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
         body = {"file": content}
         response = await conda_fetch(
-            NS, "environments", env_name, method="PATCH", body=json.dumps(body)
+            "environments", env_name, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -508,7 +508,7 @@ astroid
 
         body = {"file": content, "filename": "testenv.txt"}
         response = await conda_fetch(
-            NS, "environments", env_name, method="PATCH", body=json.dumps(body)
+            "environments", env_name, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -637,7 +637,7 @@ async def test_environment_get_has_update(conda_fetch, wait_for_task):
         await wait_for_task(location)
 
         response = await conda_fetch(
-            NS, "environments", env_name, method="GET", params={"status": "has_update"}
+            "environments", env_name, method="GET", params={"status": "has_update"}
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -661,7 +661,7 @@ async def test_env_export(conda_fetch, wait_for_task):
     
     try:
         response = await conda_fetch(
-            NS, "environments", env_name, method="GET", params={"download": "1", "history": "0"}
+            "environments", env_name, method="GET", params={"download": "1", "history": "0"}
         )
         assert response.code == 200
 
@@ -683,7 +683,7 @@ async def test_env_export_history(conda_fetch, wait_for_task):
     
     try:
         response = await conda_fetch(
-            NS, "environments", env_name, method="GET", params={"download": "1", "history": "1"}
+            "environments", env_name, method="GET", params={"download": "1", "history": "1"}
         )
         assert response.code == 200
 
@@ -705,7 +705,7 @@ async def test_env_export_not_supporting_history(conda_fetch, wait_for_task):
     try:
         EnvManager._conda_version = (4, 6, 0)
         response = await conda_fetch(
-            NS, "environments", env_name, method="GET", params={"download": "1", "history": "1"}
+            "environments", env_name, method="GET", params={"download": "1", "history": "1"}
         )
         assert response.code == 200
 
@@ -752,7 +752,7 @@ async def test_pkg_install_and_remove(conda_fetch, wait_for_task):
         # Install package
         body = {"packages": [pkg_name]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages", method="POST", body=json.dumps(body)
+            "environments", env_name, "packages", method="POST", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -772,7 +772,7 @@ async def test_pkg_install_and_remove(conda_fetch, wait_for_task):
         # Remove package
         body = {"packages": [pkg_name]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages", method="DELETE", body=json.dumps(body)
+            "environments", env_name, "packages", method="DELETE", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -803,7 +803,7 @@ async def test_pkg_install_with_version_constraints(conda_fetch, wait_for_task):
     try:
         body = {"packages": [test_pkg + "==2.14.2"]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages", method="POST", body=json.dumps(body)
+            "environments", env_name, "packages", method="POST", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -828,7 +828,7 @@ async def test_pkg_install_with_version_constraints(conda_fetch, wait_for_task):
     try:
         body = {"packages": [test_pkg + ">=2.14.0"]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages", method="POST", body=json.dumps(body)
+            "environments", env_name, "packages", method="POST", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -853,7 +853,7 @@ async def test_pkg_install_with_version_constraints(conda_fetch, wait_for_task):
     try:
         body = {"packages": [test_pkg + ">=2.14.0,<3.0.0"]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages", method="POST", body=json.dumps(body)
+            "environments", env_name, "packages", method="POST", body=json.dumps(body)
         )
         assert response.code == 202
         location = response.headers.get("Location")
@@ -891,7 +891,7 @@ async def test_package_install_development_mode(conda_fetch, wait_for_task):
 
             body = {"packages": [temp_folder]}
             response = await conda_fetch(
-                NS, "environments", env_name, "packages",
+                "environments", env_name, "packages",
                 params={"develop": "1"},
                 method="POST", body=json.dumps(body)
             )
@@ -932,7 +932,7 @@ async def test_package_install_development_mode_url_path(conda_fetch, wait_for_t
 
         body = {"packages": [pkg_name]}
         response = await conda_fetch(
-            NS, "environments", env_name, "packages",
+            "environments", env_name, "packages",
             method="POST", body=json.dumps(body), params={"develop": "1"}
         )
         assert response.code == 202
@@ -963,7 +963,7 @@ async def test_pkg_update(conda_fetch, wait_for_task):
     
     try:
         response = await conda_fetch(
-            NS, "environments", env_name, "packages", method="PATCH", body="{}"
+            "environments", env_name, "packages", method="PATCH", body="{}"
         )
         assert response.code == 202
         location = response.headers.get("Location")

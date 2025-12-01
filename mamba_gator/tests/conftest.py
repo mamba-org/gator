@@ -115,7 +115,7 @@ def wait_for_task(conda_fetch):
             location = location[1:]
         
         for _ in range(TIMEOUT):
-            response = await conda_fetch(NS, location, method="GET")
+            response = await conda_fetch(location, method="GET")
             if response.code != 202:
                 return response
             await asyncio.sleep(SLEEP)
@@ -152,7 +152,7 @@ def env_manager(conda_fetch, wait_for_task):
         # Check if env exists and remove if requested
         if remove_if_exists:
             try:
-                envs_response = await conda_fetch(NS, "environments", method="GET")
+                envs_response = await conda_fetch("environments", method="GET")
                 envs_data = json.loads(envs_response.body)
                 existing_names = [e["name"] for e in envs_data.get("environments", [])]
                 if env_name in existing_names:
