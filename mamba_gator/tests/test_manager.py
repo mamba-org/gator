@@ -8,16 +8,10 @@ from mamba_gator.envmanager import EnvManager, parse_version
 from .utils import has_mamba
 
 
-@pytest.mark.skipif(has_mamba, reason="Mamba found")
-def test_envmanager_manager_conda():
+def test_envmanager_manager():
     manager = EnvManager("", None)
-    assert Path(manager.manager).stem == "conda"
-
-
-@pytest.mark.skipif(not has_mamba, reason="Mamba NOT found")
-def test_envmanager_manager_mamba():
-    manager = EnvManager("", None)
-    assert Path(manager.manager).stem == "mamba"
+    expected = "mamba" if has_mamba else "conda"
+    assert Path(manager.manager).stem == expected
 
 
 def test_parse_r_style_version_with_underscore():
@@ -45,7 +39,7 @@ def test_parse_version_with_multiple_underscores():
 
 
 def test_parse_year_version_with_z_suffix():
-    """Test that year versions with 'z' suffix convert to .26."""
+    """Test that year versions with 'z' suffix convert to .26 (z is the 26th letter)."""
     result = parse_version("2023z")
     assert result == Version("2023.26")
 
