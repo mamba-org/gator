@@ -19,12 +19,6 @@ _Requirements_
 
 > Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
 
-To install in the classical notebook:
-
-```shell
-mamba install -c conda-forge mamba_gator
-```
-
 To install in the JupyterLab:
 
 ```shell
@@ -89,7 +83,7 @@ To setup a development environment follow our [Contributing Guide](CONTRIBUTING.
 If you would like to try a pre-release version:
 
 ```shell
-conda create -c conda-forge -y -n gator python=3.13 nodejs jupyterlab=4.0 
+conda create -c conda-forge -y -n gator python=3.14 nodejs jupyterlab=4.0 
 conda activate gator
 pip install git+https://github.com/mamba-org/gator.git
 jupyter lab
@@ -104,7 +98,6 @@ Then with the [mamba initiative](https://medium.com/@QuantStack/open-software-pa
 sense to move the project in the `mamba-org` organization.
 
 ## Changelog
-
 
 - [Changelog file](docs/source/changelog.md) (in this repository)
 - [Rendered documentation](https://mamba-gator.readthedocs.io/en/latest/changelog.html)
