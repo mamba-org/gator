@@ -59,12 +59,17 @@ def jp_server_config(jp_server_config):
 
 @pytest.fixture
 def conda_fetch(jp_fetch):
-    """Wrapper around jp_fetch with longer timeout for conda operations.
+    """Wrapper around jp_fetch for conda API endpoints.
     
-    Also supports DELETE requests with body (required for package removal API).
+    Automatically prefixes paths with the conda namespace (NS).
+    Uses longer timeout for slow conda operations.
+    Supports DELETE requests with body (required for package removal API).
     """
     
     async def _fetch(*args, **kwargs):
+        # Prepend the namespace to the path
+        args = (NS,) + args
+        
         # Set a longer timeout for conda operations (default 20s is too short)
         if "request_timeout" not in kwargs:
             kwargs["request_timeout"] = 120

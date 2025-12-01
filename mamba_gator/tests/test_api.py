@@ -19,7 +19,6 @@ import pytest
 import tornado.httpclient
 
 from mamba_gator.envmanager import EnvManager
-from mamba_gator.handlers import NS
 
 from .utils import assert_http_error, has_mamba
 
@@ -44,14 +43,14 @@ def generate_name() -> str:
 
 async def get_envs(conda_fetch):
     """Get list of environments."""
-    response = await conda_fetch(NS, "environments", method="GET")
+    response = await conda_fetch("environments", method="GET")
     return json.loads(response.body)
 
 
 async def create_env(conda_fetch, wait_for_task, name, packages=None):
     """Create an environment and wait for completion."""
     body = {"name": name, "packages": packages or ["python!=3.14.0"]}
-    response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+    response = await conda_fetch("environments", method="POST", body=json.dumps(body))
     assert response.code == 202
     location = response.headers.get("Location")
     assert location is not None
@@ -60,7 +59,7 @@ async def create_env(conda_fetch, wait_for_task, name, packages=None):
 
 async def delete_env(conda_fetch, wait_for_task, name):
     """Delete an environment and wait for completion."""
-    response = await conda_fetch(NS, "environments", name, method="DELETE")
+    response = await conda_fetch("environments", name, method="DELETE")
     if response.code == 202:
         location = response.headers.get("Location")
         return await wait_for_task(location)
@@ -70,7 +69,7 @@ async def delete_env(conda_fetch, wait_for_task, name):
 async def clone_env(conda_fetch, wait_for_task, original_name, new_name):
     """Clone an environment and wait for completion."""
     body = {"name": new_name, "twin": original_name}
-    response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+    response = await conda_fetch("environments", method="POST", body=json.dumps(body))
     assert response.code == 202
     location = response.headers.get("Location")
     return await wait_for_task(location)
@@ -117,7 +116,7 @@ async def env_with_python_fixture(conda_fetch, wait_for_task):
 
 async def test_get_list_channels(conda_fetch):
     """Test GET /channels returns channel list."""
-    response = await conda_fetch(NS, "channels", method="GET")
+    response = await conda_fetch("channels", method="GET")
     assert response.code == 200
     data = json.loads(response.body)
     assert "channels" in data
@@ -132,7 +131,7 @@ async def test_channels_fail_get(conda_fetch):
         f.return_value = (1, json.dumps(r))
         
         with pytest.raises(tornado.httpclient.HTTPClientError) as exc_info:
-            await conda_fetch(NS, "channels", method="GET")
+            await conda_fetch("channels", method="GET")
         
         assert_http_error(exc_info, 500, error_msg)
 
@@ -204,7 +203,7 @@ async def test_channels_deployment(conda_fetch):
         }
         f.return_value = (0, json.dumps(data))
 
-        response = await conda_fetch(NS, "channels", method="GET")
+        response = await conda_fetch("channels", method="GET")
         assert response.code == 200
 
         body = json.loads(response.body)
@@ -255,7 +254,7 @@ async def test_environments_failed_get(conda_fetch):
         f.return_value = (1, json.dumps(err))
         
         with pytest.raises(tornado.httpclient.HTTPClientError) as exc_info:
-            await conda_fetch(NS, "environments", method="GET")
+            await conda_fetch("environments", method="GET")
         
         assert_http_error(exc_info, 500, msg)
 
@@ -316,7 +315,7 @@ async def test_empty_environment(conda_fetch, wait_for_task):
     
     try:
         body = {"name": env_name}
-        response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+        response = await conda_fetch("environments", method="POST", body=json.dumps(body))
         assert response.code == 202
         location = response.headers.get("Location")
         response = await wait_for_task(location)
@@ -371,7 +370,7 @@ prefix: /home/user/.conda/envs/lab_conda
 
     try:
         body = {"name": env_name, "file": content, "filename": "testenv.yml"}
-        response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+        response = await conda_fetch("environments", method="POST", body=json.dumps(body))
         assert response.code == 202
         location = response.headers.get("Location")
         response = await wait_for_task(location)
@@ -381,7 +380,7 @@ prefix: /home/user/.conda/envs/lab_conda
         env_names = [env["name"] for env in envs["environments"]]
         assert env_name in env_names
 
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body).get("packages", [])
         package_names = [p["name"] for p in pkgs]
         for p in expected_packages:
@@ -402,7 +401,7 @@ astroid
 
     try:
         body = {"name": env_name, "file": content}
-        response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+        response = await conda_fetch("environments", method="POST", body=json.dumps(body))
         assert response.code == 202
         location = response.headers.get("Location")
         response = await wait_for_task(location)
@@ -446,7 +445,7 @@ prefix: /home/user/.conda/envs/lab_conda
         env_names = [env["name"] for env in envs["environments"]]
         assert env_name in env_names
 
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body).get("packages", [])
         package_names = [p["name"] for p in pkgs]
         for p in expected_packages:
@@ -486,7 +485,7 @@ prefix: /home/user/.conda/envs/lab_conda
         env_names = [env["name"] for env in envs["environments"]]
         assert env_name in env_names
 
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body).get("packages", [])
         package_names = [p["name"] for p in pkgs]
         for p in expected_packages:
@@ -520,7 +519,7 @@ astroid
         env_names = [env["name"] for env in envs["environments"]]
         assert env_name in env_names
 
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         assert r.code == 200
         body = json.loads(r.body)
         assert "packages" in body
@@ -548,7 +547,7 @@ async def test_get_whitelist(conda_fetch, wait_for_task, jp_serverapp):
         env_manager = jp_serverapp.web_app.settings["env_manager"]
         env_manager._kernel_spec_manager = manager
 
-        response = await conda_fetch(NS, "environments", method="GET", params={"whitelist": "1"})
+        response = await conda_fetch("environments", method="GET", params={"whitelist": "1"})
         assert response.code == 200
         
         envs = json.loads(response.body)
@@ -570,7 +569,7 @@ async def test_get_whitelist(conda_fetch, wait_for_task, jp_serverapp):
         await create_env(conda_fetch, wait_for_task, other_name)
         
         try:
-            response = await conda_fetch(NS, "environments", method="GET", params={"whitelist": "1"})
+            response = await conda_fetch("environments", method="GET", params={"whitelist": "1"})
             assert response.code == 200
             envs = json.loads(response.body)
             assert len(envs["environments"]) == found_env
@@ -607,7 +606,7 @@ async def test_environment_get(conda_fetch, wait_for_task):
     await create_env(conda_fetch, wait_for_task, env_name)
     
     try:
-        response = await conda_fetch(NS, "environments", env_name, method="GET")
+        response = await conda_fetch("environments", env_name, method="GET")
         assert response.code == 200
         body = json.loads(response.body)
         assert "packages" in body
@@ -620,7 +619,7 @@ async def test_environment_fail_get(conda_fetch):
     env_name = generate_name()
     
     with pytest.raises(tornado.httpclient.HTTPClientError) as exc_info:
-        await conda_fetch(NS, "environments", env_name, method="GET")
+        await conda_fetch("environments", env_name, method="GET")
     
     # Non-existing environment should return 500
     assert exc_info.value.code == 500
@@ -632,7 +631,7 @@ async def test_environment_get_has_update(conda_fetch, wait_for_task):
     
     try:
         body = {"name": env_name, "packages": ["python=3.9", "astroid"]}
-        response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+        response = await conda_fetch("environments", method="POST", body=json.dumps(body))
         assert response.code == 202
         location = response.headers.get("Location")
         await wait_for_task(location)
@@ -732,7 +731,7 @@ async def test_conda_version(conda_fetch):
     EnvManager._conda_version = None
     assert EnvManager._conda_version is None
     
-    await conda_fetch(NS, "environments", method="GET")
+    await conda_fetch("environments", method="GET")
     
     assert EnvManager._conda_version is not None
 
@@ -761,7 +760,7 @@ async def test_pkg_install_and_remove(conda_fetch, wait_for_task):
         assert response.code == 200
         
         # Verify installed
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body)["packages"]
         v = None
         for p in pkgs:
@@ -781,7 +780,7 @@ async def test_pkg_install_and_remove(conda_fetch, wait_for_task):
         assert response.code == 200
         
         # Verify removed
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body)["packages"]
         v = None
         for p in pkgs:
@@ -811,7 +810,7 @@ async def test_pkg_install_with_version_constraints(conda_fetch, wait_for_task):
         response = await wait_for_task(location)
         assert response.code == 200
         
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body)["packages"]
         v = None
         for p in pkgs:
@@ -836,7 +835,7 @@ async def test_pkg_install_with_version_constraints(conda_fetch, wait_for_task):
         response = await wait_for_task(location)
         assert response.code == 200
         
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body)["packages"]
         v = None
         for p in pkgs:
@@ -861,7 +860,7 @@ async def test_pkg_install_with_version_constraints(conda_fetch, wait_for_task):
         response = await wait_for_task(location)
         assert response.code == 200
         
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         pkgs = json.loads(r.body)["packages"]
         v = None
         for p in pkgs:
@@ -900,7 +899,7 @@ async def test_package_install_development_mode(conda_fetch, wait_for_task):
             location = response.headers.get("Location")
             await wait_for_task(location)
 
-            r = await conda_fetch(NS, "environments", env_name, method="GET")
+            r = await conda_fetch("environments", env_name, method="GET")
             body = json.loads(r.body)
 
             v = None
@@ -940,7 +939,7 @@ async def test_package_install_development_mode_url_path(conda_fetch, wait_for_t
         location = response.headers.get("Location")
         await wait_for_task(location)
 
-        r = await conda_fetch(NS, "environments", env_name, method="GET")
+        r = await conda_fetch("environments", env_name, method="GET")
         body = json.loads(r.body)
 
         v = None
@@ -983,7 +982,7 @@ async def test_package_search(conda_fetch, wait_for_task):
     """Test GET /packages?query=<pkg>."""
     pkg_name = "astroid"
     
-    response = await conda_fetch(NS, "packages", method="GET", params={"query": pkg_name})
+    response = await conda_fetch("packages", method="GET", params={"query": pkg_name})
     assert response.code == 202
     location = response.headers.get("Location")
     response = await wait_for_task(location)
@@ -1164,7 +1163,7 @@ async def test_package_list_available(conda_fetch, wait_for_task):
                 (0, json.dumps(channels)),
             ]
 
-            response = await conda_fetch(NS, "packages", method="GET")
+            response = await conda_fetch("packages", method="GET")
             assert response.code == 202
             location = response.headers.get("Location")
             response = await wait_for_task(location)
@@ -1383,7 +1382,7 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
                     (0, json.dumps(channels)),
                 ]
 
-                response = await conda_fetch(NS, "packages", method="GET")
+                response = await conda_fetch("packages", method="GET")
                 assert response.code == 202
                 location = response.headers.get("Location")
                 response = await wait_for_task(location)
@@ -1588,7 +1587,7 @@ async def test_package_list_available_no_description(conda_fetch, wait_for_task)
                     (0, json.dumps(channels)),
                 ]
 
-                response = await conda_fetch(NS, "packages", method="GET")
+                response = await conda_fetch("packages", method="GET")
                 assert response.code == 202
                 location = response.headers.get("Location")
                 response = await wait_for_task(location)
@@ -1801,7 +1800,7 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
             ]
 
             # First retrieval - no cache available
-            response = await conda_fetch(NS, "packages", method="GET")
+            response = await conda_fetch("packages", method="GET")
             assert response.code == 202
             location = response.headers.get("Location")
             response = await wait_for_task(location)
@@ -1850,7 +1849,7 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
                 assert json.load(cache) == expected
 
             # Retrieve using cache
-            response = await conda_fetch(NS, "packages", method="GET")
+            response = await conda_fetch("packages", method="GET")
             assert response.code == 200
             body = json.loads(response.body)
             assert body == expected
@@ -1864,7 +1863,7 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
 async def test_get_invalid_task(conda_fetch):
     """Test GET /tasks/<id> with invalid task ID."""
     with pytest.raises(tornado.httpclient.HTTPClientError) as exc_info:
-        await conda_fetch(NS, "tasks", str(random.randint(1, 1200)), method="GET")
+        await conda_fetch("tasks", str(random.randint(1, 1200)), method="GET")
     
     assert exc_info.value.code == 404
 
@@ -1872,7 +1871,7 @@ async def test_get_invalid_task(conda_fetch):
 async def test_delete_invalid_task(conda_fetch):
     """Test DELETE /tasks/<id> with invalid task ID."""
     with pytest.raises(tornado.httpclient.HTTPClientError) as exc_info:
-        await conda_fetch(NS, "tasks", str(random.randint(1, 1200)), method="DELETE")
+        await conda_fetch("tasks", str(random.randint(1, 1200)), method="DELETE")
     
     assert exc_info.value.code == 404
 
@@ -1883,11 +1882,11 @@ async def test_delete_task(conda_fetch, wait_for_task):
     
     try:
         body = {"name": env_name, "packages": ["python!=3.14.0"]}
-        response = await conda_fetch(NS, "environments", method="POST", body=json.dumps(body))
+        response = await conda_fetch("environments", method="POST", body=json.dumps(body))
         location = response.headers.get("Location")
         _, index = location.rsplit("/", maxsplit=1)
         
-        response = await conda_fetch(NS, "tasks", index, method="DELETE")
+        response = await conda_fetch("tasks", index, method="DELETE")
         assert response.code == 204
     finally:
         # Try to clean up the environment if it was created
