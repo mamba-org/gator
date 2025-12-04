@@ -263,18 +263,53 @@ jobs:
         run: npx playwright install --with-deps chromium
         shell: bash -l {0}
 
-      - name: Test the extension
+      - name: Run linters
         run: |
           conda activate test_gator
-          # Run linter
           hatch run lint:check
           jlpm run eslint:check
+        shell: bash -l {0}
 
-          # Run test
-          coverage run -m pytest mamba_gator
+      - name: Test Python backend with coverage
+        run: |
+          conda activate test_gator
+          coverage run -m pytest mamba_gator --junitxml=pytest-results.xml
           coverage report
-          jlpm run test
+          coverage xml -o coverage.xml
+          coverage json -o coverage.json
+        shell: bash -l {0}
 
+      - name: Generate coverage report summary
+        if: always()
+        run: |
+          conda activate test_gator
+          echo "## 🐍 Python Backend Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          coverage report >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        shell: bash -l {0}
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            coverage.json
+            pytest-results.xml
+            .coverage
+
+      - name: Test TypeScript frontend
+        run: |
+          conda activate test_gator
+          jlpm run test
+        shell: bash -l {0}
+
+      - name: Verify extension installation
+        run: |
+          conda activate test_gator
           jupyter server extension list
           jupyter server extension list 2>&1 | grep "mamba_gator.*OK"
           jupyter labextension list
