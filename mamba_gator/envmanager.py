@@ -67,6 +67,10 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "tags": s.get("tags", []),
     }
 
+def normalize_name(name: str) -> str:
+    """Normalize package name for comparison (Normalized Names, PEP 503)."""
+    return name.lower().replace("-", "_").replace(".", "_")
+
 
 def get_env_path(kernel_spec: Dict[str, Any]) -> Optional[str]:
     """Get the conda environment path.
@@ -678,7 +682,7 @@ class EnvManager:
                         if pip_rcode == 0:
                             editable_packages = json.loads(pip_output)
                             for editable_pkg in editable_packages:
-                                if editable_pkg["name"].lower() == normalized_pkg["name"].lower():
+                                if normalize_name(editable_pkg["name"]) == normalize_name(normalized_pkg["name"]):
                                     normalized_pkg["channel"] = "<develop>"
                                     break
                     except (json.JSONDecodeError, Exception):
