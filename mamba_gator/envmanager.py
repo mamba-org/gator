@@ -679,8 +679,8 @@ class EnvManager:
             normalized_pkg = normalize_pkg_info(package)
 
             # Check if this is a pip package installed in development mode
-            # Development mode packages have 'channel': '<develop>' in pip list output
-            # or are pip packages with editable installs
+            # PyPI packages with editable installs should be marked as '<develop>'
+            # Packages already marked as '<develop>' from conda list are preserved as-is
             if normalized_pkg.get("channel") == "pypi":
                 if normalize_name(normalized_pkg["name"]) in editable_pkg_names:
                     normalized_pkg["channel"] = "<develop>"
