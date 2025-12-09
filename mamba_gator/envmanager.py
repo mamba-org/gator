@@ -68,7 +68,7 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
     }
 
 def normalize_name(name: str) -> str:
-    """Normalize package name for comparison (Normalized Names, PEP 503)."""
+    """Normalize package name listing for comparison between conda and pip."""
     return name.lower().replace("-", "_").replace(".", "_")
 
 
