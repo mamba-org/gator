@@ -646,49 +646,45 @@ class EnvManager:
             # error info
             return data
 
+        editable_pkg_names = set()
+        has_pypi_packages = any(
+            normalize_pkg_info(pkg).get("channel") == "pypi" for pkg in data
+        )
+
+        if has_pypi_packages:
+            envs = await self.list_envs()
+            env_info = next((e for e in envs["environments"] if e["name"] == env), None)
+
+            if env_info:
+                if sys.platform == "win32":
+                    python_cmd = os.path.join(env_info["dir"], "python")
+                else:
+                    python_cmd = os.path.join(env_info["dir"], "bin", "python")
+
+                # Check if this package is installed in editable mode
+                try:
+                    ans = await self._execute(
+                        python_cmd, "-m", "pip", "list", "--editable", "--format=json"
+                    )
+                    pip_rcode, pip_output = ans
+                    if pip_rcode == 0:
+                        editable_packages = json.loads(pip_output)
+                        editable_pkg_names = {normalize_name(pkg["name"]) for pkg in editable_packages}
+                except (json.JSONDecodeError, Exception):
+                    pass
+
         # Process packages and identify development mode packages
         packages = []
         for package in data:
             normalized_pkg = normalize_pkg_info(package)
-            
+
             # Check if this is a pip package installed in development mode
             # Development mode packages have 'channel': '<develop>' in pip list output
             # or are pip packages with editable installs
-            if normalized_pkg.get("channel") == "<develop>":
-                # Already marked as development mode by conda/pip
-                pass
-            elif normalized_pkg.get("channel") == "pypi":
-                # This is a pip package - check if it's in development mode
-                # We need to check if it's installed as editable
-                envs = await self.list_envs()
-                env_info = None
-                for e in envs["environments"]:
-                    if e["name"] == env:
-                        env_info = e
-                        break
-                
-                if env_info:
-                    if sys.platform == "win32":
-                        python_cmd = os.path.join(env_info["dir"], "python")
-                    else:
-                        python_cmd = os.path.join(env_info["dir"], "bin", "python")
-                    
-                    # Check if this package is installed in editable mode
-                    try:
-                        ans = await self._execute(
-                            python_cmd, "-m", "pip", "list", "--editable", "--format=json"
-                        )
-                        pip_rcode, pip_output = ans
-                        if pip_rcode == 0:
-                            editable_packages = json.loads(pip_output)
-                            for editable_pkg in editable_packages:
-                                if normalize_name(editable_pkg["name"]) == normalize_name(normalized_pkg["name"]):
-                                    normalized_pkg["channel"] = "<develop>"
-                                    break
-                    except (json.JSONDecodeError, Exception):
-                        # If we can't determine editable status, leave as is
-                        pass
-            
+            if normalized_pkg.get("channel") == "pypi":
+                if normalize_name(normalized_pkg["name"]) in editable_pkg_names:
+                    normalized_pkg["channel"] = "<develop>"
+
             packages.append(normalized_pkg)
 
         return {"packages": packages}
