@@ -74,41 +74,6 @@ async def clone_env(conda_fetch, wait_for_task, original_name, new_name):
     location = response.headers.get("Location")
     return await wait_for_task(location)
 
-
-# =============================================================================
-# Fixtures
-# =============================================================================
-
-
-@pytest.fixture
-async def env_fixture(conda_fetch, wait_for_task):
-    """Create a test environment and clean it up after the test."""
-    env_name = generate_name()
-    await create_env(conda_fetch, wait_for_task, env_name)
-    
-    yield env_name
-    
-    # Cleanup
-    try:
-        await delete_env(conda_fetch, wait_for_task, env_name)
-    except Exception:
-        pass
-
-
-@pytest.fixture
-async def env_with_python_fixture(conda_fetch, wait_for_task):
-    """Create a test environment with Python 3.9."""
-    env_name = generate_name()
-    await create_env(conda_fetch, wait_for_task, env_name, packages=["python=3.9"])
-    
-    yield env_name
-    
-    try:
-        await delete_env(conda_fetch, wait_for_task, env_name)
-    except Exception:
-        pass
-
-
 # =============================================================================
 # TestChannelsHandler
 # =============================================================================
