@@ -52,6 +52,7 @@ export interface IEnvironmentManager extends IDisposable {
    *
    * @param name name of the new environment
    * @param type type of environment to create
+   * @param packages Optional list of additional packages to install
    */
   create(name: string, type?: string, packages?: string[]): Promise<void>;
 
