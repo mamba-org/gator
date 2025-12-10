@@ -186,7 +186,6 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
           } catch (error) {
             console.error('Failed to load packages:', error);
             this.setState({
-              showCreateEnvDrawer: true,
               availablePackages: []
             });
           }
