@@ -226,9 +226,17 @@ export class CondaEnvironments implements IEnvironmentManager {
     }
   }
 
-  async create(name: string, type?: string): Promise<void> {
+  async create(
+    name: string,
+    type?: string,
+    additionalPackages?: string[]
+  ): Promise<void> {
     try {
-      const packages: Array<string> = this.getEnvironmentFromType(type || '');
+      const typePackages: Array<string> = this.getEnvironmentFromType(
+        type || ''
+      );
+
+      const packages = [...typePackages, ...(additionalPackages || [])];
 
       const request: RequestInit = {
         body: JSON.stringify({ name, packages }),
@@ -518,7 +526,9 @@ export class CondaPackage implements Conda.IPackageManager {
       return Promise.resolve([]);
     }
 
-    this._cancelTasks('default');
+    // Only cancel tasks when we're requesting installed packages for this environment
+    // This prevents cancelling cached available packages requests
+    this._cancelTasks(`installed:${theEnvironment}`);
 
     try {
       const request: RequestInit = {
@@ -530,7 +540,11 @@ export class CondaPackage implements Conda.IPackageManager {
         URLExt.join('conda', 'environments', theEnvironment),
         request
       );
-      const idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
+      const idx =
+        this._cancellableStack.push({
+          type: `installed:${theEnvironment}`,
+          cancel
+        }) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
@@ -713,7 +727,7 @@ export class CondaPackage implements Conda.IPackageManager {
       return Promise.resolve([]);
     }
 
-    this._cancelTasks('default');
+    this._cancelTasks(`checkUpdates:${theEnvironment}`);
 
     try {
       const request: RequestInit = {
@@ -724,7 +738,11 @@ export class CondaPackage implements Conda.IPackageManager {
           URLExt.objectToQueryString({ status: 'has_update' }),
         request
       );
-      const idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
+      const idx =
+        this._cancellableStack.push({
+          type: `checkUpdates:${theEnvironment}`,
+          cancel
+        }) - 1;
       const response = await promise;
       this._cancellableStack.splice(idx, 1);
       const data = (await response.json()) as {
@@ -860,49 +878,58 @@ export class CondaPackage implements Conda.IPackageManager {
     force = false,
     cancellable = true
   ): Promise<Array<Conda.IPackage>> {
-    this._cancelTasks('default');
-
-    if (CondaPackage._availablePackages === null || force) {
-      const request: RequestInit = {
-        method: 'GET'
-      };
-
-      const { promise, cancel } = Private.requestServer(
-        URLExt.join('conda', 'packages'),
-        request
-      );
-      let idx: number;
-      if (cancellable) {
-        idx = this._cancellableStack.push({ type: 'default', cancel }) - 1;
-      }
-      const response = await promise;
-      if (idx) {
-        this._cancellableStack.splice(idx, 1);
-      }
-      const data = (await response.json()) as {
-        packages: Array<Conda.IPackage>;
-        with_description: boolean;
-      };
-      CondaPackage._availablePackages = data.packages;
-      CondaPackage._hasDescription = data.with_description || false;
+    // If we already have cached packages and aren't forcing a refresh,
+    // return immediately without cancelling any pending tasks
+    if (CondaPackage._availablePackages !== null && !force) {
+      return Promise.resolve(CondaPackage._availablePackages);
     }
+
+    // Only cancel existing available packages tasks if we're about to make a new request
+    this._cancelTasks('availablePackages');
+
+    const request: RequestInit = {
+      method: 'GET'
+    };
+
+    const { promise, cancel } = Private.requestServer(
+      URLExt.join('conda', 'packages'),
+      request
+    );
+    let idx: number;
+    if (cancellable) {
+      idx =
+        this._cancellableStack.push({ type: 'availablePackages', cancel }) - 1;
+    }
+    const response = await promise;
+    if (idx) {
+      this._cancellableStack.splice(idx, 1);
+    }
+    const data = (await response.json()) as {
+      packages: Array<Conda.IPackage>;
+      with_description: boolean;
+    };
+    CondaPackage._availablePackages = data.packages;
+    CondaPackage._hasDescription = data.with_description || false;
+
     return Promise.resolve(CondaPackage._availablePackages);
   }
 
   /**
-   * Cancel optional tasks
+   * Cancel optional tasks of a specific type
    */
   private _cancelTasks(type: string): void {
     if (this._cancellableStack.length > 0) {
-      const tasks = this._cancellableStack.splice(
-        0,
-        this._cancellableStack.length
-      );
-      tasks.forEach(action => {
+      // Only remove and cancel tasks that match the specified type
+      const remainingTasks: Array<ICancellableAction> = [];
+      this._cancellableStack.forEach(action => {
         if (action.type === type) {
           action.cancel();
+        } else {
+          remainingTasks.push(action);
         }
       });
+      this._cancellableStack.length = 0;
+      this._cancellableStack.push(...remainingTasks);
     }
   }
 

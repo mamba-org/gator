@@ -5,14 +5,15 @@ import { IEnvironmentManager } from './tokens';
 export async function createEnvironment(
   model: IEnvironmentManager,
   name: string,
-  type?: string
+  type?: string,
+  packages?: string[]
 ): Promise<void> {
   let toastId = '';
 
   try {
     toastId = Notification.emit(`Creating environment ${name}`, 'in-progress');
 
-    await model.create(name, type);
+    await model.create(name, type, packages);
 
     Notification.update({
       id: toastId,
