@@ -355,7 +355,8 @@ export async function updatePackage(
   pkgModel: Conda.IPackageManager,
   packageName: string,
   version?: string,
-  environment?: string
+  environment?: string,
+  skipConfirmation: boolean = false
 ): Promise<void> {
   const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
@@ -364,30 +365,35 @@ export async function updatePackage(
 
   let toastId = '';
   try {
-    const confirmation = await showDialog({
-      title: 'Update package',
-      body: `Please confirm you want to update ${packageName}?`
+    if (!skipConfirmation) {
+      const confirmation = await showDialog({
+        title: 'Update package',
+        body: `Please confirm you want to update ${packageName}?`
+      });
+      if (!confirmation.button.accept) {
+        return;
+      }
+    }
+
+    toastId = Notification.emit('Updating package', 'in-progress', {
+      autoClose: false
     });
 
-    if (confirmation.button.accept) {
-      toastId = Notification.emit('Updating package', 'in-progress');
-
-      if (version) {
-        // When a specific version is requested, use conda install
-        const packageSpec = `${packageName}=${version}`;
-        await pkgModel.install([packageSpec], theEnvironment);
-      } else {
-        // When no version specified, use conda update
-        await pkgModel.update([packageName], theEnvironment);
-      }
-
-      Notification.update({
-        id: toastId,
-        message: `Package ${packageName} updated successfully.`,
-        type: 'success',
-        autoClose: 5000
-      });
+    if (version) {
+      // When a specific version is requested, use conda install
+      const packageSpec = `${packageName}=${version}`;
+      await pkgModel.install([packageSpec], theEnvironment);
+    } else {
+      // When no version specified, use conda update
+      await pkgModel.update([packageName], theEnvironment);
     }
+
+    Notification.update({
+      id: toastId,
+      message: `Package ${packageName} updated successfully.`,
+      type: 'success',
+      autoClose: 5000
+    });
   } catch (error) {
     if (error !== 'cancelled') {
       console.error(error);
