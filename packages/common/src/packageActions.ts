@@ -355,8 +355,7 @@ export async function updatePackage(
   pkgModel: Conda.IPackageManager,
   packageName: string,
   version?: string,
-  environment?: string,
-  skipConfirmation: boolean = false
+  environment?: string
 ): Promise<void> {
   const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
@@ -365,16 +364,6 @@ export async function updatePackage(
 
   let toastId = '';
   try {
-    if (!skipConfirmation) {
-      const confirmation = await showDialog({
-        title: 'Update package',
-        body: `Please confirm you want to update ${packageName}?`
-      });
-      if (!confirmation.button.accept) {
-        return;
-      }
-    }
-
     toastId = Notification.emit('Updating package', 'in-progress', {
       autoClose: false
     });
