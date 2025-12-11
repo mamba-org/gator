@@ -58,7 +58,14 @@ export const PythonVersionSelector = (
       )}
       {!props.disabled && props.isOverridden && (
         <div className={Style.OverrideContainer}>
-          <span className={Style.OverrideText}>⚠️ Override</span>
+          <span className={Style.OverrideText}>
+            <span
+              role="img"
+              aria-label="Warning: over wrote python version from environment type"
+            >
+              ⚠️ Override
+            </span>
+          </span>
           <button
             className={Style.ResetButton}
             onClick={() => props.onResetToTypeVersion?.()}

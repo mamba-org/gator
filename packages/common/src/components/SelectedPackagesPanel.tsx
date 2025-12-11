@@ -11,7 +11,9 @@ export const SelectedPackagesPanel = (props: ISelectedPackagesPanelProps) => {
     return (
       <div className={Style.Container}>
         <div className={Style.Empty}>
-          <div className={Style.EmptyIcon}>📦</div>
+          <div className={Style.EmptyIcon}>
+            <span aria-hidden="true">📦</span>
+          </div>
           <div>No packages yet</div>
           <div className={Style.EmptyHint}>Select packages on the left</div>
         </div>
