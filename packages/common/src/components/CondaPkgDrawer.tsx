@@ -193,7 +193,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
         }
         return a.name.localeCompare(b.name);
       });
-  }, [props.packages, searchTerm, props.hasDescription]);
+  }, [props.packages, searchTerm]);
 
   const renderPkgsSelected = (): JSX.Element => {
     if (selectedPackages.length === 0) {
