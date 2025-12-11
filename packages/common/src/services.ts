@@ -151,7 +151,11 @@ export class CondaEnvironments implements IEnvironmentManager {
    * @param settings User settings
    */
   private _updateSettings(settings: ISettingRegistry.ISettings): void {
-    this._environmentTypes = settings.get('types').composite as IType;
+    const types = settings.get('types').composite as IType;
+    this._environmentTypes =
+      types && Object.keys(types).length > 0
+        ? types
+        : { python3: ['python=3', 'ipykernel'] };
     this._fromHistory = settings.get('fromHistory').composite as boolean;
     this._whitelist = settings.get('whitelist').composite as boolean;
   }
