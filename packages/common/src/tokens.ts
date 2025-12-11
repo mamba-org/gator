@@ -20,12 +20,12 @@ export interface IEnvironmentManager extends IDisposable {
    */
   environmentTypes: string[];
   /**
-   * Get the list of packages to install for a given environment type.
+   * Parse an environment type string into a list of package specifications.
    *
-   * The returned package list is the input type split with " ".
+   * The input string is split by spaces, and each resulting token is treated as a package name or specification.
    *
-   * @param type Environment type
-   * @returns List of packages to create the environment
+   * @param type A string representing the environment type, where each package is separated by a space.
+   * @returns An array of package names or specifications to install for the given environment type.
    */
   getEnvironmentFromType(type: string): string[];
   /**
