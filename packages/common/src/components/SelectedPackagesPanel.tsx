@@ -56,13 +56,6 @@ namespace Style {
     borderLeft: '1px solid var(--jp-border-color2)'
   });
 
-  export const Title = style({
-    margin: '0 0 16px 0',
-    fontSize: '14px',
-    fontWeight: 600,
-    color: 'var(--jp-ui-font-color1)'
-  });
-
   export const List = style({
     flex: '1 1 auto',
     overflow: 'auto',

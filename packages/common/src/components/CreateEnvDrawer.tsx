@@ -692,32 +692,6 @@ namespace Style {
     }
   });
 
-  export const ButtonGroup = style({
-    display: 'flex',
-    gap: '8px',
-    marginTop: '16px'
-  });
-
-  export const Button = style({
-    padding: '8px 16px',
-    fontSize: '13px',
-    fontWeight: 500,
-    border: '1px solid var(--jp-border-color2)',
-    borderRadius: '3px',
-    backgroundColor: 'var(--jp-layout-color2)',
-    color: 'var(--jp-ui-font-color1)',
-    cursor: 'pointer',
-    $nest: {
-      '&:hover:not(:disabled)': {
-        backgroundColor: 'var(--jp-layout-color3)'
-      },
-      '&:disabled': {
-        opacity: 0.5,
-        cursor: 'not-allowed'
-      }
-    }
-  });
-
   export const CancelButton = style({
     padding: '8px 16px',
     border: '1px solid var(--jp-border-color2)',
