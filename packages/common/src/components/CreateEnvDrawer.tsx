@@ -258,6 +258,9 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
         'Failed to create environment with selected packages:',
         error
       );
+      setIsCreating(false);
+      setCreationStatus('');
+      setErrorMessage('An unexpected error occurred');
     }
   };
 
@@ -409,7 +412,9 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
             <button
               className={Style.PrimaryButton}
               onClick={handleCreate}
-              disabled={isCreating || !envName.trim()}
+              disabled={
+                isCreating || !envName.trim() || selectedPackages.size === 0
+              }
             >
               {isCreating ? creationStatus || 'Creating...' : 'Create'}
             </button>
