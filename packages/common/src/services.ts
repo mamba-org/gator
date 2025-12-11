@@ -895,13 +895,13 @@ export class CondaPackage implements Conda.IPackageManager {
       URLExt.join('conda', 'packages'),
       request
     );
-    let idx: number;
+    let idx: number | undefined;
     if (cancellable) {
       idx =
         this._cancellableStack.push({ type: 'availablePackages', cancel }) - 1;
     }
     const response = await promise;
-    if (idx) {
+    if (idx !== undefined) {
       this._cancellableStack.splice(idx, 1);
     }
     const data = (await response.json()) as {
