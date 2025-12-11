@@ -51,6 +51,7 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
   >(new Map());
   const [searchTerm, setSearchTerm] = React.useState('');
   const isLoading = props.packages.length === 0;
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   // Effect to preload packages AND sync Python version when environment type changes
   React.useEffect(() => {
@@ -222,7 +223,18 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
       return;
     }
     setIsCreating(true);
+    setErrorMessage('');
     setCreationStatus('Creating environment...');
+
+    let result: {
+      success: boolean;
+      message: string;
+      cancelled: boolean;
+    } = {
+      success: false,
+      message: '',
+      cancelled: false
+    };
 
     try {
       const packageSpecs: string[] = [];
@@ -235,22 +247,26 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
         }
       });
       if (selectedPackages.size > 0) {
-        await props.commands.execute('gator-lab:create-env', {
+        result = await props.commands.execute('gator-lab:create-env', {
           name: envName,
           type: envType,
           packages: packageSpecs
         });
       }
 
-      props.onEnvironmentCreated(envName);
-      props.onClose();
+      if (result.success || result.cancelled) {
+        props.onEnvironmentCreated(envName);
+        props.onClose();
+      } else {
+        setCreationStatus('');
+        setErrorMessage(result.message || 'Unknown error');
+      }
+      setIsCreating(false);
     } catch (error) {
       console.error(
         'Failed to create environment with selected packages:',
         error
       );
-      setIsCreating(false);
-      setCreationStatus('');
     }
   };
 
@@ -310,8 +326,12 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
             </button>
           </div>
 
-          {isCreating && creationStatus && (
+          {creationStatus && (
             <div className={Style.StatusMessage}>{creationStatus}</div>
+          )}
+
+          {errorMessage && (
+            <div className={Style.ErrorMessage}>{errorMessage}</div>
           )}
 
           <div style={Style.MainContent}>
@@ -486,6 +506,21 @@ namespace Style {
     fontSize: '13px',
     fontWeight: 500,
     textAlign: 'center'
+  });
+
+  export const ErrorMessage = style({
+    padding: '12px 16px',
+    margin: '8px',
+    backgroundColor: 'var(--jp-error-color3)',
+    border: '1px solid var(--jp-error-color1)',
+    borderRadius: '3px',
+    color: 'var(--jp-ui-font-color1)',
+    fontSize: '13px',
+    fontWeight: 500,
+    textAlign: 'left',
+    whiteSpace: 'pre-wrap',
+    maxHeight: '150px',
+    overflowY: 'auto'
   });
 
   export const MainContent = {

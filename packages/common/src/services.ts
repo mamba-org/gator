@@ -260,7 +260,7 @@ export class CondaEnvironments implements IEnvironmentManager {
       let message: string = (error as any).message || (error as any).toString();
       if (message !== 'cancelled') {
         console.error(message);
-        message = `An error occurred while creating environment "${name}".`;
+        message = `Failed to create environment "${name}": ${message}`;
       }
       throw new Error(message);
     }

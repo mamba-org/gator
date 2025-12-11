@@ -7,7 +7,7 @@ export async function createEnvironment(
   name: string,
   type?: string,
   packages?: string[]
-): Promise<void> {
+): Promise<{ success: boolean; message: string; cancelled: boolean }> {
   let toastId = '';
 
   try {
@@ -22,25 +22,32 @@ export async function createEnvironment(
       autoClose: 5000
     });
 
+    return {
+      success: true,
+      message: `Environment ${name} has been created.`,
+      cancelled: false
+    };
     // create calls model.refreshEnvs() already AND emits signal envAdded
   } catch (error) {
     if (error !== 'cancelled') {
       console.error(error);
       if (toastId) {
-        Notification.update({
-          id: toastId,
-          message: (error as any).message,
-          type: 'error',
-          autoClose: false
-        });
-      } else {
-        Notification.error((error as any).message);
+        Notification.dismiss(toastId);
       }
     } else {
       if (toastId) {
         Notification.dismiss(toastId);
       }
     }
+    return {
+      success: false,
+      message:
+        (error as any).message ||
+        (error === 'cancelled'
+          ? 'Environment creation cancelled'
+          : 'Unknown error'),
+      cancelled: error === 'cancelled'
+    };
   }
 }
 
