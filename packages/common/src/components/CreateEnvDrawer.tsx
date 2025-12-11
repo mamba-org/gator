@@ -118,7 +118,6 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
         }
 
         newSelectedPackages.set(pkgName, selectedVersion);
-        pkg.version_selected = selectedVersion;
       } else {
         // Package not found in available packages. Add it anyway with the spec version
         const version = versionConstraint || '';
@@ -138,10 +137,8 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
       const newMap = new Map(prev);
       if (newMap.has(pkg.name)) {
         newMap.delete(pkg.name);
-        pkg.version_selected = 'none';
       } else {
         newMap.set(pkg.name, 'auto');
-        pkg.version_selected = 'auto';
       }
       return newMap;
     });
@@ -163,7 +160,6 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
 
       // Auto-select the package when changing version (even if not previously selected)
       newMap.set(pkg.name, version);
-      pkg.version_selected = version;
       return newMap;
     });
   };
@@ -176,11 +172,6 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
     setSelectedPackages(prev => {
       const newMap = new Map(prev);
       newMap.delete(pkgName);
-      // Find package and reset version_selected
-      const pkg = props.packages.find(p => p.name === pkgName);
-      if (pkg) {
-        pkg.version_selected = 'none';
-      }
       return newMap;
     });
   };
@@ -280,11 +271,6 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
       }
       const newMap = new Map(prev);
       newMap.set('python', version);
-
-      const pkg = props.packages.find(p => p.name === 'python');
-      if (pkg) {
-        pkg.version_selected = version;
-      }
       return newMap;
     });
   };
@@ -299,11 +285,6 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
       }
       const newMap = new Map(prev);
       newMap.set('python', pythonVersionFromType);
-
-      const pkg = props.packages.find(p => p.name === 'python');
-      if (pkg) {
-        pkg.version_selected = pythonVersionFromType;
-      }
       return newMap;
     });
   };
