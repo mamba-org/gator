@@ -96,7 +96,11 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             style={{ color: 'var(--jp-error-color1)' }}
           />
         );
-      } else if (pkg.version_selected !== pkg.version_installed) {
+      } else if (
+        pkg.version_selected !== undefined &&
+        pkg.version_selected !== null &&
+        pkg.version_selected !== pkg.version_installed
+      ) {
         return (
           <FontAwesomeIcon
             icon="external-link-square-alt"
@@ -106,8 +110,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       }
       return (
         <FontAwesomeIcon
-          icon="check-square"
-          style={{ color: 'var(--jp-brand-color1)' }}
+          icon={['far', 'square']}
+          style={{ color: 'var(--jp-ui-font-color2)' }}
         />
       );
     } else if (pkg.version_selected !== 'none') {
@@ -131,9 +135,14 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     if (pkg.version_installed) {
       if (pkg.version_selected === 'none') {
         return true;
-      } else if (pkg.version_selected !== pkg.version_installed) {
+      } else if (
+        pkg.version_selected !== undefined &&
+        pkg.version_selected !== null &&
+        pkg.version_selected !== pkg.version_installed
+      ) {
         return true;
       }
+      return false;
     } else if (pkg.version_selected !== 'none') {
       return true;
     }
