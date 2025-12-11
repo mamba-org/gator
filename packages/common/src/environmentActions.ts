@@ -4,70 +4,53 @@ import { IEnvironmentManager } from './tokens';
 
 export async function createEnvironment(
   model: IEnvironmentManager,
-  environmentName: string | undefined
-): Promise<void> {
+  name: string,
+  type?: string,
+  packages?: string[]
+): Promise<{ success: boolean; message: string; cancelled: boolean }> {
   let toastId = '';
+
   try {
-    const body = document.createElement('div');
-    const nameLabel = document.createElement('label');
-    nameLabel.textContent = 'Name : ';
-    const nameInput = document.createElement('input');
-    body.appendChild(nameLabel);
-    body.appendChild(nameInput);
+    toastId = Notification.emit(`Creating environment ${name}`, 'in-progress');
 
-    const typeLabel = document.createElement('label');
-    typeLabel.textContent = 'Type : ';
-    const typeInput = document.createElement('select');
-    for (const kernelType of model.environmentTypes) {
-      const option = document.createElement('option');
-      option.setAttribute('value', kernelType);
-      option.innerText = kernelType;
-      typeInput.appendChild(option);
-    }
-    body.appendChild(typeLabel);
-    body.appendChild(typeInput);
+    await model.create(name, type, packages);
 
-    const response = await showDialog({
-      title: 'New Environment',
-      body: new Widget({ node: body }),
-      buttons: [Dialog.cancelButton(), Dialog.okButton()]
+    Notification.update({
+      id: toastId,
+      message: `Environment ${name} has been created.`,
+      type: 'success',
+      autoClose: 5000
     });
-    if (response.button.accept) {
-      if (nameInput.value.length === 0) {
-        throw new Error('A environment name should be provided.');
-      }
-      toastId = Notification.emit(
-        `Creating environment ${nameInput.value}`,
-        'in-progress'
-      );
-      await model.create(nameInput.value, typeInput.value);
-      Notification.update({
-        id: toastId,
-        message: `Environment ${nameInput.value} has been created.`,
-        type: 'success',
-        autoClose: 5000
-      });
-    }
+
+    return {
+      success: true,
+      message: `Environment ${name} has been created.`,
+      cancelled: false
+    };
+    // create calls model.refreshEnvs() already AND emits signal envAdded
   } catch (error) {
     if (error !== 'cancelled') {
       console.error(error);
       if (toastId) {
-        Notification.update({
-          id: toastId,
-          message: (error as any).message,
-          type: 'error',
-          autoClose: false
-        });
-      } else {
-        Notification.error((error as any).message);
+        Notification.dismiss(toastId);
       }
     } else {
       if (toastId) {
         Notification.dismiss(toastId);
       }
     }
+    return {
+      success: false,
+      message:
+        (error as any).message ||
+        (error === 'cancelled'
+          ? 'Environment creation cancelled'
+          : 'Unknown error'),
+      cancelled: error === 'cancelled'
+    };
   }
 }
+
 export async function cloneEnvironment(
   model: IEnvironmentManager,
   environmentName: string | undefined

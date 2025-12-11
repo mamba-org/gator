@@ -8,16 +8,10 @@ from mamba_gator.envmanager import EnvManager, parse_version
 from .utils import has_mamba
 
 
-@pytest.mark.skipif(has_mamba, reason="Mamba found")
-def test_envmanager_manager_conda():
+def test_envmanager_manager():
     manager = EnvManager("", None)
-    assert Path(manager.manager).stem == "conda"
-
-
-@pytest.mark.skipif(not has_mamba, reason="Mamba NOT found")
-def test_envmanager_manager_mamba():
-    manager = EnvManager("", None)
-    assert Path(manager.manager).stem == "mamba"
+    expected = "mamba" if has_mamba else "conda"
+    assert Path(manager.manager).stem == expected
 
 
 def test_parse_r_style_version_with_underscore():
@@ -45,7 +39,7 @@ def test_parse_version_with_multiple_underscores():
 
 
 def test_parse_year_version_with_z_suffix():
-    """Test that year versions with 'z' suffix convert to .26."""
+    """Test that year versions with 'z' suffix convert to .26 (z is the 26th letter)."""
     result = parse_version("2023z")
     assert result == Version("2023.26")
 
@@ -56,7 +50,6 @@ def test_parse_standard_semantic_version_unchanged():
     assert result == Version("1.21.0")
 
 
-@pytest.mark.asyncio
 async def test_list_available_returns_valid_structure():
     """Test that list_available returns the expected data structure."""
     manager = EnvManager("", None)
@@ -65,7 +58,6 @@ async def test_list_available_returns_valid_structure():
     assert "with_description" in result
 
 
-@pytest.mark.asyncio
 async def test_list_available_version_sorting_works():
     """Test that version sorting works correctly after parsing in list_available."""
     manager = EnvManager("", None)
@@ -85,7 +77,6 @@ async def test_list_available_version_sorting_works():
             assert versions == sorted(versions, reverse=True)
 
 
-@pytest.mark.asyncio
 async def test_list_available_handles_invalid_versions_gracefully():
     """Test that list_available doesn't crash with invalid versions and logs warnings."""
     manager = EnvManager("", None)
@@ -98,7 +89,6 @@ async def test_list_available_handles_invalid_versions_gracefully():
     assert isinstance(result["packages"], list)
 
 
-@pytest.mark.asyncio
 async def test_list_available_preserves_package_metadata():
     """Test that version parsing doesn't break other package metadata."""
     manager = EnvManager("", None)
@@ -115,7 +105,6 @@ async def test_list_available_preserves_package_metadata():
         assert all(isinstance(v, str) for v in package["version"])
 
 
-@pytest.mark.asyncio
 async def test_list_available_version_parsing_integration():
     """Test the full integration of version parsing within list_available."""
     manager = EnvManager("", None)
@@ -138,7 +127,6 @@ async def test_list_available_version_parsing_integration():
                         pytest.fail(f"Version '{version_str}' from package '{package['name']}' is not valid after parsing")
 
 
-@pytest.mark.asyncio
 async def test_list_available_build_metadata_preserved():
     """Test that build numbers and strings are correctly aligned with parsed versions."""
     manager = EnvManager("", None)

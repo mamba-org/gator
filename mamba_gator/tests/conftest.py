@@ -1,0 +1,133 @@
+"""Pytest configuration for mamba_gator tests.
+
+This module configures pytest-jupyter fixtures for server-based testing.
+"""
+
+import json
+import os
+import sys
+
+import pytest
+from tornado.httpclient import HTTPClientError
+
+from mamba_gator.handlers import NS
+
+pytest_plugins = ["pytest_jupyter.jupyter_server"]
+
+
+TIMEOUT = 150
+SLEEP = 1
+
+
+@pytest.fixture
+def jp_environ():
+    """Ensure conda environment variables are available to the test server.
+    
+    This is critical for conda commands to work properly in tests.
+    """
+    env = {}
+    
+    # Preserve important conda-related environment variables
+    conda_vars = [
+        "CONDA_EXE",
+        "CONDA_PREFIX", 
+        "CONDA_PYTHON_EXE",
+        "CONDA_DEFAULT_ENV",
+        "CONDA_SHLVL",
+        "PATH",
+        "HOME",
+        "SHELL",
+        # macOS-specific
+        "DYLD_LIBRARY_PATH",
+        # Linux-specific
+        "LD_LIBRARY_PATH",
+    ]
+    
+    for var in conda_vars:
+        if var in os.environ:
+            env[var] = os.environ[var]
+    
+    return env
+
+
+@pytest.fixture
+def jp_server_config(jp_server_config):
+    """Configure the server to load mamba_gator extension."""
+    jp_server_config["ServerApp"]["jpserver_extensions"] = {"mamba_gator": True}
+    return jp_server_config
+
+
+@pytest.fixture
+def conda_fetch(jp_fetch):
+    """Wrapper around jp_fetch for conda API endpoints.
+    
+    Automatically prefixes paths with the conda namespace (NS).
+    Uses longer timeout for slow conda operations.
+    Supports DELETE requests with body (required for package removal API).
+    """
+    
+    async def _fetch(*args, **kwargs):
+        # Prepend the namespace to the path
+        args = (NS,) + args
+        
+        # Set a longer timeout for conda operations (default 20s is too short)
+        if "request_timeout" not in kwargs:
+            kwargs["request_timeout"] = 120
+        
+        # Support DELETE with body (needed for package removal API)
+        # Tornado's simple HTTP client doesn't allow this by default
+        method = kwargs.get("method", "GET")
+        body = kwargs.get("body")
+        if method == "DELETE" and body is not None:
+            kwargs["allow_nonstandard_methods"] = True
+        
+        return await jp_fetch(*args, **kwargs)
+    
+    return _fetch
+
+
+@pytest.fixture
+def wait_for_task(conda_fetch):
+    """Fixture to wait for async conda tasks to complete.
+    
+    Returns a function that polls a task endpoint until it completes.
+    """
+    import asyncio
+
+    async def _wait(location):
+        """Wait for a task at the given location to complete.
+        
+        Args:
+            location: The Location header from a 202 response, or task path
+            
+        Returns:
+            The final response when task completes
+            
+        Raises:
+            RuntimeError: If task times out
+        """
+        # Extract task path from location header
+        if location.startswith("/" + NS):
+            location = location[len(NS) + 2:]  # +2 for leading slash and trailing slash
+        
+        # Remove leading slash if present
+        if location.startswith("/"):
+            location = location[1:]
+        
+        for _ in range(TIMEOUT):
+            response = await conda_fetch(location, method="GET")
+            if response.code != 202:
+                return response
+            await asyncio.sleep(SLEEP)
+        
+        raise RuntimeError(f"Task {location} timed out")
+
+    return _wait
+
+
+
+
+# Disable Windows file association dialogs during testing
+if sys.platform == "win32":
+    os.environ["PATHEXT"] = ""
+

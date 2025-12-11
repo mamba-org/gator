@@ -10,6 +10,7 @@ import { CreateEnvButton } from './CreateEnvButton';
 import { CondaPkgPanel } from './CondaPkgPanel';
 import { syncAltIcon } from '../icon';
 import { openCreateEnvDialog } from './CreateEnvDialog';
+import { CreateEnvDrawer } from './CreateEnvDrawer';
 
 /**
  * Jupyter Conda Component properties
@@ -62,6 +63,11 @@ export interface ICondaEnvState {
    * Environment name
    */
   envName?: string;
+  /**
+   * Show the create environment drawer?
+   */
+  showCreateEnvDrawer: boolean;
+  availablePackages?: Conda.IPackage[];
 }
 
 /** Top level React component for Jupyter Conda Manager */
@@ -76,7 +82,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       currentEnvironment: undefined,
       isLoading: false,
       isPackageLoading: false,
-      envName: props.envName
+      envName: props.envName,
+      showCreateEnvDrawer: false,
+      availablePackages: []
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
@@ -159,13 +167,44 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleOpenCreateEnvDialog(): Promise<void> {
     const choice = await openCreateEnvDialog();
     if (choice === 'manual') {
-      await this.props.commands.execute('gator-lab:create-env');
+      const hasPackages =
+        this.state.availablePackages && this.state.availablePackages.length > 0;
+
+      // Load available packages before showing drawer
+      this.setState({
+        showCreateEnvDrawer: true
+      });
+
+      if (!hasPackages) {
+        const pkgManager = this.props.model.getPackageManager('base');
+        if (pkgManager) {
+          try {
+            const packages = await pkgManager.refresh(true, 'base');
+            this.setState({
+              availablePackages: packages
+            });
+          } catch (error) {
+            console.error('Failed to load packages:', error);
+            this.setState({
+              availablePackages: []
+            });
+          }
+        }
+      }
     } else if (choice === 'import') {
       await this.props.commands.execute('gator-lab:import-env');
     } else {
       return;
     }
   }
+
+  handleCloseCreateDrawer = () => {
+    this.setState({ showCreateEnvDrawer: false });
+  };
+
+  handleEnvironmentCreated = (envName: string) => {
+    this.setState({ showCreateEnvDrawer: false });
+  };
 
   async handleRefreshMenuClick(
     iconRef: React.RefObject<HTMLDivElement>,
@@ -317,6 +356,19 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             commands={this.props.commands}
           />
         </div>
+
+        {/* Drawer overlay */}
+        {this.state.showCreateEnvDrawer && (
+          <CreateEnvDrawer
+            model={this.props.model}
+            commands={this.props.commands}
+            environmentTypes={this.props.model.environmentTypes}
+            onClose={this.handleCloseCreateDrawer}
+            onEnvironmentCreated={this.handleEnvironmentCreated}
+            packages={this.state.availablePackages}
+            hasDescription={true}
+          />
+        )}
       </div>
     );
   }

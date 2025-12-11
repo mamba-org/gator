@@ -20,6 +20,15 @@ export interface IEnvironmentManager extends IDisposable {
    */
   environmentTypes: string[];
   /**
+   * Parse an environment type string into a list of package specifications.
+   *
+   * The input string is split by spaces, and each resulting token is treated as a package name or specification.
+   *
+   * @param type A string representing the environment type, where each package is separated by a space.
+   * @returns An array of package names or specifications to install for the given environment type.
+   */
+  getEnvironmentFromType(type: string): string[];
+  /**
    * Get all packages channels available in the requested environment
    *
    * @param name environment name
@@ -43,8 +52,9 @@ export interface IEnvironmentManager extends IDisposable {
    *
    * @param name name of the new environment
    * @param type type of environment to create
+   * @param packages Optional list of additional packages to install
    */
-  create(name: string, kernelType?: string): Promise<void>;
+  create(name: string, type?: string, packages?: string[]): Promise<void>;
 
   /**
    * Emit a signal that an environment was created.

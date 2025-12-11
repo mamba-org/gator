@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "hatchling>=1.9.0",
-    "jupyterlab>=3.6.7,<5.0.0",
+    "jupyterlab>=4.0.0,<5.0.0",
     "jupyter-server",
 ]
 build-backend = "hatchling.build"
@@ -17,18 +17,20 @@ authors = [
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
-    "Framework :: Jupyter :: JupyterLab :: 3",
     "Framework :: Jupyter :: JupyterLab :: 4",
     "Framework :: Jupyter :: JupyterLab :: Extensions",
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "jupyterlab>=3.6.7,<5.0.0",
+    "jupyterlab>=4.0.0,<5.0.0",
     "jupyter_client",
     "jupyter_server>=2.0.0,<3.0.0",
     "jupyterlab_server>=2.0.0,<3.0.0",
@@ -50,13 +52,14 @@ test = [
     "coverage",
     "flake8",
     "pytest",
-    "pytest-asyncio",
-    "requests",
-    "notebook >=4.3.1,!=6.1.0",
+    "pytest-jupyter[server]>=0.11.0",
 ]
 docs = [
     "sphinx",
-    "sphinx_rtd_theme",
+    "sphinx-book-theme",
+    "myst_parser",
+    "linkify-it-py",
+    "sphinx-design"
 ]
 
 [project.scripts]
@@ -71,7 +74,6 @@ artifacts = [
 
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyter-config/jupyter_server_config.d/mamba_gator.json" = "etc/jupyter/jupyter_server_config.d/mamba_gator.json"
-"jupyter-config/jupyter_notebook_config.d/mamba_gator.json" = "etc/jupyter/jupyter_notebook_config.d/mamba_gator.json"
 "mamba_gator/labextension" = "share/jupyter/labextensions/@mamba-org/gator-lab"
 "./install.json" = "share/jupyter/labextensions/@mamba-org/gator-lab/install.json"
 
@@ -134,8 +136,6 @@ check = "flake8 mamba_gator"
 
 [tool.pytest.ini_options]
 addopts = "--rootdir=mamba_gator --strict-markers"
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 omit = [
