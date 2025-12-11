@@ -67,6 +67,7 @@ export interface ICondaEnvState {
    * Show the create environment drawer?
    */
   showCreateEnvDrawer: boolean;
+  availablePackages?: Conda.IPackage[];
 }
 
 /** Top level React component for Jupyter Conda Manager */
@@ -82,7 +83,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
       isLoading: false,
       isPackageLoading: false,
       envName: props.envName,
-      showCreateEnvDrawer: false
+      showCreateEnvDrawer: false,
+      availablePackages: []
     };
 
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
@@ -165,7 +167,30 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
   async handleOpenCreateEnvDialog(): Promise<void> {
     const choice = await openCreateEnvDialog();
     if (choice === 'manual') {
-      this.setState({ showCreateEnvDrawer: true });
+      const hasPackages =
+        this.state.availablePackages && this.state.availablePackages.length > 0;
+
+      // Load available packages before showing drawer
+      this.setState({
+        showCreateEnvDrawer: true
+      });
+
+      if (!hasPackages) {
+        const pkgManager = this.props.model.getPackageManager('base');
+        if (pkgManager) {
+          try {
+            const packages = await pkgManager.refresh(true, 'base');
+            this.setState({
+              availablePackages: packages
+            });
+          } catch (error) {
+            console.error('Failed to load packages:', error);
+            this.setState({
+              availablePackages: []
+            });
+          }
+        }
+      }
     } else if (choice === 'import') {
       await this.props.commands.execute('gator-lab:import-env');
     } else {
@@ -340,6 +365,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             environmentTypes={this.props.model.environmentTypes}
             onClose={this.handleCloseCreateDrawer}
             onEnvironmentCreated={this.handleEnvironmentCreated}
+            packages={this.state.availablePackages}
+            hasDescription={true}
           />
         )}
       </div>

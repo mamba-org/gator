@@ -23,8 +23,10 @@ export function registerEnvCommands(
     execute: async args => {
       const name = args['name'] as string;
       const type = args['type'] as string | undefined;
+      const packages = args['packages'] as string[] | undefined;
 
-      await createEnvironment(model, name, type);
+      const result = await createEnvironment(model, name, type, packages);
+      return result;
     }
   });
 

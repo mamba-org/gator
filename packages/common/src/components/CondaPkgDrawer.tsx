@@ -105,7 +105,7 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
       pkg.version_selected = 'none';
       setSelectedPackages(selectedPackages.filter(p => p !== pkg));
     } else {
-      // It's currently not selected, so select with empty string (represents "Any" version)
+      // It's currently not selected, so select with empty string (represents "unpinned" version)
       pkg.version_selected = '';
       setSelectedPackages([...selectedPackages, pkg]);
     }
@@ -133,7 +133,8 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
         const wasApplied = await applyPackageChanges(
           props.pkgModel,
           selectedPackages,
-          props.envName
+          props.envName,
+          true
         );
 
         if (wasApplied) {
@@ -170,21 +171,29 @@ export const CondaPkgDrawer: React.FunctionComponent<ICondaPkgDrawerProps> = (
   };
 
   // Filter packages based on search term
-  const searchPackages = props.packages.filter(pkg => {
+  const searchPackages = React.useMemo(() => {
     if (!searchTerm) {
-      return true;
+      return props.packages;
     }
     const lowerSearch = searchTerm.toLowerCase();
-    const lowerName = pkg.name.toLowerCase();
 
-    return (
-      lowerName.indexOf(lowerSearch) >= 0 ||
-      (props.hasDescription &&
-        (pkg.summary.toLowerCase().indexOf(lowerSearch) >= 0 ||
-          pkg.keywords.indexOf(lowerSearch) >= 0 ||
-          pkg.tags.indexOf(lowerSearch) >= 0))
-    );
-  });
+    return props.packages
+      .filter(pkg => {
+        const lowerName = pkg.name.toLowerCase();
+        return lowerName.indexOf(lowerSearch) >= 0;
+      })
+      .sort((a, b) => {
+        const aStartsWith = a.name.toLowerCase().startsWith(lowerSearch);
+        const bStartsWith = b.name.toLowerCase().startsWith(lowerSearch);
+        if (aStartsWith && !bStartsWith) {
+          return -1;
+        }
+        if (!aStartsWith && bStartsWith) {
+          return 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+  }, [props.packages, searchTerm]);
 
   const renderPkgsSelected = (): JSX.Element => {
     if (selectedPackages.length === 0) {
