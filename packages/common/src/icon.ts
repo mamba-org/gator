@@ -16,7 +16,8 @@ import {
   faMinusSquare,
   faUndoAlt,
   faCheckSquare,
-  faSquare
+  faSquare,
+  faFilter
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -35,7 +36,8 @@ const icons: IconDefinition[] = [
   faCheckSquare,
   faSquare,
   faCloneRegular,
-  faSquareRegular
+  faSquareRegular,
+  faFilter
 ];
 
 library.add(...icons);

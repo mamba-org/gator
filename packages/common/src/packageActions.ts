@@ -344,6 +344,62 @@ export async function deletePackage(
 }
 
 /**
+ * Delete multiple packages from an environment
+ *
+ * @param pkgModel Package manager
+ * @param packages String list of package names
+ * @param environment Environment name
+ */
+export async function deletePackages(
+  pkgModel: Conda.IPackageManager,
+  packages: string[],
+  environment?: string
+): Promise<void> {
+  const theEnvironment = environment || pkgModel.environment;
+  if (!theEnvironment) {
+    return;
+  }
+
+  let deleteNotification = '';
+
+  try {
+    const confirmation = await showDialog({
+      title: 'Delete packages',
+      body: `Please confirm you want to delete ${packages.length} packages?`
+    });
+
+    if (confirmation.button.accept) {
+      deleteNotification = Notification.emit(
+        `Deleting ${packages.length} packages in ${theEnvironment}.`,
+        'in-progress'
+      );
+
+      await pkgModel.remove(packages, theEnvironment);
+
+      Notification.update({
+        id: deleteNotification,
+        message: `Deleted ${packages.length} packages in ${theEnvironment}`,
+        type: 'success',
+        autoClose: 3000
+      });
+    }
+  } catch (error) {
+    if ((error as any).message !== 'cancelled') {
+      console.error('Error when deleting the package.', error);
+
+      Notification.update({
+        id: deleteNotification,
+        message: `Failed to delete ${packages.length} packages in ${theEnvironment}`,
+        type: 'error',
+        autoClose: 0
+      });
+    } else {
+      Notification.dismiss(deleteNotification);
+    }
+  }
+}
+
+/**
  * Update a package in an environment
  *
  * @param pkgModel Package manager

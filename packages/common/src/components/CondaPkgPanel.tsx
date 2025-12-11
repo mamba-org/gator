@@ -15,7 +15,8 @@ import { PkgGraphWidget } from './PkgGraph';
 import {
   updateAllPackages,
   applyPackageChanges,
-  refreshAvailablePackages as refreshAvailablePkgs
+  refreshAvailablePackages as refreshAvailablePkgs,
+  deletePackages
 } from '../packageActions';
 
 // Minimal panel width to show package description
@@ -122,6 +123,7 @@ export class CondaPkgPanel extends React.Component<
     this.handleApply = this.handleApply.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleRefreshPackages = this.handleRefreshPackages.bind(this);
+    this.handleDeleteSelected = this.handleDeleteSelected.bind(this);
 
     this.handleCloseDrawer = this.handleCloseDrawer.bind(this);
     this.handleAddPackages = this.handleAddPackages.bind(this);
@@ -256,10 +258,6 @@ export class CondaPkgPanel extends React.Component<
     }
 
     if (pkg.version_installed) {
-      if (!pkg.updatable) {
-        return; // Can't select non-updatable packages
-      }
-
       // Toggle update selection
       if (wasSelected) {
         pkg.version_selected = pkg.version_installed; // Reset to current version
@@ -408,6 +406,27 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
+  async handleDeleteSelected(): Promise<void> {
+    if (this.state.isApplyingChanges) {
+      return;
+    }
+
+    try {
+      this.setState({
+        isApplyingChanges: true
+      });
+
+      await deletePackages(
+        this._model,
+        this.state.selected.map(pkg => pkg.name),
+        this._currentEnvironment
+      );
+    } finally {
+      this.setState({
+        isApplyingChanges: false
+      });
+    }
+  }
   handleCancel(): void {
     if (this.state.isApplyingChanges) {
       return;
@@ -503,6 +522,7 @@ export class CondaPkgPanel extends React.Component<
           onCancel={this.handleCancel}
           onRefreshPackages={this.handleRefreshPackages}
           onAddPackages={this.handleAddPackages}
+          onDeleteSelected={this.handleDeleteSelected}
         />
         <div
           style={{

@@ -1,9 +1,14 @@
 import { HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
-import { ToolbarButtonComponent, addIcon } from '@jupyterlab/ui-components';
+import {
+  ToolbarButtonComponent,
+  addIcon,
+  deleteIcon
+} from '@jupyterlab/ui-components';
 import * as React from 'react';
 import { classes, style } from 'typestyle/lib';
 import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
-import { cartArrowDownIcon, externalLinkIcon, undoIcon } from '../icon';
+import { undoIcon } from '../icon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
@@ -48,6 +53,10 @@ export interface ICondaPkgToolBarProps {
    */
   onUpdateAll: () => void;
   /**
+   * Delete selected packages handler
+   */
+  onDeleteSelected: () => void;
+  /**
    * Apply package modifications
    */
   onApply: () => void;
@@ -69,17 +78,6 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
   return (
     <div className={`lm-Widget ${CONDA_PACKAGES_TOOLBAR_CLASS} jp-Toolbar`}>
       <div className="lm-Widget jp-Toolbar-item">
-        <HTMLSelect
-          value={props.category}
-          onChange={props.onCategoryChanged}
-          aria-label="Package filter"
-        >
-          <option value={PkgFilters.Installed}>Installed</option>
-          <option value={PkgFilters.Updatable}>Updatable</option>
-          <option value={PkgFilters.Selected}>Selected</option>
-        </HTMLSelect>
-      </div>
-      <div className="lm-Widget jp-Toolbar-item">
         <div className={classes('jp-NbConda-search-wrapper', Style.Search)}>
           <InputGroup
             className={Style.SearchInput}
@@ -91,26 +89,44 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           />
         </div>
       </div>
+      {props.hasSelection && (
+        <>
+          <ToolbarButtonComponent
+            label="Update"
+            tooltip="Update selected packages"
+            onClick={props.onApply}
+            enabled={true}
+            className={Style.UpdateButton}
+            dataset={{ 'data-action': 'apply-updates' }}
+          />
+          <ToolbarButtonComponent
+            icon={deleteIcon}
+            label="Remove"
+            tooltip="Remove selected packages"
+            onClick={props.onDeleteSelected}
+            enabled={true}
+            className={Style.RemoveButton}
+            dataset={{ 'data-action': 'remove-selected' }}
+          />
+          <ToolbarButtonComponent
+            label="Clear"
+            icon={undoIcon}
+            tooltip="Clear selected packages"
+            onClick={props.onCancel}
+            enabled={true}
+            className={Style.ClearButton}
+            dataset={{ 'data-action': 'clear-selection' }}
+          />
+        </>
+      )}
       <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
       <ToolbarButtonComponent
-        icon={externalLinkIcon}
+        label="Update All"
         tooltip="Update all packages"
         onClick={props.onUpdateAll}
         enabled={props.hasUpdate}
         dataset={{ 'data-action': 'update-all' }}
-      />
-      <ToolbarButtonComponent
-        icon={cartArrowDownIcon}
-        tooltip="Apply package modifications"
-        onClick={props.onApply}
-        enabled={props.hasSelection}
-        dataset={{ 'data-action': 'apply-modifications' }}
-      />
-      <ToolbarButtonComponent
-        icon={undoIcon}
-        tooltip="Clear package modifications"
-        onClick={props.onCancel}
-        enabled={props.hasSelection}
+        className={Style.UpdateButton}
       />
       <ToolbarButtonComponent
         icon={addIcon}
@@ -120,6 +136,43 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         dataset={{ 'data-action': 'add-packages' }}
         className={Style.AddPackagesButton}
       />
+      <div
+        className="lm-Widget jp-Toolbar-item"
+        style={{
+          position: 'relative',
+          width: '24px',
+          height: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <FontAwesomeIcon
+          icon="filter"
+          style={{
+            color: 'var(--jp-ui-font-color2)',
+            pointerEvents: 'none'
+          }}
+        />
+        <HTMLSelect
+          value={props.category}
+          onChange={props.onCategoryChanged}
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+            cursor: 'pointer'
+          }}
+          className={Style.HiddenSelect}
+        >
+          <option value={PkgFilters.Installed}>Installed</option>
+          <option value={PkgFilters.Updatable}>Updatable</option>
+          <option value={PkgFilters.Selected}>Selected</option>
+        </HTMLSelect>
+      </div>
     </div>
   );
 };
@@ -128,6 +181,18 @@ namespace Style {
   export const Toolbar = style({
     alignItems: 'center',
     height: PACKAGE_TOOLBAR_HEIGHT
+  });
+
+  export const HiddenSelect = style({
+    opacity: '0 !important',
+    $nest: {
+      '&, & *': {
+        opacity: '0 !important'
+      },
+      '& .bp3-icon, & .jp-icon': {
+        display: 'none !important'
+      }
+    }
   });
 
   export const SearchInput = style({
@@ -140,50 +205,69 @@ namespace Style {
 
   export const AddPackagesButton = style({
     gap: '6px',
-    color: 'var(--jp-ui-inverse-font-color1) !important',
-    border: '1px solid var(--jp-brand-color1)',
-    backgroundColor: 'var(--jp-brand-color1)',
+    color: 'var(--jp-ui-font-color1)',
+    border: '1px solid var(--jp-border-color1)',
+    backgroundColor: 'transparent',
     borderRadius: '6px',
     padding: '2px 6px',
     cursor: 'pointer',
-    transition:
-      'background-color .15s ease, border-color .15s ease, box-shadow .15s ease',
     $nest: {
       '& .jp-ToolbarButtonComponent-label': {
-        color: 'var(--jp-ui-inverse-font-color1) !important'
+        color: 'var(--jp-ui-font-color1)'
       },
-      '& .jp-icon3': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '& svg': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '& svg path': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '& .jp-ToolbarButtonComponent-icon': {
-        color: 'var(--jp-ui-inverse-font-color1) !important'
+      '& .jp-icon3, & svg, & svg path': {
+        fill: 'var(--jp-ui-font-color1)'
       },
       '&:hover': {
-        backgroundColor: 'var(--jp-brand-color2)',
-        borderColor: 'var(--jp-brand-color2)',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+        backgroundColor: 'var(--jp-layout-color2)'
+      }
+    }
+  });
+
+  export const UpdateButton = style({
+    backgroundColor: 'var(--jp-brand-color1)',
+    color: 'var(--jp-ui-inverse-font-color1)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-inverse-font-color1)'
+      }
+    }
+  });
+
+  export const RemoveButton = style({
+    backgroundColor: 'var(--jp-error-color1)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    gap: '4px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'white'
       },
-      '&:hover .jp-ToolbarButtonComponent-label': {
-        color: 'var(--jp-ui-inverse-font-color1) !important'
+      '& svg': {
+        fill: 'white !important'
       },
-      '&:hover .jp-icon3': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      '& svg path': {
+        fill: 'white !important'
       },
-      '&:hover svg': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '&:hover svg path': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '&:active': {
-        backgroundColor: 'var(--jp-brand-color3)',
-        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+      '& .jp-icon3': {
+        fill: 'white !important'
+      }
+    }
+  });
+
+  export const ClearButton = style({
+    backgroundColor: 'var(--jp-layout-color3)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-font-color1)',
+        marginLeft: '4px'
       }
     }
   });

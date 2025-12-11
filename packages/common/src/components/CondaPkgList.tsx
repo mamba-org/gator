@@ -89,28 +89,19 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
   protected iconRender = (pkg: Conda.IPackage): JSX.Element => {
     if (pkg.version_installed) {
-      if (pkg.updatable) {
-        const isSelectedForUpdate = pkg.version_selected === '';
-        if (isSelectedForUpdate) {
-          return (
-            <FontAwesomeIcon
-              icon="check-square"
-              style={{ color: 'var(--jp-brand-color1)' }}
-            />
-          );
-        }
+      const isSelected = this.isSelected(pkg);
+      if (isSelected) {
         return (
           <FontAwesomeIcon
-            icon={['far', 'square']}
-            style={{ color: 'var(--jp-ui-font-color2)' }}
+            icon="check-square"
+            style={{ color: 'var(--jp-brand-color1)' }}
           />
         );
       }
-      // Non-updatable (on latest): show filled and grayed out check-square to indicate action not applicable
       return (
         <FontAwesomeIcon
-          icon={['fas', 'square']}
-          style={{ color: 'var(--jp-ui-font-color3)', opacity: 0.5 }}
+          icon={['far', 'square']}
+          style={{ color: 'var(--jp-ui-font-color2)' }}
         />
       );
     } else if (pkg.version_selected !== 'none') {
