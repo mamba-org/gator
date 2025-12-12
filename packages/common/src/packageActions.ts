@@ -145,7 +145,8 @@ export async function applyPackageChanges(
     if (toRemove.length > 0) {
       Notification.update({
         id: toastId,
-        message: 'Removing selected packages'
+        message: 'Removing selected packages',
+        autoClose: false
       });
       await pkgModel.remove(toRemove, theEnvironment);
     }
@@ -153,7 +154,8 @@ export async function applyPackageChanges(
     if (toUpdate.length > 0) {
       Notification.update({
         id: toastId,
-        message: 'Updating selected packages'
+        message: 'Updating selected packages',
+        autoClose: false
       });
       await pkgModel.update(toUpdate, theEnvironment);
     }
@@ -161,7 +163,8 @@ export async function applyPackageChanges(
     if (toInstall.length > 0) {
       Notification.update({
         id: toastId,
-        message: 'Installing new packages'
+        message: 'Installing selected packages',
+        autoClose: false
       });
       await pkgModel.install(toInstall, theEnvironment);
     }

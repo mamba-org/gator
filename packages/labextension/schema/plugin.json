@@ -51,6 +51,12 @@
       "title": "Only kernel whitelist",
       "description": "Show only environment corresponding to whitelisted kernels",
       "default": false
+    },
+    "useDirectPackageActions": {
+      "type": "boolean",
+      "title": "Use direct package actions",
+      "description": "When enabled, selecting a package version will immediately trigger an update/install action. When disabled, changes are batched and applied manually.",
+      "default": true
     }
   },
   "additionalProperties": false,

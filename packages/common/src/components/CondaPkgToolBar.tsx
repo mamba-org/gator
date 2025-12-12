@@ -72,6 +72,14 @@ export interface ICondaPkgToolBarProps {
    * Add package handler (opens the package drawer)
    */
   onAddPackages: () => void;
+  /**
+   * Whether to use direct package actions (immediate update on version change)
+   */
+  useDirectPackageActions?: boolean;
+  /**
+   * Toggle between direct and batch mode
+   */
+  onToggleDirectActions?: () => void;
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
@@ -89,7 +97,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           />
         </div>
       </div>
-      {props.hasSelection && (
+      {props.hasSelection && (props.useDirectPackageActions ?? true) && (
         <>
           <ToolbarButtonComponent
             label="Update"
@@ -116,6 +124,26 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
             enabled={true}
             className={Style.ClearButton}
             dataset={{ 'data-action': 'clear-selection' }}
+          />
+        </>
+      )}
+      {props.hasSelection && !(props.useDirectPackageActions ?? true) && (
+        <>
+          <ToolbarButtonComponent
+            label="Apply"
+            tooltip="Apply package modifications"
+            onClick={props.onApply}
+            enabled={true}
+            className={Style.UpdateButton}
+            dataset={{ 'data-action': 'apply-modifications' }}
+          />
+          <ToolbarButtonComponent
+            label="Clear"
+            icon={undoIcon}
+            tooltip="Clear package modifications"
+            onClick={props.onCancel}
+            enabled={true}
+            className={Style.ClearButton}
           />
         </>
       )}
@@ -157,6 +185,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         <HTMLSelect
           value={props.category}
           onChange={props.onCategoryChanged}
+          aria-label="Package filter"
           style={{
             position: 'absolute',
             opacity: 0,
@@ -173,6 +202,18 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           <option value={PkgFilters.Selected}>Selected</option>
         </HTMLSelect>
       </div>
+      {props.onToggleDirectActions && (
+        <ToolbarButtonComponent
+          label={props.useDirectPackageActions ?? true ? 'Direct' : 'Batch'}
+          tooltip={
+            props.useDirectPackageActions ?? true
+              ? 'Direct mode: Changes apply immediately. Click to switch to batch mode.'
+              : 'Batch mode: Queue changes and apply together. Click to switch to direct mode.'
+          }
+          onClick={props.onToggleDirectActions}
+          className={Style.ModeToggle}
+        />
+      )}
     </div>
   );
 };
@@ -181,6 +222,22 @@ namespace Style {
   export const Toolbar = style({
     alignItems: 'center',
     height: PACKAGE_TOOLBAR_HEIGHT
+  });
+
+  export const ModeToggle = style({
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-font-color2)',
+        fontSize: 'var(--jp-ui-font-size0)'
+      },
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color2)',
+        borderColor: 'var(--jp-border-color1)'
+      }
+    }
   });
 
   export const HiddenSelect = style({
@@ -230,9 +287,13 @@ namespace Style {
     border: 'none',
     borderRadius: '4px',
     padding: '2px 8px',
+    overflow: 'hidden',
     $nest: {
       '& .jp-ToolbarButtonComponent-label': {
         color: 'var(--jp-ui-inverse-font-color1)'
+      },
+      '&:hover': {
+        backgroundColor: 'var(--jp-brand-color2)'
       }
     }
   });

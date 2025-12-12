@@ -33,6 +33,10 @@ export interface ICondaEnvProps {
    * Environment name
    */
   envName?: string;
+  /**
+   * Whether to use direct package actions (immediate update on version change)
+   */
+  useDirectPackageActions?: boolean;
 }
 
 /**
@@ -354,6 +358,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
             environmentName={this.state.currentEnvironment}
             isPackageLoading={this.state.isPackageLoading}
             commands={this.props.commands}
+            useDirectPackageActions={this.props.useDirectPackageActions}
           />
         </div>
 

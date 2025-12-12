@@ -60,6 +60,10 @@ export interface IPkgListProps {
    * Is the package list in drawer mode?
    */
   isDrawerMode?: boolean;
+  /**
+   * Whether to use direct package actions (immediate update on version change)
+   */
+  useDirectPackageActions?: boolean;
 }
 
 /** React component for the package list */
@@ -88,9 +92,26 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   }
 
   protected iconRender = (pkg: Conda.IPackage): JSX.Element => {
-    if (pkg.version_installed) {
-      const isSelected = this.isSelected(pkg);
-      if (isSelected) {
+    const useDirectActions = this.props.useDirectPackageActions ?? true;
+
+    if (useDirectActions) {
+      if (pkg.version_installed) {
+        const isSelected = this.isSelected(pkg);
+        if (isSelected) {
+          return (
+            <FontAwesomeIcon
+              icon="check-square"
+              style={{ color: 'var(--jp-brand-color1)' }}
+            />
+          );
+        }
+        return (
+          <FontAwesomeIcon
+            icon={['far', 'square']}
+            style={{ color: 'var(--jp-ui-font-color2)' }}
+          />
+        );
+      } else if (pkg.version_selected !== 'none') {
         return (
           <FontAwesomeIcon
             icon="check-square"
@@ -98,27 +119,52 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           />
         );
       }
+
       return (
         <FontAwesomeIcon
           icon={['far', 'square']}
           style={{ color: 'var(--jp-ui-font-color2)' }}
         />
       );
-    } else if (pkg.version_selected !== 'none') {
+    } else {
+      if (pkg.version_installed) {
+        if (pkg.version_selected === 'none') {
+          return (
+            <FontAwesomeIcon
+              icon="minus-square"
+              style={{ color: 'var(--jp-error-color1)' }}
+            />
+          );
+        } else if (pkg.version_selected !== pkg.version_installed) {
+          return (
+            <FontAwesomeIcon
+              icon="external-link-square-alt"
+              style={{ color: 'var(--jp-accent-color1)' }}
+            />
+          );
+        }
+        return (
+          <FontAwesomeIcon
+            icon="check-square"
+            style={{ color: 'var(--jp-brand-color1)' }}
+          />
+        );
+      } else if (pkg.version_selected !== 'none') {
+        return (
+          <FontAwesomeIcon
+            icon="check-square"
+            style={{ color: 'var(--jp-brand-color1)' }}
+          />
+        );
+      }
+
       return (
         <FontAwesomeIcon
-          icon="check-square"
-          style={{ color: 'var(--jp-brand-color1)' }}
+          icon={['far', 'square']}
+          style={{ color: 'var(--jp-ui-font-color2)' }}
         />
       );
     }
-
-    return (
-      <FontAwesomeIcon
-        icon={['far', 'square']}
-        style={{ color: 'var(--jp-ui-font-color2)' }}
-      />
-    );
   };
 
   protected isSelected(pkg: Conda.IPackage): boolean {
@@ -370,54 +416,55 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
-            {(() => {
-              const hasUserSelection =
-                pkg.version_selected !== undefined &&
-                pkg.version_selected !== null &&
-                pkg.version_selected !== pkg.version_installed;
-              const isAutoSelected = pkg.version_selected === 'auto';
+            {(this.props.useDirectPackageActions ?? true) &&
+              (() => {
+                const hasUserSelection =
+                  pkg.version_selected !== undefined &&
+                  pkg.version_selected !== null &&
+                  pkg.version_selected !== pkg.version_installed;
+                const isAutoSelected = pkg.version_selected === 'auto';
 
-              // Show button if:
-              // 1. Package is updatable (upgrade available), OR
-              // 2. User selected a different version (downgrade/change), OR
-              // 3. User selected 'auto' (unpinned update)
-              const showAction =
-                pkg.updatable || hasUserSelection || isAutoSelected;
+                // Show button if:
+                // 1. Package is updatable (upgrade available), OR
+                // 2. User selected a different version (downgrade/change), OR
+                // 3. User selected 'auto' (unpinned update)
+                const showAction =
+                  pkg.updatable || hasUserSelection || isAutoSelected;
 
-              if (!showAction) {
-                return null;
-              }
+                if (!showAction) {
+                  return null;
+                }
 
-              const actionLabel = pkg.updatable ? 'update' : 'modify';
+                const actionLabel = pkg.updatable ? 'update' : 'modify';
 
-              return (
-                <span
-                  className={Style.UpdateLink}
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    // Use the version from the dropdown: 'auto' means unpinned update
-                    const version =
+                return (
+                  <span
+                    className={Style.UpdateLink}
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      // Use the version from the dropdown: 'auto' means unpinned update
+                      const version =
+                        pkg.version_selected === 'auto' || !pkg.version_selected
+                          ? undefined
+                          : pkg.version_selected;
+                      this.props.commands?.execute('gator-lab:update-pkg', {
+                        name: pkg.name,
+                        environment: this.props.envName,
+                        version: version
+                      });
+                    }}
+                    title={`${actionLabel === 'update' ? 'Update' : 'Modify'} ${
+                      pkg.name
+                    } to ${
                       pkg.version_selected === 'auto' || !pkg.version_selected
-                        ? undefined
-                        : pkg.version_selected;
-                    this.props.commands?.execute('gator-lab:update-pkg', {
-                      name: pkg.name,
-                      environment: this.props.envName,
-                      version: version
-                    });
-                  }}
-                  title={`${actionLabel === 'update' ? 'Update' : 'Modify'} ${
-                    pkg.name
-                  } to ${
-                    pkg.version_selected === 'auto' || !pkg.version_selected
-                      ? 'latest version'
-                      : pkg.version_selected
-                  }`}
-                >
-                  {actionLabel}
-                </span>
-              );
-            })()}
+                        ? 'latest version'
+                        : pkg.version_selected
+                    }`}
+                  >
+                    {actionLabel}
+                  </span>
+                );
+              })()}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}
