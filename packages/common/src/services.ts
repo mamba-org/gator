@@ -8,8 +8,9 @@ import { Conda, IEnvironmentManager } from './tokens';
 /**
  * Type of environment that can be created.
  */
-interface IType {
-  [key: string]: string[];
+interface IEnvironmentType {
+  name: string;
+  packages: string[];
 }
 
 export type EnvOrigin = 'create' | 'clone' | 'import';
@@ -132,8 +133,9 @@ export class CondaEnvironments implements IEnvironmentManager {
    * @returns List of packages to create the environment
    */
   getEnvironmentFromType(type: string): string[] {
-    if (type in this._environmentTypes) {
-      return this._environmentTypes[type];
+    const entry = this._environmentTypes.find(t => t.name === type);
+    if (entry) {
+      return entry.packages;
     }
     return type.split(' ');
   }
@@ -142,7 +144,7 @@ export class CondaEnvironments implements IEnvironmentManager {
    * Get the list of user-defined environment types
    */
   get environmentTypes(): string[] {
-    return Object.keys(this._environmentTypes);
+    return this._environmentTypes.map(t => t.name);
   }
 
   /**
@@ -151,11 +153,15 @@ export class CondaEnvironments implements IEnvironmentManager {
    * @param settings User settings
    */
   private _updateSettings(settings: ISettingRegistry.ISettings): void {
-    const types = settings.get('types').composite as IType;
+    const types = settings.get('types').composite as unknown as
+      | IEnvironmentType[]
+      | null;
+
     this._environmentTypes =
-      types && Object.keys(types).length > 0
+      types && types.length > 0
         ? types
-        : { python3: ['python=3', 'ipykernel'] };
+        : [{ name: 'Python 3', packages: ['python=3', 'ipykernel'] }];
+
     this._fromHistory = settings.get('fromHistory').composite as boolean;
     this._whitelist = settings.get('whitelist').composite as boolean;
   }
@@ -471,10 +477,10 @@ export class CondaEnvironments implements IEnvironmentManager {
   >(this);
   private _environments: Array<Conda.IEnvironment>;
   private _environmentsTimer = -1;
-  private _environmentTypes: IType = {
-    python3: ['python=3', 'ipykernel'],
-    r: ['r-base', 'r-essentials']
-  };
+  private _environmentTypes: IEnvironmentType[] = [
+    { name: 'Python 3', packages: ['python=3', 'ipykernel'] },
+    { name: 'R', packages: ['r-base', 'r-essentials'] }
+  ];
   private _fromHistory = false;
   private _packageManager = new CondaPackage();
   private _whitelist = false;

@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+- **Breaking Changes**:
+
+  - Settings improvements: The `types` setting format changed from object to array. If you have custom environment types in your settings, update them:
+
+    **Old format:**
+    ```json
+    "types": {
+      "Python 3": ["python=3", "ipykernel"],
+      "R": ["r-base", "r-essentials"]
+    }
+    ```
+
+    **New format:**
+    ```json
+    "types": [
+      { "name": "Python 3", "packages": ["python=3", "ipykernel"] },
+      { "name": "R", "packages": ["r-base", "r-essentials"] }
+    ]
+    ```
+
 ## 6.1.0a0
 
 - Features:

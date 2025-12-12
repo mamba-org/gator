@@ -15,10 +15,8 @@
       "title": "Kernel companions",
       "description": "{'package name': 'semver specification'} - pre and post releases not supported",
       "default": {},
-      "properties": {
-        "^\\w[\\w\\-]*$": {
-          "type": "string"
-        }
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "fromHistory": {
@@ -28,22 +26,33 @@
       "default": false
     },
     "types": {
-      "type": "object",
+      "type": "array",
       "title": "Environment types",
       "description": "Type of environment available when creating it from scratch.",
-      "default": {
-        "Python 3": ["python=3", "ipykernel"],
-        "R": ["r-base", "r-essentials"]
-      },
-      "properties": {
-        "^\\w[\\w\\s]*$": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
+      "default": [
+        { "name": "Python 3", "packages": ["python=3", "ipykernel"] },
+        { "name": "R", "packages": ["r-base", "r-essentials"] }
+      ],
+      "items": {
+        "type": "object",
+        "title": "Environment type",
+        "required": ["name", "packages"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Type name"
+          },
+          "packages": {
+            "type": "array",
+            "title": "Packages",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
           }
-        }
+        },
+        "additionalProperties": false
       }
     },
     "whitelist": {
