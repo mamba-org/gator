@@ -345,7 +345,10 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
       const rect = target.getBoundingClientRect();
 
       if (!rect || rect.width === 0 || rect.height === 0) {
-        console.warn('Invalid bounding rect for kebab menu:', rect);
+        console.warn(
+          `Invalid bounding rect for kebab menu in CondaPkgList. Package: "${pkg.name}", Environment: "${this.props.envName}". This may indicate a rendering/layout issue. Rect:`,
+          rect
+        );
         return;
       }
 
