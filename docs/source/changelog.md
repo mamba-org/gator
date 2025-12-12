@@ -1,5 +1,49 @@
 # Changelog
 
+## 6.1.0a0
+
+- Features:
+  - **New "Add Packages" drawer**: Full-screen modal for browsing, searching, and selecting multiple packages to install
+    - Search functionality with intelligent sorting (matches at start of name appear first)
+    - Side panel showing selected packages with ability to remove individual selections
+    - Install multiple packages in a single batch operation
+  - **Enhanced "Create Environment" workflow**: Comprehensive environment creation experience
+    - Initial dialog offering choice between "Import" (from file) or "Create Manually"
+    - Full-screen drawer for manual environment creation with package selection
+    - Environment type selector with pre-populated package lists from settings
+    - Python version selector with ability to override type defaults
+    - Display of selected packages with version information
+    - Error message surfacing to user during environment creation
+  - **Package context menu**: Kebab menu on package items with Remove and Update actions
+  - Default package view changed to show "Installed" packages instead of all packages
+  - New command registration system with modular `registerPkgCommands`
+  - New `IPackageAction` signal interface for tracking bulk package operations
+  - Extract package actions to dedicated `packageActions.ts` module with signals
+
+- Backend improvements:
+  - Reduce subprocess calls to `pip list` for improved performance
+  - Use normalized package names to properly identify editable (development) packages
+  - Extract environment actions to dedicated `environmentActions.ts` module
+
+- Bug fixes:
+  - Fix navigator widget app shell id
+  - Fix canceling action from dialog confirmation box no longer reloads package list
+  - Fix package delete and update toast notifications
+  - Fix notification on packages loading error
+
+- CI/Testing:
+  - Drop JupyterLab 3 support - now requires JupyterLab >= 4.0
+  - Drop support for old Python versions
+  - Require Notebook >= 7
+  - Migrate test suite from `notebook.tests` to `pytest-jupyter`
+  - Add coverage reporting
+  - Update Python version constraints for API tests
+
+- Documentation:
+  - Set up Sphinx documentation with book theme and Markdown
+  - Add changelog file
+  - Add PR documentation preview workflow for ReadTheDocs
+
 ## 6.0.2
 - Features:
   - Add spinner for loading packages
