@@ -176,9 +176,26 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         className={Style.PrimaryButton}
       />
       <div
-        className={classes('lm-Widget jp-Toolbar-item', Style.FilterWrapper)}
+        className={classes(
+          'lm-Widget jp-Toolbar-item',
+          props.category === PkgFilters.Installed
+            ? Style.FilterWrapper
+            : Style.FilterWrapperActive
+        )}
       >
-        <FontAwesomeIcon icon="filter" className={Style.FilterIcon} />
+        <FontAwesomeIcon
+          icon="filter"
+          className={
+            props.category === PkgFilters.Installed
+              ? Style.FilterIcon
+              : Style.FilterIconActive
+          }
+        />
+        {props.category !== PkgFilters.Installed && (
+          <span className={Style.FilterBadge}>
+            {props.category === PkgFilters.Updatable ? 'Updatable' : 'Selected'}
+          </span>
+        )}
         <HTMLSelect
           value={props.category}
           onChange={props.onCategoryChanged}
@@ -339,9 +356,32 @@ namespace Style {
     justifyContent: 'center'
   });
 
+  export const FilterWrapperActive = style({
+    position: 'relative',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '4px',
+    paddingRight: '4px'
+  });
+
   export const FilterIcon = style({
     color: 'var(--jp-ui-font-color2)',
     pointerEvents: 'none'
+  });
+
+  export const FilterIconActive = style({
+    color: 'var(--jp-warn-color0)',
+    pointerEvents: 'none'
+  });
+
+  export const FilterBadge = style({
+    fontSize: '11px',
+    color: 'var(--jp-warn-color0)',
+    fontWeight: 600,
+    pointerEvents: 'none',
+    whiteSpace: 'nowrap'
   });
 
   export const FilterSelectOverlay = style({

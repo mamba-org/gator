@@ -635,7 +635,9 @@ export class CondaPkgPanel extends React.Component<
           category={this.state.activeFilter}
           hasSelection={this.state.selected.length > 0}
           selectedCount={this.state.selected.length}
-          installedCount={this.state.packages.filter(pkg => pkg.version_installed).length}
+          installedCount={
+            this.state.packages.filter(pkg => pkg.version_installed).length
+          }
           hasUpdate={this.state.hasUpdate}
           searchTerm={this.state.searchTerm}
           onCategoryChanged={this.handleCategoryChanged}
