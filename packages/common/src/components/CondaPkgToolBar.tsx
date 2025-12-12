@@ -165,37 +165,14 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         className={Style.AddPackagesButton}
       />
       <div
-        className="lm-Widget jp-Toolbar-item"
-        style={{
-          position: 'relative',
-          width: '24px',
-          height: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
+        className={classes('lm-Widget jp-Toolbar-item', Style.FilterWrapper)}
       >
-        <FontAwesomeIcon
-          icon="filter"
-          style={{
-            color: 'var(--jp-ui-font-color2)',
-            pointerEvents: 'none'
-          }}
-        />
+        <FontAwesomeIcon icon="filter" className={Style.FilterIcon} />
         <HTMLSelect
           value={props.category}
           onChange={props.onCategoryChanged}
           aria-label="Package filter"
-          style={{
-            position: 'absolute',
-            opacity: 0,
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            cursor: 'pointer'
-          }}
-          className={Style.HiddenSelect}
+          className={classes(Style.HiddenSelect, Style.FilterSelectOverlay)}
         >
           <option value={PkgFilters.Installed}>Installed</option>
           <option value={PkgFilters.Updatable}>Updatable</option>
@@ -331,5 +308,29 @@ namespace Style {
         marginLeft: '4px'
       }
     }
+  });
+
+  export const FilterWrapper = style({
+    position: 'relative',
+    width: '24px',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  });
+
+  export const FilterIcon = style({
+    color: 'var(--jp-ui-font-color2)',
+    pointerEvents: 'none'
+  });
+
+  export const FilterSelectOverlay = style({
+    position: 'absolute',
+    opacity: 0,
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '100%',
+    cursor: 'pointer'
   });
 }
