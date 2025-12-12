@@ -203,66 +203,23 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return <span>{pkg.name}</span>;
   };
 
-  protected versionRender = (pkg: Conda.IPackage): JSX.Element => {
-    const currentVersion = pkg.version_selected || pkg.version_installed;
-
-    if (this.props.isDrawerMode) {
-      return (
-        <div className={'lm-Widget'}>
-          <div className={Style.VersionSelectWrapper}>
-            <span className={Style.VersionDisplayText}>
-              {pkg.version_selected && pkg.version_selected !== 'none'
-                ? pkg.version_selected
-                : 'auto'}
-            </span>
-
-            <span className={Style.VersionDropdownArrow}>▼</span>
-
-            {/* Actual select overlay (invisible but functional) */}
-            <HTMLSelect
-              className={classes(
-                Style.VersionSelectionOverlay,
-                CONDA_PACKAGE_SELECT_CLASS
-              )}
-              value={pkg.version_selected || 'auto'}
-              onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
-                this.props.onPkgChange(pkg, evt.target.value)
-              }
-              onClick={(evt: React.MouseEvent): void => {
-                evt.stopPropagation();
-              }}
-              aria-label="Package versions"
-            >
-              <option value="auto">auto</option>
-              {pkg.version.map((v: string, idx: number) => (
-                <option key={v} value={v}>
-                  {v}
-                  {idx === 0 ? ' (Latest)' : ''}
-                </option>
-              ))}
-            </HTMLSelect>
-          </div>
-        </div>
-      );
-    }
-
-    // Default Package List view mode
+  protected renderVersionDropdown(
+    pkg: Conda.IPackage,
+    displayText: string,
+    selectValue: string,
+    showInstalledAnnotation: boolean
+  ): JSX.Element {
     return (
       <div className={'lm-Widget'}>
         <div className={Style.VersionSelectWrapper}>
-          <span className={Style.VersionDisplayText}>
-            {currentVersion || 'auto'}
-          </span>
-
+          <span className={Style.VersionDisplayText}>{displayText}</span>
           <span className={Style.VersionDropdownArrow}>▼</span>
-
-          {/* Actual select overlay (invisible but functional) */}
           <HTMLSelect
             className={classes(
               Style.VersionSelectionOverlay,
               CONDA_PACKAGE_SELECT_CLASS
             )}
-            value={currentVersion || 'auto'}
+            value={selectValue}
             onChange={(evt: React.ChangeEvent<HTMLSelectElement>): void =>
               this.props.onPkgChange(pkg, evt.target.value)
             }
@@ -274,8 +231,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
             <option value="auto">auto</option>
             {pkg.version.map((v: string, idx: number) => {
               const isLatest = idx === 0;
-              const isInstalled = v === pkg.version_installed;
-
+              const isInstalled =
+                showInstalledAnnotation && v === pkg.version_installed;
               let annotation = '';
               if (isLatest && isInstalled) {
                 annotation = ' (Latest, Installed)';
@@ -295,6 +252,29 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           </HTMLSelect>
         </div>
       </div>
+    );
+  }
+
+  protected versionRender = (pkg: Conda.IPackage): JSX.Element => {
+    if (this.props.isDrawerMode) {
+      const displayText =
+        pkg.version_selected && pkg.version_selected !== 'none'
+          ? pkg.version_selected
+          : 'auto';
+      return this.renderVersionDropdown(
+        pkg,
+        displayText,
+        pkg.version_selected || 'auto',
+        false
+      );
+    }
+
+    const currentVersion = pkg.version_selected || pkg.version_installed;
+    return this.renderVersionDropdown(
+      pkg,
+      currentVersion || 'auto',
+      currentVersion || 'auto',
+      true
     );
   };
 
