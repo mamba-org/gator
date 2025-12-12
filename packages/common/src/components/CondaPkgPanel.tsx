@@ -502,7 +502,9 @@ export class CondaPkgPanel extends React.Component<
       const wasApplied = await applyPackageChanges(
         this._model,
         this.state.selected,
-        this._currentEnvironment
+        this._currentEnvironment,
+        false,
+        this.state.useDirectPackageActions
       );
 
       if (wasApplied) {

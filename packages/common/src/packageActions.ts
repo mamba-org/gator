@@ -92,7 +92,8 @@ export async function applyPackageChanges(
   pkgModel: Conda.IPackageManager,
   selectedPackages: Conda.IPackage[],
   environment?: string,
-  skipConfirmation = false
+  skipConfirmation = false,
+  isDirectUpdate = false
 ): Promise<boolean> {
   const theEnvironment = environment || pkgModel.environment;
   if (!theEnvironment) {
@@ -128,19 +129,45 @@ export async function applyPackageChanges(
     const toRemove: Array<string> = [];
     const toUpdate: Array<string> = [];
     const toInstall: Array<string> = [];
+    const skipped: Array<string> = [];
+
     selectedPackages.forEach(pkg => {
-      if (pkg.version_installed && pkg.version_selected === 'none') {
-        toRemove.push(pkg.name);
-      } else if (pkg.updatable && pkg.version_selected === '') {
-        toUpdate.push(pkg.name);
+      if (isDirectUpdate) {
+        if (pkg.version_installed && pkg.updatable) {
+          toUpdate.push(pkg.name);
+        } else if (pkg.version_installed && !pkg.updatable) {
+          skipped.push(pkg.name);
+        } else {
+          // New package
+          toInstall.push(pkg.name);
+        }
       } else {
-        toInstall.push(
-          pkg.version_selected && pkg.version_selected !== 'auto'
-            ? pkg.name + '=' + pkg.version_selected
-            : pkg.name
-        );
+        if (pkg.version_installed && pkg.version_selected === 'none') {
+          toRemove.push(pkg.name);
+        } else if (pkg.updatable && pkg.version_selected === '') {
+          toUpdate.push(pkg.name);
+        } else {
+          toInstall.push(
+            pkg.version_selected && pkg.version_selected !== 'auto'
+              ? pkg.name + '=' + pkg.version_selected
+              : pkg.name
+          );
+        }
       }
     });
+
+    if (skipped.length > 0) {
+      const skippedList =
+        skipped.length <= 3
+          ? skipped.join(', ')
+          : `${skipped.slice(0, 3).join(', ')} and ${skipped.length - 3} more`;
+      Notification.info(
+        `Skipped ${skipped.length} package${
+          skipped.length > 1 ? 's' : ''
+        } already at latest version: ${skippedList}`,
+        { autoClose: 6000 }
+      );
+    }
 
     if (toRemove.length > 0) {
       Notification.update({
