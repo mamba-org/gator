@@ -15,10 +15,8 @@
       "title": "Kernel companions",
       "description": "{'package name': 'semver specification'} - pre and post releases not supported",
       "default": {},
-      "properties": {
-        "^\\w[\\w\\-]*$": {
-          "type": "string"
-        }
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "fromHistory": {
@@ -35,14 +33,12 @@
         "Python 3": ["python=3", "ipykernel"],
         "R": ["r-base", "r-essentials"]
       },
-      "properties": {
-        "^\\w[\\w\\s]*$": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string"
         }
       }
     },
