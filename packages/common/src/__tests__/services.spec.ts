@@ -308,7 +308,21 @@ describe('@mamba-org/gator-lab/services', () => {
 
     // TODO describe("getChannels()", () => {});
 
-    // TODO describe("getEnvironmentFromType()", () => {});
+    describe('getEnvironmentFromType()', () => {
+      it('should return packages for predefined Python 3 type', () => {
+        const envManager = new CondaEnvironments();
+        const packages = envManager.getEnvironmentFromType('Python 3');
+
+        expect(packages).toEqual(['python=3', 'ipykernel']);
+      });
+
+      it('should return packages for predefined R type', () => {
+        const envManager = new CondaEnvironments();
+        const packages = envManager.getEnvironmentFromType('R');
+
+        expect(packages).toEqual(['r-base', 'r-essentials']);
+      });
+    });
 
     describe('getPackageManager()', () => {
       it('should create a CondaPackage object', () => {
