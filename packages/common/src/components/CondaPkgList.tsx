@@ -422,8 +422,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
-            {(this.props.useDirectPackageActions ?? true) &&
-              this.actionLabelRender(pkg)}
+            {this.actionLabelRender(pkg)}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}
