@@ -634,6 +634,8 @@ export class CondaPkgPanel extends React.Component<
           }
           category={this.state.activeFilter}
           hasSelection={this.state.selected.length > 0}
+          selectedCount={this.state.selected.length}
+          installedCount={this.state.packages.filter(pkg => pkg.version_installed).length}
           hasUpdate={this.state.hasUpdate}
           searchTerm={this.state.searchTerm}
           onCategoryChanged={this.handleCategoryChanged}
@@ -706,5 +708,14 @@ namespace Style {
     flex: '1 1 auto',
     overflow: 'hidden',
     borderLeft: '1px solid var(--jp-border-color2)'
+  });
+
+  export const SelectionCount = style({
+    fontSize: 'var(--jp-ui-font-size1)',
+    color: 'var(--jp-ui-font-color1)',
+    fontWeight: 500,
+    padding: '0 8px',
+    display: 'flex',
+    alignItems: 'center'
   });
 }

@@ -80,6 +80,14 @@ export interface ICondaPkgToolBarProps {
    * Toggle between direct and batch mode
    */
   onToggleDirectActions?: () => void;
+  /**
+   * Number of selected packages
+   */
+  selectedCount: number;
+  /**
+   * Total number of installed packages
+   */
+  installedCount: number;
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
@@ -99,6 +107,9 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
       </div>
       {props.hasSelection && (props.useDirectPackageActions ?? true) && (
         <>
+          <span className={Style.SelectionCount}>
+            {props.selectedCount} / {props.installedCount} selected
+          </span>
           <ToolbarButtonComponent
             label="Update"
             tooltip="Update selected packages"
@@ -341,5 +352,11 @@ namespace Style {
     width: '100%',
     height: '100%',
     cursor: 'pointer'
+  });
+
+  export const SelectionCount = style({
+    color: 'var(--jp-ui-font-color2)',
+    fontSize: 'var(--jp-ui-font-size0)',
+    marginRight: '8px'
   });
 }
