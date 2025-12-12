@@ -104,7 +104,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
             tooltip="Update selected packages"
             onClick={props.onApply}
             enabled={true}
-            className={Style.UpdateButton}
+            className={Style.PrimaryButton}
             dataset={{ 'data-action': 'apply-updates' }}
           />
           <ToolbarButtonComponent
@@ -134,7 +134,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
             tooltip="Apply package modifications"
             onClick={props.onApply}
             enabled={true}
-            className={Style.UpdateButton}
+            className={Style.PrimaryButton}
             dataset={{ 'data-action': 'apply-modifications' }}
           />
           <ToolbarButtonComponent
@@ -154,7 +154,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         onClick={props.onUpdateAll}
         enabled={props.hasUpdate}
         dataset={{ 'data-action': 'update-all' }}
-        className={Style.UpdateButton}
+        className={Style.OutlinedButton}
       />
       <ToolbarButtonComponent
         icon={addIcon}
@@ -162,7 +162,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         tooltip="Add packages"
         onClick={props.onAddPackages}
         dataset={{ 'data-action': 'add-packages' }}
-        className={Style.AddPackagesButton}
+        className={Style.PrimaryButton}
       />
       <div
         className={classes('lm-Widget jp-Toolbar-item', Style.FilterWrapper)}
@@ -237,7 +237,33 @@ namespace Style {
     padding: '4px'
   });
 
-  export const AddPackagesButton = style({
+  export const PrimaryButton = style({
+    backgroundColor: 'var(--jp-brand-color1)',
+    color: 'var(--jp-ui-inverse-font-color1)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    overflow: 'hidden',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-inverse-font-color1)'
+      },
+      '& svg': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '& svg path': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '& .jp-icon3': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
+      },
+      '&:hover': {
+        backgroundColor: 'var(--jp-brand-color2)'
+      }
+    }
+  });
+
+  export const OutlinedButton = style({
     gap: '6px',
     color: 'var(--jp-ui-font-color1)',
     border: '1px solid var(--jp-border-color1)',
@@ -254,23 +280,6 @@ namespace Style {
       },
       '&:hover': {
         backgroundColor: 'var(--jp-layout-color2)'
-      }
-    }
-  });
-
-  export const UpdateButton = style({
-    backgroundColor: 'var(--jp-brand-color1)',
-    color: 'var(--jp-ui-inverse-font-color1)',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '2px 8px',
-    overflow: 'hidden',
-    $nest: {
-      '& .jp-ToolbarButtonComponent-label': {
-        color: 'var(--jp-ui-inverse-font-color1)'
-      },
-      '&:hover': {
-        backgroundColor: 'var(--jp-brand-color2)'
       }
     }
   });
