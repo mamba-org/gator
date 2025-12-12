@@ -311,7 +311,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
 
   protected actionLabelRender = (pkg: Conda.IPackage): JSX.Element => {
     if (!pkg.updatable) {
-      return null;
+      return <></>;
     }
 
     return (
@@ -322,7 +322,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
           this.props.commands?.execute('gator-lab:update-pkg', {
             name: pkg.name,
             environment: this.props.envName,
-            version: ''
+            version: pkg.version[0]
           });
         }}
         title={`Update ${pkg.name} to latest version`}
@@ -646,19 +646,6 @@ namespace Style {
     $nest: {
       '&:hover': {
         textDecoration: 'underline'
-      }
-    }
-  });
-
-  export const UpdateLinkDisabled = style({
-    color: 'var(--jp-ui-font-color3)',
-    cursor: 'not-allowed',
-    fontSize: '12px',
-    whiteSpace: 'nowrap',
-    opacity: 0.5,
-    $nest: {
-      '&:hover': {
-        textDecoration: 'none'
       }
     }
   });

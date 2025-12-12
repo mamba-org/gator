@@ -374,10 +374,7 @@ export class CondaPkgPanel extends React.Component<
     }
   }
 
-  async handleVersionSelection(
-    pkg: Conda.IPackage,
-    version: string
-  ): Promise<void> {
+  handleVersionSelection(pkg: Conda.IPackage, version: string): void {
     if (this.state.isApplyingChanges) {
       return;
     }
