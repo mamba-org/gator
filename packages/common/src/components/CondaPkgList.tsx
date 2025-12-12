@@ -310,49 +310,24 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
   };
 
   protected actionLabelRender = (pkg: Conda.IPackage): JSX.Element => {
-    const hasUserSelection =
-      pkg.version_selected !== undefined &&
-      pkg.version_selected !== null &&
-      pkg.version_selected !== pkg.version_installed;
-    const isAutoSelected = pkg.version_selected === 'auto';
-
-    // Show button if:
-    // 1. Package is updatable (upgrade available), OR
-    // 2. User selected a different version (downgrade/change), OR
-    // 3. User selected 'auto' (unpinned update)
-    const showAction = pkg.updatable || hasUserSelection || isAutoSelected;
-
-    if (!showAction) {
+    if (!pkg.updatable) {
       return null;
     }
-
-    const actionLabel = pkg.updatable ? 'update' : 'modify';
 
     return (
       <span
         className={Style.UpdateLink}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
-          // Use the version from the dropdown: 'auto' means unpinned update
-          const version =
-            pkg.version_selected === 'auto' || !pkg.version_selected
-              ? undefined
-              : pkg.version_selected;
           this.props.commands?.execute('gator-lab:update-pkg', {
             name: pkg.name,
             environment: this.props.envName,
-            version: version
+            version: ''
           });
         }}
-        title={`${actionLabel === 'update' ? 'Update' : 'Modify'} ${
-          pkg.name
-        } to ${
-          pkg.version_selected === 'auto' || !pkg.version_selected
-            ? 'latest version'
-            : pkg.version_selected
-        }`}
+        title={`Update ${pkg.name} to latest version`}
       >
-        {actionLabel}
+        update
       </span>
     );
   };
