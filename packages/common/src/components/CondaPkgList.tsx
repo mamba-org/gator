@@ -329,6 +329,54 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     return menu;
   };
 
+  protected actionLabelRender = (pkg: Conda.IPackage): JSX.Element => {
+    const hasUserSelection =
+      pkg.version_selected !== undefined &&
+      pkg.version_selected !== null &&
+      pkg.version_selected !== pkg.version_installed;
+    const isAutoSelected = pkg.version_selected === 'auto';
+
+    // Show button if:
+    // 1. Package is updatable (upgrade available), OR
+    // 2. User selected a different version (downgrade/change), OR
+    // 3. User selected 'auto' (unpinned update)
+    const showAction = pkg.updatable || hasUserSelection || isAutoSelected;
+
+    if (!showAction) {
+      return null;
+    }
+
+    const actionLabel = pkg.updatable ? 'update' : 'modify';
+
+    return (
+      <span
+        className={Style.UpdateLink}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          // Use the version from the dropdown: 'auto' means unpinned update
+          const version =
+            pkg.version_selected === 'auto' || !pkg.version_selected
+              ? undefined
+              : pkg.version_selected;
+          this.props.commands?.execute('gator-lab:update-pkg', {
+            name: pkg.name,
+            environment: this.props.envName,
+            version: version
+          });
+        }}
+        title={`${actionLabel === 'update' ? 'Update' : 'Modify'} ${
+          pkg.name
+        } to ${
+          pkg.version_selected === 'auto' || !pkg.version_selected
+            ? 'latest version'
+            : pkg.version_selected
+        }`}
+      >
+        {actionLabel}
+      </span>
+    );
+  };
+
   protected rowRenderer = (props: ListChildComponentProps): JSX.Element => {
     const { data, index, style } = props;
     const pkg = data[index] as Conda.IPackage;
@@ -420,54 +468,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
             {(this.props.useDirectPackageActions ?? true) &&
-              (() => {
-                const hasUserSelection =
-                  pkg.version_selected !== undefined &&
-                  pkg.version_selected !== null &&
-                  pkg.version_selected !== pkg.version_installed;
-                const isAutoSelected = pkg.version_selected === 'auto';
-
-                // Show button if:
-                // 1. Package is updatable (upgrade available), OR
-                // 2. User selected a different version (downgrade/change), OR
-                // 3. User selected 'auto' (unpinned update)
-                const showAction =
-                  pkg.updatable || hasUserSelection || isAutoSelected;
-
-                if (!showAction) {
-                  return null;
-                }
-
-                const actionLabel = pkg.updatable ? 'update' : 'modify';
-
-                return (
-                  <span
-                    className={Style.UpdateLink}
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      // Use the version from the dropdown: 'auto' means unpinned update
-                      const version =
-                        pkg.version_selected === 'auto' || !pkg.version_selected
-                          ? undefined
-                          : pkg.version_selected;
-                      this.props.commands?.execute('gator-lab:update-pkg', {
-                        name: pkg.name,
-                        environment: this.props.envName,
-                        version: version
-                      });
-                    }}
-                    title={`${actionLabel === 'update' ? 'Update' : 'Modify'} ${
-                      pkg.name
-                    } to ${
-                      pkg.version_selected === 'auto' || !pkg.version_selected
-                        ? 'latest version'
-                        : pkg.version_selected
-                    }`}
-                  >
-                    {actionLabel}
-                  </span>
-                );
-              })()}
+              this.actionLabelRender(pkg)}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}
