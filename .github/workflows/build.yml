@@ -117,6 +117,9 @@ jobs:
   test-frontend-unit:
     name: Test TypeScript frontend unit tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jupyterlab-version: ["4.5"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -131,6 +134,9 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
+
+      - name: Install JupyterLab
+        run: pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*"
 
       - name: Install dependencies
         run: jlpm install
@@ -147,6 +153,7 @@ jobs:
   #   runs-on: ${{ matrix.os }}
   #   strategy:
   #     matrix:
+  #       jupyterlab-version: ["4.5"]
   #       os:
   #         - ubuntu-latest
   #         - macos-latest
@@ -165,6 +172,9 @@ jobs:
   #       with:
   #         node-version: '18'
   #         cache: 'yarn'
+
+  #     - name: Install JupyterLab
+  #       run: pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*"
 
   #     - name: Install dependencies
   #       run: jlpm install
