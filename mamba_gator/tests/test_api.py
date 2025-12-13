@@ -1329,9 +1329,41 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
 
             with tempfile.TemporaryDirectory() as local_channel:
                 with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
-                    d.write(
-                        '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "The numpydoc extension provides support for the Numpy docstring format in Sphinx, and adds the code description directives np:function, np-c:function, etc.", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
-                    )
+                    channeldata = {
+                        "channeldata_version": 1,
+                        "packages": {
+                            "numpydoc": {
+                                "activate.d": False,
+                                "binary_prefix": False,
+                                "deactivate.d": False,
+                                "description": "Numpy's documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.",
+                                "dev_url": "https://github.com/numpy/numpydoc",
+                                "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst",
+                                "doc_url": "https://pypi.python.org/pypi/numpydoc",
+                                "home": "https://github.com/numpy/numpydoc",
+                                "icon_hash": None,
+                                "icon_url": None,
+                                "identifiers": None,
+                                "keywords": None,
+                                "license": "BSD 3-Clause",
+                                "post_link": False,
+                                "pre_link": False,
+                                "pre_unlink": False,
+                                "recipe_origin": None,
+                                "run_exports": {},
+                                "source_git_url": None,
+                                "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz",
+                                "subdirs": ["linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64"],
+                                "summary": "The numpydoc extension provides support for the Numpy docstring format in Sphinx, and adds the code description directives np:function, np-c:function, etc.",
+                                "tags": None,
+                                "text_prefix": False,
+                                "timestamp": 1556032044,
+                                "version": "0.9.1"
+                            }
+                        },
+                        "subdirs": ["noarch"]
+                    }
+                    json.dump(channeldata, d)
                 local_name = local_channel.strip("/")
                 channels = {
                     "channel_alias": {
