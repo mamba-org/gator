@@ -121,6 +121,8 @@ jobs:
   test-frontend-unit:
     name: Frontend Unit Tests on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
+    # Note: Skipping setup-python - using runner's pre-installed Python for pip only.
+    # JupyterLab is installed just to get jlpm, not for Python code execution.
     strategy:
       matrix:
         jupyterlab-version: ['4.5']
