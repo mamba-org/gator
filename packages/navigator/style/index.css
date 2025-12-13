@@ -3,4 +3,6 @@
 @import url('~@jupyterlab/theme-light-extension/style/theme.css');
 @import url('~@mamba-org/gator-common/style/index.css');
 
+@import url('~react-toastify/dist/ReactToastify.css');
+
 @import url('./base.css');
