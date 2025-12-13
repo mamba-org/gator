@@ -96,11 +96,15 @@ async function activateCondaEnv(
       });
 
       if (!condaWidget || condaWidget.isDisposed) {
+        const useDirectPackageActions =
+          (settings?.get('useDirectPackageActions').composite as boolean) ??
+          true;
         condaWidget = new MainAreaWidget({
           content: new CondaEnvWidget(
             model,
             commands,
-            envName as string | undefined
+            envName as string | undefined,
+            useDirectPackageActions
           ) as any
         });
         condaWidget.addClass(CONDA_WIDGET_CLASS);

@@ -28,12 +28,14 @@ export class CondaEnvWidget extends ReactWidget {
   constructor(
     envModel: IEnvironmentManager,
     commands: CommandRegistry,
-    envName?: string
+    envName?: string,
+    useDirectPackageActions?: boolean
   ) {
     super();
     this._envModel = envModel;
     this._commands = commands;
     this._envName = envName;
+    this._useDirectPackageActions = useDirectPackageActions ?? true;
   }
 
   protected onResize(msg: Widget.ResizeMessage): void {
@@ -55,6 +57,7 @@ export class CondaEnvWidget extends ReactWidget {
             model={this._envModel}
             commands={this._commands}
             envName={this._envName}
+            useDirectPackageActions={this._useDirectPackageActions}
           />
         )}
       </UseSignal>
@@ -69,4 +72,8 @@ export class CondaEnvWidget extends ReactWidget {
    * Signal triggering a React rendering if widget is resized
    */
   private _resizeSignal = new Signal<CondaEnvWidget, ISize>(this);
+  /**
+   * Whether to use direct package actions (immediate update on version change)
+   */
+  private _useDirectPackageActions: boolean;
 }

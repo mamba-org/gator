@@ -1,9 +1,14 @@
 import { HTMLSelect, InputGroup } from '@jupyterlab/ui-components';
-import { ToolbarButtonComponent, addIcon } from '@jupyterlab/ui-components';
+import {
+  ToolbarButtonComponent,
+  addIcon,
+  deleteIcon
+} from '@jupyterlab/ui-components';
 import * as React from 'react';
 import { classes, style } from 'typestyle/lib';
 import { CONDA_PACKAGES_TOOLBAR_CLASS } from '../constants';
-import { cartArrowDownIcon, externalLinkIcon, undoIcon } from '../icon';
+import { undoIcon } from '../icon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const PACKAGE_TOOLBAR_HEIGHT = 40;
 
@@ -48,6 +53,10 @@ export interface ICondaPkgToolBarProps {
    */
   onUpdateAll: () => void;
   /**
+   * Delete selected packages handler
+   */
+  onDeleteSelected: () => void;
+  /**
    * Apply package modifications
    */
   onApply: () => void;
@@ -63,22 +72,27 @@ export interface ICondaPkgToolBarProps {
    * Add package handler (opens the package drawer)
    */
   onAddPackages: () => void;
+  /**
+   * Whether to use direct package actions (immediate update on version change)
+   */
+  useDirectPackageActions?: boolean;
+  /**
+   * Toggle between direct and batch mode
+   */
+  onToggleDirectActions?: () => void;
+  /**
+   * Number of selected packages
+   */
+  selectedCount: number;
+  /**
+   * Total number of installed packages
+   */
+  installedCount: number;
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
   return (
     <div className={`lm-Widget ${CONDA_PACKAGES_TOOLBAR_CLASS} jp-Toolbar`}>
-      <div className="lm-Widget jp-Toolbar-item">
-        <HTMLSelect
-          value={props.category}
-          onChange={props.onCategoryChanged}
-          aria-label="Package filter"
-        >
-          <option value={PkgFilters.Installed}>Installed</option>
-          <option value={PkgFilters.Updatable}>Updatable</option>
-          <option value={PkgFilters.Selected}>Selected</option>
-        </HTMLSelect>
-      </div>
       <div className="lm-Widget jp-Toolbar-item">
         <div className={classes('jp-NbConda-search-wrapper', Style.Search)}>
           <InputGroup
@@ -91,26 +105,67 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
           />
         </div>
       </div>
+      {props.hasSelection && (props.useDirectPackageActions ?? true) && (
+        <>
+          <span className={Style.SelectionCount}>
+            {props.selectedCount} / {props.installedCount} selected
+          </span>
+          <ToolbarButtonComponent
+            label="Update"
+            tooltip="Update selected packages"
+            onClick={props.onApply}
+            enabled={true}
+            className={Style.PrimaryButton}
+            dataset={{ 'data-action': 'apply-updates' }}
+          />
+          <ToolbarButtonComponent
+            icon={deleteIcon}
+            label="Remove"
+            tooltip="Remove selected packages"
+            onClick={props.onDeleteSelected}
+            enabled={true}
+            className={Style.RemoveButton}
+            dataset={{ 'data-action': 'remove-selected' }}
+          />
+          <ToolbarButtonComponent
+            label="Clear"
+            icon={undoIcon}
+            tooltip="Clear selected packages"
+            onClick={props.onCancel}
+            enabled={true}
+            className={Style.ClearButton}
+            dataset={{ 'data-action': 'clear-selection' }}
+          />
+        </>
+      )}
+      {props.hasSelection && !(props.useDirectPackageActions ?? true) && (
+        <>
+          <ToolbarButtonComponent
+            label="Apply"
+            tooltip="Apply package modifications"
+            onClick={props.onApply}
+            enabled={true}
+            className={Style.PrimaryButton}
+            dataset={{ 'data-action': 'apply-modifications' }}
+          />
+          <ToolbarButtonComponent
+            label="Clear"
+            icon={undoIcon}
+            tooltip="Clear package modifications"
+            onClick={props.onCancel}
+            enabled={true}
+            className={Style.ClearButton}
+          />
+        </>
+      )}
       <div className="lm-Widget jp-Toolbar-spacer jp-Toolbar-item" />
       <ToolbarButtonComponent
-        icon={externalLinkIcon}
+        label="Update All"
         tooltip="Update all packages"
         onClick={props.onUpdateAll}
         enabled={props.hasUpdate}
         dataset={{ 'data-action': 'update-all' }}
-      />
-      <ToolbarButtonComponent
-        icon={cartArrowDownIcon}
-        tooltip="Apply package modifications"
-        onClick={props.onApply}
-        enabled={props.hasSelection}
-        dataset={{ 'data-action': 'apply-modifications' }}
-      />
-      <ToolbarButtonComponent
-        icon={undoIcon}
-        tooltip="Clear package modifications"
-        onClick={props.onCancel}
-        enabled={props.hasSelection}
+        className={Style.OutlinedButton}
       />
       <ToolbarButtonComponent
         icon={addIcon}
@@ -118,8 +173,52 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         tooltip="Add packages"
         onClick={props.onAddPackages}
         dataset={{ 'data-action': 'add-packages' }}
-        className={Style.AddPackagesButton}
+        className={Style.PrimaryButton}
       />
+      <div
+        className={classes(
+          'lm-Widget jp-Toolbar-item',
+          props.category === PkgFilters.Installed
+            ? Style.FilterWrapper
+            : Style.FilterWrapperActive
+        )}
+      >
+        <FontAwesomeIcon
+          icon="filter"
+          className={
+            props.category === PkgFilters.Installed
+              ? Style.FilterIcon
+              : Style.FilterIconActive
+          }
+        />
+        {props.category !== PkgFilters.Installed && (
+          <span className={Style.FilterBadge}>
+            {props.category === PkgFilters.Updatable ? 'Updatable' : 'Selected'}
+          </span>
+        )}
+        <HTMLSelect
+          value={props.category}
+          onChange={props.onCategoryChanged}
+          aria-label="Package filter"
+          className={classes(Style.HiddenSelect, Style.FilterSelectOverlay)}
+        >
+          <option value={PkgFilters.Installed}>Installed</option>
+          <option value={PkgFilters.Updatable}>Updatable</option>
+          <option value={PkgFilters.Selected}>Selected</option>
+        </HTMLSelect>
+      </div>
+      {props.onToggleDirectActions && (
+        <ToolbarButtonComponent
+          label={props.useDirectPackageActions ?? true ? 'Direct' : 'Batch'}
+          tooltip={
+            props.useDirectPackageActions ?? true
+              ? 'Direct mode: Changes apply immediately. Click to switch to batch mode.'
+              : 'Batch mode: Queue changes and apply together. Click to switch to direct mode.'
+          }
+          onClick={props.onToggleDirectActions}
+          className={Style.ModeToggle}
+        />
+      )}
     </div>
   );
 };
@@ -130,6 +229,34 @@ namespace Style {
     height: PACKAGE_TOOLBAR_HEIGHT
   });
 
+  export const ModeToggle = style({
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-font-color2)',
+        fontSize: 'var(--jp-ui-font-size0)'
+      },
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color2)',
+        borderColor: 'var(--jp-border-color1)'
+      }
+    }
+  });
+
+  export const HiddenSelect = style({
+    opacity: '0 !important',
+    $nest: {
+      '&, & *': {
+        opacity: '0 !important'
+      },
+      '& .bp3-icon, & .jp-icon': {
+        display: 'none !important'
+      }
+    }
+  });
+
   export const SearchInput = style({
     lineHeight: 'normal'
   });
@@ -138,22 +265,16 @@ namespace Style {
     padding: '4px'
   });
 
-  export const AddPackagesButton = style({
-    gap: '6px',
-    color: 'var(--jp-ui-inverse-font-color1) !important',
-    border: '1px solid var(--jp-brand-color1)',
+  export const PrimaryButton = style({
     backgroundColor: 'var(--jp-brand-color1)',
-    borderRadius: '6px',
-    padding: '2px 6px',
-    cursor: 'pointer',
-    transition:
-      'background-color .15s ease, border-color .15s ease, box-shadow .15s ease',
+    color: 'var(--jp-ui-inverse-font-color1)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    overflow: 'hidden',
     $nest: {
       '& .jp-ToolbarButtonComponent-label': {
-        color: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '& .jp-icon3': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
+        color: 'var(--jp-ui-inverse-font-color1)'
       },
       '& svg': {
         fill: 'var(--jp-ui-inverse-font-color1) !important'
@@ -161,30 +282,121 @@ namespace Style {
       '& svg path': {
         fill: 'var(--jp-ui-inverse-font-color1) !important'
       },
-      '& .jp-ToolbarButtonComponent-icon': {
-        color: 'var(--jp-ui-inverse-font-color1) !important'
+      '& .jp-icon3': {
+        fill: 'var(--jp-ui-inverse-font-color1) !important'
       },
       '&:hover': {
-        backgroundColor: 'var(--jp-brand-color2)',
-        borderColor: 'var(--jp-brand-color2)',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
-      },
-      '&:hover .jp-ToolbarButtonComponent-label': {
-        color: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '&:hover .jp-icon3': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '&:hover svg': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '&:hover svg path': {
-        fill: 'var(--jp-ui-inverse-font-color1) !important'
-      },
-      '&:active': {
-        backgroundColor: 'var(--jp-brand-color3)',
-        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
+        backgroundColor: 'var(--jp-brand-color2)'
       }
     }
+  });
+
+  export const OutlinedButton = style({
+    gap: '6px',
+    color: 'var(--jp-ui-font-color1)',
+    border: '1px solid var(--jp-border-color1)',
+    backgroundColor: 'transparent',
+    borderRadius: '6px',
+    padding: '2px 6px',
+    cursor: 'pointer',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-font-color1)'
+      },
+      '& .jp-icon3, & svg, & svg path': {
+        fill: 'var(--jp-ui-font-color1)'
+      },
+      '&:hover': {
+        backgroundColor: 'var(--jp-layout-color2)'
+      }
+    }
+  });
+
+  export const RemoveButton = style({
+    backgroundColor: 'var(--jp-error-color1)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    gap: '4px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'white'
+      },
+      '& svg': {
+        fill: 'white !important'
+      },
+      '& svg path': {
+        fill: 'white !important'
+      },
+      '& .jp-icon3': {
+        fill: 'white !important'
+      }
+    }
+  });
+
+  export const ClearButton = style({
+    backgroundColor: 'var(--jp-layout-color3)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '2px 8px',
+    $nest: {
+      '& .jp-ToolbarButtonComponent-label': {
+        color: 'var(--jp-ui-font-color1)',
+        marginLeft: '4px'
+      }
+    }
+  });
+
+  export const FilterWrapper = style({
+    position: 'relative',
+    width: '24px',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  });
+
+  export const FilterWrapperActive = style({
+    position: 'relative',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '4px',
+    paddingRight: '4px'
+  });
+
+  export const FilterIcon = style({
+    color: 'var(--jp-ui-font-color2)',
+    pointerEvents: 'none'
+  });
+
+  export const FilterIconActive = style({
+    color: 'var(--jp-warn-color0)',
+    pointerEvents: 'none'
+  });
+
+  export const FilterBadge = style({
+    fontSize: '11px',
+    color: 'var(--jp-warn-color0)',
+    fontWeight: 600,
+    pointerEvents: 'none',
+    whiteSpace: 'nowrap'
+  });
+
+  export const FilterSelectOverlay = style({
+    position: 'absolute',
+    opacity: 0,
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '100%',
+    cursor: 'pointer'
+  });
+
+  export const SelectionCount = style({
+    color: 'var(--jp-ui-font-color2)',
+    fontSize: 'var(--jp-ui-font-size0)',
+    marginRight: '8px'
   });
 }
