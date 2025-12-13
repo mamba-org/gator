@@ -192,7 +192,7 @@ jobs:
   #       run: jlpm run test:e2e
 
   test-backend-os-compat:
-    name: Server [${{ matrix.os }}] - Python 3.14 on JL ${{ matrix.jupyterlab-version }}
+    name: Server [Conda/${{ matrix.os }}] - Python 3.14 on JL ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
