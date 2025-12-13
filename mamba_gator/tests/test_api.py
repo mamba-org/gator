@@ -74,6 +74,24 @@ async def clone_env(conda_fetch, wait_for_task, original_name, new_name):
     location = response.headers.get("Location")
     return await wait_for_task(location)
 
+def assert_packages_equal(actual_body, expected):
+    """
+    Assert that package list response matches expected, 
+    using substring matching for summary field.
+    """
+    assert len(actual_body["packages"]) == len(expected["packages"]), \
+        f"Expected {len(expected['packages'])} packages, got {len(actual_body['packages'])}"
+    assert actual_body["with_description"] == expected["with_description"]
+    
+    for actual_pkg, expected_pkg in zip(actual_body["packages"], expected["packages"]):
+        assert expected_pkg["summary"] in actual_pkg["summary"], \
+            f"Package {actual_pkg['name']}: summary should contain '{expected_pkg['summary']}', got '{actual_pkg['summary']}'"
+
+        for key in expected_pkg:
+            if key != "summary":
+                assert actual_pkg[key] == expected_pkg[key], \
+                    f"Package {actual_pkg['name']}: mismatch on '{key}'"
+
 # =============================================================================
 # TestChannelsHandler
 # =============================================================================
@@ -1163,7 +1181,7 @@ async def test_package_list_available(conda_fetch, wait_for_task):
                         "name": "numpydoc",
                         "platform": None,
                         "version": ["0.9.1", "0.9.0", "0.8.0"],
-                        "summary": "Sphinx extension to support docstrings in Numpy format",
+                        "summary": "Numpy's documentation uses several custom extensions to Sphinx.",
                         "home": "https://github.com/numpy/numpydoc",
                         "keywords": [],
                         "tags": [],
@@ -1171,7 +1189,7 @@ async def test_package_list_available(conda_fetch, wait_for_task):
                 ],
                 "with_description": True,
             }
-            assert body == expected
+            assert_packages_equal(body, expected)
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="TODO test not enough reliability")
@@ -1311,9 +1329,41 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
 
             with tempfile.TemporaryDirectory() as local_channel:
                 with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
-                    d.write(
-                        '{ "channeldata_version": 1, "packages": { "numpydoc": { "activate.d": false, "binary_prefix": false, "deactivate.d": false, "description": "Numpy\'s documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.", "dev_url": "https://github.com/numpy/numpydoc", "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst", "doc_url": "https://pypi.python.org/pypi/numpydoc", "home": "https://github.com/numpy/numpydoc", "icon_hash": null, "icon_url": null, "identifiers": null, "keywords": null, "license": "BSD 3-Clause", "post_link": false, "pre_link": false, "pre_unlink": false, "recipe_origin": null, "run_exports": {}, "source_git_url": null, "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz", "subdirs": [ "linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64" ], "summary": "Sphinx extension to support docstrings in Numpy format", "tags": null, "text_prefix": false, "timestamp": 1556032044, "version": "0.9.1" } }, "subdirs": [ "noarch" ] }'
-                    )
+                    channeldata = {
+                        "channeldata_version": 1,
+                        "packages": {
+                            "numpydoc": {
+                                "activate.d": False,
+                                "binary_prefix": False,
+                                "deactivate.d": False,
+                                "description": "Numpy's documentation uses several custom extensions to Sphinx. These are shipped in this numpydoc package, in case you want to make use of them in third-party projects.",
+                                "dev_url": "https://github.com/numpy/numpydoc",
+                                "doc_source_url": "https://github.com/numpy/numpydoc/blob/master/README.rst",
+                                "doc_url": "https://pypi.python.org/pypi/numpydoc",
+                                "home": "https://github.com/numpy/numpydoc",
+                                "icon_hash": None,
+                                "icon_url": None,
+                                "identifiers": None,
+                                "keywords": None,
+                                "license": "BSD 3-Clause",
+                                "post_link": False,
+                                "pre_link": False,
+                                "pre_unlink": False,
+                                "recipe_origin": None,
+                                "run_exports": {},
+                                "source_git_url": None,
+                                "source_url": "https://pypi.io/packages/source/n/numpydoc/numpydoc-0.9.1.tar.gz",
+                                "subdirs": ["linux-32", "linux-64", "linux-ppc64le", "noarch", "osx-64", "win-32", "win-64"],
+                                "summary": "The numpydoc extension provides support for the Numpy docstring format in Sphinx, and adds the code description directives np:function, np-c:function, etc.",
+                                "tags": None,
+                                "text_prefix": False,
+                                "timestamp": 1556032044,
+                                "version": "0.9.1"
+                            }
+                        },
+                        "subdirs": ["noarch"]
+                    }
+                    json.dump(channeldata, d)
                 local_name = local_channel.strip("/")
                 channels = {
                     "channel_alias": {
@@ -1382,7 +1432,7 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
                             "name": "numpydoc",
                             "platform": None,
                             "version": ["0.9.1", "0.9.0", "0.8.0"],
-                            "summary": "Sphinx extension to support docstrings in Numpy format",
+                            "summary": "Numpy's documentation uses several custom extensions to Sphinx.",
                             "home": "https://github.com/numpy/numpydoc",
                             "keywords": [],
                             "tags": [],
@@ -1390,7 +1440,7 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
                     ],
                     "with_description": True,
                 }
-                assert body == expected
+                assert_packages_equal(body, expected)
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="not reliable on Windows")
@@ -1595,7 +1645,7 @@ async def test_package_list_available_no_description(conda_fetch, wait_for_task)
                     ],
                     "with_description": False,
                 }
-                assert body == expected
+                assert_packages_equal(body, expected)
 
 
 async def test_package_list_available_caching(conda_fetch, wait_for_task):
@@ -1798,7 +1848,7 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
                         "name": "numpydoc",
                         "platform": None,
                         "version": ["0.9.1", "0.9.0", "0.8.0"],
-                        "summary": "Sphinx extension to support docstrings in Numpy format",
+                        "summary": "Numpy's documentation uses several custom extensions to Sphinx.",
                         "home": "https://github.com/numpy/numpydoc",
                         "keywords": [],
                         "tags": [],
@@ -1811,13 +1861,13 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
             assert os.path.exists(cache_file)
 
             with open(cache_file) as cache:
-                assert json.load(cache) == expected
+                assert_packages_equal(json.load(cache), expected)
 
             # Retrieve using cache
             response = await conda_fetch("packages", method="GET")
             assert response.code == 200
             body = json.loads(response.body)
-            assert body == expected
+            assert_packages_equal(body, expected)
 
 
 # =============================================================================

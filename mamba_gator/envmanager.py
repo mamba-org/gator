@@ -919,7 +919,8 @@ class EnvManager:
             for package in packages:
                 name = package["name"]
                 if name in pkg_info:
-                    package["summary"] = pkg_info[name].get("summary", "")
+                    # Prefer description over summary, fall back to summary if description is empty
+                    package["summary"] = pkg_info[name].get("description", "") or pkg_info[name].get("summary", "")
                     package["home"] = pkg_info[name].get("home", "")
                     # May return None so "or" with empty list
                     package["keywords"] = pkg_info[name].get("keywords", []) or []
