@@ -261,20 +261,27 @@ jobs:
           pip install -e .[test,dev]
         shell: bash -l {0}
 
-      - name: Install Playwright browsers
-        if: matrix.os != 'windows-latest'
-        run: npx playwright install --with-deps chromium
-        shell: bash -l {0}
-
       - name: Test the extension
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
           conda activate test_gator
           python -m pytest mamba_gator
+        shell: bash -l {0}
+
+      - name: Verify extension installation
+        run: |
+          conda activate test_gator
           jupyter server extension list
           jupyter labextension list
-          if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
+        shell: bash -l {0}
+
+      - name: Browser check
+        if: matrix.os != 'windows-latest'
+        run: |
+          npx playwright install --with-deps chromium
+          conda activate test_gator
+          python -m jupyterlab.browser_check
         shell: bash -l {0}
 
   test-integration:
