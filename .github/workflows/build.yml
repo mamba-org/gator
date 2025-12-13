@@ -4,16 +4,20 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: "*"
+    branches: '*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test-backend-conda:
-    name: Test server with Conda Python ${{ matrix.python-version }} on ${{ matrix.jupyterlab-version }}
+    name: Server [Conda/Ubuntu] - Python ${{ matrix.python-version }} on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14"]
-        jupyterlab-version: ["4.5"]
+        python-version: ['3.14']
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,12 +59,12 @@ jobs:
         shell: bash -l {0}
 
   test-backend-mamba:
-    name: Test server with Mamba Python ${{ matrix.python-version }} on ${{ matrix.jupyterlab-version }}
+    name: Server [Mamba/Ubuntu] - Python ${{ matrix.python-version }} on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14"]
-        jupyterlab-version: ["4.5"]
+        python-version: ['3.14']
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,7 +82,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
+          miniforge-version: '24.11.3-2' # For Mamba 1.5.12
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -92,7 +96,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-          
+
       - name: Install dependencies
         run: |
           mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
@@ -114,18 +118,97 @@ jobs:
           python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
-  test-all-os:
-    name: Test Conda Python 3.14 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
+  test-frontend-unit:
+    name: Frontend Unit Tests on JL ${{ matrix.jupyterlab-version }}
+    runs-on: ubuntu-latest
+    # Note: Skipping setup-python - using runner's pre-installed Python for pip only.
+    # JupyterLab is installed just to get jlpm, not for Python code execution.
+    strategy:
+      matrix:
+        jupyterlab-version: ['4.5']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install JupyterLab
+        run: pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*"
+
+      - name: Install dependencies
+        run: jlpm install
+
+      - name: Build packages
+        run: jlpm run build
+
+      - name: Run frontend tests
+        run: jlpm run test
+
+      - name: Run linter
+        run: jlpm run eslint:check
+
+  # TODO: Enable when adding Playwright E2E tests
+  # test-frontend-e2e:
+  #   name: Test E2E on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       jupyterlab-version: ["4.5"]
+  #       os:
+  #         - ubuntu-latest
+  #         - macos-latest
+  #         - windows-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Install and enable Corepack
+  #       run: |
+  #         npm install -g corepack@0.33.0 --force
+  #         corepack enable
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18'
+  #         cache: 'yarn'
+
+  #     - name: Install JupyterLab
+  #       run: pip install "jupyterlab==${{ matrix.jupyterlab-version }}.*"
+
+  #     - name: Install dependencies
+  #       run: jlpm install
+
+  #     - name: Build packages
+  #       run: jlpm run build
+
+  #     - name: Install Playwright browsers
+  #       run: npx playwright install --with-deps chromium
+
+  #     - name: Run E2E tests
+  #       run: jlpm run test:e2e
+
+  test-backend-os-compat:
+    name: Server [Conda/${{ matrix.os }}] - Python 3.14 on JL ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: 
-          - "macos-latest"
-          - "windows-latest"
-        jupyterlab-version: ["4.5"]
+        os:
+          - 'macos-latest'
+          - 'windows-latest'
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -147,7 +230,7 @@ jobs:
         with:
           activate-environment: test_gator
           channels: conda-forge
-          python-version: "3.14"
+          python-version: '3.14'
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -161,7 +244,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-          
+
       - name: Create conda environment
         run: |
           conda info
@@ -184,29 +267,35 @@ jobs:
           pip install -e .[test,dev]
         shell: bash -l {0}
 
-      - name: Install Playwright browsers
-        if: matrix.os != 'windows-latest'
-        run: npx playwright install --with-deps chromium
-        shell: bash -l {0}
-
       - name: Test the extension
         env:
           OS_RUNNER: ${{ matrix.os }}
         run: |
           conda activate test_gator
           python -m pytest mamba_gator
-          jlpm run test
+        shell: bash -l {0}
+
+      - name: Verify extension installation
+        run: |
+          conda activate test_gator
           jupyter server extension list
           jupyter labextension list
-          if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
+        shell: bash -l {0}
+
+      - name: Browser check
+        if: matrix.os != 'windows-latest'
+        run: |
+          npx playwright install --with-deps chromium
+          conda activate test_gator
+          python -m jupyterlab.browser_check
         shell: bash -l {0}
 
   test-integration:
-    name: All tests on Ubuntu Mamba Python 3.14 on ${{ matrix.jupyterlab-version }}
+    name: Full Suite [Mamba/Ubuntu] - Python 3.14 on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jupyterlab-version: ["4.5"]
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -225,7 +314,7 @@ jobs:
       - name: Setup Python 3.14
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
+          miniforge-version: '24.11.3-2' # For Mamba 1.5.12
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -239,7 +328,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
- 
+
       - name: Create mamba environment
         shell: bash -l {0}
         run: |
@@ -268,6 +357,12 @@ jobs:
           conda activate test_gator
           hatch run lint:check
           jlpm run eslint:check
+        shell: bash -l {0}
+
+      - name: Test TypeScript frontend
+        run: |
+          conda activate test_gator
+          jlpm run test
         shell: bash -l {0}
 
       - name: Test Python backend with coverage
@@ -301,12 +396,6 @@ jobs:
             pytest-results.xml
             .coverage
 
-      - name: Test TypeScript frontend
-        run: |
-          conda activate test_gator
-          jlpm run test
-        shell: bash -l {0}
-
       - name: Verify extension installation
         run: |
           conda activate test_gator
@@ -328,7 +417,7 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
         with:
-          python_version: "3.14"
+          python_version: '3.14'
 
       - name: Build SDist
         run: |
@@ -338,7 +427,7 @@ jobs:
       - name: Upload sdist Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "sdist"
+          name: 'sdist'
           path: dist/*.tar.gz
 
   test-offline-build:
