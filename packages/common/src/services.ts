@@ -155,7 +155,10 @@ export class CondaEnvironments implements IEnvironmentManager {
     this._environmentTypes =
       types && Object.keys(types).length > 0
         ? types
-        : { python3: ['python=3', 'ipykernel'] };
+        : {
+            'Python 3': ['python=3', 'ipykernel'],
+            R: ['r-base', 'r-essentials']
+          };
     this._fromHistory = settings.get('fromHistory').composite as boolean;
     this._whitelist = settings.get('whitelist').composite as boolean;
   }
@@ -472,8 +475,8 @@ export class CondaEnvironments implements IEnvironmentManager {
   private _environments: Array<Conda.IEnvironment>;
   private _environmentsTimer = -1;
   private _environmentTypes: IType = {
-    python3: ['python=3', 'ipykernel'],
-    r: ['r-base', 'r-essentials']
+    'Python 3': ['python=3', 'ipykernel'],
+    R: ['r-base', 'r-essentials']
   };
   private _fromHistory = false;
   private _packageManager = new CondaPackage();
