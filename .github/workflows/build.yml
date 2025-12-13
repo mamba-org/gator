@@ -114,6 +114,67 @@ jobs:
           python -m pytest -ra mamba_gator
         shell: bash -l {0}
 
+  test-frontend-unit:
+    name: Test TypeScript frontend unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install and enable Corepack
+        run: |
+          npm install -g corepack@0.33.0 --force
+          corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: jlpm install
+
+      - name: Run frontend tests
+        run: jlpm run test
+
+      - name: Run linter
+        run: jlpm run eslint:check
+
+  # TODO: Enable when adding Playwright E2E tests
+  # test-frontend-e2e:
+  #   name: Test E2E on ${{ matrix.os }}
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       os:
+  #         - ubuntu-latest
+  #         - macos-latest
+  #         - windows-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Install and enable Corepack
+  #       run: |
+  #         npm install -g corepack@0.33.0 --force
+  #         corepack enable
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18'
+  #         cache: 'yarn'
+
+  #     - name: Install dependencies
+  #       run: jlpm install
+
+  #     - name: Install Playwright browsers
+  #       run: npx playwright install --with-deps chromium
+
+  #     - name: Run E2E tests
+  #       run: jlpm run test:e2e
+
   test-all-os:
     name: Test Conda Python 3.14 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
@@ -195,7 +256,6 @@ jobs:
         run: |
           conda activate test_gator
           python -m pytest mamba_gator
-          jlpm run test
           jupyter server extension list
           jupyter labextension list
           if [ "${OS_RUNNER}" != "windows-latest" ]; then python -m jupyterlab.browser_check; fi
@@ -270,6 +330,12 @@ jobs:
           jlpm run eslint:check
         shell: bash -l {0}
 
+      - name: Test TypeScript frontend
+        run: |
+          conda activate test_gator
+          jlpm run test
+        shell: bash -l {0}
+
       - name: Test Python backend with coverage
         run: |
           conda activate test_gator
@@ -300,12 +366,6 @@ jobs:
             coverage.json
             pytest-results.xml
             .coverage
-
-      - name: Test TypeScript frontend
-        run: |
-          conda activate test_gator
-          jlpm run test
-        shell: bash -l {0}
 
       - name: Verify extension installation
         run: |
