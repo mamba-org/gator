@@ -4,16 +4,16 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: "*"
+    branches: '*'
 
 jobs:
   test-backend-conda:
-    name: Test server with Conda Python ${{ matrix.python-version }} on ${{ matrix.jupyterlab-version }}
+    name: Server [Conda/Ubuntu] - Python ${{ matrix.python-version }} on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14"]
-        jupyterlab-version: ["4.5"]
+        python-version: ['3.14']
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,12 +55,12 @@ jobs:
         shell: bash -l {0}
 
   test-backend-mamba:
-    name: Test server with Mamba Python ${{ matrix.python-version }} on ${{ matrix.jupyterlab-version }}
+    name: Server [Mamba/Ubuntu] - Python ${{ matrix.python-version }} on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14"]
-        jupyterlab-version: ["4.5"]
+        python-version: ['3.14']
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
       - name: Setup Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
+          miniforge-version: '24.11.3-2' # For Mamba 1.5.12
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -92,7 +92,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-          
+
       - name: Install dependencies
         run: |
           mamba create -y -n test_gator -c conda-forge python=${{ matrix.python-version }} nb_conda_kernels
@@ -115,11 +115,11 @@ jobs:
         shell: bash -l {0}
 
   test-frontend-unit:
-    name: Test TypeScript frontend unit tests
+    name: Frontend Unit Tests on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jupyterlab-version: ["4.5"]
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -149,7 +149,7 @@ jobs:
 
   # TODO: Enable when adding Playwright E2E tests
   # test-frontend-e2e:
-  #   name: Test E2E on ${{ matrix.os }}
+  #   name: Test E2E on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
   #   runs-on: ${{ matrix.os }}
   #   strategy:
   #     matrix:
@@ -185,18 +185,18 @@ jobs:
   #     - name: Run E2E tests
   #       run: jlpm run test:e2e
 
-  test-all-os:
-    name: Test Conda Python 3.14 on ${{ matrix.os }} on ${{ matrix.jupyterlab-version }}
+  test-backend-os-compat:
+    name: Server [${{ matrix.os }}] - Python 3.14 on JL ${{ matrix.jupyterlab-version }}
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: 
-          - "macos-latest"
-          - "windows-latest"
-        jupyterlab-version: ["4.5"]
+        os:
+          - 'macos-latest'
+          - 'windows-latest'
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -218,7 +218,7 @@ jobs:
         with:
           activate-environment: test_gator
           channels: conda-forge
-          python-version: "3.14"
+          python-version: '3.14'
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -232,7 +232,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-          
+
       - name: Create conda environment
         run: |
           conda info
@@ -272,11 +272,11 @@ jobs:
         shell: bash -l {0}
 
   test-integration:
-    name: All tests on Ubuntu Mamba Python 3.14 on ${{ matrix.jupyterlab-version }}
+    name: Full Suite [Mamba/Ubuntu] - Python 3.14 on JL ${{ matrix.jupyterlab-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jupyterlab-version: ["4.5"]
+        jupyterlab-version: ['4.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -295,7 +295,7 @@ jobs:
       - name: Setup Python 3.14
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: "24.11.3-2"  # For Mamba 1.5.12
+          miniforge-version: '24.11.3-2' # For Mamba 1.5.12
           show-channel-urls: true
           use-only-tar-bz2: false
 
@@ -309,7 +309,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
- 
+
       - name: Create mamba environment
         shell: bash -l {0}
         run: |
@@ -398,7 +398,7 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
         with:
-          python_version: "3.14"
+          python_version: '3.14'
 
       - name: Build SDist
         run: |
@@ -408,7 +408,7 @@ jobs:
       - name: Upload sdist Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "sdist"
+          name: 'sdist'
           path: dist/*.tar.gz
 
   test-offline-build:
