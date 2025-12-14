@@ -323,21 +323,44 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
               <div style={Style.DetailsSection}>
                 <div style={Style.DetailsFields}>
                   <div style={Style.FieldGroup}>
-                    <label className={Style.Label}>Name</label>
-                    <input
-                      className={showNameError ? Style.InputError : Style.Input}
-                      type="text"
-                      placeholder="Environment name"
-                      value={envName}
-                      onChange={e => setEnvName(e.target.value)}
-                      onBlur={() => setEnvNameTouched(true)}
-                      disabled={isCreating}
-                    />
+                    <label className={Style.Label} htmlFor="env-name">
+                      Name
+                    </label>
+                    <div
+                      className={
+                        showNameError
+                          ? Style.InputErrorWrapper
+                          : Style.InputWrapper
+                      }
+                    >
+                      <input
+                        id="env-name"
+                        className={Style.Input}
+                        aria-invalid={showNameError}
+                        aria-describedby={
+                          showNameError ? 'name-error' : undefined
+                        }
+                        type="text"
+                        placeholder="Environment name"
+                        value={envName}
+                        onChange={e => setEnvName(e.target.value)}
+                        onBlur={() => setEnvNameTouched(true)}
+                        disabled={isCreating}
+                      />
+                      {showNameError && (
+                        <span id="name-error" className={Style.VisuallyHidden}>
+                          Environment name is required
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div style={Style.FieldGroup}>
-                    <label className={Style.Label}>Type</label>
+                    <label className={Style.Label} htmlFor="env-type">
+                      Type
+                    </label>
                     <select
+                      id="env-type"
                       className={Style.Select}
                       value={envType}
                       onChange={e => setEnvType(e.target.value)}
@@ -503,6 +526,7 @@ namespace Style {
     color: 'var(--jp-ui-font-color1)',
     fontSize: '13px',
     fontWeight: 500,
+    fontFamily: 'var(--jp-code-font-family)',
     textAlign: 'left',
     whiteSpace: 'pre-wrap',
     maxHeight: '150px',
@@ -654,25 +678,43 @@ namespace Style {
     }
   });
 
-  export const InputError = style({
+  export const InputErrorWrapper = style({
+    position: 'relative',
     width: '100%',
-    padding: '8px 12px',
-    fontSize: '13px',
-    border: '1px solid var(--jp-error-color1)',
-    borderRadius: '3px',
-    backgroundColor: 'var(--jp-layout-color1)',
-    color: 'var(--jp-ui-font-color1)',
-    boxSizing: 'border-box' as const,
     $nest: {
-      '&:focus': {
-        outline: 'none',
-        borderColor: 'var(--jp-error-color1)'
+      '&::after': {
+        content: '"⚠"',
+        position: 'absolute',
+        right: '10px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        color: 'var(--jp-error-color1)',
+        fontSize: '14px',
+        pointerEvents: 'none' // so it doesn't block input clicks
       },
-      '&:disabled': {
-        opacity: 0.5,
-        cursor: 'not-allowed'
+      // so the text doesn't overlap the icon
+      '& input': {
+        paddingRight: '32px',
+        border: '1px solid var(--jp-error-color1)'
       }
     }
+  });
+
+  export const InputWrapper = style({
+    position: 'relative',
+    width: '100%'
+  });
+
+  export const VisuallyHidden = style({
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: 0,
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: 0
   });
 
   export const Select = style({
