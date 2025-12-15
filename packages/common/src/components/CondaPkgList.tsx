@@ -571,7 +571,8 @@ namespace Style {
 
   export const Summary = style({
     fontSize: '0.85em',
-    color: 'var(--jp-ui-font-color2)',
+    color: 'var(--jp-ui-font-color1)',
+    opacity: 0.72,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
