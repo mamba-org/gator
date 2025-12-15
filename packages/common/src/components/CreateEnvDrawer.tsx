@@ -348,7 +348,7 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
                         disabled={isCreating}
                       />
                       {showNameError && (
-                        <span id="name-error" className={Style.VisuallyHidden}>
+                        <span id="name-error" className={Style.ErrorText}>
                           Environment name is required
                         </span>
                       )}
@@ -705,16 +705,14 @@ namespace Style {
     width: '100%'
   });
 
-  export const VisuallyHidden = style({
+  export const ErrorText = style({
     position: 'absolute',
-    width: '1px',
-    height: '1px',
-    padding: 0,
-    margin: '-1px',
-    overflow: 'hidden',
-    clip: 'rect(0, 0, 0, 0)',
-    whiteSpace: 'nowrap',
-    border: 0
+    left: 0,
+    top: '100%',
+    color: 'var(--jp-error-color1)',
+    fontSize: '12px',
+    marginTop: '4px',
+    whiteSpace: 'nowrap'
   });
 
   export const Select = style({
