@@ -604,11 +604,14 @@ namespace Style {
 
   export const CellSummary = style({
     margin: '0px 2px',
-    alignSelf: 'flex-start',
-    whiteSpace: 'normal',
-    height: '100%',
-    overflow: 'hidden'
-  });
+    alignSelf: 'center',
+    overflow: 'hidden',
+    display: '-webkit-box',
+    lineHeight: '1.3',
+    maxHeight: '2.6em',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical'
+  } as NestedCSSProperties);
 
   export const SortButton = style({
     transform: 'rotate(180deg)',
