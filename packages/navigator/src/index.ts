@@ -15,6 +15,7 @@ export default async function main(): Promise<void> {
   const app = new Gator();
   const mods = [
     require('./plugins/paths'),
+    require('./plugins/notifications'),
     require('./plugins/navigator'),
     require('./plugins/top')
   ];
