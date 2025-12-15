@@ -400,16 +400,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         <div className={classes(Style.Cell, Style.NameSize)} role="gridcell">
           {this.nameRender(pkg)}
+          {pkg.summary && <div className={Style.Summary}>{pkg.summary}</div>}
         </div>
-        {this.props.hasDescription && (
-          <div
-            className={classes(Style.CellSummary, Style.DescriptionSize)}
-            role="gridcell"
-            title={pkg.summary}
-          >
-            {pkg.summary}
-          </div>
-        )}
         <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
           {this.versionRender(pkg)}
         </div>
@@ -484,14 +476,6 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   >
                     Name
                   </div>
-                  {this.props.hasDescription && (
-                    <div
-                      className={classes(Style.Cell, Style.DescriptionSize)}
-                      role="columnheader"
-                    >
-                      Description
-                    </div>
-                  )}
                   <div
                     className={classes(Style.Cell, Style.VersionSize)}
                     role="columnheader"
@@ -581,6 +565,14 @@ namespace Style {
         : 'var(--jp-layout-color2)'
     });
 
+  export const Summary = style({
+    fontSize: '0.85em',
+    color: 'var(--jp-ui-font-color2)',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  });
+
   export const Cell = style({
     margin: '0px 2px',
     whiteSpace: 'nowrap',
@@ -589,10 +581,9 @@ namespace Style {
   });
 
   export const StatusSize = style({ flex: '0 0 12px', padding: '0px 2px' });
-  export const NameSize = style({ flex: '1 1 200px' });
-  export const DescriptionSize = style({ flex: '5 5 250px' });
+  export const NameSize = style({ flex: '2 2 350px' });
   export const VersionSize = style({ flex: '0 0 150px' });
-  export const ChannelSize = style({ flex: '1 1 120px' });
+  export const ChannelSize = style({ flex: '1 1 150px' });
 
   export const KebabSize = style({
     flex: '0 0 90px',
