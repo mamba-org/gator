@@ -400,7 +400,11 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
         </div>
         <div className={classes(Style.Cell, Style.NameSize)} role="gridcell">
           {this.nameRender(pkg)}
-          {pkg.summary && <div className={Style.Summary}>{pkg.summary}</div>}
+          {pkg.summary && (
+            <div className={Style.Summary} title={pkg.summary}>
+              {pkg.summary}
+            </div>
+          )}
         </div>
         <div className={classes(Style.Cell, Style.VersionSize)} role="gridcell">
           {this.versionRender(pkg)}
@@ -593,23 +597,6 @@ namespace Style {
     gap: '4px'
   });
 
-  export const CellSummary = style({
-    margin: '0px 2px',
-    alignSelf: 'flex-start',
-    whiteSpace: 'normal',
-    height: '100%',
-    overflow: 'hidden'
-  });
-
-  export const SortButton = style({
-    transform: 'rotate(180deg)',
-    marginLeft: '10px',
-    color: 'var(--jp-ui-font-color2)',
-    border: 'none',
-    backgroundColor: 'var(--jp-layout-color0)',
-    fontSize: 'var(--jp-ui-font-size1)'
-  });
-
   export const Link = style({
     $nest: {
       '&:hover': {
@@ -737,10 +724,5 @@ namespace Style {
         background: 'transparent'
       }
     }
-  });
-
-  export const VersionSelection = style({
-    width: '100%',
-    fontSize: 'var(--jp-ui-font-size1)'
   });
 }
