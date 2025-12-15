@@ -23,17 +23,22 @@ function getToastType(
   }
 }
 
-const toastIdMap = new Map<string, Id>();
+function autoCloseCondition(autoClose: number | false): number | false {
+  return autoClose === false || autoClose === 0 ? false : autoClose || 5000;
+}
 
 const plugin: JupyterFrontEndPlugin<void> = {
   id: '@mamba-org/navigator:notifications',
   autoStart: true,
   activate: (app: JupyterFrontEnd): void => {
-    console.log('Notification bridge plugin activating...');
+    const toastIdMap = new Map<string, Id>();
 
-    const toastRoot = document.createElement('div');
-    toastRoot.id = 'toast-root';
-    document.body.appendChild(toastRoot);
+    let toastRoot = document.getElementById('toast-root');
+    if (!toastRoot) {
+      toastRoot = document.createElement('div');
+      toastRoot.id = 'toast-root';
+      document.body.appendChild(toastRoot);
+    }
 
     const root = ReactDOM.createRoot(toastRoot);
     root.render(
@@ -48,7 +53,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       />
     );
 
-    Notification.manager.changed.connect((_, change) => {
+    const slot = Notification.manager.changed;
+
+    const listener = (_: unknown, change: any) => {
       const { type, notification } = change;
       const autoClose = notification.options.autoClose;
 
@@ -58,8 +65,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       if (type === 'added' && shouldShow) {
         const toastId = toast(notification.message, {
           type: getToastType(notification.type),
-          autoClose:
-            autoClose === false || autoClose === 0 ? false : autoClose || 5000,
+          autoClose: autoCloseCondition(autoClose),
           toastId: notification.id,
           isLoading: notification.type === 'in-progress'
         });
@@ -70,20 +76,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
           toast.update(existingId, {
             render: notification.message,
             type: getToastType(notification.type),
-            autoClose:
-              autoClose === false || autoClose === 0
-                ? false
-                : autoClose || 5000,
+            autoClose: autoCloseCondition(autoClose),
             isLoading: notification.type === 'in-progress'
           });
         } else if (shouldShow) {
           const toastId = toast(notification.message, {
             type: getToastType(notification.type),
-            autoClose:
-              autoClose === false || autoClose === 0
-                ? false
-                : autoClose || 5000,
-            toastId: notification.id
+            autoClose: autoCloseCondition(autoClose),
+            toastId: notification.id,
+            isLoading: notification.type === 'in-progress'
           });
           toastIdMap.set(notification.id, toastId);
         }
@@ -94,9 +95,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
           toastIdMap.delete(notification.id);
         }
       }
-    });
+    };
+    slot.connect(listener);
 
-    console.log('Notification bridge activated!');
+    app.shell.disposed.connect(() => {
+      slot.disconnect(listener);
+      root.unmount();
+      toastRoot?.remove();
+    });
   }
 };
 
