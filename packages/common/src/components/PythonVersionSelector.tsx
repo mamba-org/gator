@@ -108,5 +108,4 @@ namespace Style {
     borderRadius: '3px',
     fontStyle: 'italic'
   });
-
 }
