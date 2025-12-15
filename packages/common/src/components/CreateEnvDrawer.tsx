@@ -149,11 +149,6 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
       return;
     }
 
-    if (pkg.name === 'python') {
-      setPythonVersion(version);
-      setIsPythonOverridden(version !== pythonVersionFromType);
-    }
-
     setSelectedPackages(prev => {
       const newMap = new Map(prev);
 
@@ -165,6 +160,12 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
 
       // Auto-select the package when changing version (even if not previously selected)
       newMap.set(pkg.name, version);
+
+      if (pkg.name === 'python') {
+        setPythonVersion(version);
+        setIsPythonOverridden(version !== pythonVersionFromType);
+      }
+
       return newMap;
     });
   };

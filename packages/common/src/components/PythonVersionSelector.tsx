@@ -30,7 +30,7 @@ export const PythonVersionSelector = (
       {!props.disabled && props.isOverridden && (
         <div className={Style.OverrideContainer}>
           <span className={Style.OverrideText}>
-            <span role="img" aria-label="Warning: overriding python version">
+            <span role="img" aria-label="Warning: overriden python version">
               ⚠️ Override
             </span>
           </span>
