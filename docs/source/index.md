@@ -2,13 +2,11 @@
 
 Welcome to Gator, a JupyterLab extension and standalone UI for managing conda environments.
 
-
 ```{toctree}
 :maxdepth: 2
 :caption: Contents:
 
-getting-started
-user-guide/index
+user-guide/getting-started
 api/index
 changelog
 
