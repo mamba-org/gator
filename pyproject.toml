@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mamba_gator"
-version = "6.1.0a1"
+version = "6.1.0"
 readme = "README.md"
 authors = [
     { name = "Continuum Analytics" },
@@ -111,7 +111,7 @@ field = [
 ]
 
 [tool.tbump.version]
-current = "6.1.0a1"
+current = "6.1.0"
 regex = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)((?P<channel>a|b|rc|.dev)(?P<release>\\d+))?"
 
 [tool.tbump.git]

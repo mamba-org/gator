@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.1.0a0
+## 6.1.0
 
 - Features:
   - **New "Add Packages" drawer**: Full-screen modal for browsing, searching, and selecting multiple packages to install
@@ -11,11 +11,13 @@
     - Initial dialog offering choice between "Import" (from file) or "Create Manually"
     - Full-screen drawer for manual environment creation with package selection
     - Environment type selector with pre-populated package lists from settings
-    - Python version selector with ability to override type defaults
+    - Python version display with override indicator and reset button (no longer a dropdown)
     - Display of selected packages with version information
     - Error message surfacing to user during environment creation
   - **Package context menu**: Kebab menu on package items with Remove and Update actions
-  - Default package view changed to show "Installed" packages instead of all packages
+  - **Sortable package list columns**: Click column headers to sort by name or channel
+    - Search-aware sorting priorizes packages starting with the search term
+    - Ascending/descending sort direction toggle
   - New command registration system with modular `registerPkgCommands`
   - New `IPackageAction` signal interface for tracking bulk package operations
   - Extract package actions to dedicated `packageActions.ts` module with signals
@@ -27,6 +29,7 @@
 
 - Bug fixes:
   - Fix navigator widget app shell id
+  - **Notifications bridge for standalone navigator**: JupyterLab notifications now display as toast notifications using react-toastify
   - Fix canceling action from dialog confirmation box no longer reloads package list
   - Fix package delete and update toast notifications
   - Fix notification on packages loading error
@@ -38,9 +41,27 @@
   - Migrate test suite from `notebook.tests` to `pytest-jupyter`
   - Add coverage reporting
   - Update Python version constraints for API tests
+  - Separate frontend unit test job for improved CI parallelization
+
+- UI/UX Improvements:
+  - Enhanced plugin schema with propert JSON properties for better visual settings editor rendering
+  - Default package view changed to show "Installed" packages instead of all packages
+  - Consolidated version column (combines display and selection in single column)
+     - Unified version dropdown with contextual annotations (Latest, Installed)
+  - Removed description column from package list for cleaner, more compact display
+  - Better search term handling throughout package lists
 
 - Documentation:
+  - **🎉 Complete documentation overhaul with Sphinx**
   - Set up Sphinx documentation with book theme and Markdown
+  - Add Getting Started and comprehensive Features sections
+  - Add documentation screenshots covering major UI components
+    - Environment management UI (list, context menu, creation dialog/drawer)
+    - Package management UI (toolbar, list, context-menu, add packages drawer)
+    - Filter popover, direct/batch mode toggle, and setting editor
+    - Dependency graph visualization
+  - Document extension settings
+  - Add troubleshooting section with common issues and solutions
   - Add changelog file
   - Add PR documentation preview workflow for ReadTheDocs
 
