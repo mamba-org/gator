@@ -115,7 +115,8 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
         // Package not found or no dependencies available (likely a pip package or package not in conda channels)
         error = (
           <span>
-            Package dependencies could not be resolved. This may be a pip package or the package is not available in conda channels.
+            Package dependencies could not be resolved. This may be a pip
+            package or the package is not available in conda channels.
           </span>
         );
       } else {
