@@ -103,6 +103,7 @@ export interface ICondaPkgToolBarProps {
 }
 
 export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
+  const popoverRef = React.useRef<HTMLDivElement>(null);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
   const statusFilterCount = props.category === PkgFilters.Installed ? 0 : 1;
@@ -128,6 +129,25 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         target: { value }
       } as unknown as React.ChangeEvent<HTMLSelectElement>);
     };
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(event.target as Node)
+      ) {
+        setIsFilterOpen(false);
+      }
+    }
+
+    if (isFilterOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isFilterOpen]);
 
   return (
     <div className={`lm-Widget ${CONDA_PACKAGES_TOOLBAR_CLASS} jp-Toolbar`}>
@@ -231,6 +251,7 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
 
         {isFilterOpen && (
           <div
+            ref={popoverRef}
             className={Style.FilterPopover}
             onClick={e => e.stopPropagation()}
           >
