@@ -2,14 +2,15 @@ import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
-import { style } from 'typestyle';
+import { style, classes } from 'typestyle';
 import { Conda } from '../tokens';
 import {
   sortPackages,
   nextSortState,
-  IPackageSortState
-} from '../packageSorting';
-
+  IPackageSortState,
+  PackageSortKey
+} from '../PackageSorting';
+import { SortableHeader } from './PkgSortableHeader';
 export interface IPackageSelectionListProps {
   packages: Conda.IPackage[];
   selectedPackages: Map<string, string>;
@@ -36,10 +37,13 @@ export const PackageSelectionList = (
     }
   }, []);
 
-  const sortedPackages = React.useMemo(
-    () => sortPackages(props.packages, sortState),
-    [props.packages, sortState]
-  );
+  const sortedPackages = React.useMemo(() => {
+    return sortPackages(props.packages, sortState);
+  }, [props.packages, sortState]);
+
+  const toggleSort = React.useCallback((column: PackageSortKey) => {
+    setSortState(prev => nextSortState(prev, column));
+  }, []);
 
   const renderRow = ({
     index,
@@ -108,59 +112,21 @@ export const PackageSelectionList = (
       <div className={Style.HeaderWrapper} ref={headerRef}>
         <div className={Style.HeaderRow}>
           <div className={Style.CheckboxCell}></div>
-          <div
-            className={Style.HeaderNameCell}
-            role="button"
-            onClick={() => setSortState(prev => nextSortState(prev, 'name'))}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-          >
-            Name
-            <button
-              className={Style.SortButton}
-              aria-label={
-                sortState.sortBy === 'name'
-                  ? `Sort by name (${
-                      sortState.sortDirection === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                    })`
-                  : 'Sort by name'
-              }
-            >
-              {sortState.sortBy === 'name'
-                ? sortState.sortDirection === 'asc'
-                  ? '▲'
-                  : '▼'
-                : '⇅'}
-            </button>
-          </div>
+          <SortableHeader
+            label="Name"
+            column="name"
+            sortState={sortState}
+            onToggle={toggleSort}
+            className={classes(Style.HeaderNameCell)}
+          />
           <div className={Style.HeaderVersionCell}>Version</div>
-          <div
+          <SortableHeader
+            label="Channel"
+            column="channel"
+            sortState={sortState}
+            onToggle={toggleSort}
             className={Style.HeaderChannelCell}
-            role="button"
-            onClick={() => setSortState(prev => nextSortState(prev, 'channel'))}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-          >
-            Channel
-            <button
-              className={Style.SortButton}
-              aria-label={
-                sortState.sortBy === 'channel'
-                  ? `Sort by channel (${
-                      sortState.sortDirection === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                    })`
-                  : 'Sort by channel'
-              }
-            >
-              {sortState.sortBy === 'channel'
-                ? sortState.sortDirection === 'asc'
-                  ? '▲'
-                  : '▼'
-                : '⇅'}
-            </button>
-          </div>
+          />
         </div>
       </div>
 

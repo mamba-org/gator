@@ -16,8 +16,10 @@ import { Conda } from '../tokens';
 import {
   sortPackages,
   nextSortState,
-  IPackageSortState
-} from '../packageSorting';
+  IPackageSortState,
+  PackageSortKey
+} from '../PackageSorting';
+import { SortableHeader } from './PkgSortableHeader';
 
 const HEADER_HEIGHT = 29;
 
@@ -448,23 +450,14 @@ export class CondaPkgList extends React.Component<
   };
 
   private getSortedPackages(): Conda.IPackage[] {
-    return sortPackages(this.props.packages, {
-      sortBy: this.state.sortBy,
-      sortDirection: this.state.sortDirection
-    });
+    return sortPackages(this.props.packages, this.state);
   }
 
-  private handleNameHeaderClick = () => {
-    this.setState(prev => nextSortState(prev, 'name'));
-  };
-
-  private handleChannelHeaderClick = () => {
-    this.setState(prev => nextSortState(prev, 'channel'));
+  private toggleSort = (column: PackageSortKey) => {
+    this.setState(prev => nextSortState(prev, column));
   };
 
   render(): JSX.Element {
-    const { sortBy, sortDirection } = this.state;
-
     return (
       <div
         id={CONDA_PACKAGES_PANEL_ID}
@@ -505,72 +498,26 @@ export class CondaPkgList extends React.Component<
                     className={classes(Style.Cell, Style.StatusSize)}
                     role="columnheader"
                   ></div>
-                  <div
+                  <SortableHeader
+                    label="Name"
+                    column="name"
+                    sortState={this.state}
+                    onToggle={this.toggleSort}
                     className={classes(Style.Cell, Style.NameSize)}
-                    role="button"
-                    onClick={this.handleNameHeaderClick}
-                    style={{
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    Name
-                    <button
-                      className={Style.SortButton}
-                      aria-label={
-                        sortBy === 'name'
-                          ? `Sort by name (${
-                              sortDirection === 'asc'
-                                ? 'ascending'
-                                : 'descending'
-                            })`
-                          : 'Sort by name'
-                      }
-                    >
-                      {sortBy === 'name'
-                        ? sortDirection === 'asc'
-                          ? '▲'
-                          : '▼'
-                        : '⇅'}
-                    </button>
-                  </div>
+                  />
                   <div
                     className={classes(Style.Cell, Style.VersionSize)}
                     role="columnheader"
                   >
                     Version
                   </div>
-                  <div
+                  <SortableHeader
+                    label="Channel"
+                    column="channel"
+                    sortState={this.state}
+                    onToggle={this.toggleSort}
                     className={classes(Style.Cell, Style.ChannelSize)}
-                    role="button"
-                    onClick={this.handleChannelHeaderClick}
-                    style={{
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    Channel
-                    <button
-                      className={Style.SortButton}
-                      aria-label={
-                        sortBy === 'channel'
-                          ? `Sort by channel (${
-                              sortDirection === 'asc'
-                                ? 'ascending'
-                                : 'descending'
-                            })`
-                          : 'Sort by channel'
-                      }
-                    >
-                      {sortBy === 'channel'
-                        ? sortDirection === 'asc'
-                          ? '▲'
-                          : '▼'
-                        : '⇅'}
-                    </button>
-                  </div>
+                  />
                   {this.props.commands && this.props.envName && (
                     <div
                       className={classes(Style.Cell, Style.KebabSize)}
