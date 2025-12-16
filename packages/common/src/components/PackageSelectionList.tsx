@@ -248,12 +248,6 @@ namespace Style {
     alignItems: 'center'
   });
 
-  export const SortIcon = style({
-    marginLeft: '6px',
-    fontSize: '10px',
-    color: 'var(--jp-ui-font-color2)'
-  });
-
   export const Row = style({
     display: 'flex',
     alignItems: 'center',
