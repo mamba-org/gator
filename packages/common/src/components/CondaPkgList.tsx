@@ -711,7 +711,6 @@ namespace Style {
   });
 
   export const SortButton = style({
-    transform: 'rotate(180deg)',
     marginLeft: '10px',
     color: 'var(--jp-ui-font-color2)',
     border: 'none',
