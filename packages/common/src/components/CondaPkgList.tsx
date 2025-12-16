@@ -509,7 +509,7 @@ export class CondaPkgList extends React.Component<
                   ></div>
                   <div
                     className={classes(Style.Cell, Style.NameSize)}
-                    role="columnheader"
+                    role="button"
                     onClick={this.handleNameHeaderClick}
                     style={{
                       cursor: 'pointer',
@@ -545,7 +545,7 @@ export class CondaPkgList extends React.Component<
                   </div>
                   <div
                     className={classes(Style.Cell, Style.ChannelSize)}
-                    role="columnheader"
+                    role="button"
                     onClick={this.handleChannelHeaderClick}
                     style={{
                       cursor: 'pointer',
