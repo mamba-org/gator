@@ -13,6 +13,11 @@ import {
   CONDA_PACKAGE_SELECT_CLASS
 } from '../constants';
 import { Conda } from '../tokens';
+import {
+  sortPackages,
+  nextSortState,
+  IPackageSortState
+} from '../packageSorting';
 
 const HEADER_HEIGHT = 29;
 
@@ -66,12 +71,22 @@ export interface IPkgListProps {
   useDirectPackageActions?: boolean;
 }
 
+export interface IPkgListState extends IPackageSortState {}
+
 /** React component for the package list */
-export class CondaPkgList extends React.Component<IPkgListProps> {
+export class CondaPkgList extends React.Component<
+  IPkgListProps,
+  IPackageSortState
+> {
   public static defaultProps: Partial<IPkgListProps> = {
     hasDescription: false,
     packages: [],
     isLoading: false
+  };
+
+  state: IPkgListState = {
+    sortBy: 'name',
+    sortDirection: 'asc'
   };
 
   componentDidMount(): void {
@@ -434,7 +449,24 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     );
   };
 
+  private getSortedPackages(): Conda.IPackage[] {
+    return sortPackages(this.props.packages, {
+      sortBy: this.state.sortBy,
+      sortDirection: this.state.sortDirection
+    });
+  }
+
+  private handleNameHeaderClick = () => {
+    this.setState(prev => nextSortState(prev, 'name'));
+  };
+
+  private handleChannelHeaderClick = () => {
+    this.setState(prev => nextSortState(prev, 'channel'));
+  };
+
   render(): JSX.Element {
+    const { sortBy, sortDirection } = this.state;
+
     return (
       <div
         id={CONDA_PACKAGES_PANEL_ID}
@@ -463,6 +495,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
               );
             }
 
+            const sortedPackages = this.getSortedPackages();
             return (
               <>
                 <div
@@ -477,8 +510,32 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   <div
                     className={classes(Style.Cell, Style.NameSize)}
                     role="columnheader"
+                    onClick={this.handleNameHeaderClick}
+                    style={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
                   >
                     Name
+                    <button
+                      className={Style.SortButton}
+                      aria-label={
+                        sortBy === 'name'
+                          ? `Sort by name (${
+                              sortDirection === 'asc'
+                                ? 'ascending'
+                                : 'descending'
+                            })`
+                          : 'Sort by name'
+                      }
+                    >
+                      {sortBy === 'name'
+                        ? sortDirection === 'asc'
+                          ? '▲'
+                          : '▼'
+                        : '⇅'}
+                    </button>
                   </div>
                   <div
                     className={classes(Style.Cell, Style.VersionSize)}
@@ -489,8 +546,32 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                   <div
                     className={classes(Style.Cell, Style.ChannelSize)}
                     role="columnheader"
+                    onClick={this.handleChannelHeaderClick}
+                    style={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
                   >
                     Channel
+                    <button
+                      className={Style.SortButton}
+                      aria-label={
+                        sortBy === 'channel'
+                          ? `Sort by channel (${
+                              sortDirection === 'asc'
+                                ? 'ascending'
+                                : 'descending'
+                            })`
+                          : 'Sort by channel'
+                      }
+                    >
+                      {sortBy === 'channel'
+                        ? sortDirection === 'asc'
+                          ? '▲'
+                          : '▼'
+                        : '⇅'}
+                    </button>
                   </div>
                   {this.props.commands && this.props.envName && (
                     <div
@@ -504,8 +585,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
                   overscanCount={3}
-                  itemCount={this.props.packages.length}
-                  itemData={this.props.packages}
+                  itemCount={sortedPackages.length}
+                  itemData={sortedPackages}
                   itemKey={(index, data): React.Key => data[index].name}
                   itemSize={40}
                   width={width}
@@ -627,6 +708,15 @@ namespace Style {
         textDecoration: 'underline'
       }
     }
+  });
+
+  export const SortButton = style({
+    transform: 'rotate(180deg)',
+    marginLeft: '10px',
+    color: 'var(--jp-ui-font-color2)',
+    border: 'none',
+    backgroundColor: 'var(--jp-layout-color0)',
+    fontSize: 'var(--jp-ui-font-size1)'
   });
 
   export const LoadingContainer = style({

@@ -4,6 +4,11 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { style } from 'typestyle';
 import { Conda } from '../tokens';
+import {
+  sortPackages,
+  nextSortState,
+  IPackageSortState
+} from '../packageSorting';
 
 export interface IPackageSelectionListProps {
   packages: Conda.IPackage[];
@@ -19,6 +24,11 @@ export const PackageSelectionList = (
   const headerRef = React.useRef<HTMLDivElement>(null);
   const listOuterRef = React.useRef<HTMLDivElement>(null);
 
+  const [sortState, setSortState] = React.useState<IPackageSortState>({
+    sortBy: 'name',
+    sortDirection: 'asc'
+  });
+
   // Sync header scroll with list scroll
   const handleListScroll = React.useCallback(() => {
     if (headerRef.current && listOuterRef.current) {
@@ -26,8 +36,16 @@ export const PackageSelectionList = (
     }
   }, []);
 
-  const renderRow = ({ index, style: rowStyle }: ListChildComponentProps) => {
-    const pkg = props.packages[index];
+  const sortedPackages = React.useMemo(
+    () => sortPackages(props.packages, sortState),
+    [props.packages, sortState]
+  );
+
+  const renderRow = ({
+    index,
+    style: rowStyle
+  }: ListChildComponentProps<Conda.IPackage[]>) => {
+    const pkg = sortedPackages[index];
     const isSelected = props.selectedPackages.has(pkg.name);
     const selectedVersion = props.selectedPackages.get(pkg.name) || 'auto';
 
@@ -90,9 +108,57 @@ export const PackageSelectionList = (
       <div className={Style.HeaderWrapper} ref={headerRef}>
         <div className={Style.HeaderRow}>
           <div className={Style.CheckboxCell}></div>
-          <div className={Style.HeaderNameCell}>Name</div>
+          <div
+            className={Style.HeaderNameCell}
+            onClick={() => setSortState(prev => nextSortState(prev, 'name'))}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          >
+            Name
+            <button
+              className={Style.SortButton}
+              aria-label={
+                sortState.sortBy === 'name'
+                  ? `Sort by name (${
+                      sortState.sortDirection === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                    })`
+                  : 'Sort by name'
+              }
+            >
+              {sortState.sortBy === 'name'
+                ? sortState.sortDirection === 'asc'
+                  ? '▲'
+                  : '▼'
+                : '⇅'}
+            </button>
+          </div>
           <div className={Style.HeaderVersionCell}>Version</div>
-          <div className={Style.HeaderChannelCell}>Channel</div>
+          <div
+            className={Style.HeaderChannelCell}
+            onClick={() => setSortState(prev => nextSortState(prev, 'channel'))}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          >
+            Channel
+            <button
+              className={Style.SortButton}
+              aria-label={
+                sortState.sortBy === 'channel'
+                  ? `Sort by channel (${
+                      sortState.sortDirection === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                    })`
+                  : 'Sort by channel'
+              }
+            >
+              {sortState.sortBy === 'channel'
+                ? sortState.sortDirection === 'asc'
+                  ? '▲'
+                  : '▼'
+                : '⇅'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -101,11 +167,12 @@ export const PackageSelectionList = (
           {({ height, width }: { height: number; width: number }) => (
             <FixedSizeList
               height={height}
-              itemCount={props.packages.length}
+              itemCount={sortedPackages.length}
               itemSize={44}
               width={Math.max(width, 500)}
               outerRef={listOuterRef}
               onScroll={handleListScroll}
+              itemData={sortedPackages}
             >
               {renderRow}
             </FixedSizeList>
@@ -159,7 +226,10 @@ namespace Style {
 
   export const HeaderNameCell = style({
     flex: '1 1 auto',
-    minWidth: '150px'
+    minWidth: '150px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center'
   });
 
   export const HeaderVersionCell = style({
@@ -170,7 +240,16 @@ namespace Style {
 
   export const HeaderChannelCell = style({
     width: '120px',
-    flexShrink: 0
+    flexShrink: 0,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center'
+  });
+
+  export const SortIcon = style({
+    marginLeft: '6px',
+    fontSize: '10px',
+    color: 'var(--jp-ui-font-color2)'
   });
 
   export const Row = style({
@@ -278,6 +357,24 @@ namespace Style {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
+  });
+
+  export const SortButton = style({
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+    color: 'var(--jp-ui-font-color2)',
+    fontSize: '10px',
+    lineHeight: 1,
+    $nest: {
+      '&:hover': {
+        color: 'var(--jp-ui-font-color0)'
+      },
+      '&:focus': {
+        outline: 'none'
+      }
+    }
   });
 
   export const Loading = style({
