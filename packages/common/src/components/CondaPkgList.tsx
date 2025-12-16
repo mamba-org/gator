@@ -72,7 +72,7 @@ export interface IPkgListProps {
    */
   useDirectPackageActions?: boolean;
   /**
-   * Optional search term. When provided, packages starting with the search term
+   * Optional search term. Prioritized when sorting packaegs.
    */
   searchTerm?: string;
 }
