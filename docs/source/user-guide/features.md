@@ -5,7 +5,7 @@
 :local:
 ```
 
-## Core Capabilities
+## 🔹 Core Capabilities
 
 ::::{grid} 1 1 2 2
 :gutter: 3
@@ -30,7 +30,7 @@
 
 ::::
 
-## Power User Tips
+## 🔹 Power User Tips
 
 ```{dropdown} 💡 Speed Up Your Workflow
 :open:
@@ -61,7 +61,7 @@
 - Export environments regularly as backups
 ```
 
-## Extension Settings
+## 🔹 Extension Settings
 
 Gator provides several configurable settings accessible through **Settings** → **Settings Editor** → **Conda**:
 
@@ -109,7 +109,7 @@ Gator provides several configurable settings accessible through **Settings** →
   - **Direct mode**: Selecting a package version immediately triggers install/update
   - **Batch mode**: Changes are queued and applied together via an "Apply" button
 
-## UI Components for Environment Actions
+## 🔹 UI Components for Environment Actions
 
 ### Environment List Panel
 
@@ -187,7 +187,7 @@ Initial dialog that appears when creating an environment, offering choices:
 
 (import-export-environments)=
 
-## Import and Export Environments
+## 🔹 Import and Export Environments
 
 Gator allows you to share environment configurations across systems using YAML files.
 
@@ -285,7 +285,7 @@ For publications and reports:
 
 :::::
 
-## UI Components for Package Actions
+## 🔹 UI Components for Package Actions
 
 ### Package Panel
 
@@ -443,7 +443,7 @@ A dropdown panel accessible via the filter button, providing:
 :align: center
 ```
 
-## Key Features Summary
+## 🔹 Key Features Summary
 
 ### Workflow Modes
 
@@ -478,7 +478,7 @@ See the {ref}`direct-batch-toggle` section for details on switching between mode
 - **Export**: Save environment configuration to YAML
 - **Remove**: Delete environment (with safeguards for base/default)
 
-## Troubleshooting
+## 🔹 Troubleshooting
 
 `````{dropdown} 🐛 Common Issues & Solutions
 
@@ -530,7 +530,7 @@ See the {ref}`direct-batch-toggle` section for details on switching between mode
 
 `````
 
-## Additional Notes
+## 🔹 Additional Notes
 
 ```{important}
 **Protected Environments**
