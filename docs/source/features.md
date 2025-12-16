@@ -77,7 +77,7 @@ Gator provides several configurable settings accessible through the JupyterLab S
   - **Direct mode**: Selecting a package version immediately triggers install/update
   - **Batch mode**: Changes are queued and applied together via an "Apply" button
 
-```{image} _static/images/visial-settings-editor.png
+```{image} _static/images/visual-settings-editor.png
 :alt: Screenshot showing the Conda extension settings panel
 :align: center
 ```
@@ -158,6 +158,59 @@ Initial dialog that appears when creating an environment, offering choices:
 :align: center
 ```
 
+(import-export-environments)=
+
+## Import and Export Environments
+
+Gator allows you to share environment configurations across systems using YAML files.
+
+### Exporting an Environment
+
+Export an environment to save its package configuration:
+
+1. Click the kebab menu (⋮) next to the environment name
+2. Select **Export**
+3. The environment YAML file will be downloaded to your default downloads folder
+
+```{admonition} Export Options
+:class: tip
+
+The export behavior depends on your extension settings:
+
+| Setting | Behavior | Use When |
+|---------|----------|----------|
+| **Export from History: Disabled** (default) | Exports all packages including dependencies | You want a complete snapshot |
+| **Export from History: Enabled** | Exports only explicitly installed packages | You want a minimal, reproducible spec |
+```
+
+**Example exported YAML:**
+
+```yaml
+name: myenv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy=1.24
+  - pandas=2.0
+  - ipykernel
+```
+
+### Importing an Environment
+
+Create a new environment from an exported YAML file:
+
+1. Click the **Create Environment** button
+2. Select **Import** in the dialog
+3. Click **Choose File** and select your YAML file
+4. Review the environment name and packages
+5. Click **Import** to create the environment
+
+```{note}
+The environment name from the YAML file will be used. If an environment with that name already exists, you'll be prompted to choose a different name.
+```
+
 ## UI Components for Package Actions
 
 ### Package Panel
@@ -180,15 +233,13 @@ The main panel displays packages for the currently selected environment. It incl
 ```
 
 (direct-batch-toggle)=
+
 ### Direct/Batch Mode Toggle
-**
 
 The Direct/Batch mode toggle button in the package toolbar allows you to control how package changes are applied:
 
 - **Direct Mode** (default): Package version changes apply immediately when selected
 - **Batch Mode**: Queue multiple package changes and apply them all together with the "Apply" button
-
-This toggle is essential for managing complex environment modifications efficiently.
 
 ```{image} _static/images/direct-batch-toggle.png
 :alt: Screenshot of the package toolbar with the Direct/Batch toggle button circled in red
@@ -202,7 +253,7 @@ A scrollable, sortable table displaying packages with columns:
 - **Name**: Package name with optional summary/description
 - **Version**: Dropdown selector for choosing package version
 - **Channel**: Source channel for the package
-- **Status indicators**: Visual cues for installed, updatable, or available packages
+- **Status indicators**: Visual cues for updatable packages
 - **Context menu**: Kebab icon for individual package actions (Update, Remove)
 
 **Package Filters:**
@@ -243,6 +294,19 @@ A full-screen modal for browsing and installing multiple packages:
 :align: center
 ```
 
+### Package Dependencies Graph
+
+A dialog that displays the dependency graph for a selected package, showing:
+
+- Package dependencies
+- Dependent packages
+- Visual representation of relationships
+
+```{image} _static/images/package-dependencies.png
+:alt: Screenshot of a package dependencies graph dialog
+:align: center
+```
+
 ### Package Context Menu
 
 Individual packages have a context menu (accessible via kebab icon) with options:
@@ -273,8 +337,9 @@ A dropdown panel accessible via the filter button, providing:
 
 ### Workflow Modes
 
-```{seealso}
+:::{seealso}
 See the {ref}`direct-batch-toggle` section for details on switching between modes.
+:::
 
 **Direct Mode (Default):**
 
