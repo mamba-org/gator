@@ -100,6 +100,7 @@ export interface IPkgPanelState {
    * Whether to use direct package actions (immediate update on version change)
    */
   useDirectPackageActions: boolean;
+  channelFilter: string[];
 }
 
 /** Top level React component for widget */
@@ -119,7 +120,8 @@ export class CondaPkgPanel extends React.Component<
       searchTerm: '',
       activeFilter: PkgFilters.Installed,
       isDrawerOpen: false,
-      useDirectPackageActions: props.useDirectPackageActions ?? true
+      useDirectPackageActions: props.useDirectPackageActions ?? true,
+      channelFilter: []
     };
 
     this._model = this.props.packageManager;
@@ -591,8 +593,17 @@ export class CondaPkgPanel extends React.Component<
     this._model.packageChanged.disconnect(this.handlePackageChanged);
   }
 
+  handleChannelFilterChanged = (channels: string[]): void => {
+    if (this.state.isApplyingChanges) {
+      return;
+    }
+
+    this.setState({ channelFilter: channels });
+  };
+
   render(): JSX.Element {
     let filteredPkgs: Conda.IPackage[] = [];
+
     if (this.state.activeFilter === PkgFilters.Installed) {
       filteredPkgs = this.state.packages.filter(pkg => pkg.version_installed);
     } else if (this.state.activeFilter === PkgFilters.Updatable) {
@@ -603,15 +614,36 @@ export class CondaPkgPanel extends React.Component<
       );
     }
 
+    const filteredByChannels =
+      this.state.channelFilter.length === 0
+        ? filteredPkgs
+        : filteredPkgs.filter(
+            pkg => pkg.channel && this.state.channelFilter.includes(pkg.channel)
+          );
+
     const uninstalledPkgs: Conda.IPackage[] = this.state.packages.filter(
       (pkg: Conda.IPackage) => !pkg.version_installed
     );
+    const uninstalledByChannels =
+      this.state.channelFilter.length === 0
+        ? uninstalledPkgs
+        : uninstalledPkgs.filter(
+            pkg => pkg.channel && this.state.channelFilter.includes(pkg.channel)
+          );
+
+    const installedPkgs = this.state.packages.filter(
+      pkg => pkg.version_installed
+    );
+
+    const availableChannels = Array.from(
+      new Set(installedPkgs.map(p => p.channel).filter((c): c is string => !!c))
+    ).sort((a, b) => a.localeCompare(b));
 
     let searchPkgs: Conda.IPackage[] = [];
     if (this.state.searchTerm === null) {
-      searchPkgs = filteredPkgs;
+      searchPkgs = filteredByChannels;
     } else {
-      searchPkgs = filteredPkgs.filter(pkg => {
+      searchPkgs = filteredByChannels.filter(pkg => {
         const lowerSearch = this.state.searchTerm.toLowerCase();
         return (
           pkg.name.indexOf(this.state.searchTerm) >= 0 ||
@@ -634,9 +666,10 @@ export class CondaPkgPanel extends React.Component<
           category={this.state.activeFilter}
           hasSelection={this.state.selected.length > 0}
           selectedCount={this.state.selected.length}
-          installedCount={
-            this.state.packages.filter(pkg => pkg.version_installed).length
-          }
+          installedCount={installedPkgs.length}
+          availableChannels={availableChannels}
+          selectedChannels={this.state.channelFilter}
+          onSelectedChannelsChanged={this.handleChannelFilterChanged}
           hasUpdate={this.state.hasUpdate}
           searchTerm={this.state.searchTerm}
           onCategoryChanged={this.handleCategoryChanged}
@@ -668,7 +701,7 @@ export class CondaPkgPanel extends React.Component<
                 this.state.hasDescription &&
                 this.props.width > PANEL_SMALL_WIDTH
               }
-              packages={uninstalledPkgs}
+              packages={uninstalledByChannels}
               isLoading={this.state.isLoading}
               onPkgClick={this.handleClick}
               onPkgGraph={this.handleDependenciesGraph}
@@ -682,7 +715,7 @@ export class CondaPkgPanel extends React.Component<
                 this.state.hasDescription &&
                 this.props.width > PANEL_SMALL_WIDTH
               }
-              packages={searchPkgs}
+              packages={searchPkgs} // already filtered by channels
               isLoading={this.state.isLoading}
               onPkgClick={this.handleClick}
               onPkgChange={this.handleVersionSelection}
