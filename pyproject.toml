@@ -123,8 +123,8 @@ src = "pyproject.toml"
 version_template = "version = \"{major}.{minor}.{patch}{channel}{release}\""
 
 [[tool.tbump.file]]
-src = "mamba_gator/_version.py"
-search = '__version__ = VERSION = "{current_version}"'
+src = "package.json"
+search = '"version": "{current_version}"'
 
 [tool.hatch.envs.lint]
 skip-install = true
