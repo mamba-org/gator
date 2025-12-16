@@ -110,6 +110,7 @@ export const PackageSelectionList = (
           <div className={Style.CheckboxCell}></div>
           <div
             className={Style.HeaderNameCell}
+            role="button"
             onClick={() => setSortState(prev => nextSortState(prev, 'name'))}
             style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           >
@@ -136,6 +137,7 @@ export const PackageSelectionList = (
           <div className={Style.HeaderVersionCell}>Version</div>
           <div
             className={Style.HeaderChannelCell}
+            role="button"
             onClick={() => setSortState(prev => nextSortState(prev, 'channel'))}
             style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           >
