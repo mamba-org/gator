@@ -2,9 +2,15 @@ import { HTMLSelect } from '@jupyterlab/ui-components';
 import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
-import { style } from 'typestyle';
+import { style, classes } from 'typestyle';
 import { Conda } from '../tokens';
-
+import {
+  sortPackages,
+  nextSortState,
+  IPackageSortState,
+  PackageSortKey
+} from '../packageSorting';
+import { SortableHeader } from './PkgSortableHeader';
 export interface IPackageSelectionListProps {
   packages: Conda.IPackage[];
   selectedPackages: Map<string, string>;
@@ -19,6 +25,11 @@ export const PackageSelectionList = (
   const headerRef = React.useRef<HTMLDivElement>(null);
   const listOuterRef = React.useRef<HTMLDivElement>(null);
 
+  const [sortState, setSortState] = React.useState<IPackageSortState>({
+    sortBy: 'name',
+    sortDirection: 'asc'
+  });
+
   // Sync header scroll with list scroll
   const handleListScroll = React.useCallback(() => {
     if (headerRef.current && listOuterRef.current) {
@@ -26,8 +37,19 @@ export const PackageSelectionList = (
     }
   }, []);
 
-  const renderRow = ({ index, style: rowStyle }: ListChildComponentProps) => {
-    const pkg = props.packages[index];
+  const sortedPackages = React.useMemo(() => {
+    return sortPackages(props.packages, sortState);
+  }, [props.packages, sortState]);
+
+  const toggleSort = React.useCallback((column: PackageSortKey) => {
+    setSortState((prev: IPackageSortState) => nextSortState(prev, column));
+  }, []);
+
+  const renderRow = ({
+    index,
+    style: rowStyle
+  }: ListChildComponentProps<Conda.IPackage[]>) => {
+    const pkg = sortedPackages[index];
     const isSelected = props.selectedPackages.has(pkg.name);
     const selectedVersion = props.selectedPackages.get(pkg.name) || 'auto';
 
@@ -64,7 +86,7 @@ export const PackageSelectionList = (
             style={{ minHeight: '28px' }}
           >
             <option value="auto">auto</option>
-            {pkg.version.map(v => (
+            {pkg.version.map((v: string) => (
               <option key={v} value={v}>
                 {v}
               </option>
@@ -90,9 +112,21 @@ export const PackageSelectionList = (
       <div className={Style.HeaderWrapper} ref={headerRef}>
         <div className={Style.HeaderRow}>
           <div className={Style.CheckboxCell}></div>
-          <div className={Style.HeaderNameCell}>Name</div>
+          <SortableHeader
+            label="Name"
+            column="name"
+            sortState={sortState}
+            onToggle={toggleSort}
+            className={classes(Style.HeaderNameCell)}
+          />
           <div className={Style.HeaderVersionCell}>Version</div>
-          <div className={Style.HeaderChannelCell}>Channel</div>
+          <SortableHeader
+            label="Channel"
+            column="channel"
+            sortState={sortState}
+            onToggle={toggleSort}
+            className={Style.HeaderChannelCell}
+          />
         </div>
       </div>
 
@@ -101,11 +135,12 @@ export const PackageSelectionList = (
           {({ height, width }: { height: number; width: number }) => (
             <FixedSizeList
               height={height}
-              itemCount={props.packages.length}
+              itemCount={sortedPackages.length}
               itemSize={44}
               width={Math.max(width, 500)}
               outerRef={listOuterRef}
               onScroll={handleListScroll}
+              itemData={sortedPackages}
             >
               {renderRow}
             </FixedSizeList>
@@ -159,7 +194,10 @@ namespace Style {
 
   export const HeaderNameCell = style({
     flex: '1 1 auto',
-    minWidth: '150px'
+    minWidth: '150px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center'
   });
 
   export const HeaderVersionCell = style({
@@ -170,7 +208,10 @@ namespace Style {
 
   export const HeaderChannelCell = style({
     width: '120px',
-    flexShrink: 0
+    flexShrink: 0,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center'
   });
 
   export const Row = style({
@@ -278,6 +319,25 @@ namespace Style {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
+  });
+
+  export const SortButton = style({
+    padding: 0,
+    marginLeft: '10px',
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+    color: 'var(--jp-ui-font-color2)',
+    fontSize: '10px',
+    lineHeight: 1,
+    $nest: {
+      '&:hover': {
+        color: 'var(--jp-ui-font-color0)'
+      },
+      '&:focus': {
+        outline: 'none'
+      }
+    }
   });
 
   export const Loading = style({

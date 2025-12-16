@@ -13,6 +13,13 @@ import {
   CONDA_PACKAGE_SELECT_CLASS
 } from '../constants';
 import { Conda } from '../tokens';
+import {
+  sortPackages,
+  nextSortState,
+  IPackageSortState,
+  PackageSortKey
+} from '../packageSorting';
+import { SortableHeader } from './PkgSortableHeader';
 
 const HEADER_HEIGHT = 29;
 
@@ -67,11 +74,19 @@ export interface IPkgListProps {
 }
 
 /** React component for the package list */
-export class CondaPkgList extends React.Component<IPkgListProps> {
+export class CondaPkgList extends React.Component<
+  IPkgListProps,
+  IPackageSortState
+> {
   public static defaultProps: Partial<IPkgListProps> = {
     hasDescription: false,
     packages: [],
     isLoading: false
+  };
+
+  state: IPackageSortState = {
+    sortBy: 'name',
+    sortDirection: 'asc'
   };
 
   componentDidMount(): void {
@@ -434,6 +449,14 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
     );
   };
 
+  private getSortedPackages(): Conda.IPackage[] {
+    return sortPackages(this.props.packages, this.state);
+  }
+
+  private toggleSort = (column: PackageSortKey) => {
+    this.setState((prev: IPackageSortState) => nextSortState(prev, column));
+  };
+
   render(): JSX.Element {
     return (
       <div
@@ -463,6 +486,7 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
               );
             }
 
+            const sortedPackages = this.getSortedPackages();
             return (
               <>
                 <div
@@ -474,24 +498,26 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                     className={classes(Style.Cell, Style.StatusSize)}
                     role="columnheader"
                   ></div>
-                  <div
+                  <SortableHeader
+                    label="Name"
+                    column="name"
+                    sortState={this.state}
+                    onToggle={this.toggleSort}
                     className={classes(Style.Cell, Style.NameSize)}
-                    role="columnheader"
-                  >
-                    Name
-                  </div>
+                  />
                   <div
                     className={classes(Style.Cell, Style.VersionSize)}
                     role="columnheader"
                   >
                     Version
                   </div>
-                  <div
+                  <SortableHeader
+                    label="Channel"
+                    column="channel"
+                    sortState={this.state}
+                    onToggle={this.toggleSort}
                     className={classes(Style.Cell, Style.ChannelSize)}
-                    role="columnheader"
-                  >
-                    Channel
-                  </div>
+                  />
                   {this.props.commands && this.props.envName && (
                     <div
                       className={classes(Style.Cell, Style.KebabSize)}
@@ -504,8 +530,8 @@ export class CondaPkgList extends React.Component<IPkgListProps> {
                 <FixedSizeList
                   height={Math.max(0, height - HEADER_HEIGHT)}
                   overscanCount={3}
-                  itemCount={this.props.packages.length}
-                  itemData={this.props.packages}
+                  itemCount={sortedPackages.length}
+                  itemData={sortedPackages}
                   itemKey={(index, data): React.Key => data[index].name}
                   itemSize={40}
                   width={width}
@@ -627,6 +653,14 @@ namespace Style {
         textDecoration: 'underline'
       }
     }
+  });
+
+  export const SortButton = style({
+    marginLeft: '10px',
+    color: 'var(--jp-ui-font-color2)',
+    border: 'none',
+    backgroundColor: 'var(--jp-layout-color0)',
+    fontSize: 'var(--jp-ui-font-size1)'
   });
 
   export const LoadingContainer = style({
