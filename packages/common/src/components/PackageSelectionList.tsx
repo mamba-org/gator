@@ -363,6 +363,7 @@ namespace Style {
 
   export const SortButton = style({
     padding: 0,
+    marginLeft: '10px',
     border: 'none',
     background: 'none',
     cursor: 'pointer',
