@@ -325,7 +325,9 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
                             event.target as HTMLInputElement;
                           const current = props.selectedChannels;
                           const next = checked
-                            ? (current.includes(value) ? current : [...current, value])
+                            ? current.includes(value)
+                              ? current
+                              : [...current, value]
                             : current.filter(c => c !== value);
 
                           props.onSelectedChannelsChanged(next);
