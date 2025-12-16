@@ -1,42 +1,74 @@
-# Gator Features Documentation
+# Gator Features
 
-## Overview
+```{contents} On This Page
+:depth: 2
+:local:
+```
 
-Gator (also known as Mamba Navigator) is a web-based user interface for managing conda and mamba environments and packages. It provides an intuitive graphical interface for environment and package management tasks that are typically performed via command-line tools. Gator is available both as a standalone application and as a JupyterLab extension.
+## Core Capabilities
 
-### Purpose
+::::{grid} 1 1 2 2
+:gutter: 3
 
-Gator simplifies conda/mamba environment and package management by providing:
+:::{grid-item-card} 🌍 Environment Management
 
-- Visual environment management without command-line knowledge
-- Efficient package browsing, searching, and installation
-- Batch operations for managing multiple packages simultaneously
-- Integration with JupyterLab for seamless workflow
+- ✨ Create from templates (Python 3, R, custom)
+- 📋 Clone existing environments
+- 📥 Import from YAML files
+- 📤 Export to share across systems
+- 🗑️ Remove (with protection for base/default)
+  :::
 
-### Main Functionality
+:::{grid-item-card} 📦 Package Management
 
-**Environment Management:**
+- 🔍 Search and filter thousands of packages
+- 🎯 Pin specific versions
+- 🔄 Update single or all packages
+- 📊 View dependency graphs
+- 🏷️ Filter by channel (conda-forge, defaults, etc.)
+  :::
 
-- Create new environments from scratch or predefined templates
-- Clone existing environments
-- Import environments from YAML files
-- Export environments to YAML files
-- Remove environments
-- Switch between environments
+::::
 
-**Package Management:**
+## Power User Tips
 
-- Browse and search available packages
-- Install packages with version selection
-- Update installed packages
-- Remove packages
-- View package dependencies
-- Filter packages by status (installed, updatable, available)
-- Filter packages by channel
+```{dropdown} 💡 Speed Up Your Workflow
+:open:
+
+**Search Like a Pro**
+- Use the package search bar for instant filtering
+- Search works on package names
+- Results sorted by relevance (matches at start of name appear first)
+
+**Smart Filtering**
+- Click the filter icon to access status filters
+- Filter by channel to see only conda-forge packages
+- Use "Updatable" filter to quickly find packages needing updates
+
+**Batch Operations**
+- Select multiple packages in batch mode
+- Click "Update All" when you see the button enabled
+- Use export/import to clone environments faster than manual copying
+```
+
+```{dropdown} 🎯 Pro Tips
+**Performance**
+- Enable background caching for faster startup
+- First load builds cache—be patient!
+
+**Organization**
+- Use descriptive environment names (`project-ml-v2` not `env1`)
+- Export environments regularly as backups
+```
 
 ## Extension Settings
 
-Gator provides several configurable settings accessible through the JupyterLab Settings menu:
+Gator provides several configurable settings accessible through **Settings** → **Settings Editor** → **Conda**:
+
+```{image} ../_static/images/visual-settings-editor.png
+:alt: Screenshot showing the Conda extension settings panel
+:align: center
+```
 
 ### Background Caching
 
@@ -77,11 +109,6 @@ Gator provides several configurable settings accessible through the JupyterLab S
   - **Direct mode**: Selecting a package version immediately triggers install/update
   - **Batch mode**: Changes are queued and applied together via an "Apply" button
 
-```{image} _static/images/visual-settings-editor.png
-:alt: Screenshot showing the Conda extension settings panel
-:align: center
-```
-
 ## UI Components for Environment Actions
 
 ### Environment List Panel
@@ -92,7 +119,7 @@ The left sidebar displays all available conda/mamba environments. Each environme
 - Visual indicator for the currently selected environment
 - Context menu (kebab icon) for environment actions
 
-```{image} _static/images/environment-list-kebab.png
+```{image} ../_static/images/environment-list-kebab.png
 :alt: Screenshot of the environment list panel showing multiple environments
 :align: center
 ```
@@ -101,7 +128,7 @@ The left sidebar displays all available conda/mamba environments. Each environme
 
 Located at the top of the environment list, this button opens the environment creation workflow.
 
-```{image} _static/images/create-env-button.png
+```{image} ../_static/images/create-env-button.png
 :alt: Screenshot highlighting the "Create Environment" button
 :align: center
 ```
@@ -120,7 +147,7 @@ A full-screen modal interface for creating new environments with the following s
 
 - Search bar for finding packages
 - Package list with checkboxes and version selectors
-- Sortable columns (name, version, channel)
+- Sortable columns (name, channel)
 - Side panel showing selected packages with ability to remove individual selections
 
 **Actions:**
@@ -128,7 +155,7 @@ A full-screen modal interface for creating new environments with the following s
 - Cancel button to close without creating
 - Create button to finalize environment creation
 
-```{image} _static/images/create-env-drawer.png
+```{image} ../_static/images/create-env-drawer.png
 :alt: Screenshot of the Create Environment drawer showing the package selection interface
 :align: center
 ```
@@ -141,7 +168,7 @@ Each environment item includes a context menu (accessible via kebab icon) with o
 - **Export**: Export environment to a YAML file
 - **Remove**: Delete the environment (disabled for base and default environments)
 
-```{image} _static/images/env-context-menu.png
+```{image} ../_static/images/env-context-menu.png
 :alt: Screenshot of the environment context menu
 :align: center
 ```
@@ -153,7 +180,7 @@ Initial dialog that appears when creating an environment, offering choices:
 - **Import**: Import environment from a YAML file
 - **Create Manually**: Open the full Create Environment drawer
 
-```{image} _static/images/env-creation-dialog.png
+```{image} ../_static/images/env-creation-dialog.png
 :alt: Screenshot of the initial environment creation dialog
 :align: center
 ```
@@ -211,6 +238,53 @@ Create a new environment from an exported YAML file:
 The environment name from the YAML file will be used. If an environment with that name already exists, you'll be prompted to choose a different name.
 ```
 
+### Common Use Cases
+
+::::{tab-set}
+
+:::{tab-item} 🤝 Team Collaboration
+Share your environment with teammates:
+
+1. Export your working environment
+2. Commit the YAML to git
+3. Team imports to match your setup
+4. Everyone has identical package versions!
+   :::
+
+:::{tab-item} 💾 Backup & Recovery
+Before major changes:
+
+1. Export current environment
+2. Make experimental changes
+3. If something breaks → import the backup
+4. Back to working state instantly!
+   :::
+
+:::{tab-item} 🖥️ Multi-Machine Setup
+Sync across your computers:
+
+1. Export from laptop
+2. Transfer YAML file
+3. Import on desktop
+4. Same environment everywhere!
+
+```{warning}
+Some packages are platform-specific. Consider separate YAML files for Linux/macOS/Windows.
+```
+
+:::
+
+:::{tab-item} 📚 Reproducible Research
+For publications and reports:
+
+1. Enable "Export from History" in settings
+2. Export minimal environment spec
+3. Archive with your code/paper
+4. Others can reproduce your exact setup
+   :::
+
+:::::
+
 ## UI Components for Package Actions
 
 ### Package Panel
@@ -219,7 +293,7 @@ The main panel displays packages for the currently selected environment. It incl
 
 **Package Toolbar:**
 
-- Search bar for filtering packages by name, description, keywords, or tags
+- Search bar for filtering packages by name
 - Filter button with badge showing active filter count
 - "Add Packages" button to open the package installation drawer
 - "Update All" button (enabled when updatable packages are available)
@@ -227,7 +301,7 @@ The main panel displays packages for the currently selected environment. It incl
 - Selection count indicator (when packages are selected)
 - Action buttons (Update, Remove, Clear) when in batch mode with selections
 
-```{image} _static/images/package-toolbar.png
+```{image} ../_static/images/package-toolbar.png
 :alt: Screenshot of the package toolbar with various controls
 :align: center
 ```
@@ -236,15 +310,51 @@ The main panel displays packages for the currently selected environment. It incl
 
 ### Direct/Batch Mode Toggle
 
-The Direct/Batch mode toggle button in the package toolbar allows you to control how package changes are applied:
+```{important}
+**Choose Your Workflow!**
 
-- **Direct Mode** (default): Package version changes apply immediately when selected
-- **Batch Mode**: Queue multiple package changes and apply them all together with the "Apply" button
+The mode toggle button controls how Gator handles package operations. Pick the right mode for your task.
+```
 
-```{image} _static/images/direct-batch-toggle.png
+```{image} ../_static/images/direct-batch-toggle.png
 :alt: Screenshot of the package toolbar with the Direct/Batch toggle button circled in red
 :align: center
 ```
+
+::::{grid} 2
+:gutter: 3
+
+:::{grid-item-card} ⚡ Direct Mode (Default)
+:class-card: sd-border-success
+
+**When to use:**
+
+- Quick single-package updates
+- Trying out package versions
+- Exploratory work
+
+**How it works:**
+Changes apply immediately when you select a version
+
+💡 **Pro tip:** Great for rapid testing!
+:::
+
+:::{grid-item-card} 📦 Batch Mode
+:class-card: sd-border-info
+
+**When to use:**
+
+- Multiple related changes
+- Complex environment setup
+- Want to review before applying
+
+**How it works:**
+Queue multiple changes, click "Apply" to execute all at once
+
+💡 **Pro tip:** Safer for production environments!
+:::
+
+::::
 
 ### Package List
 
@@ -263,7 +373,7 @@ A scrollable, sortable table displaying packages with columns:
 - **Selected**: Shows packages with pending changes (batch mode)
 - **Channel filters**: Filter by specific conda channels
 
-```{image} _static/images/package-list.png
+```{image} ../_static/images/package-list.png
 :alt: Screenshot of the package list showing installed packages with version selectors
 :align: center
 ```
@@ -289,7 +399,7 @@ A full-screen modal for browsing and installing multiple packages:
 - Cancel button to close without installing
 - Install Selected button to install all selected packages
 
-```{image} _static/images/add-packages-drawer.png
+```{image} ../_static/images/add-packages-drawer.png
 :alt: Screenshot of the Add Packages drawer with selected packages in the side panel
 :align: center
 ```
@@ -302,7 +412,7 @@ A dialog that displays the dependency graph for a selected package, showing:
 - Dependent packages
 - Visual representation of relationships
 
-```{image} _static/images/package-dependencies.png
+```{image} ../_static/images/package-dependencies.png
 :alt: Screenshot of a package dependencies graph dialog
 :align: center
 ```
@@ -314,7 +424,7 @@ Individual packages have a context menu (accessible via kebab icon) with options
 - **Update**: Update the package to the latest version
 - **Remove**: Uninstall the package from the environment
 
-```{image} _static/images/pkg-context-menu.png
+```{image} ../_static/images/pkg-context-menu.png
 :alt: Screenshot of a package context menu
 :align: center
 ```
@@ -328,7 +438,7 @@ A dropdown panel accessible via the filter button, providing:
 - Reset button to clear all filters
 - Active filter count badge
 
-```{image} _static/images/filter-popover.png
+```{image} ../_static/images/filter-popover.png
 :alt: Screenshot of the filter popover showing status and channel options
 :align: center
 ```
@@ -368,12 +478,69 @@ See the {ref}`direct-batch-toggle` section for details on switching between mode
 - **Export**: Save environment configuration to YAML
 - **Remove**: Delete environment (with safeguards for base/default)
 
-## Notes
+## Troubleshooting
 
-```{note}
-The first-time package list loading may take significant time as it builds the available packages cache. Package lists are cached and updated in the background for improved performance.
+`````{dropdown} 🐛 Common Issues & Solutions
+
+````{tab-set}
+
+```{tab-item} Slow Loading
+**Problem:** Package list takes forever to load
+
+**Solutions:**
+- ✅ First load builds the cache—this is normal and only happens once
+- ✅ Enable "Background Caching" in settings
+- ✅ Close and reopen after first load to see cached performance
+- ✅ Check your internet connection
 ```
 
-- Base and default environments are protected from removal
-- Package dependency resolution is handled automatically by conda/mamba
-- All operations provide user feedback through notifications and status indicators
+```{tab-item} Can't Remove Environment
+**Problem:** Remove option is disabled
+
+**Reason:** Base and default environments are protected
+
+**Solution:** Create a new environment instead, or clone and modify
+```
+
+```{tab-item} Import Fails
+**Problem:** YAML import shows errors
+
+**Possible causes:**
+- ❌ Platform-specific packages (Linux vs macOS vs Windows)
+- ❌ Channel not accessible
+- ❌ Package versions no longer available
+
+**Try:**
+- ✅ Remove platform-specific packages from YAML
+- ✅ Update version specs to be more flexible
+- ✅ Check channel configuration
+```
+
+```{tab-item} Package Conflicts
+**Problem:** "Solving environment" takes very long
+
+**Solutions:**
+- ✅ Use mamba instead of conda (faster solver)
+- ✅ Specify fewer package constraints
+- ✅ Try different channels
+- ✅ Create fresh environment if heavily modified
+```
+
+````
+
+`````
+
+## Additional Notes
+
+```{important}
+**Protected Environments**
+
+The `base` environment and your default JupyterLab environment cannot be removed. This prevents accidentally breaking your Gator/JupyterLab installation.
+```
+
+**Automatic Features:**
+
+- 🔄 Package dependency resolution handled by conda/mamba
+- 💬 Notifications for all operations (success, errors, warnings)
+- 📊 Real-time status indicators
+- 🔒 Safe defaults (confirmations for destructive actions)
