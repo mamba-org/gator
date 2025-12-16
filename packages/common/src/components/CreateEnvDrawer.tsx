@@ -397,6 +397,7 @@ export const CreateEnvDrawer = (props: ICreateEnvDrawerProps): JSX.Element => {
                     onTogglePackage={handleTogglePackage}
                     onVersionChange={handleVersionChange}
                     isLoading={isLoading}
+                    searchTerm={searchTerm}
                   />
                 </div>
               </div>

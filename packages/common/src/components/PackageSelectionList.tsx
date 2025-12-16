@@ -5,18 +5,30 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { style, classes } from 'typestyle';
 import { Conda } from '../tokens';
 import {
-  sortPackages,
+  sortPackagesWithSearch,
   nextSortState,
   IPackageSortState,
   PackageSortKey
 } from '../packageSorting';
 import { SortableHeader } from './PkgSortableHeader';
 export interface IPackageSelectionListProps {
+  /** Packages to display. Will be sorted by this component. */
   packages: Conda.IPackage[];
+  /** Map of selected package names to their selected versions */
   selectedPackages: Map<string, string>;
+  /** Handler for toggling package selection */
   onTogglePackage: (pkg: Conda.IPackage) => void;
+  /** Handler for version changes */
   onVersionChange: (pkg: Conda.IPackage, version: string) => void;
+  /** Whether packages are currently loading */
   isLoading?: boolean;
+  /**
+   * Optional search term. When provided, packages starting with the search term
+   * will be prioritized in sorting, regardless of column sort order.
+   * IMPORTANT: If the parent component pre-sorts packages for search, this prop
+   * must be provided to preserve that sorting priority.
+   */
+  searchTerm?: string;
 }
 
 export const PackageSelectionList = (
@@ -38,8 +50,8 @@ export const PackageSelectionList = (
   }, []);
 
   const sortedPackages = React.useMemo(() => {
-    return sortPackages(props.packages, sortState);
-  }, [props.packages, sortState]);
+    return sortPackagesWithSearch(props.packages, sortState, props.searchTerm);
+  }, [props.packages, props.searchTerm, sortState]);
 
   const toggleSort = React.useCallback((column: PackageSortKey) => {
     setSortState((prev: IPackageSortState) => nextSortState(prev, column));
