@@ -499,8 +499,7 @@ namespace Style {
   });
 
   export const ClearButton = style({
-    backgroundColor: 'var(--jp-layout-color3)',
-    border: 'none',
+    border: '1px solid var(--jp-border-color1)',
     borderRadius: '4px',
     padding: '2px 8px',
     $nest: {
