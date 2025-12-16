@@ -130,6 +130,19 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
       } as unknown as React.ChangeEvent<HTMLSelectElement>);
     };
 
+  const handleFilterKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleFilterPopover(event as any);
+    }
+
+    // ESC closes popover
+    if (event.key === 'Escape' && isFilterOpen) {
+      event.preventDefault();
+      setIsFilterOpen(false);
+    }
+  };
+
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -242,6 +255,14 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
         title={
           isActive ? `Filters active (${activeFilterCount})` : 'Filter packages'
         }
+        role="button"
+        tabIndex={0}
+        aria-label={
+          isActive ? `Filters active (${activeFilterCount})` : 'Filter packages'
+        }
+        aria-expanded={isFilterOpen}
+        aria-haspopup="dialog"
+        onKeyDown={handleFilterKeyDown}
       >
         <FontAwesomeIcon
           icon="filter"
@@ -254,6 +275,9 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
             ref={popoverRef}
             className={Style.FilterPopover}
             onClick={e => e.stopPropagation()}
+            role="dialog"
+            aria-labelledby="filter-packages-dialog-title"
+            aria-modal="true"
           >
             <div className={Style.FilterPopoverHeader}>Filter packages</div>
 
