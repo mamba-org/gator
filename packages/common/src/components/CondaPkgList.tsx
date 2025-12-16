@@ -449,7 +449,7 @@ export class CondaPkgList extends React.Component<
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
             {this.actionLabelRender(pkg)}
-            {pkg.version_installed && (
+            {this.props.onPkgGraph && (
               <button
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
