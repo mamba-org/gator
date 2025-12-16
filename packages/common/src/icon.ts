@@ -19,7 +19,8 @@ import {
   faSquare,
   faFilter,
   faBolt,
-  faList
+  faList,
+  faProjectDiagram
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -41,7 +42,8 @@ const icons: IconDefinition[] = [
   faSquareRegular,
   faFilter,
   faBolt,
-  faList
+  faList,
+  faProjectDiagram
 ];
 
 library.add(...icons);

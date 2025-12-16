@@ -323,6 +323,7 @@ export class CondaPkgList extends React.Component<
         command: 'gator-lab:remove-pkg',
         args: { name: pkg.name, environment: this.props.envName }
       });
+      menu.addItem({ type: 'separator' });
     }
 
     return menu;
@@ -375,6 +376,16 @@ export class CondaPkgList extends React.Component<
       }
 
       const menu = this.createPackageMenu(pkg, this.props.commands);
+
+      // Add dependencies graph option for installed packages
+      // This is easily extractable for future refactoring to tabular display
+      if (pkg.version_installed) {
+        menu.addItem({
+          type: 'command',
+          command: 'gator-lab:show-dependencies',
+          args: { name: pkg.name, environment: this.props.envName }
+        });
+      }
 
       const menuWidth = 90;
 
@@ -438,6 +449,19 @@ export class CondaPkgList extends React.Component<
         {this.props.commands && this.props.envName && pkg.version_installed && (
           <div className={classes(Style.Cell, Style.KebabSize)} role="gridcell">
             {this.actionLabelRender(pkg)}
+            {this.props.onPkgGraph && (
+              <button
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  this.props.onPkgGraph(pkg);
+                }}
+                title="Show dependencies"
+                className={Style.DependencyGraphButton}
+                aria-label={`Show dependencies for ${pkg.name}`}
+              >
+                <FontAwesomeIcon icon="project-diagram" size="xs" />
+              </button>
+            )}
             <div
               onClick={handleMenuClick}
               className={Style.Kebab}
@@ -625,7 +649,7 @@ namespace Style {
   export const ChannelSize = style({ flex: '1 1 150px' });
 
   export const KebabSize = style({
-    flex: '0 0 90px',
+    flex: '0 0 130px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -636,17 +660,6 @@ namespace Style {
     $nest: {
       '&:hover': {
         textDecoration: 'underline'
-      }
-    }
-  });
-
-  export const Updatable = style({
-    color: 'var(--jp-brand-color0)',
-
-    $nest: {
-      '&::before': {
-        content: "'↗️'",
-        paddingRight: 2
       }
     }
   });
@@ -765,6 +778,22 @@ namespace Style {
         border: 'none',
         outline: 'none',
         background: 'transparent'
+      }
+    }
+  });
+
+  export const DependencyGraphButton = style({
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    color: 'var(--jp-ui-font-color2)',
+    flexShrink: 0,
+    $nest: {
+      '&:hover': {
+        color: 'var(--jp-ui-font-color1)'
       }
     }
   });
