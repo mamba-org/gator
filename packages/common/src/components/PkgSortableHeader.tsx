@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { style, classes } from 'typestyle';
-import { IPackageSortState, PackageSortKey } from '../PackageSorting';
+import { IPackageSortState, PackageSortKey } from '../packageSorting';
 
 interface ISortableHeaderProps {
   label: string;

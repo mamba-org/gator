@@ -9,7 +9,7 @@ import {
   nextSortState,
   IPackageSortState,
   PackageSortKey
-} from '../PackageSorting';
+} from '../packageSorting';
 import { SortableHeader } from './PkgSortableHeader';
 export interface IPackageSelectionListProps {
   packages: Conda.IPackage[];
@@ -42,7 +42,7 @@ export const PackageSelectionList = (
   }, [props.packages, sortState]);
 
   const toggleSort = React.useCallback((column: PackageSortKey) => {
-    setSortState(prev => nextSortState(prev, column));
+    setSortState((prev: IPackageSortState) => nextSortState(prev, column));
   }, []);
 
   const renderRow = ({
@@ -86,7 +86,7 @@ export const PackageSelectionList = (
             style={{ minHeight: '28px' }}
           >
             <option value="auto">auto</option>
-            {pkg.version.map(v => (
+            {pkg.version.map((v: string) => (
               <option key={v} value={v}>
                 {v}
               </option>

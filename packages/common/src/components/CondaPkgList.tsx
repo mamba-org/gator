@@ -18,7 +18,7 @@ import {
   nextSortState,
   IPackageSortState,
   PackageSortKey
-} from '../PackageSorting';
+} from '../packageSorting';
 import { SortableHeader } from './PkgSortableHeader';
 
 const HEADER_HEIGHT = 29;
@@ -454,7 +454,7 @@ export class CondaPkgList extends React.Component<
   }
 
   private toggleSort = (column: PackageSortKey) => {
-    this.setState(prev => nextSortState(prev, column));
+    this.setState((prev: IPackageSortState) => nextSortState(prev, column));
   };
 
   render(): JSX.Element {
