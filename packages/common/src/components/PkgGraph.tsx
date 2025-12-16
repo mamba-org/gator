@@ -108,6 +108,17 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
             manager to resolve dependencies.
           </span>
         );
+      } else if (
+        !available ||
+        Object.keys(available).length === 0 ||
+        !(this.props.package in available)
+      ) {
+        // Package not found or no dependencies available (likely a pip package or package not in conda channels)
+        error = (
+          <span>
+            This is a pip package or package dependencies could not be resolved
+          </span>
+        );
       } else {
         Object.keys(available).forEach(key => {
           if (key === this.props.package) {
@@ -124,8 +135,9 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
             data.links.push({ source: key, target: dependencie });
           });
         });
+        // Only show error if we have no nodes after processing (shouldn't happen, but safety check)
         if (data.nodes.length === 0) {
-          error = <span>This is a pip package</span>;
+          error = <span>No dependencies found for this package</span>;
         }
       }
       this.setState({ data, error });
