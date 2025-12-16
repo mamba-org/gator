@@ -109,7 +109,6 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
           </span>
         );
       } else if (
-        !available ||
         Object.keys(available).length === 0 ||
         !(this.props.package in available)
       ) {
