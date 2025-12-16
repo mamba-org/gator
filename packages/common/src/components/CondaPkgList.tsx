@@ -458,16 +458,6 @@ export class CondaPkgList extends React.Component<
                 title="Show dependencies"
                 className={Style.DependencyGraphButton}
                 aria-label={`Show dependencies for ${pkg.name}`}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '2px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: 'var(--jp-ui-font-color2)',
-                  flexShrink: 0
-                }}
               >
                 <FontAwesomeIcon icon="project-diagram" size="xs" />
               </button>
