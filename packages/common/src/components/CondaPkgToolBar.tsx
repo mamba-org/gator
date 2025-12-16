@@ -379,11 +379,6 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
 };
 
 namespace Style {
-  export const Toolbar = style({
-    alignItems: 'center',
-    height: PACKAGE_TOOLBAR_HEIGHT
-  });
-
   export const ModeToggle = style({
     border: '1px solid var(--jp-border-color2)',
     borderRadius: '4px',
@@ -396,18 +391,6 @@ namespace Style {
       '&:hover': {
         backgroundColor: 'var(--jp-layout-color2)',
         borderColor: 'var(--jp-border-color1)'
-      }
-    }
-  });
-
-  export const HiddenSelect = style({
-    opacity: '0 !important',
-    $nest: {
-      '&, & *': {
-        opacity: '0 !important'
-      },
-      '& .bp3-icon, & .jp-icon': {
-        display: 'none !important'
       }
     }
   });
@@ -544,49 +527,10 @@ namespace Style {
     fontWeight: 600
   });
 
-  export const FilterSelectOverlay = style({
-    position: 'absolute',
-    opacity: 0,
-    left: 0,
-    top: 0,
-    width: '100%',
-    height: '100%',
-    cursor: 'pointer'
-  });
-
   export const SelectionCount = style({
     color: 'var(--jp-ui-font-color2)',
     fontSize: 'var(--jp-ui-font-size0)',
     marginRight: '8px'
-  });
-
-  export const FilterBadgeActive = style({
-    color: 'var(--jp-brand-color1)',
-    fontWeight: 600
-  });
-
-  export const ChannelFilterWrapper = style({
-    position: 'relative',
-    height: '24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '4px',
-    paddingRight: '4px',
-    cursor: 'pointer'
-  });
-
-  export const ChannelFilterIcon = style({
-    color: 'var(--jp-ui-font-color2)'
-  });
-
-  export const ChannelFilterLabel = style({
-    fontSize: 'var(--jp-ui-font-size0)',
-    color: 'var(--jp-ui-font-color1)',
-    maxWidth: '120px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
   });
 
   export const FilterPopover = style({
