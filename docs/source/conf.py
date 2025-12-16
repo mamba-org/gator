@@ -6,10 +6,12 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+from mamba_gator import __version__
+
 project = 'Gator'
 copyright = '2025, Jupyter Development Team'
 author = 'Jupyter Development Team'
-release = '6.0.2'
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
