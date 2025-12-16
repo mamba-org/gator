@@ -122,7 +122,7 @@ export class CondaPkgPanel extends React.Component<
       isDrawerOpen: false,
       useDirectPackageActions: props.useDirectPackageActions ?? true,
       channelFilter: []
-    } as IPkgPanelState;
+    };
 
     this._model = this.props.packageManager;
 
