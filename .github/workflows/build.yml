@@ -147,14 +147,14 @@ jobs:
       - name: Install dependencies
         run: jlpm install
 
+      - name: Run linter
+        run: jlpm run eslint:check
+
       - name: Build packages
         run: jlpm run build
 
       - name: Run frontend tests
         run: jlpm run test
-
-      - name: Run linter
-        run: jlpm run eslint:check
 
   # TODO: Enable when adding Playwright E2E tests
   # test-frontend-e2e:
