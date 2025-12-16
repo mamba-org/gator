@@ -71,8 +71,6 @@ export interface IPkgListProps {
   useDirectPackageActions?: boolean;
 }
 
-export interface IPkgListState extends IPackageSortState {}
-
 /** React component for the package list */
 export class CondaPkgList extends React.Component<
   IPkgListProps,
@@ -84,7 +82,7 @@ export class CondaPkgList extends React.Component<
     isLoading: false
   };
 
-  state: IPkgListState = {
+  state: IPackageSortState = {
     sortBy: 'name',
     sortDirection: 'asc'
   };
