@@ -14,7 +14,7 @@ import {
 } from '../constants';
 import { Conda } from '../tokens';
 import {
-  sortPackages,
+  sortPackagesWithSearch,
   nextSortState,
   IPackageSortState,
   PackageSortKey
@@ -71,6 +71,10 @@ export interface IPkgListProps {
    * Whether to use direct package actions (immediate update on version change)
    */
   useDirectPackageActions?: boolean;
+  /**
+   * Optional search term. When provided, packages starting with the search term
+   */
+  searchTerm?: string;
 }
 
 /** React component for the package list */
@@ -450,7 +454,11 @@ export class CondaPkgList extends React.Component<
   };
 
   private getSortedPackages(): Conda.IPackage[] {
-    return sortPackages(this.props.packages, this.state);
+    return sortPackagesWithSearch(
+      this.props.packages,
+      this.state,
+      this.props.searchTerm
+    );
   }
 
   private toggleSort = (column: PackageSortKey) => {

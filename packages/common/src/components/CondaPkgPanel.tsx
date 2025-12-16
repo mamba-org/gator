@@ -643,16 +643,13 @@ export class CondaPkgPanel extends React.Component<
     if (this.state.searchTerm === null) {
       searchPkgs = filteredByChannels;
     } else {
+      const lowerSearch = this.state.searchTerm.toLowerCase();
       searchPkgs = filteredByChannels.filter(pkg => {
-        const lowerSearch = this.state.searchTerm.toLowerCase();
-        return (
-          pkg.name.indexOf(this.state.searchTerm) >= 0 ||
-          (this.state.hasDescription &&
-            (pkg.summary.indexOf(this.state.searchTerm) >= 0 ||
-              pkg.keywords.indexOf(lowerSearch) >= 0 ||
-              pkg.tags.indexOf(lowerSearch) >= 0))
-        );
+        // Removing description and summary from search
+        const lowerName = pkg.name.toLowerCase();
+        return lowerName.indexOf(lowerSearch) >= 0;
       });
+      // No .sort() here - CondaPkgList handles sorting with searchTerm
     }
 
     return (
@@ -723,6 +720,7 @@ export class CondaPkgPanel extends React.Component<
               commands={this.props.commands}
               envName={this._currentEnvironment}
               useDirectPackageActions={this.state.useDirectPackageActions}
+              searchTerm={this.state.searchTerm}
             />
           )}
         </div>
