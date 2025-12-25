@@ -14,7 +14,7 @@ Provides Conda/Mamba environment and package management as a [standalone applica
 
 _Requirements_
 
-- conda >= 4.5 or mamba 1.x 
+- - conda >= 4.7.12 or mamba >= 1.0 (mamba 2.x also works)
 - JupyterLab >= 4.0 (for the JupyterLab extension only)
 
 > Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
