@@ -43,8 +43,15 @@ html_theme_options = {
     "use_source_button": True,
     "path_to_docs": "docs/source",
     "show_toc_level": 2,
+    "show_nav_level": 2,
     "announcement": "🚧 Documentation is under active development. It will be undergoing many changes and additions to the currently displayed material. <a href='https://github.com/mamba-org/gator/issues'>Report issues</a>",
 }
+
+html_static_path = ['_static']
+
+html_css_files = [
+    'custom.css',
+]
 
 templates_path = ['_templates']
 exclude_patterns = []

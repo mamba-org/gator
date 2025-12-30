@@ -1,48 +1,26 @@
 # Getting Started
 
-## Overview
+**Gator** (also known as **Mamba Navigator**) is a powerful web-based UI that makes conda and mamba package management visual and intuitive. Manage your Python, R, and data science environments with point-and-click ease directly in JupyterLab.
 
-**Gator** (also known as **Mamba Navigator**) is a powerful web-based UI that makes conda and mamba package management visual and intuitive. No more memorizing command-line syntax! Manage your Python, R, and data science environments with point-and-click ease.
+## Requirements
 
-::::{grid} 2
-:gutter: 3
+- conda version 4.5 or later or mamba version 1.0 or later
+- JupyterLab version 4.0 or later (if using the JupyterLab extension)
 
-:::{grid-item-card} 🖥️ For JupyterLab
-Integrated extension accessible from Settings menu
+## Installing Gator
 
-**Access:** Settings → Conda Packages Manager
-:::
+To install Gator in JupyterLab, run the following command:
 
-:::{grid-item-card} 🚀 Standalone App
-Independent application via `gator` command
+```{code-block} bash
+mamba install -c conda-forge jupyterlab mamba_gator
+```
 
-**Access:** Run `gator` in terminal
-:::
+```{tip}
+Install [Jupyterlab-tour](https://github.com/fcollonval/jupyterlab-tour) to get an interactive walkthrough of Gator's features:
 
-::::
+    conda install -c conda-forge jupyterlab-tour
 
-### Why Use Gator?
-
-::::{grid} 1 1 2 2
-:gutter: 2
-
-:::{grid-item-card} 🎯 Visual Management
-No command-line knowledge required. Point, click, and go!
-:::
-
-:::{grid-item-card} 📦 Smart Package Browsing
-Search, filter, and discover packages with ease
-:::
-
-:::{grid-item-card} ⚡ Batch Operations
-Update multiple packages simultaneously
-:::
-
-:::{grid-item-card} 🔄 Environment Sync
-Import/export environments across systems
-:::
-
-::::
+```
 
 ## Quick Start
 
@@ -54,19 +32,13 @@ Import/export environments across systems
 **Standalone:** Run `gator` in your terminal
 
 Then:
-1. 📂 Select an environment from the left panel
-2. 📦 Browse packages in the main panel
-3. ⬇️ Install packages with the "Add Packages" button
-4. ⚙️ Try toggling between Direct and Batch modes (see {ref}`direct-batch-toggle`)
+1. Select an environment from the left panel
+2. Browse packages in the main panel
+3. Select package(s) to install
+3. Install packages with the "+ Packages" button
+4. Try toggling between Direct and Batch modes (see {ref}`direct-batch-toggle`)
 ```
 
 ```{note}
 **First load may take a few minutes** while Gator builds the package cache. Subsequent loads will be much faster!
-```
-
-```{toctree}
-:maxdepth: 2
-:caption: User Guide Contents
-
-features
 ```
