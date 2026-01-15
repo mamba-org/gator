@@ -1,0 +1,5 @@
+/* Add black border to images with bordered-image class */
+.bordered-image {
+    border: 1px solid #000;
+    padding: 5px;
+}

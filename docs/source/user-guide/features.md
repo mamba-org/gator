@@ -1,10 +1,5 @@
 # Gator Features
 
-```{contents} On This Page
-:depth: 2
-:local:
-```
-
 ## 🔹 Core Capabilities
 
 ::::{grid} 1 1 2 2
@@ -12,20 +7,20 @@
 
 :::{grid-item-card} 🌍 Environment Management
 
-- ✨ Create from templates (Python 3, R, custom)
-- 📋 Clone existing environments
-- 📥 Import from YAML files
-- 📤 Export to share across systems
-- 🗑️ Remove (with protection for base/default)
+- Create from templates (Python 3, R, custom)
+- Clone existing environments
+- Import from YAML files
+- Export to share across systems
+- Remove (with protection for base/default)
   :::
 
 :::{grid-item-card} 📦 Package Management
 
-- 🔍 Search and filter thousands of packages
-- 🎯 Pin specific versions
-- 🔄 Update single or all packages
-- 📊 View dependency graphs
-- 🏷️ Filter by channel (conda-forge, defaults, etc.)
+- Search and filter thousands of packages
+- Pin specific versions
+- Update single or all packages
+- View dependency graphs
+- Filter by channel (conda-forge, defaults, etc.)
   :::
 
 ::::
@@ -68,6 +63,7 @@ Gator provides several configurable settings accessible through **Settings** →
 ```{image} ../_static/images/visual-settings-editor.png
 :alt: Screenshot showing the Conda extension settings panel
 :align: center
+:class: bordered-image
 ```
 
 ### Background Caching
@@ -122,6 +118,7 @@ The left sidebar displays all available conda/mamba environments. Each environme
 ```{image} ../_static/images/environment-list-kebab.png
 :alt: Screenshot of the environment list panel showing multiple environments
 :align: center
+:class: bordered-image
 ```
 
 ### Create Environment Button
@@ -131,6 +128,7 @@ Located at the top of the environment list, this button opens the environment cr
 ```{image} ../_static/images/create-env-button.png
 :alt: Screenshot highlighting the "Create Environment" button
 :align: center
+:class: bordered-image
 ```
 
 ### Create Environment Drawer
@@ -158,6 +156,7 @@ A full-screen modal interface for creating new environments with the following s
 ```{image} ../_static/images/create-env-drawer.png
 :alt: Screenshot of the Create Environment drawer showing the package selection interface
 :align: center
+:class: bordered-image
 ```
 
 ### Environment Context Menu
@@ -171,6 +170,13 @@ Each environment item includes a context menu (accessible via kebab icon) with o
 ```{image} ../_static/images/env-context-menu.png
 :alt: Screenshot of the environment context menu
 :align: center
+:class: bordered-image
+```
+
+```{important}
+**Protected Environments**
+
+The `base` environment and your default JupyterLab environment cannot be removed. This prevents accidentally breaking your Gator/JupyterLab installation.
 ```
 
 ### Environment Creation Dialog
@@ -183,6 +189,7 @@ Initial dialog that appears when creating an environment, offering choices:
 ```{image} ../_static/images/env-creation-dialog.png
 :alt: Screenshot of the initial environment creation dialog
 :align: center
+:class: bordered-image
 ```
 
 (import-export-environments)=
@@ -242,7 +249,7 @@ The environment name from the YAML file will be used. If an environment with tha
 
 ::::{tab-set}
 
-:::{tab-item} 🤝 Team Collaboration
+:::{tab-item} Team Collaboration
 Share your environment with teammates:
 
 1. Export your working environment
@@ -251,7 +258,7 @@ Share your environment with teammates:
 4. Everyone has identical package versions!
    :::
 
-:::{tab-item} 💾 Backup & Recovery
+:::{tab-item} Backup & Recovery
 Before major changes:
 
 1. Export current environment
@@ -260,7 +267,7 @@ Before major changes:
 4. Back to working state instantly!
    :::
 
-:::{tab-item} 🖥️ Multi-Machine Setup
+:::{tab-item} Multi-Machine Setup
 Sync across your computers:
 
 1. Export from laptop
@@ -274,7 +281,7 @@ Some packages are platform-specific. Consider separate YAML files for Linux/macO
 
 :::
 
-:::{tab-item} 📚 Reproducible Research
+:::{tab-item} Reproducible Research
 For publications and reports:
 
 1. Enable "Export from History" in settings
@@ -304,6 +311,7 @@ The main panel displays packages for the currently selected environment. It incl
 ```{image} ../_static/images/package-toolbar.png
 :alt: Screenshot of the package toolbar with various controls
 :align: center
+:class: bordered-image
 ```
 
 (direct-batch-toggle)=
@@ -319,6 +327,7 @@ The mode toggle button controls how Gator handles package operations. Pick the r
 ```{image} ../_static/images/direct-batch-toggle.png
 :alt: Screenshot of the package toolbar with the Direct/Batch toggle button circled in red
 :align: center
+:class: bordered-image
 ```
 
 ::::{grid} 2
@@ -336,7 +345,6 @@ The mode toggle button controls how Gator handles package operations. Pick the r
 **How it works:**
 Changes apply immediately when you select a version
 
-💡 **Pro tip:** Great for rapid testing!
 :::
 
 :::{grid-item-card} 📦 Batch Mode
@@ -351,7 +359,6 @@ Changes apply immediately when you select a version
 **How it works:**
 Queue multiple changes, click "Apply" to execute all at once
 
-💡 **Pro tip:** Safer for production environments!
 :::
 
 ::::
@@ -376,6 +383,7 @@ A scrollable, sortable table displaying packages with columns:
 ```{image} ../_static/images/package-list.png
 :alt: Screenshot of the package list showing installed packages with version selectors
 :align: center
+:class: bordered-image
 ```
 
 ### Add Packages Drawer
@@ -402,6 +410,7 @@ A full-screen modal for browsing and installing multiple packages:
 ```{image} ../_static/images/add-packages-drawer.png
 :alt: Screenshot of the Add Packages drawer with selected packages in the side panel
 :align: center
+:class: bordered-image
 ```
 
 ### Package Dependencies Graph
@@ -415,6 +424,7 @@ A dialog that displays the dependency graph for a selected package, showing:
 ```{image} ../_static/images/package-dependencies.png
 :alt: Screenshot of a package dependencies graph dialog
 :align: center
+:class: bordered-image
 ```
 
 ### Package Context Menu
@@ -427,6 +437,7 @@ Individual packages have a context menu (accessible via kebab icon) with options
 ```{image} ../_static/images/pkg-context-menu.png
 :alt: Screenshot of a package context menu
 :align: center
+:class: bordered-image
 ```
 
 ### Filter Popover
@@ -441,46 +452,10 @@ A dropdown panel accessible via the filter button, providing:
 ```{image} ../_static/images/filter-popover.png
 :alt: Screenshot of the filter popover showing status and channel options
 :align: center
+:class: bordered-image
 ```
 
-## 🔹 Key Features Summary
-
-### Workflow Modes
-
-:::{seealso}
-See the {ref}`direct-batch-toggle` section for details on switching between modes.
-:::
-
-**Direct Mode (Default):**
-
-- Package version changes apply immediately
-- Suitable for quick, single-package operations
-- Selection count shows packages with pending updates
-
-**Batch Mode:**
-
-- Queue multiple package changes
-- Apply all changes together with "Apply" button
-- Useful for complex environment modifications
-
-### Package Operations
-
-- **Install**: Add new packages to environment
-- **Update**: Upgrade packages to newer versions
-- **Remove**: Uninstall packages from environment
-- **Batch Operations**: Apply multiple changes simultaneously
-
-### Environment Operations
-
-- **Create**: New environment from scratch or template
-- **Clone**: Duplicate existing environment
-- **Import**: Create environment from YAML file
-- **Export**: Save environment configuration to YAML
-- **Remove**: Delete environment (with safeguards for base/default)
-
 ## 🔹 Troubleshooting
-
-`````{dropdown} 🐛 Common Issues & Solutions
 
 ````{tab-set}
 
@@ -488,10 +463,10 @@ See the {ref}`direct-batch-toggle` section for details on switching between mode
 **Problem:** Package list takes forever to load
 
 **Solutions:**
-- ✅ First load builds the cache—this is normal and only happens once
-- ✅ Enable "Background Caching" in settings
-- ✅ Close and reopen after first load to see cached performance
-- ✅ Check your internet connection
+- First load builds the cache—this is normal and only happens once
+- Enable "Background Caching" in settings
+- Close and reopen after first load to see cached performance
+- Check your internet connection
 ```
 
 ```{tab-item} Can't Remove Environment
@@ -506,41 +481,24 @@ See the {ref}`direct-batch-toggle` section for details on switching between mode
 **Problem:** YAML import shows errors
 
 **Possible causes:**
-- ❌ Platform-specific packages (Linux vs macOS vs Windows)
-- ❌ Channel not accessible
-- ❌ Package versions no longer available
+- Platform-specific packages (Linux vs macOS vs Windows)
+- Channel not accessible
+- Package versions no longer available
 
 **Try:**
-- ✅ Remove platform-specific packages from YAML
-- ✅ Update version specs to be more flexible
-- ✅ Check channel configuration
+- Remove platform-specific packages from YAML
+- Update version specs to be more flexible
+- Check channel configuration
 ```
 
 ```{tab-item} Package Conflicts
 **Problem:** "Solving environment" takes very long
 
 **Solutions:**
-- ✅ Use mamba instead of conda (faster solver)
-- ✅ Specify fewer package constraints
-- ✅ Try different channels
-- ✅ Create fresh environment if heavily modified
+- Use mamba instead of conda (faster solver)
+- Specify fewer package constraints
+- Try different channels
+- Create fresh environment if heavily modified
 ```
 
 ````
-
-`````
-
-## 🔹 Additional Notes
-
-```{important}
-**Protected Environments**
-
-The `base` environment and your default JupyterLab environment cannot be removed. This prevents accidentally breaking your Gator/JupyterLab installation.
-```
-
-**Automatic Features:**
-
-- 🔄 Package dependency resolution handled by conda/mamba
-- 💬 Notifications for all operations (success, errors, warnings)
-- 📊 Real-time status indicators
-- 🔒 Safe defaults (confirmations for destructive actions)
