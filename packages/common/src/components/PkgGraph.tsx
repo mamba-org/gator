@@ -96,16 +96,16 @@ export class PkgGraph extends React.Component<IPkgGraphProps, IPkgGraphState> {
         // Manager does not support dependency query
         error = (
           <span>
-            Please install{' '}
+            Dependenct query not supported. Ensure{' '}
             <a
               style={{ textDecoration: 'underline' }}
-              href="https://github.com/mamba-org/mamba"
+              href="https://conda.github.io/conda-libmamba-solver/"
               rel="noreferrer"
               target="_blank"
             >
-              mamba
+              conda-libmamba-solver
             </a>{' '}
-            manager to resolve dependencies.
+            is installed or use mamba.
           </span>
         );
       } else if (
