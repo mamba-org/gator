@@ -2,11 +2,11 @@
 
 The Mamba Navigator, a Web UI for managing conda environments
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
-[![Install with conda](https://anaconda.org/conda-forge/mamba_gator/badges/installer/conda.svg)](https://anaconda.org/conda-forge/mamba_gator)
-[![npm](https://img.shields.io/npm/v/@mamba-org/gator-lab.svg?style=flat-square)](https://www.npmjs.com/package/@mamba-org/gator-lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/main?urlpath=lab)
+[![conda-forge version](https://img.shields.io/conda/vn/conda-forge/mamba_gator?logo=conda-forge)](https://anaconda.org/conda-forge/mamba_gator)
+[![anaconda version](https://img.shields.io/conda/vn/anaconda/mamba_gator?logo=anaconda)](https://anaconda.org/anaconda/mamba_gator)
 [![Github Actions Status](https://github.com/mamba-org/gator/workflows/Test/badge.svg)](https://github.com/mamba-org/gator/actions?query=workflow%3ATest)
-[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmaster%2Fmamba_gator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/master/mamba_gator/rest_api.yml)
+[![Swagger Validator](https://img.shields.io/swagger/valid/3.0?specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fmamba-org%2Fgator%2Fmain%2Fmamba_gator%2Frest_api.yml)](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/mamba-org/gator/main/mamba_gator/rest_api.yml)
 
 Provides Conda/Mamba environment and package management as a [standalone application](#Navigator) or as extension for [JupyterLab](#JupyterLab).
 
@@ -14,10 +14,10 @@ Provides Conda/Mamba environment and package management as a [standalone applica
 
 _Requirements_
 
-- conda >= 4.5 or mamba 1.x 
+- conda >= 4.7.12 or mamba >= 1.0 (mamba 2.x also works)
 - JupyterLab >= 4.0 (for the JupyterLab extension only)
 
-> Starting from 3.4, this extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
+> This extension will use [mamba](https://github.com/mamba-org/mamba) instead of `conda` if it finds it.
 
 To install in the JupyterLab:
 
@@ -25,7 +25,7 @@ To install in the JupyterLab:
 mamba install -c conda-forge jupyterlab mamba_gator
 ```
 
-> Optionally, you could install [`jupyterlab-tour`](https://github.com/fcollonval/jupyterlab-tour) to
+> Optionally, you could install [`jupyterlab-tour`](https://github.com/jupyterlab-contrib/jupyterlab-tour) to
 > add a help tour for the conda packages manager.
 
 ## JupyterLab
@@ -41,16 +41,6 @@ This extension adds a new entry _Conda Packages Manager_ in the _Settings_ menu.
 
 This project contains a standalone navigator application sharing much of the code
 of the JupyterLab extension.
-
-## Classical Jupyter Notebook
-
-The classical Jupyter Notebook is supported only for version prior to 5. But you can
-directly manage the conda environments with the standalone navigator tool. For that
-you need to execute the following command in a terminal:
-
-```
-gator
-```
 
 ## Creating New Environments
 
@@ -70,9 +60,9 @@ There are three ways to create an environment:
 
 ### Try it online
 
-Open _Gator_ (Mamba Navigator): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=mamba/gator)
+Open _Gator_ (Mamba Navigator): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/main?urlpath=mamba/gator)
 
-Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/master?urlpath=lab)
+Open JupyterLab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mamba-org/gator/main?urlpath=lab)
 
 ![lab-launcher](packages/navigator/navigator_as_service.png)
 
