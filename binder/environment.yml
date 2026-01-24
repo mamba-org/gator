@@ -7,7 +7,6 @@ dependencies:
   - jupyterlab >=4.0.0,<5
   # labextension build dependencies
   - nodejs >=22,<23
-  - yarn >=4
   # additional packages for demos
   - jupyter-server-proxy
   - nb_conda_kernels >=2.2.3

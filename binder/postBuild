@@ -2,8 +2,8 @@
 #
 # Binder postBuild instructions
 set -eux
-yarn install
-yarn run build
+jlpm install
+jlpm run build
 python -m pip install .
 python -m pip install jupyterlab-tour
 
