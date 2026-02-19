@@ -698,17 +698,19 @@ class EnvManager:
         Returns:
             {"package": List[dependencies]}
         """
-        if not self.is_mamba():
+        resp = {}
+
+        ans = await self._execute(self.manager, "repoquery", "depends", "--json", pkg)
+        rcode, output = ans
+
+        if rcode != 0:
             self.log.warning(
-                "Package manager '{}' does not support dependency query.".format(
+                "Package manager '{}' does not support dependency query. "
+                "Ensure conda-libmamba-solver is installed or use mamba.".format(
                     self.manager
                 )
             )
             return {pkg: None}
-
-        resp = {}
-        ans = await self._execute(self.manager, "repoquery", "depends", "--json", pkg)
-        _, output = ans
         query = self._clean_conda_json(output)
 
         if "error" not in query:
@@ -732,11 +734,15 @@ class EnvManager:
                 "with_description": bool  # Whether we succeed in get some channeldata.json files
             }
         """
-        if self.is_mamba():
-            ans = await self._execute(self.manager, "repoquery", "search", "*", "--json")
-        else:
+        ans = await self._execute(self.manager, "repoquery", "search", "*", "--json")
+        rcode, output = ans
+
+        if rcode != 0:
+            # Fall back to conda search for older conda versions
+            self.log.debug("repoquery not available, falling back to conda search")
+            print("Fall back to conda search since repoquery not available")
             ans = await self._execute(self.manager, "search", "--json")
-        _, output = ans
+            _, output = ans
 
         current_loop = tornado.ioloop.IOLoop.current()
         data = await current_loop.run_in_executor(None, self._clean_conda_json, output)
