@@ -14,7 +14,7 @@
   "author": "Jupyter Development Team",
   "license": "BSD-3-Clause",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "bugs": {
     "url": "https://github.com/mamba-org/gator/issues"
