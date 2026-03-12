@@ -50,7 +50,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
 export default plugin;
 
-/* eslint-disable no-inner-declarations */
 namespace Private {
   export function loadPackages(model: CondaEnvironments): void {
     let packageFound = false;
@@ -105,4 +104,3 @@ namespace Private {
     }, 60000);
   }
 }
-/* eslint-enable no-inner-declarations */

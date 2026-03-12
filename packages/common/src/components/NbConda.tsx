@@ -239,7 +239,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     menu.node.style.left = '0';
     menu.node.style.maxWidth = '125px';
 
-    menu.node.offsetHeight;
+    menu.node.offsetHeight; // eslint-disable-line @typescript-eslint/no-unused-expressions
 
     const menuRect = menu.node.getBoundingClientRect();
     const viewportWidth = window.innerWidth;

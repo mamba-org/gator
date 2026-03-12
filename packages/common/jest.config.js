@@ -27,9 +27,12 @@ module.exports = {
   testPathIgnorePatterns,
   transform: {
     ...transform,
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.test.json'
-    }]
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json'
+      }
+    ]
   },
   automock: false,
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
