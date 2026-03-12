@@ -41,7 +41,7 @@
     "eslint": "^9",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-react": "latest",
+    "eslint-plugin-react": "^7.37.5",
     "husky": "^0.14.0",
     "lerna": "^7.1.4",
     "lint-staged": "^9.4.3",
