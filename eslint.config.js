@@ -3,6 +3,11 @@ import react from 'eslint-plugin-react';
 import tseslint from 'typescript-eslint';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default [
   {
@@ -54,7 +59,7 @@ export default [
       parser: tseslint.parser,
       parserOptions: {
         project: true,
-        tsconfigRootDir: import.meta.dirname
+        tsconfigRootDir: __dirname
       }
     },
     plugins: {
