@@ -3,8 +3,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const crypto = require('crypto');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 // Workaround for loaders using "md4" by default, which is not supported in FIPS-compliant OpenSSL
 const cryptoOrigCreateHash = crypto.createHash;

@@ -28,11 +28,11 @@ const child = spawn('jupyter', args, {
   shell: true
 });
 
-child.on('exit', (code) => {
+child.on('exit', code => {
   process.exit(code);
 });
 
-child.on('error', (err) => {
+child.on('error', err => {
   console.error('Build failed:', err);
   process.exit(1);
-}); 
+});
