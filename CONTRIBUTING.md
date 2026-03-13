@@ -13,6 +13,7 @@ Thank you for your interest in contributing to Gator! This document will help yo
 ### Project Structure
 
 This project uses Lerna to manage multiple JavaScript/TypeScript packages in a monorepo structure. The main packages are:
+
 - `@mamba-org/gator-common`: Base components and models
 - `@mamba-org/gator-lab`: JupyterLab extension
 - `@mamba-org/navigator`: Standalone application
@@ -20,12 +21,14 @@ This project uses Lerna to manage multiple JavaScript/TypeScript packages in a m
 ### Setup Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/mamba-org/gator.git
    cd gator
    ```
 
 2. **Create and activate a conda environment**
+
    ```bash
    # Using conda
    conda create -c conda-forge -n gator python=3.9 nodejs jupyterlab=4.0 nb_conda_kernels
@@ -37,16 +40,19 @@ This project uses Lerna to manage multiple JavaScript/TypeScript packages in a m
    ```
 
 3. **Enable Corepack for Yarn management**
+
    ```bash
    corepack enable
    ```
 
 4. **Install Node.js dependencies**
+
    ```bash
    jlpm install
    ```
 
 5. **Install the package in development mode**
+
    ```bash
    python -m pip install -e .
    ```
@@ -134,4 +140,4 @@ python -m jupyterlab.browser_check
 
 ## Need Help?
 
-If you encounter any issues during setup or have questions about contributing, please open an issue on GitHub. 
+If you encounter any issues during setup or have questions about contributing, please open an issue on GitHub.

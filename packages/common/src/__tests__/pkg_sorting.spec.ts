@@ -86,24 +86,24 @@ describe('sortPackagesWithSearch', () => {
     });
 
     it('should handle case-insensitive search', () => {
-        const packages = [
-          createPackage('Notebook'),
-          createPackage('NOTEBOOK-UTILS'),
-          createPackage('notebook-tools')
-        ];
+      const packages = [
+        createPackage('Notebook'),
+        createPackage('NOTEBOOK-UTILS'),
+        createPackage('notebook-tools')
+      ];
 
-        const sortState: IPackageSortState = {
-          sortBy: 'name',
-          sortDirection: 'asc'
-        };
+      const sortState: IPackageSortState = {
+        sortBy: 'name',
+        sortDirection: 'asc'
+      };
 
-        const result = sortPackagesWithSearch(packages, sortState, 'NOTEBOOK');
+      const result = sortPackagesWithSearch(packages, sortState, 'NOTEBOOK');
 
-        // All start with "notebook" (case-insensitive), so sorted alphabetically
-        expect(result[0].name).toBe('Notebook');
-        expect(result[1].name).toBe('notebook-tools');
-        expect(result[2].name).toBe('NOTEBOOK-UTILS');
-      });
+      // All start with "notebook" (case-insensitive), so sorted alphabetically
+      expect(result[0].name).toBe('Notebook');
+      expect(result[1].name).toBe('notebook-tools');
+      expect(result[2].name).toBe('NOTEBOOK-UTILS');
+    });
   });
 
   describe('without search term', () => {
@@ -157,10 +157,14 @@ describe('sortPackagesWithSearch', () => {
 
     it('should handle empty search term', () => {
       const packages = [createPackage('test')];
-      const result = sortPackagesWithSearch(packages, {
-        sortBy: 'name',
-        sortDirection: 'asc'
-      }, '');
+      const result = sortPackagesWithSearch(
+        packages,
+        {
+          sortBy: 'name',
+          sortDirection: 'asc'
+        },
+        ''
+      );
       expect(result).toEqual(packages);
     });
 
@@ -171,10 +175,14 @@ describe('sortPackagesWithSearch', () => {
         createPackage('pandas')
       ];
 
-      const result = sortPackagesWithSearch(packages, {
-        sortBy: 'name',
-        sortDirection: 'asc'
-      }, 'notebook');
+      const result = sortPackagesWithSearch(
+        packages,
+        {
+          sortBy: 'name',
+          sortDirection: 'asc'
+        },
+        'notebook'
+      );
 
       // Should still be sorted, just no search priority
       expect(result.length).toBe(3);
