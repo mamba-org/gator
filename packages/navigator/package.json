@@ -19,7 +19,7 @@
     "build": "tsc && webpack --mode=production",
     "build:dev": "tsc && webpack",
     "build:prod": "jlpm run build",
-    "clean": "rimraf lib tsconfig.tsbuildinfo ../../mamba_gator/navigator/static/*.* ../../mamba_gator/nbextension/static/*.*",
+    "clean": "rimraf lib tsconfig.tsbuildinfo \"../../mamba_gator/navigator/static/*.*\" \"../../mamba_gator/nbextension/static/*.*\"",
     "prepublishOnly": "jlpm run build",
     "watch:ts": "tsc -w --listEmittedFiles",
     "watch:webpack": "webpack --watch",
