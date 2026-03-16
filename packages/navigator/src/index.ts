@@ -13,12 +13,11 @@ import '../style/index.css';
  */
 export default async function main(): Promise<void> {
   const app = new Gator();
-  const mods = [
-    require('./plugins/paths'),
-    require('./plugins/notifications'),
-    require('./plugins/navigator'),
-    require('./plugins/top')
-  ];
+  const paths = import('./plugins/paths');
+  const notifications = import('./plugins/notifications');
+  const navigator = import('./plugins/navigator');
+  const top = import('./plugins/top');
+  const mods = await Promise.all([paths, notifications, navigator, top]);
 
   app.registerPluginModules(mods);
 

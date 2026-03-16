@@ -9,6 +9,7 @@ This guide explains how to release mamba_gator packages.
 For testing releases, use the dedicated Test PyPI workflow:
 
 1. **Prepare the release**:
+
    - Update the changelog in `README.md`
    - Update version in `pyproject.toml` and `package.json`
    - Commit and push changes
@@ -24,6 +25,7 @@ For testing releases, use the dedicated Test PyPI workflow:
 For production releases, use the dedicated PyPI workflow:
 
 1. **Prepare the release** (Only necessary if not previously followed in the TestPyPI workflow):
+
    - Update the changelog in `README.md`
    - Update version in `pyproject.toml` and `package.json`
    - Commit and push changes
@@ -41,6 +43,7 @@ For production releases, use the dedicated PyPI workflow:
 ### Step-by-Step Process
 
 1. **Update Version and Changelog** (Manual):
+
    ```bash
    # Update Changelog in README.md
    # Update version in pyproject.toml and package.json
@@ -48,11 +51,12 @@ For production releases, use the dedicated PyPI workflow:
    ```
 
 2. **Commit and Tag**:
+
    ```bash
    # Commit changes
    git add pyproject.toml package.json README.md
    git commit -m "Bump version to 5.2.1"
-   
+
    # Create tag
    git tag v5.2.1
 
@@ -61,10 +65,12 @@ For production releases, use the dedicated PyPI workflow:
    ```
 
 3. **Test Release** (GitHub Actions):
+
    - Run the "TestPyPI Publish Release" workflow with tag `v5.2.1`
    - Verify the package installs correctly from Test PyPI
 
 4. **Production Release** (GitHub Actions):
+
    - Run the "PyPI Publish Release" workflow with tag `v5.2.1`
    - Confirm production release
 
@@ -88,11 +94,13 @@ The project uses semantic versioning (X.Y.Z):
 ### Development Versions
 
 For development versions, use the `.dev0` suffix:
+
 - `5.2.1.dev0` for development of version 5.2.1
 
 ### Pre-release Versions
 
 For pre-releases, use alpha, beta, or release candidate suffixes:
+
 - `5.2.1a1` for alpha release
 - `5.2.1b1` for beta release
 - `5.2.1rc1` for release candidate

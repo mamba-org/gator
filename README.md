@@ -73,7 +73,7 @@ To setup a development environment follow our [Contributing Guide](CONTRIBUTING.
 If you would like to try a pre-release version:
 
 ```shell
-conda create -c conda-forge -y -n gator python=3.14 nodejs jupyterlab=4.0 
+conda create -c conda-forge -y -n gator python=3.14 nodejs jupyterlab=4.0
 conda activate gator
 pip install git+https://github.com/mamba-org/gator.git
 jupyter lab

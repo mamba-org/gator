@@ -177,20 +177,20 @@ div[data-loading='true'] jp-button[aria-label='Refresh'] svg {
 /* ==================================== */
 
 /* Make remove package command red */
-.lm-Menu-item[data-command="gator-lab:remove-pkg"] .lm-Menu-itemLabel {
+.lm-Menu-item[data-command='gator-lab:remove-pkg'] .lm-Menu-itemLabel {
   color: var(--jp-error-color1) !important;
 }
 
-.lm-Menu-item[data-command="gator-lab:remove-pkg"] .lm-Menu-itemIcon svg,
-.lm-Menu-item[data-command="gator-lab:remove-pkg"] .lm-Menu-itemIcon path {
+.lm-Menu-item[data-command='gator-lab:remove-pkg'] .lm-Menu-itemIcon svg,
+.lm-Menu-item[data-command='gator-lab:remove-pkg'] .lm-Menu-itemIcon path {
   fill: var(--jp-error-color1) !important;
 }
 /* Make remove environment command red */
-.lm-Menu-item[data-command="gator-lab:remove-env"] .lm-Menu-itemLabel {
+.lm-Menu-item[data-command='gator-lab:remove-env'] .lm-Menu-itemLabel {
   color: var(--jp-error-color1) !important;
 }
 
-.lm-Menu-item[data-command="gator-lab:remove-env"] .lm-Menu-itemIcon svg,
-.lm-Menu-item[data-command="gator-lab:remove-env"] .lm-Menu-itemIcon path {
+.lm-Menu-item[data-command='gator-lab:remove-env'] .lm-Menu-itemIcon svg,
+.lm-Menu-item[data-command='gator-lab:remove-env'] .lm-Menu-itemIcon path {
   fill: var(--jp-error-color1) !important;
 }

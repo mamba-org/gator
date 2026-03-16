@@ -524,6 +524,7 @@ export class CondaPkgPanel extends React.Component<
         isApplyingChanges: false,
         activeFilter: PkgFilters.Installed
       });
+      console.error(error);
     }
   }
 
