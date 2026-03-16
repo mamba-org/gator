@@ -18,8 +18,8 @@ export const PythonVersionSelector = (
   const displayText = props.disabled
     ? 'N/A'
     : props.selectedVersion === 'auto'
-    ? 'Auto (latest)'
-    : `Python ${props.selectedVersion}`;
+      ? 'Auto (latest)'
+      : `Python ${props.selectedVersion}`;
 
   return (
     <div className={Style.Container}>

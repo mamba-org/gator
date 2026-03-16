@@ -34,12 +34,13 @@
     "test": "lerna run test"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "acorn": "^8.16.0",
     "acorn-import-attributes": "^1.9.5",
-    "eslint": "^10.0.3",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-react": "^7.37.5",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.37.0",
     "husky": "^9.1.7",
     "lerna": "^9.0.5",
     "lint-staged": "^16.3.3",

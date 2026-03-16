@@ -246,6 +246,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     const viewportHeight = window.innerHeight;
 
     if (x + menuRect.width > viewportWidth) {
+      // eslint-disable-next-line no-useless-assignment
       x = viewportWidth - menuRect.width - 10; // 10px margin from edge
     }
     if (y + menuRect.height > viewportHeight) {
