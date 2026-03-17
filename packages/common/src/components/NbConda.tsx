@@ -227,7 +227,6 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
 
     const buttonBottomLeft = { x: rect.left, y: rect.bottom };
 
-    let x = rect.left;
     let y = rect.bottom + 4;
 
     const menu = this.createRefreshMenu();
@@ -242,13 +241,8 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     menu.node.offsetHeight; // eslint-disable-line @typescript-eslint/no-unused-expressions
 
     const menuRect = menu.node.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    const maxX = viewportWidth - menuRect.width - 10; // 10px margin from edge
-     if (x > maxX) {
-       x = maxX;
-    }
     if (y + menuRect.height > viewportHeight) {
       y = rect.top - menuRect.height - 4; // Above the button
 
@@ -265,7 +259,7 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     menu.node.style.left = '';
 
     // Override x position
-    x = buttonBottomLeft.x - 25;
+    const x = buttonBottomLeft.x - 25;
     menu.open(x, y);
   }
 
