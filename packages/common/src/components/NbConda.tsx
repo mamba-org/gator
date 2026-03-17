@@ -245,9 +245,9 @@ export class NbConda extends React.Component<ICondaEnvProps, ICondaEnvState> {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    if (x + menuRect.width > viewportWidth) {
-      // eslint-disable-next-line no-useless-assignment
-      x = viewportWidth - menuRect.width - 10; // 10px margin from edge
+    const maxX = viewportWidth - menuRect.width - 10; // 10px margin from edge
+     if (x > maxX) {
+       x = maxX;
     }
     if (y + menuRect.height > viewportHeight) {
       y = rect.top - menuRect.height - 4; // Above the button
