@@ -198,7 +198,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `Fail to get the channels for environment ${name}.`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -229,7 +229,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `An error occurred while cloning environment "${target}".`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -269,7 +269,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `Failed to create environment "${name}": ${message}`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -296,7 +296,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `An error occurred while exporting environment "${name}".`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -334,7 +334,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `An error occurred while importing "${name}".`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -361,7 +361,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = 'An error occurred while listing Conda environments.';
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -390,7 +390,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `An error occurred while removing "${name}".`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -426,7 +426,7 @@ export class CondaEnvironments implements IEnvironmentManager {
         console.error(message);
         message = `An error occurred while updating "${name}".`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -657,7 +657,7 @@ export class CondaPackage implements Conda.IPackageManager {
         console.error(message);
         message = 'An error occurred while retrieving available packages.';
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -690,7 +690,7 @@ export class CondaPackage implements Conda.IPackageManager {
         console.error(message);
         message = 'An error occurred while installing packages.';
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -724,7 +724,7 @@ export class CondaPackage implements Conda.IPackageManager {
         console.error(message);
         message = `An error occurred while installing in development mode package in ${path}.`;
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -762,7 +762,7 @@ export class CondaPackage implements Conda.IPackageManager {
         console.error(message);
         message = 'An error occurred while checking for package updates.';
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -795,7 +795,7 @@ export class CondaPackage implements Conda.IPackageManager {
         console.error(message);
         message = 'An error occurred while updating packages.';
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
@@ -828,7 +828,7 @@ export class CondaPackage implements Conda.IPackageManager {
         console.error(message);
         message = 'An error occurred while removing packages.';
       }
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 

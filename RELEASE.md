@@ -9,7 +9,6 @@ This guide explains how to release mamba_gator packages.
 For testing releases, use the dedicated Test PyPI workflow:
 
 1. **Prepare the release**:
-
    - Update the changelog in `README.md`
    - Update version in `pyproject.toml` and `package.json`
    - Commit and push changes
@@ -25,7 +24,6 @@ For testing releases, use the dedicated Test PyPI workflow:
 For production releases, use the dedicated PyPI workflow:
 
 1. **Prepare the release** (Only necessary if not previously followed in the TestPyPI workflow):
-
    - Update the changelog in `README.md`
    - Update version in `pyproject.toml` and `package.json`
    - Commit and push changes
@@ -65,12 +63,10 @@ For production releases, use the dedicated PyPI workflow:
    ```
 
 3. **Test Release** (GitHub Actions):
-
    - Run the "TestPyPI Publish Release" workflow with tag `v5.2.1`
    - Verify the package installs correctly from Test PyPI
 
 4. **Production Release** (GitHub Actions):
-
    - Run the "PyPI Publish Release" workflow with tag `v5.2.1`
    - Confirm production release
 

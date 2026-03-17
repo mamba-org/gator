@@ -640,7 +640,7 @@ export class CondaPkgPanel extends React.Component<
       new Set(installedPkgs.map(p => p.channel).filter((c): c is string => !!c))
     ).sort((a, b) => a.localeCompare(b));
 
-    let searchPkgs: Conda.IPackage[] = [];
+    let searchPkgs: Conda.IPackage[];
     if (this.state.searchTerm === null) {
       searchPkgs = filteredByChannels;
     } else {

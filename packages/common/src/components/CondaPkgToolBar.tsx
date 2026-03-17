@@ -390,9 +390,9 @@ export const CondaPkgToolBar = (props: ICondaPkgToolBarProps): JSX.Element => {
       </div>
       {props.onToggleDirectActions && (
         <ToolbarButtonComponent
-          label={props.useDirectPackageActions ?? true ? 'Direct' : 'Batch'}
+          label={(props.useDirectPackageActions ?? true) ? 'Direct' : 'Batch'}
           tooltip={
-            props.useDirectPackageActions ?? true
+            (props.useDirectPackageActions ?? true)
               ? 'Direct mode: Changes apply immediately. Click to switch to batch mode.'
               : 'Batch mode: Queue changes and apply together. Click to switch to direct mode.'
           }
