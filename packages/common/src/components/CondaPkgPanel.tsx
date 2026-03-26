@@ -460,7 +460,7 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    // TODO: Handle the case where the user cancels the update: show a notification here rather than in the packageActions.ts file
+    // TODO: Handle the case where the user cancels the update: show a notification here rather than in the packageActions.tsx file
     try {
       this.setState({
         searchTerm: '',
@@ -532,7 +532,8 @@ export class CondaPkgPanel extends React.Component<
     if (this.state.isApplyingChanges) {
       return;
     }
-
+    // TODO: Handle dry run preview for delete packages (for Direct View mode)
+    // await dryRunPreview(this._model, this.state.selected.map(pkg => pkg.name), 'remove', this._currentEnvironment)
     try {
       this.setState({
         isApplyingChanges: true

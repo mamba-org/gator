@@ -11,7 +11,7 @@ import tempfile
 from functools import lru_cache, partial
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import tornado
 from jupyter_client.kernelspec import KernelSpecManager
@@ -66,6 +66,29 @@ def normalize_pkg_info(s: Dict[str, Any]) -> Dict[str, Union[str, List[str]]]:
         "keywords": s.get("keywords", []),
         "tags": s.get("tags", []),
     }
+
+def normalize_preview_pkg(s: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize a LINK/UNLINK/FETCH record from conda --dry-run JSON for the UI."""
+    row = dict(normalize_pkg_info(s))
+    row["dist_name"] = s.get("dist_name")
+    row["base_url"] = s.get("base_url")
+    # Clean up JSON strings to make package comparisons
+    if row.get("name") is not None:
+        row["name"] = str(row["name"]).strip()
+    if row.get("version") is not None:
+        row["version"] = str(row["version"])
+    bs = row.get("build_string")
+    if bs is not None:
+        row["build_string"] = str(bs)
+    elif s.get("build") is not None:
+        row["build_string"] = str(s["build"])
+    if row.get("channel") is not None:
+        row["channel"] = str(row["channel"])
+    if row.get("base_url") is not None:
+        row["base_url"] = str(row["base_url"])
+    if row.get("dist_name") is not None:
+        row["dist_name"] = str(row["dist_name"])
+    return row
 
 def normalize_name(name: str) -> str:
     """Normalize package name listing for comparison between conda and pip."""
@@ -1047,6 +1070,56 @@ class EnvManager:
         )
         _, output = ans
         return self._clean_conda_json(output)
+
+    def _consolidate_dry_run_json(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Build LINK/UNLINK/FETCH lists from parsed conda/mamba --dry-run --json output."""
+        if not data:
+            return {"LINK": [], "UNLINK": [], "FETCH": []}
+        if data.get("error") is True:
+            return {"error": "Unable to parse package manager JSON output."}
+        if isinstance(data.get("error"), str):
+            return {"error": data["error"]}
+        if "actions" in data:
+            act = data["actions"]
+            return {
+                "LINK": [normalize_preview_pkg(x) for x in act.get("LINK", [])],
+                "UNLINK": [normalize_preview_pkg(x) for x in act.get("UNLINK", [])],
+                "FETCH": [normalize_preview_pkg(x) for x in act.get("FETCH", [])],
+            }
+        if "exception_name" in data:
+            return {"error": str(data.get("message", "Package manager dry-run failed"))}
+        if data.get("success") is False and "message" in data:
+            return {"error": str(data["message"])}
+        return {"LINK": [], "UNLINK": [], "FETCH": []}
+
+    async def _dry_run_command(
+        self, env: str, cmd: Literal["install", "remove", "update"], packages: List[str]
+    ) -> Dict[str, Any]:
+        """Run install|remove|update with --dry-run and return LINK/UNLINK/FETCH."""
+        if not packages:
+            return {"LINK": [], "UNLINK": [], "FETCH": []}
+        ans = await self._execute(
+            self.manager,
+            cmd,
+            "--dry-run",
+            "-y",
+            "-q",
+            "--json",
+            "-n",
+            env,
+            *packages,
+        )
+        _, output = ans
+        data = self._clean_conda_json(output)
+        return self._consolidate_dry_run_json(data)
+
+    async def dry_run_preview(
+        self, env: str, action: Literal["install", "remove", "update"], packages: List[str]
+    ) -> Dict[str, Any]:
+        """Preview solver actions for install, remove, or update (conda/mamba --dry-run)."""
+        if (action in ["install", "remove", "update"]):
+            return await self._dry_run_command(env, action, packages)
+        return {"error": f"Invalid action: {action}"}
 
     async def develop_packages(
         self, env: str, packages: List[str]

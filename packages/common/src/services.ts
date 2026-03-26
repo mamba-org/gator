@@ -694,6 +694,54 @@ export class CondaPackage implements Conda.IPackageManager {
     }
   }
 
+  async dry_run_preview(
+    packages: Array<string>,
+    action: 'install' | 'remove' | 'update',
+    environment?: string
+  ): Promise<Conda.IPreviewTransactionActions> {
+    const theEnvironment = environment || this.environment;
+
+    if (theEnvironment === undefined || packages.length === 0) {
+      return { LINK: [], UNLINK: [], FETCH: [] };
+    }
+
+    try {
+      const request: RequestInit = {
+        body: JSON.stringify({ packages, action }),
+        method: 'PATCH'
+      };
+      const { promise } = Private.requestServer(
+        URLExt.join('conda', 'environments', theEnvironment, 'packages', 'preview'),
+        request
+      );
+      const response = await promise;
+
+      if (response.ok) {
+        const data = (await response.json()) as Record<string, unknown>;
+        return {
+          LINK: Array.isArray(data.LINK)
+            ? (data.LINK as Conda.IPreviewPkgRow[])
+            : [],
+          UNLINK: Array.isArray(data.UNLINK)
+            ? (data.UNLINK as Conda.IPreviewPkgRow[])
+            : [],
+          FETCH: Array.isArray(data.FETCH)
+            ? (data.FETCH as Conda.IPreviewPkgRow[])
+            : []
+        } as Conda.IPreviewTransactionActions;
+      }
+
+      throw new Error('Package preview request failed.');
+    } catch (error) {
+      let message: string = (error as any).message || (error as any).toString();
+      if (message !== 'cancelled') {
+        console.error(message);
+        message = 'An error occurred while previewing package changes.';
+      }
+      throw new Error(message, { cause: error });
+    }
+  }
+
   async develop(path: string, environment?: string): Promise<void> {
     const theEnvironment = environment || this.environment;
     if (theEnvironment === undefined || path.length === 0) {

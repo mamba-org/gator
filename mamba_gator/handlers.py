@@ -339,6 +339,39 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
             idx = self._stack.put(self.env_manager.install_packages, env, packages)
         self.redirect_to_task(idx)
 
+class PreviewPackagesEnvironmentHandler(EnvBaseHandler):
+    """Handle dry-run previews for environment package changes (install/remove/update)."""
+
+    @tornado.web.authenticated
+    def patch(self, env: str):
+        """`PATCH /environments/<env>/packages/preview` preview solver actions.
+
+        Request json body:
+        {
+            "action": "install" | "remove" | "update",
+            "packages": ["pkg", "other=1.0", ...]
+        }
+        """
+        body = self.get_json_body()
+        if not body:
+            raise tornado.web.HTTPError(400, reason="JSON body is required")
+        action = body.get("action")
+        if action not in ("install", "remove", "update"):
+            raise tornado.web.HTTPError(
+                400, reason='body "action" must be "install", "remove", or "update"'
+            )
+        packages = body.get("packages")
+        if not isinstance(packages, list) or len(packages) == 0:
+            raise tornado.web.HTTPError(
+                400, reason='body "packages" must be a non-empty list of strings'
+            )
+        if not all(isinstance(p, str) and p for p in packages):
+            raise tornado.web.HTTPError(
+                400, reason='body "packages" must contain only non-empty strings'
+            )
+        idx = self._stack.put(self.env_manager.dry_run_preview, env, action, packages)
+        self.redirect_to_task(idx)
+
 
 class PackagesHandler(EnvBaseHandler):
     """Handles packages search"""
@@ -490,6 +523,7 @@ default_handlers = [
     (r"/environments/%s" % _env_regex, EnvironmentHandler),  # GET / PATCH / DELETE
     # PATCH / POST / DELETE
     (r"/environments/%s/packages" % _env_regex, PackagesEnvironmentHandler),
+    (r"/environments/%s/packages/preview" % _env_regex, PreviewPackagesEnvironmentHandler),  # PATCH
     (r"/packages", PackagesHandler),  # GET
     (r"/tasks/%s" % r"(?P<index>\d+)", TaskHandler),  # GET / DELETE
 ]
