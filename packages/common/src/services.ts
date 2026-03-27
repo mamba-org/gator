@@ -739,14 +739,21 @@ export class CondaPackage implements Conda.IPackageManager {
         } as Conda.IPreviewTransactionActions;
       }
 
-      throw new Error('Package preview request failed.');
+      const text = await response.text();
+      throw new ServerConnection.ResponseError(
+        response,
+        Private.formatHttpErrorBody(text, response)
+      );
     } catch (error) {
-      let message: string = (error as any).message || (error as any).toString();
-      if (message !== 'cancelled') {
-        console.error(message);
-        message = 'An error occurred while previewing package changes.';
+      if (error === 'cancelled') {
+        throw error;
       }
-      throw new Error(message, { cause: error });
+      const msg = (error as Error)?.message;
+      if (msg === 'cancelled') {
+        throw error;
+      }
+      console.error(error);
+      throw error;
     }
   }
 
@@ -1011,6 +1018,37 @@ namespace Private {
    */
   const POLLING_INTERVAL = 1000;
 
+  /**
+   * Turn a failed HTTP response body into a message for the UI.
+   * Multi-field JSON (task exceptions, solver metadata) is pretty-printed in full.
+   */
+  export function formatHttpErrorBody(text: string, response: Response): string {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return response.statusText || `Request failed (${response.status})`;
+    }
+    try {
+      const body = JSON.parse(trimmed) as Record<string, unknown>;
+      const errStr =
+        typeof body.error === 'string' ? body.error.trim() : undefined;
+      const msgStr =
+        typeof body.message === 'string' ? body.message.trim() : undefined;
+      const keys = Object.keys(body);
+      if (keys.length > 1) {
+        return JSON.stringify(body, null, 2);
+      }
+      if (errStr) {
+        return errStr;
+      }
+      if (msgStr) {
+        return msgStr;
+      }
+      return JSON.stringify(body, null, 2);
+    } catch {
+      return trimmed;
+    }
+  }
+
   export interface ICancellablePromise<T> {
     promise: Promise<T>;
     cancel: () => void;
@@ -1038,17 +1076,24 @@ namespace Private {
       .then(response => {
         if (!response.ok) {
           response
-            .json()
-            .then(body =>
+            .text()
+            .then(text => {
+              const message = Private.formatHttpErrorBody(text, response);
               promise.reject(
-                new ServerConnection.ResponseError(response, body.error)
-              )
-            )
+                new ServerConnection.ResponseError(response, message)
+              );
+            })
             .catch(reason => {
               console.error(
-                'Fail to read JSON response for request',
+                'Fail to read error response for request',
                 request,
                 reason
+              );
+              promise.reject(
+                new ServerConnection.ResponseError(
+                  response,
+                  response.statusText || String(reason)
+                )
               );
             });
         } else if (response.status === 202) {

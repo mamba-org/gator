@@ -145,6 +145,30 @@ export interface IPreviewJob {
   promise: Promise<Conda.IPreviewTransactionActions>;
 }
 
+export function formatPreviewErrorForDialog(error: unknown): string {
+  if (error === null || error === undefined) {
+    return 'Unknown error';
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error instanceof Error) {
+    const parts: string[] = [];
+    let current: unknown = error;
+    const seen = new Set<string>();
+    while (current instanceof Error) {
+      const m = current.message?.trim();
+      if (m && !seen.has(m)) {
+        seen.add(m);
+        parts.push(m);
+      }
+      current = current.cause;
+    }
+    return parts.length > 0 ? parts.join('\n\n') : String(error);
+  }
+  return String(error);
+}
+
 function ensureSpinnerKeyframes(): void {
   if (
     typeof document !== 'undefined' &&
@@ -208,7 +232,7 @@ export function PackagePreviewDialogBody(props: {
         onReadyChangeRef.current(true);
       } catch (e) {
         if (!cancelled) {
-          setError((e as Error).message ?? String(e));
+          setError(formatPreviewErrorForDialog(e));
           onReadyChangeRef.current(false);
         }
       }
@@ -666,7 +690,10 @@ namespace Style {
     padding: '12px',
     color: 'var(--jp-error-color1)',
     fontSize: 'var(--jp-ui-font-size1)',
-    lineHeight: 1.45
+    lineHeight: 1.45,
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    fontFamily: 'var(--jp-code-font-family)'
   });
 
   export const Disclaimer = style({

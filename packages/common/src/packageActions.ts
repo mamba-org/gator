@@ -1,5 +1,6 @@
 import { Notification, showDialog } from '@jupyterlab/apputils';
 import {
+  formatPreviewErrorForDialog,
   IPreviewJob,
   openPackagePreviewDialog
 } from './components/CondaPkgPreview';
@@ -41,10 +42,10 @@ export async function dryRunPreview(
     if (error !== 'cancelled') {
       Notification.update({
         id: toastId,
-        message: (error as any).message,
+        message: formatPreviewErrorForDialog(error),
         type: 'error',
-        autoClose: 2000
-      })
+        autoClose: 5000
+      });
     } else {
       Notification.dismiss(toastId);
     }
