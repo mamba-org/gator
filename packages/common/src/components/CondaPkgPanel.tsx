@@ -532,8 +532,7 @@ export class CondaPkgPanel extends React.Component<
     if (this.state.isApplyingChanges) {
       return;
     }
-    // TODO: Handle dry run preview for delete packages (for Direct View mode)
-    // await dryRunPreview(this._model, this.state.selected.map(pkg => pkg.name), 'remove', this._currentEnvironment)
+
     try {
       this.setState({
         isApplyingChanges: true

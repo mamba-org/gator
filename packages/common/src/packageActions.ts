@@ -78,7 +78,6 @@ export async function dryRunPreview(
     });
   }
 
-  // TODO: Do not display display the preview dialog if changes === requested exclusively
   const confirmed = await openPackagePreviewDialog({
     title: 'Review package changes',
     jobs: previewJob,
