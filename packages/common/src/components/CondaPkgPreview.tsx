@@ -39,15 +39,19 @@ function sanitizePreviewPackageRow(
   const version =
     r.version !== undefined && r.version !== null ? String(r.version) : '';
   const build_string =
-    r.build_string != null
+    r.build_string !== null
       ? String(r.build_string)
-      : r.build != null
+      : r.build !== null
         ? String(r.build)
         : undefined;
   const channel =
-    r.channel !== undefined && r.channel !== null ? String(r.channel) : undefined;
+    r.channel !== undefined && r.channel !== null
+      ? String(r.channel)
+      : undefined;
   const base_url =
-    r.base_url !== undefined && r.base_url !== null ? String(r.base_url) : undefined;
+    r.base_url !== undefined && r.base_url !== null
+      ? String(r.base_url)
+      : undefined;
   return {
     name,
     version,
@@ -113,9 +117,10 @@ export function MultiCondaTransactionPreview(props: {
     >
       {multi && (
         <div className={Style.Disclaimer}>
-          Several operation types are shown below. Each preview reflects your environment
-          as it is now; running remove, then update, then install in order can produce a
-          slightly different final transaction than these sections combined.
+          Several operation types are shown below. Each preview reflects your
+          environment as it is now; running remove, then update, then install in
+          order can produce a slightly different final transaction than these
+          sections combined.
         </div>
       )}
       {sections.map(s => (
@@ -264,7 +269,10 @@ export async function openPackagePreviewDialog(options: {
   };
 
   const body = ReactWidget.create(
-    <PackagePreviewDialogBody jobs={options.jobs} onReadyChange={onReadyChange} />
+    <PackagePreviewDialogBody
+      jobs={options.jobs}
+      onReadyChange={onReadyChange}
+    />
   );
 
   dialog = new Dialog({
@@ -315,7 +323,7 @@ function packageBuild(pkg: ICondaActionPackage): string {
 }
 
 function packageVersion(pkg: ICondaActionPackage): string {
-  return pkg.version != null && pkg.version !== '' ? String(pkg.version) : '';
+  return pkg.version !== null && pkg.version !== '' ? String(pkg.version) : '';
 }
 
 function packageChannel(pkg: ICondaActionPackage): string {
@@ -464,11 +472,11 @@ function RequestedPackagesSection(props: {
   );
 }
 interface IPreviewRow {
-    kind: 'remove' | 'change' | 'install';
-    name: string;
-    badgeClass: string;
-    badgeText: string;
-    metaLines: string[];
+  kind: 'remove' | 'change' | 'install';
+  name: string;
+  badgeClass: string;
+  badgeText: string;
+  metaLines: string[];
 }
 
 function TransactionPreviewListSection(props: {
@@ -487,21 +495,21 @@ function TransactionPreviewListSection(props: {
         <div className={Style.List}>
           {rows.map(row => (
             <div key={`${row.kind}-${row.name}`} className={Style.Row}>
-              <div
-                className={classes(
-                  Style.Badge,
-                  row.badgeClass
-                )}
-              >
+              <div className={classes(Style.Badge, row.badgeClass)}>
                 {row.badgeText}
               </div>
               <div className={Style.MainCell}>
                 <div className={Style.PackageName}>{row.name}</div>
                 {row.metaLines.map((line, i) => (
-                    <div key={i} className={i === 0 ? Style.PackageMeta : Style.SecondaryMeta}>
+                  <div
+                    key={i}
+                    className={
+                      i === 0 ? Style.PackageMeta : Style.SecondaryMeta
+                    }
+                  >
                     {line}
-                </div>
-            ))}
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -524,28 +532,30 @@ export function CondaTransactionPreview(
 
   const diff = React.useMemo(() => normalizeTransaction(actions), [actions]);
 
-  const removed = diff.removed.map(pkg => ({ 
+  const removed = diff.removed.map(pkg => ({
     kind: 'remove' as const,
     name: pkg.name,
     badgeClass: Style.BadgeDanger,
     badgeText: 'remove',
-    metaLines: [renderPackageLabel(pkg)],
+    metaLines: [renderPackageLabel(pkg)]
   }));
 
-  const changed = diff.changed.map(pkg => ({ 
+  const changed = diff.changed.map(pkg => ({
     kind: 'change' as const,
     name: pkg.name,
     badgeClass: Style.BadgeWarning,
     badgeText: 'change',
-    metaLines: [renderPackageLabel(pkg.oldPkg) + ' -> ' + renderPackageLabel(pkg.newPkg)],
+    metaLines: [
+      renderPackageLabel(pkg.oldPkg) + ' -> ' + renderPackageLabel(pkg.newPkg)
+    ]
   }));
 
-  const installed = diff.installed.map(pkg => ({ 
+  const installed = diff.installed.map(pkg => ({
     kind: 'install' as const,
     name: pkg.name,
     badgeClass: Style.BadgeSuccess,
     badgeText: 'install',
-    metaLines: [renderPackageLabel(pkg)],
+    metaLines: [renderPackageLabel(pkg)]
   }));
 
   const all = [...removed, ...changed, ...installed];
@@ -561,36 +571,35 @@ export function CondaTransactionPreview(
   }
   return (
     <div className={shellClass}>
-        <div className={Style.Title}>{title}</div>
+      <div className={Style.Title}>{title}</div>
 
-        <div className={Style.SummaryGrid}>
+      <div className={Style.SummaryGrid}>
         <div className={Style.SummaryCard}>
-            <div className={Style.SummaryValue}>{diff.removed.length}</div>
-            <div className={Style.SummaryLabel}>Removed</div>
-        </div>
-        <div className={Style.SummaryCard}>
-            <div className={Style.SummaryValue}>{diff.changed.length}</div>
-            <div className={Style.SummaryLabel}>Changed</div>
+          <div className={Style.SummaryValue}>{diff.removed.length}</div>
+          <div className={Style.SummaryLabel}>Removed</div>
         </div>
         <div className={Style.SummaryCard}>
-            <div className={Style.SummaryValue}>{diff.installed.length}</div>
-            <div className={Style.SummaryLabel}>Installed</div>
+          <div className={Style.SummaryValue}>{diff.changed.length}</div>
+          <div className={Style.SummaryLabel}>Changed</div>
         </div>
+        <div className={Style.SummaryCard}>
+          <div className={Style.SummaryValue}>{diff.installed.length}</div>
+          <div className={Style.SummaryLabel}>Installed</div>
         </div>
+      </div>
 
-        <RequestedPackagesSection
+      <RequestedPackagesSection
         requestedPackages={requestedPackages}
         diff={diff}
-        />
+      />
 
-        <TransactionPreviewListSection
+      <TransactionPreviewListSection
         title="Transaction preview"
         emptyText="No packages changes will be made."
         rows={all}
-        />
-
+      />
     </div>
-    );
+  );
 }
 
 namespace Style {

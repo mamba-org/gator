@@ -712,7 +712,13 @@ export class CondaPackage implements Conda.IPackageManager {
         method: 'PATCH'
       };
       const { promise } = Private.requestServer(
-        URLExt.join('conda', 'environments', theEnvironment, 'packages', 'preview'),
+        URLExt.join(
+          'conda',
+          'environments',
+          theEnvironment,
+          'packages',
+          'preview'
+        ),
         request
       );
       const response = await promise;

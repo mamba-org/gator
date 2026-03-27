@@ -22,7 +22,11 @@ export async function dryRunPreview(
   if (!theEnvironment) {
     return false;
   }
-  const toastId = Notification.emit('Previewing package changes', 'in-progress', { autoClose: false });
+  const toastId = Notification.emit(
+    'Previewing package changes',
+    'in-progress',
+    { autoClose: false }
+  );
 
   const result = await pkgModel.dry_run_preview(
     selectedPackages,
@@ -242,11 +246,7 @@ export async function applyPackageChanges(
             title: 'Remove packages',
             requestedPackages: toRemove.map(specBaseName)
           },
-          promise: pkgModel.dry_run_preview(
-            toRemove,
-            'remove',
-            theEnvironment
-          )
+          promise: pkgModel.dry_run_preview(toRemove, 'remove', theEnvironment)
         });
       }
       if (toUpdate.length > 0) {
@@ -256,11 +256,7 @@ export async function applyPackageChanges(
             title: 'Update packages',
             requestedPackages: toUpdate.map(specBaseName)
           },
-          promise: pkgModel.dry_run_preview(
-            toUpdate,
-            'update',
-            theEnvironment
-          )
+          promise: pkgModel.dry_run_preview(toUpdate, 'update', theEnvironment)
         });
       }
       if (toInstall.length > 0) {
@@ -527,7 +523,12 @@ export async function deletePackages(
   let deleteNotification = '';
 
   try {
-    const confirmed = await dryRunPreview(pkgModel, 'remove', packages, theEnvironment);
+    const confirmed = await dryRunPreview(
+      pkgModel,
+      'remove',
+      packages,
+      theEnvironment
+    );
 
     if (confirmed) {
       deleteNotification = Notification.emit(
@@ -586,9 +587,19 @@ export async function updatePackage(
 
     if (version) {
       // How are we taking into account the version here? I don't think it's being properly processed.
-      confirmed = await dryRunPreview(pkgModel, 'install', [packageName + '=' + version], theEnvironment);
+      confirmed = await dryRunPreview(
+        pkgModel,
+        'install',
+        [packageName + '=' + version],
+        theEnvironment
+      );
     } else {
-      confirmed = await dryRunPreview(pkgModel, 'update', [packageName], theEnvironment);
+      confirmed = await dryRunPreview(
+        pkgModel,
+        'update',
+        [packageName],
+        theEnvironment
+      );
     }
 
     if (!confirmed) {
