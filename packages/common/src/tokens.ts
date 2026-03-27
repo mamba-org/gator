@@ -188,6 +188,7 @@ export namespace Conda {
     LINK: IPreviewPkgRow[];
     UNLINK: IPreviewPkgRow[];
     FETCH: IPreviewPkgRow[];
+    has_side_effects: boolean;
   }
 
   /**

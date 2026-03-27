@@ -22,6 +22,25 @@ export async function dryRunPreview(
   if (!theEnvironment) {
     return false;
   }
+  const toastId = Notification.emit('Previewing package changes', 'in-progress', { autoClose: false });
+
+  const result = await pkgModel.dry_run_preview(
+    selectedPackages,
+    action,
+    theEnvironment
+  );
+
+  if (!result.has_side_effects) {
+    Notification.update({
+      id: toastId,
+      message: 'No additional changes needed, applying changes...',
+      type: 'success',
+      autoClose: 2000
+    });
+    Notification.dismiss(toastId);
+
+    return true;
+  }
 
   const previewJob: IPreviewJob[] = [];
 
@@ -32,11 +51,7 @@ export async function dryRunPreview(
         title: 'Preview package changes',
         requestedPackages: selectedPackages
       },
-      promise: pkgModel.dry_run_preview(
-        selectedPackages,
-        action,
-        theEnvironment
-      )
+      promise: Promise.resolve(result)
     });
   }
 
@@ -47,12 +62,7 @@ export async function dryRunPreview(
     acceptLabel: 'Apply'
   });
 
-  if (!confirmed) {
-    return false;
-  } else {
-    return true;
-  }
-
+  return confirmed;
 }
 
 // TODO: Implement?

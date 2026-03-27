@@ -1084,7 +1084,7 @@ class EnvManager:
             return {
                 "LINK": [normalize_preview_pkg(x) for x in act.get("LINK", [])],
                 "UNLINK": [normalize_preview_pkg(x) for x in act.get("UNLINK", [])],
-                "FETCH": [normalize_preview_pkg(x) for x in act.get("FETCH", [])],
+                "FETCH": [normalize_preview_pkg(x) for x in act.get("FETCH", [])]
             }
         if "exception_name" in data:
             return {"error": str(data.get("message", "Package manager dry-run failed"))}
@@ -1097,7 +1097,7 @@ class EnvManager:
     ) -> Dict[str, Any]:
         """Run install|remove|update with --dry-run and return LINK/UNLINK/FETCH."""
         if not packages:
-            return {"LINK": [], "UNLINK": [], "FETCH": []}
+            return {"LINK": [], "UNLINK": [], "FETCH": [], "has_side_effects": False}
         ans = await self._execute(
             self.manager,
             cmd,
@@ -1110,8 +1110,20 @@ class EnvManager:
             *packages,
         )
         _, output = ans
+        print('output is: ', output);
         data = self._clean_conda_json(output)
-        return self._consolidate_dry_run_json(data)
+        result = self._consolidate_dry_run_json(data)
+
+        if "error" not in result:
+            requested_set = {p.split('=')[0] for p in packages}
+            print('requested_set is: ', requested_set);
+            plan_names = {
+                x.get("name", "").strip().lower()
+                for x in result.get("LINK", []) + result.get("UNLINK", [])
+            }
+            result["has_side_effects"] = not plan_names.issubset(requested_set)
+        print('result is: ', result);
+        return result
 
     async def dry_run_preview(
         self, env: str, action: Literal["install", "remove", "update"], packages: List[str]

@@ -700,9 +700,10 @@ export class CondaPackage implements Conda.IPackageManager {
     environment?: string
   ): Promise<Conda.IPreviewTransactionActions> {
     const theEnvironment = environment || this.environment;
+    console.log('packages are: ', packages);
 
     if (theEnvironment === undefined || packages.length === 0) {
-      return { LINK: [], UNLINK: [], FETCH: [] };
+      return { LINK: [], UNLINK: [], FETCH: [], has_side_effects: false };
     }
 
     try {
@@ -727,7 +728,8 @@ export class CondaPackage implements Conda.IPackageManager {
             : [],
           FETCH: Array.isArray(data.FETCH)
             ? (data.FETCH as Conda.IPreviewPkgRow[])
-            : []
+            : [],
+          has_side_effects: data.has_side_effects as boolean
         } as Conda.IPreviewTransactionActions;
       }
 
