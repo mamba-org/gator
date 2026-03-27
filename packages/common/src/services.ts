@@ -1022,7 +1022,10 @@ namespace Private {
    * Turn a failed HTTP response body into a message for the UI.
    * Multi-field JSON (task exceptions, solver metadata) is pretty-printed in full.
    */
-  export function formatHttpErrorBody(text: string, response: Response): string {
+  export function formatHttpErrorBody(
+    text: string,
+    response: Response
+  ): string {
     const trimmed = text.trim();
     if (!trimmed) {
       return response.statusText || `Request failed (${response.status})`;

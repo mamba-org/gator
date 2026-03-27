@@ -65,7 +65,6 @@ export async function dryRunPreview(
   } // when error is present, display in toast when dialog is going to pop up then dismiss the toast
   Notification.dismiss(toastId);
 
-
   const previewJob: IPreviewJob[] = [];
 
   if (selectedPackages.length > 0) {
