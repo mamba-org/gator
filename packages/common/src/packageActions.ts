@@ -28,11 +28,28 @@ export async function dryRunPreview(
     { autoClose: false }
   );
 
-  const result = await pkgModel.dry_run_preview(
-    selectedPackages,
-    action,
-    theEnvironment
-  );
+  let result: Conda.IPreviewTransactionActions;
+
+  try {
+    result = await pkgModel.dry_run_preview(
+      selectedPackages,
+      action,
+      theEnvironment
+    );
+  } catch (error) {
+    console.error('Error when previewing package changes: ', error);
+    if (error !== 'cancelled') {
+      Notification.update({
+        id: toastId,
+        message: (error as any).message,
+        type: 'error',
+        autoClose: 2000
+      })
+    } else {
+      Notification.dismiss(toastId);
+    }
+    return false;
+  }
 
   if (!result.has_side_effects) {
     Notification.update({
@@ -44,7 +61,9 @@ export async function dryRunPreview(
     Notification.dismiss(toastId);
 
     return true;
-  }
+  } // when error is present, display in toast when dialog is going to pop up then dismiss the toast
+  Notification.dismiss(toastId);
+
 
   const previewJob: IPreviewJob[] = [];
 
@@ -521,15 +540,22 @@ export async function deletePackages(
   }
 
   let deleteNotification = '';
+  let confirmed = false;
 
   try {
-    const confirmed = await dryRunPreview(
+    confirmed = await dryRunPreview(
       pkgModel,
       'remove',
       packages,
       theEnvironment
     );
+  } catch (error) {
+    if (error !== 'cancelled') {
+      console.error('Error when deleting the packages.', error);
+    }
+  }
 
+  try {
     if (confirmed) {
       deleteNotification = Notification.emit(
         `Deleting ${packages.length} packages in ${theEnvironment}.`,
