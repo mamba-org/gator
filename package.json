@@ -58,7 +58,8 @@
     "@jupyterlab/application": "^4.0.0",
     "merge@^1.2.0": "^2.1.1",
     "picomatch@^4.0.2": "^4.0.4",
-    "picomatch@^2.3.1": "^2.3.2"
+    "picomatch@^2.3.1": "^2.3.2",
+    "d3-color": "^3.1.0"
   },
   "workspaces": {
     "packages": [
