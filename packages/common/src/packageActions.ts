@@ -79,7 +79,7 @@ export async function dryRunPreview(
   }
 
   const confirmed = await openPackagePreviewDialog({
-    title: 'Review package changes',
+    title: 'Preview package changes',
     jobs: previewJob,
     acceptLabel: 'Apply'
   });
@@ -293,7 +293,7 @@ export async function applyPackageChanges(
       }
 
       const confirmed = await openPackagePreviewDialog({
-        title: 'Review package changes',
+        title: 'Preview package changes',
         jobs: previewJobs,
         acceptLabel: 'Apply'
       });

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Dialog } from '@jupyterlab/apputils';
 import { classes, style } from 'typestyle';
-import { NestedCSSProperties } from 'typestyle/lib/types';
 import { Conda } from '../tokens';
 import { ReactWidget } from '../utils';
 
@@ -427,10 +426,10 @@ function renderPackageLabel(pkg: ICondaActionPackage): string {
   return build ? `${pkg.name} ${ver} (${build})` : `${pkg.name} ${ver}`;
 }
 
-// function renderChannel(pkg: ICondaActionPackage): string | null {
-//   const channel = packageChannel(pkg);
-//   return channel || null;
-// }
+function previewSpecBaseName(spec: string): string {
+  const idx = spec.search(/[=<>]/);
+  return (idx === -1 ? spec : spec.slice(0, idx)).trim();
+}
 
 function RequestedPackagesSection(props: {
   requestedPackages: string[];
@@ -443,7 +442,7 @@ function RequestedPackagesSection(props: {
   }
 
   const requestedSet = new Set(
-    requestedPackages.map(n => transactionMatchKey(n))
+    requestedPackages.map(n => transactionMatchKey(previewSpecBaseName(n)))
   );
 
   const matches = [
@@ -459,9 +458,7 @@ function RequestedPackagesSection(props: {
       .map(item => ({
         name: item.name,
         label: 'Change',
-        detail: `${renderPackageLabel(item.oldPkg)} -> ${renderPackageLabel(
-          item.newPkg
-        )}`
+        detail: `${renderPackageLabel(item.oldPkg)} \u2192 ${renderPackageLabel(item.newPkg)}`
       })),
     ...diff.installed
       .filter(pkg => requestedSet.has(transactionMatchKey(pkg.name)))
@@ -495,50 +492,78 @@ function RequestedPackagesSection(props: {
     </section>
   );
 }
-interface IPreviewRow {
-  kind: 'remove' | 'change' | 'install';
+
+interface ITableRow {
   name: string;
-  badgeClass: string;
-  badgeText: string;
-  metaLines: string[];
+  action: 'added' | 'modified' | 'removed';
+  currentVersion: string;
+  newVersion: string;
+  channel: string;
 }
 
-function TransactionPreviewListSection(props: {
+function actionBadgeInfo(action: 'added' | 'modified' | 'removed'): {
+  label: string;
+  className: string;
+} {
+  switch (action) {
+    case 'added':
+      return { label: '+ Added', className: Style.BadgeSuccess };
+    case 'modified':
+      return { label: '\u270E Modified', className: Style.BadgeWarning };
+    case 'removed':
+      return { label: '\u00D7 Removed', className: Style.BadgeDanger };
+  }
+}
+
+function PreviewTable(props: {
   title: string;
-  emptyText: string;
-  rows: IPreviewRow[];
-}): JSX.Element {
-  const { title, emptyText, rows } = props;
+  rows: ITableRow[];
+}): JSX.Element | null {
+  const { title, rows } = props;
+  if (rows.length === 0) {
+    return null;
+  }
 
   return (
     <section className={Style.Section}>
       <div className={Style.SectionTitle}>{title}</div>
-      {rows.length === 0 ? (
-        <div className={Style.EmptyState}>{emptyText}</div>
-      ) : (
-        <div className={Style.List}>
-          {rows.map(row => (
-            <div key={`${row.kind}-${row.name}`} className={Style.Row}>
-              <div className={classes(Style.Badge, row.badgeClass)}>
-                {row.badgeText}
-              </div>
-              <div className={Style.MainCell}>
-                <div className={Style.PackageName}>{row.name}</div>
-                {row.metaLines.map((line, i) => (
-                  <div
-                    key={i}
-                    className={
-                      i === 0 ? Style.PackageMeta : Style.SecondaryMeta
-                    }
-                  >
-                    {line}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <table className={Style.Table}>
+        <thead>
+          <tr className={Style.TableHeaderRow}>
+            <th
+              className={classes(Style.TableHeaderCell, Style.TableCellIndex)}
+            />
+            <th className={Style.TableHeaderCell}>Name</th>
+            <th className={Style.TableHeaderCell}>Action</th>
+            <th className={Style.TableHeaderCell}>Current</th>
+            <th className={Style.TableHeaderCell}>New</th>
+            <th className={Style.TableHeaderCell}>Channel</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => {
+            const badge = actionBadgeInfo(row.action);
+            return (
+              <tr key={`${row.name}-${i}`} className={Style.TableRow}>
+                <td className={classes(Style.TableCell, Style.TableCellIndex)}>
+                  {i + 1}
+                </td>
+                <td className={classes(Style.TableCell, Style.TableCellName)}>
+                  <span className={Style.PackageName}>{row.name}</span>
+                </td>
+                <td className={Style.TableCell}>
+                  <span className={classes(Style.Badge, badge.className)}>
+                    {badge.label}
+                  </span>
+                </td>
+                <td className={Style.TableCell}>{row.currentVersion}</td>
+                <td className={Style.TableCell}>{row.newVersion}</td>
+                <td className={Style.TableCell}>{row.channel}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </section>
   );
 }
@@ -556,46 +581,67 @@ export function CondaTransactionPreview(
 
   const diff = React.useMemo(() => normalizeTransaction(actions), [actions]);
 
-  const removed = diff.removed.map(pkg => ({
-    kind: 'remove' as const,
-    name: pkg.name,
-    badgeClass: Style.BadgeDanger,
-    badgeText: 'remove',
-    metaLines: [renderPackageLabel(pkg)]
-  }));
+  const requestedSet = new Set(
+    requestedPackages.map(n => transactionMatchKey(previewSpecBaseName(n)))
+  );
 
-  const changed = diff.changed.map(pkg => ({
-    kind: 'change' as const,
-    name: pkg.name,
-    badgeClass: Style.BadgeWarning,
-    badgeText: 'change',
-    metaLines: [
-      renderPackageLabel(pkg.oldPkg) + ' -> ' + renderPackageLabel(pkg.newPkg)
-    ]
-  }));
+  const dependencyRows: ITableRow[] = [];
+  const showInTable = (name: string): boolean =>
+    requestedSet.size === 0 || !requestedSet.has(transactionMatchKey(name));
 
-  const installed = diff.installed.map(pkg => ({
-    kind: 'install' as const,
-    name: pkg.name,
-    badgeClass: Style.BadgeSuccess,
-    badgeText: 'install',
-    metaLines: [renderPackageLabel(pkg)]
-  }));
+  for (const pkg of diff.removed) {
+    if (showInTable(pkg.name)) {
+      dependencyRows.push({
+        name: pkg.name,
+        action: 'removed',
+        currentVersion: packageVersion(pkg) || '-',
+        newVersion: '-',
+        channel: packageChannel(pkg) || '-'
+      });
+    }
+  }
+  for (const item of diff.changed) {
+    if (showInTable(item.name)) {
+      dependencyRows.push({
+        name: item.name,
+        action: 'modified',
+        currentVersion: packageVersion(item.oldPkg) || '-',
+        newVersion: packageVersion(item.newPkg) || '-',
+        channel: packageChannel(item.newPkg) || '-'
+      });
+    }
+  }
+  for (const pkg of diff.installed) {
+    if (showInTable(pkg.name)) {
+      dependencyRows.push({
+        name: pkg.name,
+        action: 'added',
+        currentVersion: '-',
+        newVersion: packageVersion(pkg) || '-',
+        channel: packageChannel(pkg) || '-'
+      });
+    }
+  }
 
-  const all = [...removed, ...changed, ...installed];
+  const tableTitle =
+    requestedPackages.length > 0
+      ? `${dependencyRows.length} package dependenc${dependencyRows.length !== 1 ? 'ies' : 'y'} will be modified:`
+      : 'Transaction preview';
+
   const shellClass = embedded ? Style.EmbeddedContainer : Style.Container;
 
   if (isLoading) {
     return (
       <div className={shellClass}>
-        <div className={Style.Title}>{title}</div>
+        {embedded && <div className={Style.Title}>{title}</div>}
         <div className={Style.EmptyState}>Loading transaction preview...</div>
       </div>
     );
   }
+
   return (
     <div className={shellClass}>
-      <div className={Style.Title}>{title}</div>
+      {embedded && <div className={Style.Title}>{title}</div>}
 
       <div className={Style.SummaryGrid}>
         <div className={Style.SummaryCard}>
@@ -617,11 +663,17 @@ export function CondaTransactionPreview(
         diff={diff}
       />
 
-      <TransactionPreviewListSection
-        title="Transaction preview"
-        emptyText="No packages changes will be made."
-        rows={all}
-      />
+      {dependencyRows.length > 0 && (
+        <PreviewTable title={tableTitle} rows={dependencyRows} />
+      )}
+
+      {diff.removed.length === 0 &&
+        diff.changed.length === 0 &&
+        diff.installed.length === 0 && (
+          <div className={Style.EmptyState}>
+            No package changes will be made.
+          </div>
+        )}
     </div>
   );
 }
@@ -631,7 +683,7 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    minWidth: 'min(560px, 90vw)',
+    minWidth: 'min(620px, 90vw)',
     maxHeight: '480px',
     overflowY: 'auto',
     color: 'var(--jp-ui-font-color1)'
@@ -645,7 +697,7 @@ namespace Style {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    minWidth: 'min(560px, 86vw)',
+    minWidth: 'min(620px, 90vw)',
     maxHeight: 'min(520px, 80vh)',
     color: 'var(--jp-ui-font-color1)'
   });
@@ -715,7 +767,7 @@ namespace Style {
   export const Container = style({
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '16px',
     padding: '12px',
     color: 'var(--jp-ui-font-color1)',
     background: 'var(--jp-layout-color1)',
@@ -726,7 +778,7 @@ namespace Style {
   export const EmbeddedContainer = style({
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '14px',
     padding: '10px 12px',
     color: 'var(--jp-ui-font-color1)',
     background: 'var(--jp-layout-color2)',
@@ -773,8 +825,64 @@ namespace Style {
 
   export const SectionTitle = style({
     fontSize: 'var(--jp-ui-font-size1)',
+    fontWeight: 500,
+    color: 'var(--jp-ui-font-color1)'
+  });
+
+  export const Table = style({
+    width: '100%',
+    borderCollapse: 'collapse',
+    border: '1px solid var(--jp-border-color2)',
+    borderRadius: '6px',
+    overflow: 'hidden',
+    fontSize: 'var(--jp-ui-font-size1)'
+  });
+
+  export const TableHeaderRow = style({
+    background: 'var(--jp-layout-color2)'
+  });
+
+  export const TableHeaderCell = style({
+    padding: '8px 12px',
+    textAlign: 'left',
+    fontWeight: 600,
+    fontSize: 'var(--jp-ui-font-size1)',
+    color: 'var(--jp-ui-font-color0)',
+    borderBottom: '2px solid var(--jp-border-color2)'
+  });
+
+  export const TableRow = style({
+    borderBottom: '1px solid var(--jp-border-color3)',
+    background: 'var(--jp-layout-color1)',
+    $nest: {
+      '&:last-child': {
+        borderBottom: 'none'
+      }
+    }
+  });
+
+  export const TableCell = style({
+    padding: '8px 12px',
+    verticalAlign: 'middle',
+    color: 'var(--jp-ui-font-color1)'
+  });
+
+  export const TableCellIndex = style({
+    width: '32px',
+    textAlign: 'center',
+    color: 'var(--jp-ui-font-color2)',
+    fontWeight: 500
+  });
+
+  export const TableCellName = style({
     fontWeight: 600,
     color: 'var(--jp-ui-font-color0)'
+  });
+
+  export const PackageName = style({
+    fontWeight: 600,
+    color: 'var(--jp-ui-font-color0)',
+    wordBreak: 'break-word'
   });
 
   export const List = style({
@@ -785,21 +893,18 @@ namespace Style {
     overflow: 'hidden'
   });
 
-  const rowBase: NestedCSSProperties = {
+  export const Row = style({
     display: 'flex',
     alignItems: 'flex-start',
     gap: '10px',
     padding: '10px 12px',
     borderBottom: '1px solid var(--jp-border-color3)',
+    background: 'var(--jp-layout-color1)',
     $nest: {
       '&:last-child': {
         borderBottom: 'none'
       }
     }
-  };
-
-  export const Row = style(rowBase, {
-    background: 'var(--jp-layout-color1)'
   });
 
   export const MainCell = style({
@@ -810,21 +915,9 @@ namespace Style {
     flex: '1 1 auto'
   });
 
-  export const PackageName = style({
-    fontWeight: 600,
-    color: 'var(--jp-ui-font-color0)',
-    wordBreak: 'break-word'
-  });
-
   export const PackageMeta = style({
     fontSize: 'var(--jp-ui-font-size0)',
     color: 'var(--jp-ui-font-color1)',
-    wordBreak: 'break-word'
-  });
-
-  export const SecondaryMeta = style({
-    fontSize: 'var(--jp-ui-font-size0)',
-    color: 'var(--jp-ui-font-color2)',
     wordBreak: 'break-word'
   });
 
@@ -837,14 +930,16 @@ namespace Style {
   });
 
   export const Badge = style({
-    flex: '0 0 auto',
-    minWidth: '64px',
-    textAlign: 'center',
+    display: 'inline-block',
     fontSize: '11px',
     fontWeight: 600,
-    padding: '3px 8px',
+    padding: '2px 8px',
     borderRadius: '999px',
-    border: '1px solid transparent'
+    border: '1px solid transparent',
+    whiteSpace: 'nowrap',
+    flex: '0 0 auto',
+    minWidth: '64px',
+    textAlign: 'center'
   });
 
   export const BadgeDanger = style({
@@ -854,9 +949,9 @@ namespace Style {
   });
 
   export const BadgeWarning = style({
-    color: 'var(--jp-warn-color2)',
+    color: 'var(--jp-warn-color0)',
     background: 'var(--jp-warn-color3)',
-    borderColor: 'var(--jp-warn-color2)'
+    borderColor: 'var(--jp-warn-color1)'
   });
 
   export const BadgeSuccess = style({
