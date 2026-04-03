@@ -690,7 +690,8 @@ namespace Style {
   });
 
   export const MultiOuterUnbounded = style({
-    maxHeight: 'none'
+    maxHeight: 'none',
+    overflowY: 'visible'
   });
 
   export const DialogBodyShell = style({
@@ -699,15 +700,15 @@ namespace Style {
     gap: '12px',
     minWidth: 'min(620px, 90vw)',
     maxHeight: 'min(520px, 80vh)',
-    color: 'var(--jp-ui-font-color1)'
+    flex: '1 1 auto',
+    color: 'var(--jp-ui-font-color1)',
+    overflow: 'visible'
   });
 
   export const DialogBodyScroll = style({
     flex: '1 1 auto',
     minHeight: '200px',
-    maxHeight: 'min(440px, 72vh)',
-    overflowY: 'auto',
-    overflowX: 'hidden'
+    overflow: 'visible'
   });
 
   export const PreviewLoadingWrap = style({
@@ -771,8 +772,7 @@ namespace Style {
     padding: '12px',
     color: 'var(--jp-ui-font-color1)',
     background: 'var(--jp-layout-color1)',
-    minHeight: 0,
-    overflowY: 'auto'
+    minHeight: 0
   });
 
   export const EmbeddedContainer = style({
