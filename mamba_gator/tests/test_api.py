@@ -1859,3 +1859,47 @@ async def test_delete_task(conda_fetch, wait_for_task):
             await delete_env(conda_fetch, wait_for_task, env_name)
         except Exception:
             pass
+
+async def test_preview_install_task_completes(conda_fetch, wait_for_task):
+    """Preview install task eventually returns 200 with LINK/UNLINK/FETCH."""
+    body = {"action": "install", "packages": ["numpy"]}
+    response = await conda_fetch(
+        "environments", "base", "packages", "preview",
+        method="PATCH", body=json.dumps(body)
+    )
+    assert response.code == 202
+    location = response.headers.get("Location")
+    result_response = await wait_for_task(location)
+    assert result_response.code == 200
+    data = json.loads(result_response.body)
+    assert "LINK" in data
+    assert "UNLINK" in data
+    assert "FETCH" in data
+    assert "has_side_effects" in data
+
+async def test_preview_mocked_dry_run(conda_fetch, wait_for_task):
+    """Test preview with mocked _execute to control dry-run output."""
+    dry_run_output = json.dumps({
+        "actions": {
+            "LINK": [{"name": "numpy", "version": "1.24.0", "channel": "conda-forge"}],
+            "UNLINK": [{"name": "numpy", "version": "1.23.0", "channel": "conda-forge"}],
+            "FETCH": [{"name": "numpy", "version": "1.24.0", "dist_name": "numpy-1.24.0-py311h_0"}],
+        }
+    })
+    with mock.patch("mamba_gator.envmanager.EnvManager._execute", new_callable=AsyncMock) as f:
+        f.return_value = (0, dry_run_output)
+        body = {"action": "update", "packages": ["numpy"]}
+        response = await conda_fetch(
+            "environments", "base", "packages", "preview",
+            method="PATCH", body=json.dumps(body)
+        )
+        assert response.code == 202
+        location = response.headers.get("Location")
+        result_response = await wait_for_task(location)
+    
+    assert result_response.code == 200
+    data = json.loads(result_response.body)
+    assert len(data["LINK"]) == 1
+    assert len(data["UNLINK"]) == 1
+    assert data["LINK"][0]["name"] == "numpy"
+    assert "has_side_effects" in data

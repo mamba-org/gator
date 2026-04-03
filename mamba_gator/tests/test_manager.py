@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from packaging.version import Version, InvalidVersion
 
-from mamba_gator.envmanager import EnvManager, parse_version
+from mamba_gator.envmanager import EnvManager, parse_version, normalize_preview_pkg
 
 from .utils import has_mamba
 
@@ -49,6 +49,41 @@ def test_parse_standard_semantic_version_unchanged():
     result = parse_version("1.21.0")
     assert result == Version("1.21.0")
 
+@pytest.mark.parametrize("raw,expected_name,expected_version", [
+    ({"name": "  numpy ", "version": "1.24.0", "build_string": "py311h", "channel": "conda-forge"}, "numpy", "1.24.0"),
+    ({"name": "pandas", "version": 2.0, "build": "hab123", "dist_name": "pandas-2.0", "base_url": "https://conda.anaconda.org/conda-forge"}, "pandas", "2.0"),
+    ({}, None, None),
+])
+def test_normalize_preview_pkg(raw, expected_name, expected_version):
+    result = normalize_preview_pkg(raw)
+    assert result["name"] == expected_name
+    assert result["version"] == expected_version
+    assert "dist_name" in result
+    assert "base_url" in result
+
+def test_consolidate_empty_data():
+    manager = EnvManager("", None)
+    assert manager._consolidate_dry_run_json({}) == {"LINK": [], "UNLINK": [], "FETCH": []}
+
+def test_consolidate_error_true():
+    manager = EnvManager("", None)
+    result = manager._consolidate_dry_run_json({"error": True})
+    assert "error" in result
+
+def test_consolidate_with_actions():
+    manager = EnvManager("", None)
+    data = {
+        "actions": {
+            "LINK": [{"name": "numpy", "version": "1.24.0", "channel": "conda-forge"}],
+            "UNLINK": [{"name": "numpy", "version": "1.23.0", "channel": "conda-forge"}],
+            "FETCH": [{"name": "numpy", "version": "1.24.0", "dist_name": "numpy-1.24.0", "base_url": "https://..."}],
+        }
+    }
+    result = manager._consolidate_dry_run_json(data)
+    assert len(result["LINK"]) == 1
+    assert len(result["UNLINK"]) == 1
+    assert len(result["FETCH"]) == 1
+    assert result["LINK"][0]["name"] == "numpy"
 
 async def test_list_available_returns_valid_structure():
     """Test that list_available returns the expected data structure."""
