@@ -1110,19 +1110,18 @@ class EnvManager:
             *packages,
         )
         _, output = ans
-        print('output is: ', output);
+
         data = self._clean_conda_json(output)
         result = self._consolidate_dry_run_json(data)
 
         if "error" not in result:
             requested_set = {p.split('=')[0] for p in packages}
-            print('requested_set is: ', requested_set);
             plan_names = {
                 x.get("name", "").strip().lower()
                 for x in result.get("LINK", []) + result.get("UNLINK", [])
             }
             result["has_side_effects"] = not plan_names.issubset(requested_set)
-        print('result is: ', result);
+
         return result
 
     async def dry_run_preview(
