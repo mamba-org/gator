@@ -311,7 +311,10 @@ class PackagesEnvironmentHandler(EnvBaseHandler):
         """
         body = self.get_json_body() or {}
         packages = body.get("packages", ["--all"])
-        idx = self._stack.put(self.env_manager.update_packages, env, packages)
+        if packages == ["--all"]:
+            idx = self._stack.put(self.env_manager.update_packages, env, packages)
+        else:
+            idx = self._stack.put(self.env_manager.install_packages, env, packages)
         self.redirect_to_task(idx)
 
     @tornado.web.authenticated
