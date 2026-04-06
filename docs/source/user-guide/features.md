@@ -388,13 +388,13 @@ A scrollable, sortable table displaying packages with columns:
 
 ### Preview Package Changes
 
-When applying changes, users see a pop-up dialog that provides a summary of the side-effects
-to packages in an environment based on the requested changes. If there are no additional changes
-to packages in the environment, other than the requested changes, the dialog is not displayed.
-The preview dialog provides a summary count of packages removed, installed and changed, as well 
-as a section with the requested package changed followed by a list of the additional packages 
-changes with more details about those changes. Based on the preview, users can continue to apply
-those changes or cancel the operation.
+When applying changes, users see a pop-up dialog that provides a summary of the side effects
+on packages in an environment based on the requested changes. If there are no additional changes
+to packages in the environment other than the requested changes, the dialog is not displayed.
+The preview dialog provides a summary count of packages removed, installed, and changed, as well
+as a section showing the requested package changes followed by a list of changes to additional
+packages, with more details about those changes. Based on the preview, users can continue to apply
+the changes or cancel the operation.
 
 ```{image} ../_static/images/preview-package-changes-dialog.png
 :alt: Screenshot of the package changes preview dialog with details on package side-effects
