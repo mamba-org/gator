@@ -87,18 +87,6 @@ export async function dryRunPreview(
   return confirmed;
 }
 
-// TODO: Implement?
-// export async function dryRunPreviewBatch(
-//   pkgModel: Conda.IPackageManager,
-//   updatePackages: string[],
-//   installPackages: string[],
-//   deletePackages: string[],
-//   environment?: string
-// ) {
-//   const theEnvironment = environment || pkgModel.environment;
-//   console.log('theEnvironment', theEnvironment);
-// }
-
 /**
  * Update all packages in an environment
  *

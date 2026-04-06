@@ -700,7 +700,6 @@ export class CondaPackage implements Conda.IPackageManager {
     environment?: string
   ): Promise<Conda.IPreviewTransactionActions> {
     const theEnvironment = environment || this.environment;
-    console.log('packages are: ', packages);
 
     if (theEnvironment === undefined || packages.length === 0) {
       return { LINK: [], UNLINK: [], FETCH: [], has_side_effects: false };
