@@ -38,9 +38,9 @@ function sanitizePreviewPackageRow(
   const version =
     r.version !== undefined && r.version !== null ? String(r.version) : '';
   const build_string =
-    r.build_string !== null
+    r.build_string !== undefined && r.build_string !== null
       ? String(r.build_string)
-      : r.build !== null
+      : r.build !== undefined && r.build !== null
         ? String(r.build)
         : undefined;
   const channel =
