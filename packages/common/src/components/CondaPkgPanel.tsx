@@ -460,7 +460,6 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    // TODO: Handle the case where the user cancels the update: show a notification here rather than in the packageActions.ts file
     try {
       this.setState({
         searchTerm: '',
@@ -490,7 +489,6 @@ export class CondaPkgPanel extends React.Component<
       return;
     }
 
-    // TODO: Handle the case where the user cancels the modifications: show a notification here rather than in the packageActions.ts file
     try {
       this.setState({
         searchTerm: '',

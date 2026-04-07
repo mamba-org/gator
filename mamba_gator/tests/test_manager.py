@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from packaging.version import Version, InvalidVersion
 
-from mamba_gator.envmanager import EnvManager, parse_version
+from mamba_gator.envmanager import EnvManager, parse_version, normalize_preview_pkg
 
 from .utils import has_mamba
 
@@ -48,6 +48,80 @@ def test_parse_standard_semantic_version_unchanged():
     """Test that standard semantic versions pass through unchanged."""
     result = parse_version("1.21.0")
     assert result == Version("1.21.0")
+
+@pytest.mark.parametrize("raw,expected_name,expected_version", [
+    ({"name": "  numpy ", "version": "1.24.0", "build_string": "py311h", "channel": "conda-forge"}, "numpy", "1.24.0"),
+    ({"name": "pandas", "version": 2.0, "build": "hab123", "dist_name": "pandas-2.0", "base_url": "https://conda.anaconda.org/conda-forge"}, "pandas", "2.0"),
+    ({}, None, None),
+])
+def test_normalize_preview_pkg(raw, expected_name, expected_version):
+    result = normalize_preview_pkg(raw)
+    assert result["name"] == expected_name
+    assert result["version"] == expected_version
+    assert "dist_name" in result
+    assert "base_url" in result
+
+def test_consolidate_empty_data():
+    manager = EnvManager("", None)
+    assert manager._consolidate_dry_run_json({}) == {"LINK": [], "UNLINK": [], "FETCH": []}
+
+def test_consolidate_error_true():
+    manager = EnvManager("", None)
+    result = manager._consolidate_dry_run_json({"error": True})
+    assert "error" in result
+
+def test_consolidate_with_actions():
+    manager = EnvManager("", None)
+    data = {
+        "actions": {
+            "LINK": [{"name": "numpy", "version": "1.24.0", "channel": "conda-forge"}],
+            "UNLINK": [{"name": "numpy", "version": "1.23.0", "channel": "conda-forge"}],
+            "FETCH": [{"name": "numpy", "version": "1.24.0", "dist_name": "numpy-1.24.0", "base_url": "https://..."}],
+        }
+    }
+    result = manager._consolidate_dry_run_json(data)
+    assert len(result["LINK"]) == 1
+    assert len(result["UNLINK"]) == 1
+    assert len(result["FETCH"]) == 1
+    assert result["LINK"][0]["name"] == "numpy"
+
+@pytest.mark.parametrize("packages,link_names,expected_side_effects", [
+    # exact match, no side effects
+    (["numpy"], ["numpy"], False),
+    # dependency pulled in -> side effects
+    (["numpy"], ["numpy", "libopenblas"], True),
+    # version-pinned with ==
+    (["numpy==1.24"], ["numpy"], False),
+    # >=  operator
+    (["python>=3.10"], ["python"], False),
+    # != operator
+    (["python!=3.14.0"], ["python"], False),
+    # <= operator
+    (["python<=3.12"], ["python"], False),
+    # channel-qualified spec
+    (["conda-forge::numpy>=1.20"], ["numpy"], False),
+    # mixed case in request
+    (["NumPy"], ["numpy"], False),
+    # multiple packages, one extra dep
+    (["numpy", "pandas>=2.0"], ["numpy", "pandas", "python-dateutil"], True),
+    # single = (conda legacy pinning)
+    (["numpy=1.24"], ["numpy"], False),
+])
+async def test_dry_run_has_side_effects(packages, link_names, expected_side_effects):
+    """Verify has_side_effects is computed correctly for various spec formats."""
+    from unittest import mock
+    from unittest.mock import AsyncMock
+    import json
+
+    link_records = [{"name": n, "version": "1.0", "channel": "defaults"} for n in link_names]
+    dry_run_output = json.dumps({"actions": {"LINK": link_records, "UNLINK": [], "FETCH": []}})
+
+    manager = EnvManager("", None)
+    with mock.patch.object(manager, "_execute", new_callable=AsyncMock) as exe:
+        exe.return_value = (0, dry_run_output)
+        result = await manager._dry_run_command("base", "install", packages)
+
+    assert result["has_side_effects"] is expected_side_effects
 
 
 async def test_list_available_returns_valid_structure():

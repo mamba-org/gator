@@ -1,5 +1,91 @@
 import { Notification, showDialog } from '@jupyterlab/apputils';
+import {
+  formatPreviewErrorForDialog,
+  IPreviewJob,
+  openPackagePreviewDialog
+} from './components/CondaPkgPreview';
 import { Conda } from './tokens';
+
+/** Base package name from a conda spec (e.g. `numpy=1.2` -> `numpy`). */
+function specBaseName(spec: string): string {
+  const idx = spec.search(/[=<>]/);
+  return (idx === -1 ? spec : spec.slice(0, idx)).trim();
+}
+
+export async function dryRunPreview(
+  pkgModel: Conda.IPackageManager,
+  action: 'install' | 'remove' | 'update',
+  selectedPackages: string[],
+  environment?: string
+): Promise<boolean> {
+  const theEnvironment = environment || pkgModel.environment;
+
+  if (!theEnvironment) {
+    return false;
+  }
+  const toastId = Notification.emit(
+    'Previewing package changes',
+    'in-progress',
+    { autoClose: false }
+  );
+
+  let result: Conda.IPreviewTransactionActions;
+
+  try {
+    result = await pkgModel.dry_run_preview(
+      selectedPackages,
+      action,
+      theEnvironment
+    );
+  } catch (error) {
+    console.error('Error when previewing package changes: ', error);
+    if (error !== 'cancelled') {
+      Notification.update({
+        id: toastId,
+        message: formatPreviewErrorForDialog(error),
+        type: 'error',
+        autoClose: 5000
+      });
+    } else {
+      Notification.dismiss(toastId);
+    }
+    return false;
+  }
+
+  if (!result.has_side_effects) {
+    Notification.update({
+      id: toastId,
+      message: 'No additional changes needed, applying changes...',
+      type: 'success',
+      autoClose: 2000
+    });
+    Notification.dismiss(toastId);
+
+    return true;
+  } // when error is present, display in toast when dialog is going to pop up then dismiss the toast
+  Notification.dismiss(toastId);
+
+  const previewJob: IPreviewJob[] = [];
+
+  if (selectedPackages.length > 0) {
+    previewJob.push({
+      section: {
+        id: 'preview',
+        title: 'Preview package changes',
+        requestedPackages: selectedPackages
+      },
+      promise: Promise.resolve(result)
+    });
+  }
+
+  const confirmed = await openPackagePreviewDialog({
+    title: 'Preview package changes',
+    jobs: previewJob,
+    acceptLabel: 'Apply'
+  });
+
+  return confirmed;
+}
 
 /**
  * Update all packages in an environment
@@ -101,14 +187,106 @@ export async function applyPackageChanges(
   }
 
   let toastId = '';
+  // Get modified pkgs
+  const toRemove: Array<string> = [];
+  const toUpdate: Array<string> = [];
+  const toInstall: Array<string> = [];
+  const skipped: Array<string> = [];
+
+  selectedPackages.forEach(pkg => {
+    if (isDirectUpdate) {
+      if (pkg.version_installed && pkg.updatable) {
+        toUpdate.push(pkg.name);
+      } else if (pkg.version_installed && !pkg.updatable) {
+        skipped.push(pkg.name);
+      } else {
+        // New package
+        toInstall.push(pkg.name);
+      }
+    } else {
+      if (pkg.version_installed && pkg.version_selected === 'none') {
+        toRemove.push(pkg.name);
+      } else if (pkg.updatable && pkg.version_selected === '') {
+        toUpdate.push(pkg.name);
+      } else {
+        toInstall.push(
+          pkg.version_selected && pkg.version_selected !== 'auto'
+            ? pkg.name + '=' + pkg.version_selected
+            : pkg.name
+        );
+      }
+    }
+  });
+
+  if (skipped.length > 0) {
+    const skippedList =
+      skipped.length <= 3
+        ? skipped.join(', ')
+        : `${skipped.slice(0, 3).join(', ')} and ${skipped.length - 3} more`;
+    Notification.info(
+      `Skipped ${skipped.length} package${
+        skipped.length > 1 ? 's' : ''
+      } already at latest version: ${skippedList}`,
+      { autoClose: 6000 }
+    );
+  }
+
+  if (
+    toRemove.length === 0 &&
+    toUpdate.length === 0 &&
+    toInstall.length === 0
+  ) {
+    return false;
+  }
+
   try {
     if (!skipConfirmation) {
-      const confirmation = await showDialog({
-        title: 'Packages actions',
-        body: 'Please confirm you want to apply the selected actions?'
+      const previewJobs: IPreviewJob[] = [];
+
+      // Can't really use dryRunPreview here since dryRunPreview calls openPackagePreviewDialog
+      // Leave as is OR create dryRunPreviewBatch function OR further split up dryRunPreview?
+      if (toRemove.length > 0) {
+        previewJobs.push({
+          section: {
+            id: 'remove',
+            title: 'Remove packages',
+            requestedPackages: toRemove.map(specBaseName)
+          },
+          promise: pkgModel.dry_run_preview(toRemove, 'remove', theEnvironment)
+        });
+      }
+      if (toUpdate.length > 0) {
+        previewJobs.push({
+          section: {
+            id: 'update',
+            title: 'Update packages',
+            requestedPackages: toUpdate.map(specBaseName)
+          },
+          promise: pkgModel.dry_run_preview(toUpdate, 'update', theEnvironment)
+        });
+      }
+      if (toInstall.length > 0) {
+        previewJobs.push({
+          section: {
+            id: 'install',
+            title: 'Install packages',
+            requestedPackages: toInstall.map(specBaseName)
+          },
+          promise: pkgModel.dry_run_preview(
+            toInstall,
+            'install',
+            theEnvironment
+          )
+        });
+      }
+
+      const confirmed = await openPackagePreviewDialog({
+        title: 'Preview package changes',
+        jobs: previewJobs,
+        acceptLabel: 'Apply'
       });
 
-      if (!confirmation.button.accept) {
+      if (!confirmed) {
         return false;
       }
     }
@@ -124,50 +302,6 @@ export async function applyPackageChanges(
     });
 
     toastId = Notification.emit('Starting packages actions', 'in-progress');
-
-    // Get modified pkgs
-    const toRemove: Array<string> = [];
-    const toUpdate: Array<string> = [];
-    const toInstall: Array<string> = [];
-    const skipped: Array<string> = [];
-
-    selectedPackages.forEach(pkg => {
-      if (isDirectUpdate) {
-        if (pkg.version_installed && pkg.updatable) {
-          toUpdate.push(pkg.name);
-        } else if (pkg.version_installed && !pkg.updatable) {
-          skipped.push(pkg.name);
-        } else {
-          // New package
-          toInstall.push(pkg.name);
-        }
-      } else {
-        if (pkg.version_installed && pkg.version_selected === 'none') {
-          toRemove.push(pkg.name);
-        } else if (pkg.updatable && pkg.version_selected === '') {
-          toUpdate.push(pkg.name);
-        } else {
-          toInstall.push(
-            pkg.version_selected && pkg.version_selected !== 'auto'
-              ? pkg.name + '=' + pkg.version_selected
-              : pkg.name
-          );
-        }
-      }
-    });
-
-    if (skipped.length > 0) {
-      const skippedList =
-        skipped.length <= 3
-          ? skipped.join(', ')
-          : `${skipped.slice(0, 3).join(', ')} and ${skipped.length - 3} more`;
-      Notification.info(
-        `Skipped ${skipped.length} package${
-          skipped.length > 1 ? 's' : ''
-        } already at latest version: ${skippedList}`,
-        { autoClose: 6000 }
-      );
-    }
 
     if (toRemove.length > 0) {
       Notification.update({
@@ -337,12 +471,14 @@ export async function deletePackage(
   let deleteNotification = '';
 
   try {
-    const confirmation = await showDialog({
-      title: 'Delete package',
-      body: `Please confirm you want to delete ${packageName}?`
-    });
+    const confirmed = await dryRunPreview(
+      pkgModel,
+      'remove',
+      [packageName],
+      theEnvironment
+    );
 
-    if (confirmation.button.accept) {
+    if (confirmed) {
       deleteNotification = Notification.emit(
         `Deleting package ${packageName} in ${theEnvironment}.`,
         'in-progress'
@@ -391,14 +527,23 @@ export async function deletePackages(
   }
 
   let deleteNotification = '';
+  let confirmed = false;
 
   try {
-    const confirmation = await showDialog({
-      title: 'Delete packages',
-      body: `Please confirm you want to delete ${packages.length} packages?`
-    });
+    confirmed = await dryRunPreview(
+      pkgModel,
+      'remove',
+      packages,
+      theEnvironment
+    );
+  } catch (error) {
+    if (error !== 'cancelled') {
+      console.error('Error when deleting the packages.', error);
+    }
+  }
 
-    if (confirmation.button.accept) {
+  try {
+    if (confirmed) {
       deleteNotification = Notification.emit(
         `Deleting ${packages.length} packages in ${theEnvironment}.`,
         'in-progress'
@@ -449,7 +594,31 @@ export async function updatePackage(
   }
 
   let toastId = '';
+
   try {
+    let confirmed: boolean;
+
+    if (version) {
+      // How are we taking into account the version here? I don't think it's being properly processed.
+      confirmed = await dryRunPreview(
+        pkgModel,
+        'install',
+        [packageName + '=' + version],
+        theEnvironment
+      );
+    } else {
+      confirmed = await dryRunPreview(
+        pkgModel,
+        'update',
+        [packageName],
+        theEnvironment
+      );
+    }
+
+    if (!confirmed) {
+      return;
+    }
+
     toastId = Notification.emit('Updating package', 'in-progress', {
       autoClose: false
     });

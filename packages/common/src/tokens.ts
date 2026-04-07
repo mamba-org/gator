@@ -168,6 +168,30 @@ export namespace Conda {
   }
 
   /**
+   * One row from conda/mamba --dry-run JSON (LINK / UNLINK / FETCH).
+   */
+  export interface IPreviewPkgRow {
+    name: string;
+    version?: string;
+    build_number?: number;
+    build_string?: string;
+    channel?: string;
+    platform?: string;
+    dist_name?: string;
+    base_url?: string;
+  }
+
+  /**
+   * Normalized dry-run transaction preview returned by the server.
+   */
+  export interface IPreviewTransactionActions {
+    LINK: IPreviewPkgRow[];
+    UNLINK: IPreviewPkgRow[];
+    FETCH: IPreviewPkgRow[];
+    has_side_effects: boolean;
+  }
+
+  /**
    * Interface of the packages service
    */
   export interface IPackageManager {
@@ -225,6 +249,18 @@ export namespace Conda {
      * @param environment Environment name
      */
     update(packages: Array<string>, environment?: string): Promise<void>;
+    /**
+     * Preview solver actions (conda --dry-run) for packages.
+     *
+     * @param packages List of packages to be changed
+     * @param action Action to be performed
+     * @param environment Environment name
+     */
+    dry_run_preview(
+      packages: Array<string>,
+      action: 'install' | 'remove' | 'update',
+      environment?: string
+    ): Promise<IPreviewTransactionActions>;
     /**
      * Remove packages
      *
