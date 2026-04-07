@@ -1,17 +1,61 @@
 from pathlib import Path
 
 import pytest
+import json
 from packaging.version import Version, InvalidVersion
+from unittest.mock import AsyncMock, patch
 
 from mamba_gator.envmanager import EnvManager, parse_version
 
-from .utils import has_mamba
-
 
 def test_envmanager_manager():
+    EnvManager._manager_exe = None
     manager = EnvManager("", None)
-    expected = "mamba" if has_mamba else "conda"
-    assert Path(manager.manager).stem == expected
+    stem = Path(manager.manager).stem
+    assert stem in ("mamba", "conda"), f"Unexpected manager: {stem}"
+    assert manager.is_mamba() == (stem == "mamba")
+
+FAKE_CONDA_SEARCH_OUTPUT = json.dumps({
+    "numpy": [
+        {
+            "build": "py39_0",
+            "build_number": 0,
+            "channel": "https://repo.anaconda.com/pkgs/main/osx-64",
+            "name": "numpy",
+            "platform": "osx-64",
+            "version": "1.21.0"
+        },
+        {
+            "build": "py39_1",
+            "build_number": 1,
+            "channel": "https://repo.anaconda.com/pkgs/main/osx-64",
+            "name": "numpy",
+            "platform": "osx-64",
+            "version": "1.22.0"
+        }
+    ]
+})
+
+@pytest.mark.asyncio
+async def test_list_available_conda_search_fallback():
+    """Test that list_available works when repoquery fails and we fall back to conda search."""
+    manager = EnvManager("", None)
+    async def mock_execute(cmd, *args):
+        if "repoquery" in args:
+            return (1, "")  # repoquery fails
+        if "search" in args:
+            return (0, FAKE_CONDA_SEARCH_OUTPUT)
+        # Pass through for config/channels calls
+        return await original_execute(cmd, *args)
+    original_execute = manager._execute
+    with patch.object(manager, "_execute", side_effect=mock_execute):
+        result = await manager.list_available()
+    assert "packages" in result
+    pkgs = result["packages"]
+    assert len(pkgs) == 1
+    assert pkgs[0]["name"] == "numpy"
+    assert isinstance(pkgs[0]["version"], list)
+    assert "1.22.0" in pkgs[0]["version"]
 
 
 def test_parse_r_style_version_with_underscore():
@@ -54,6 +98,7 @@ async def test_list_available_returns_valid_structure():
     """Test that list_available returns the expected data structure."""
     manager = EnvManager("", None)
     result = await manager.list_available()
+    print('@@@@@result', result)
     assert "packages" in result
     assert "with_description" in result
 

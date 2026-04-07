@@ -1135,10 +1135,7 @@ async def test_package_list_available(conda_fetch, wait_for_task):
             assert response.code == 200
 
             args, _ = f.call_args_list[0]
-            if has_mamba:
-                assert args[1:] == ("repoquery", "search", "*", "--json")
-            else:
-                assert args[1:] == ("search", "--json")
+            assert args[1:] == ("repoquery", "search", "*", "--json")
 
             body = json.loads(response.body)
 
@@ -1354,10 +1351,7 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
                 assert response.code == 200
 
                 args, _ = f.call_args_list[0]
-                if has_mamba:
-                    assert args[1:] == ("repoquery", "search", "*", "--json")
-                else:
-                    assert args[1:] == ("search", "--json")
+                assert args[1:] == ("repoquery", "search", "*", "--json")
 
                 body = json.loads(response.body)
 
@@ -1559,10 +1553,7 @@ async def test_package_list_available_no_description(conda_fetch, wait_for_task)
                 assert response.code == 200
 
                 args, _ = f.call_args_list[0]
-                if has_mamba:
-                    assert args[1:] == ("repoquery", "search", "*", "--json")
-                else:
-                    assert args[1:] == ("search", "--json")
+                assert args[1:] == ("repoquery", "search", "*", "--json")
 
                 body = json.loads(response.body)
 
@@ -1772,10 +1763,7 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
             assert response.code == 200
 
             args, _ = f.call_args_list[0]
-            if has_mamba:
-                assert args[1:] == ("repoquery", "search", "*", "--json")
-            else:
-                assert args[1:] == ("search", "--json")
+            assert args[1:] == ("repoquery", "search", "*", "--json")
 
             expected = {
                 "packages": [

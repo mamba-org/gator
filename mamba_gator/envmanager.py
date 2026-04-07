@@ -766,7 +766,7 @@ class EnvManager:
 
             return data_
 
-        if self.is_mamba():
+        if rcode == 0:
             data = await current_loop.run_in_executor(None, process_mamba_repoquery_output, data)
 
         def format_packages(data: Dict) -> List:
