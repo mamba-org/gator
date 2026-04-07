@@ -1115,7 +1115,10 @@ class EnvManager:
         result = self._consolidate_dry_run_json(data)
 
         if "error" not in result:
-            requested_set = {p.split('=')[0] for p in packages}
+            requested_set = {
+                re.split(r"[><=!]", p.rsplit("::", 1)[-1], 1)[0].strip().lower()
+                for p in packages
+            }
             plan_names = {
                 x.get("name", "").strip().lower()
                 for x in result.get("LINK", []) + result.get("UNLINK", [])

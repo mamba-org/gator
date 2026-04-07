@@ -85,6 +85,45 @@ def test_consolidate_with_actions():
     assert len(result["FETCH"]) == 1
     assert result["LINK"][0]["name"] == "numpy"
 
+@pytest.mark.parametrize("packages,link_names,expected_side_effects", [
+    # exact match, no side effects
+    (["numpy"], ["numpy"], False),
+    # dependency pulled in -> side effects
+    (["numpy"], ["numpy", "libopenblas"], True),
+    # version-pinned with ==
+    (["numpy==1.24"], ["numpy"], False),
+    # >=  operator
+    (["python>=3.10"], ["python"], False),
+    # != operator
+    (["python!=3.14.0"], ["python"], False),
+    # <= operator
+    (["python<=3.12"], ["python"], False),
+    # channel-qualified spec
+    (["conda-forge::numpy>=1.20"], ["numpy"], False),
+    # mixed case in request
+    (["NumPy"], ["numpy"], False),
+    # multiple packages, one extra dep
+    (["numpy", "pandas>=2.0"], ["numpy", "pandas", "python-dateutil"], True),
+    # single = (conda legacy pinning)
+    (["numpy=1.24"], ["numpy"], False),
+])
+async def test_dry_run_has_side_effects(packages, link_names, expected_side_effects):
+    """Verify has_side_effects is computed correctly for various spec formats."""
+    from unittest import mock
+    from unittest.mock import AsyncMock
+    import json
+
+    link_records = [{"name": n, "version": "1.0", "channel": "defaults"} for n in link_names]
+    dry_run_output = json.dumps({"actions": {"LINK": link_records, "UNLINK": [], "FETCH": []}})
+
+    manager = EnvManager("", None)
+    with mock.patch.object(manager, "_execute", new_callable=AsyncMock) as exe:
+        exe.return_value = (0, dry_run_output)
+        result = await manager._dry_run_command("base", "install", packages)
+
+    assert result["has_side_effects"] is expected_side_effects
+
+
 async def test_list_available_returns_valid_structure():
     """Test that list_available returns the expected data structure."""
     manager = EnvManager("", None)
