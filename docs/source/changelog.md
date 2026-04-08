@@ -1,5 +1,22 @@
 # Changelog
 
+## 6.1.1
+
+- Features:
+  - **Package actions preview**: Dialog that previews the resolved install/update/remove changes (dry-run)
+- Bug fixes/tooling:
+  - Fix navigator clean command after Lerna changes
+  - Fix tbump configuration
+  - Binder: postBuild uses jlpm; drop yarn from Binder deps
+  - Pin Husky to major 8 to avoid breaking pre-commit hooks
+  - ESLint / Prettier / lint cleanups
+- Dependencies / build:
+  - Routine JS dependency updates and resolutions
+  - Bump Node.js version used in the project/CI
+  - Bump Lerna; add Jest-related deps for the labextension package per new Lerna behavior
+- Documentation:
+  - README badge/link updates; docs version driven from the mamba_gator package version
+
 ## 6.1.0
 
 - Features:
