@@ -41,7 +41,9 @@ export async function dryRunPreview(
   } catch (error) {
     console.error('Error when previewing package changes: ', error);
     const fullError = formatPreviewErrorForDialog(error);
-    const firstLine = fullError.split('\n')[0];
+    const firstNewline = fullError.indexOf('\n');
+    const firstLine =
+      firstNewline === -1 ? fullError : fullError.slice(0, firstNewline);
 
     if (error !== 'cancelled') {
       Notification.update({
