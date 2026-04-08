@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dialog } from '@jupyterlab/apputils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { classes, style } from 'typestyle';
 import { Conda } from '../tokens';
 import { ReactWidget } from '../utils';
@@ -326,6 +326,31 @@ export async function openPackagePreviewDialog(options: {
   }
 }
 
+export function openPreviewErrorDialog(errorText: string): void {
+  const body = ReactWidget.create(
+    <div
+      style={{
+        maxHeight: 'min(400px, 60vh)',
+        overflowY: 'auto',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        fontFamily: 'var(--jp-code-font-family)',
+        fontSize: 'var(--jp-ui-font-size1)',
+        lineHeight: 1.45,
+        color: 'var(--jp-error-color1)',
+        padding: '12px'
+      }}
+    >
+      {errorText}
+    </div>
+  );
+
+  showDialog({
+    title: 'Package change preview error',
+    body,
+    buttons: [Dialog.okButton({ label: 'Ok' })]
+  });
+}
 type ChangeKind = 'changed' | 'rebuild' | 'channel-change';
 
 interface IChangedPackage {
