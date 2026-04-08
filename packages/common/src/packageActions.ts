@@ -2,6 +2,7 @@ import { Notification, showDialog } from '@jupyterlab/apputils';
 import {
   formatPreviewErrorForDialog,
   IPreviewJob,
+  openPreviewErrorDialog,
   openPackagePreviewDialog
 } from './components/CondaPkgPreview';
 import { Conda } from './tokens';
@@ -39,12 +40,23 @@ export async function dryRunPreview(
     );
   } catch (error) {
     console.error('Error when previewing package changes: ', error);
+    const fullError = formatPreviewErrorForDialog(error);
+    const firstLine = fullError.split('\n')[0];
+
     if (error !== 'cancelled') {
       Notification.update({
         id: toastId,
-        message: formatPreviewErrorForDialog(error),
+        message: firstLine,
         type: 'error',
-        autoClose: 5000
+        autoClose: false,
+        actions: [
+          {
+            label: 'Show details',
+            callback: () => {
+              openPreviewErrorDialog(fullError);
+            }
+          }
+        ]
       });
     } else {
       Notification.dismiss(toastId);
@@ -243,8 +255,6 @@ export async function applyPackageChanges(
     if (!skipConfirmation) {
       const previewJobs: IPreviewJob[] = [];
 
-      // Can't really use dryRunPreview here since dryRunPreview calls openPackagePreviewDialog
-      // Leave as is OR create dryRunPreviewBatch function OR further split up dryRunPreview?
       if (toRemove.length > 0) {
         previewJobs.push({
           section: {

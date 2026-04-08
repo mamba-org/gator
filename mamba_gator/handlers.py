@@ -481,7 +481,7 @@ class TaskHandler(EnvBaseHandler):
             else:
                 if "error" in r:
                     self.set_status(500)
-                    self.log.debug("{}".format(r))
+                    self.log.error("{}".format(r))
                 else:
                     self.set_status(200)
                 self.finish(json.dumps(r))
