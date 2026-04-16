@@ -5905,13 +5905,13 @@ __metadata:
   linkType: hard
 
 "axios@npm:^1.12.0":
-  version: 1.13.6
-  resolution: "axios@npm:1.13.6"
+  version: 1.15.0
+  resolution: "axios@npm:1.15.0"
   dependencies:
     follow-redirects: ^1.15.11
     form-data: ^4.0.5
-    proxy-from-env: ^1.1.0
-  checksum: 72e94640e34aa9b591a47a9cc1798a1e18f179e15e39276514dd73f6d910981bdb2117c649da858bd72fc34d91db4f84318f88c8d306e395cd4ef5d6f142ab70
+    proxy-from-env: ^2.1.0
+  checksum: 95a8455554867a083ab3772fcadba42a22ec4bb546dccc66011556d837a07e544ae006675a30a5c43453f3e37e7c0982e934cec482c06b75abead2a2c157448a
   languageName: node
   linkType: hard
 
@@ -13566,10 +13566,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proxy-from-env@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "proxy-from-env@npm:1.1.0"
-  checksum: ed7fcc2ba0a33404958e34d95d18638249a68c430e30fcb6c478497d72739ba64ce9810a24f53a7d921d0c065e5b78e3822759800698167256b04659366ca4d4
+"proxy-from-env@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "proxy-from-env@npm:2.1.0"
+  checksum: b106ad790f26d47ba4791af3fe8cba5c8d35d85020119c82c05b413eb11b3ab97d2393ecaed51bca97c2788fa256408283dfeb4d970b2ebcae6702310f064e7e
   languageName: node
   linkType: hard
 
@@ -15478,21 +15478,21 @@ __metadata:
 
 "typescript@patch:typescript@>=3 < 6#~builtin<compat/typescript>":
   version: 5.9.3
-  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=85af82"
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 8bb8d86819ac86a498eada254cad7fb69c5f74778506c700c2a712daeaff21d3a6f51fd0d534fe16903cb010d1b74f89437a3d02d4d0ff5ca2ba9a4660de8497
+  checksum: a5a6dc399d3761ded54192031f11d3ad5df8001c7febe3fbbc8098efcb552cdf8f2f402b3618c56dafcd04fef63dee005f4900f608e185404caedc46480539ed
   languageName: node
   linkType: hard
 
 "typescript@patch:typescript@~5.0.2#~builtin<compat/typescript>":
   version: 5.0.4
-  resolution: "typescript@patch:typescript@npm%3A5.0.4#~builtin<compat/typescript>::version=5.0.4&hash=85af82"
+  resolution: "typescript@patch:typescript@npm%3A5.0.4#~builtin<compat/typescript>::version=5.0.4&hash=b5f058"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: bb309d320c59a26565fb3793dba550576ab861018ff3fd1b7fccabbe46ae4a35546bc45f342c0a0b6f265c801ccdf64ffd68f548f117ceb7f0eac4b805cd52a9
+  checksum: d26b6ba97b6d163c55dbdffd9bbb4c211667ebebc743accfeb2c8c0154aace7afd097b51165a72a5bad2cf65a4612259344ff60f8e642362aa1695c760d303ac
   languageName: node
   linkType: hard
 
