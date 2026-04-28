@@ -327,9 +327,6 @@ export async function applyPackageChanges(
           autoClose: 2000
         });
       }
-      if (previewAllNotification) {
-        Notification.dismiss(previewAllNotification);
-      }
 
       if (
         removePreview.has_side_effects ||
@@ -358,6 +355,9 @@ export async function applyPackageChanges(
       }
     });
 
+    if (previewAllNotification) {
+      Notification.dismiss(previewAllNotification);
+    }
     toastId = Notification.emit('Starting packages actions', 'in-progress');
 
     if (toRemove.length > 0) {
@@ -406,21 +406,43 @@ export async function applyPackageChanges(
 
     return true;
   } catch (error) {
-    if (previewAllNotification) {
-      Notification.dismiss(previewAllNotification);
-    }
+    console.error('Error when applying package changes: ', error);
+    const fullError = formatPreviewErrorForDialog(error);
+    const firstNewLine = fullError.indexOf('\n');
+    const firstLine =
+      firstNewLine === -1 ? fullError : fullError.slice(0, firstNewLine);
 
     if (error !== 'cancelled') {
-      console.error(error);
       if (toastId) {
+        if (previewAllNotification) {
+          Notification.dismiss(previewAllNotification);
+        }
         Notification.update({
           id: toastId,
-          message: (error as any).message,
+          message: firstLine,
           type: 'error',
-          autoClose: 0
+          autoClose: false,
+          actions: [
+            {
+              label: 'Show details',
+              callback: () => {
+                openPreviewErrorDialog(fullError);
+              }
+            }
+          ]
         });
       } else {
-        Notification.error((error as any).message);
+        Notification.emit(firstLine, 'error', {
+          autoClose: false,
+          actions: [
+            {
+              label: 'Show details',
+              callback: () => {
+                openPreviewErrorDialog(fullError);
+              }
+            }
+          ]
+        });
       }
 
       // Emit failed signal
@@ -430,12 +452,15 @@ export async function applyPackageChanges(
         status: 'failed',
         details: {
           packagesAffected: selectedPackages.length,
-          error: (error as any).message
+          error: firstLine
         }
       });
     } else {
       if (toastId) {
         Notification.dismiss(toastId);
+      }
+      if (previewAllNotification) {
+        Notification.dismiss(previewAllNotification);
       }
     }
 
