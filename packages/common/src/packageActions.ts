@@ -340,6 +340,9 @@ export async function applyPackageChanges(
         });
 
         if (!confirmed) {
+          if (previewAllNotification) {
+            Notification.dismiss(previewAllNotification);
+          }
           return false;
         }
       }
