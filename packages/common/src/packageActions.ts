@@ -253,9 +253,36 @@ export async function applyPackageChanges(
     return false;
   }
 
+  let previewAllNotification: string | undefined;
+
   try {
     if (!skipConfirmation) {
       const previewJobs: IPreviewJob[] = [];
+
+      // Emit notification about the preview jobs
+      previewAllNotification = Notification.emit(
+        'Previewing package changes',
+        'in-progress',
+        {
+          autoClose: false
+        }
+      );
+
+      const removePreview = await pkgModel.dry_run_preview(
+        toRemove,
+        'remove',
+        theEnvironment
+      );
+      const updatePreview = await pkgModel.dry_run_preview(
+        toUpdate,
+        'update',
+        theEnvironment
+      );
+      const installPreview = await pkgModel.dry_run_preview(
+        toInstall,
+        'install',
+        theEnvironment
+      );
 
       if (toRemove.length > 0) {
         previewJobs.push({
@@ -264,7 +291,7 @@ export async function applyPackageChanges(
             title: 'Remove packages',
             requestedPackages: toRemove.map(specBaseName)
           },
-          promise: pkgModel.dry_run_preview(toRemove, 'remove', theEnvironment)
+          promise: Promise.resolve(removePreview)
         });
       }
       if (toUpdate.length > 0) {
@@ -274,7 +301,7 @@ export async function applyPackageChanges(
             title: 'Update packages',
             requestedPackages: toUpdate.map(specBaseName)
           },
-          promise: pkgModel.dry_run_preview(toUpdate, 'update', theEnvironment)
+          promise: Promise.resolve(updatePreview)
         });
       }
       if (toInstall.length > 0) {
@@ -284,22 +311,40 @@ export async function applyPackageChanges(
             title: 'Install packages',
             requestedPackages: toInstall.map(specBaseName)
           },
-          promise: pkgModel.dry_run_preview(
-            toInstall,
-            'install',
-            theEnvironment
-          )
+          promise: Promise.resolve(installPreview)
         });
       }
 
-      const confirmed = await openPackagePreviewDialog({
-        title: 'Preview package changes',
-        jobs: previewJobs,
-        acceptLabel: 'Apply'
-      });
+      if (
+        !removePreview.has_side_effects &&
+        !updatePreview.has_side_effects &&
+        !installPreview.has_side_effects
+      ) {
+        Notification.update({
+          id: previewAllNotification,
+          message: 'No additional changes needed, applying changes...',
+          type: 'success',
+          autoClose: 2000
+        });
+      }
 
-      if (!confirmed) {
-        return false;
+      if (
+        removePreview.has_side_effects ||
+        updatePreview.has_side_effects ||
+        installPreview.has_side_effects
+      ) {
+        const confirmed = await openPackagePreviewDialog({
+          title: 'Preview package changes',
+          jobs: previewJobs,
+          acceptLabel: 'Apply'
+        });
+
+        if (!confirmed) {
+          if (previewAllNotification) {
+            Notification.dismiss(previewAllNotification);
+          }
+          return false;
+        }
       }
     }
 
@@ -313,6 +358,9 @@ export async function applyPackageChanges(
       }
     });
 
+    if (previewAllNotification) {
+      Notification.dismiss(previewAllNotification);
+    }
     toastId = Notification.emit('Starting packages actions', 'in-progress');
 
     if (toRemove.length > 0) {
@@ -361,17 +409,43 @@ export async function applyPackageChanges(
 
     return true;
   } catch (error) {
+    console.error('Error when applying package changes: ', error);
+    const fullError = formatPreviewErrorForDialog(error);
+    const firstNewLine = fullError.indexOf('\n');
+    const firstLine =
+      firstNewLine === -1 ? fullError : fullError.slice(0, firstNewLine);
+
     if (error !== 'cancelled') {
-      console.error(error);
       if (toastId) {
+        if (previewAllNotification) {
+          Notification.dismiss(previewAllNotification);
+        }
         Notification.update({
           id: toastId,
-          message: (error as any).message,
+          message: firstLine,
           type: 'error',
-          autoClose: 0
+          autoClose: false,
+          actions: [
+            {
+              label: 'Show details',
+              callback: () => {
+                openPreviewErrorDialog(fullError);
+              }
+            }
+          ]
         });
       } else {
-        Notification.error((error as any).message);
+        Notification.emit(firstLine, 'error', {
+          autoClose: false,
+          actions: [
+            {
+              label: 'Show details',
+              callback: () => {
+                openPreviewErrorDialog(fullError);
+              }
+            }
+          ]
+        });
       }
 
       // Emit failed signal
@@ -381,12 +455,15 @@ export async function applyPackageChanges(
         status: 'failed',
         details: {
           packagesAffected: selectedPackages.length,
-          error: (error as any).message
+          error: firstLine
         }
       });
     } else {
       if (toastId) {
         Notification.dismiss(toastId);
+      }
+      if (previewAllNotification) {
+        Notification.dismiss(previewAllNotification);
       }
     }
 
