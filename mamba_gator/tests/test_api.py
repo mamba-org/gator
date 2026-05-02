@@ -1122,11 +1122,16 @@ async def test_package_list_available(conda_fetch, wait_for_task):
 
             if has_mamba:
                 dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
-
-            f.side_effect = [
-                (0, json.dumps(dummy)),
-                (0, json.dumps(channels)),
-            ]
+                f.side_effect = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
+            else:
+                f.side_effect = [
+                    (1, "repoquery not available")
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
 
             response = await conda_fetch("packages", method="GET")
             assert response.code == 202
@@ -1134,10 +1139,11 @@ async def test_package_list_available(conda_fetch, wait_for_task):
             response = await wait_for_task(location)
             assert response.code == 200
 
-            args, _ = f.call_args_list[0]
-            if has_mamba:
+            if has_mambe:
+                args, _ = f.call_args_list[0]
                 assert args[1:] == ("repoquery", "search", "*", "--json")
             else:
+                args, _ = f.call_args_list[1]
                 assert args[1:] == ("search", "--json")
 
             body = json.loads(response.body)
@@ -1308,6 +1314,16 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
 
             if has_mamba:
                 dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
+                f.side_effect = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
+            else:
+                f.side_effect = [
+                    (1, "repoquery not available")
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
 
             with tempfile.TemporaryDirectory() as local_channel:
                 with open(os.path.join(local_channel, "channeldata.json"), "w+") as d:
@@ -1353,10 +1369,11 @@ async def test_package_list_available_local_channel(conda_fetch, wait_for_task):
                 response = await wait_for_task(location)
                 assert response.code == 200
 
-                args, _ = f.call_args_list[0]
-                if has_mamba:
+                if has_mambe:
+                    args, _ = f.call_args_list[0]
                     assert args[1:] == ("repoquery", "search", "*", "--json")
                 else:
+                    args, _ = f.call_args_list[1]
                     assert args[1:] == ("search", "--json")
 
                 body = json.loads(response.body)
@@ -1527,6 +1544,16 @@ async def test_package_list_available_no_description(conda_fetch, wait_for_task)
 
             if has_mamba:
                 dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
+                f.side_effect = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
+            else:
+                f.side_effect = [
+                    (1, "repoquery not available")
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
 
             with tempfile.TemporaryDirectory() as local_channel:
                 local_name = local_channel.strip("/")
@@ -1558,10 +1585,11 @@ async def test_package_list_available_no_description(conda_fetch, wait_for_task)
                 response = await wait_for_task(location)
                 assert response.code == 200
 
-                args, _ = f.call_args_list[0]
-                if has_mamba:
+                if has_mambe:
+                    args, _ = f.call_args_list[0]
                     assert args[1:] == ("repoquery", "search", "*", "--json")
                 else:
+                    args, _ = f.call_args_list[1]
                     assert args[1:] == ("search", "--json")
 
                 body = json.loads(response.body)
@@ -1758,11 +1786,16 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
 
             if has_mamba:
                 dummy = {"result": {"pkgs": list(chain(*dummy.values()))}}
-
-            f.side_effect = [
-                (0, json.dumps(dummy)),
-                (0, json.dumps(channels)),
-            ]
+                f.side_effect = [
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
+            else:
+                f.side_effect = [
+                    (1, "repoquery not available")
+                    (0, json.dumps(dummy)),
+                    (0, json.dumps(channels)),
+                ]
 
             # First retrieval - no cache available
             response = await conda_fetch("packages", method="GET")
@@ -1771,10 +1804,11 @@ async def test_package_list_available_caching(conda_fetch, wait_for_task):
             response = await wait_for_task(location)
             assert response.code == 200
 
-            args, _ = f.call_args_list[0]
-            if has_mamba:
+            if has_mambe:
+                args, _ = f.call_args_list[0]
                 assert args[1:] == ("repoquery", "search", "*", "--json")
             else:
+                args, _ = f.call_args_list[1]
                 assert args[1:] == ("search", "--json")
 
             expected = {
